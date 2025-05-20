@@ -1,0 +1,20 @@
+# .github/workflows/add-milestone.yml
+name: Add Milestone
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [closed]
+    branches: [main]
+jobs:
+  add-milestone:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Add Milestone By Due Date
+        uses: benelan/milestone-action@v3.1.0
+        with:
+          farthest: false    # 最も近い期日のマイルストーンを割り当て
+          overwrite: false   # 既存マイルストーンがあればスキップ
+          single: false      # 単一マイルストーン時のみ無視せず割り当て
