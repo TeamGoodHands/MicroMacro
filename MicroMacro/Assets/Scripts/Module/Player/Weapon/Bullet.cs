@@ -1,5 +1,6 @@
 ﻿using System;
 using Constants;
+using Module.Scaling;
 using UnityEngine;
 
 namespace Module.Player.Weapon
@@ -7,8 +8,8 @@ namespace Module.Player.Weapon
     public class Bullet : MonoBehaviour
     {
         [SerializeField] private Rigidbody rigBody;
-        [SerializeField] private bool isMacro;
-        [SerializeField] private float disappearDistance = 10f;
+        [SerializeField] private int scaleStep;
+        [SerializeField] private float disappearDistance;
 
         public event Action OnHit;
         private Camera mainCamera;
@@ -35,6 +36,11 @@ namespace Module.Player.Weapon
         private void OnTriggerEnter(Collider other)
         {
             // TODO: ここにスケール処理を書く   
+            if (other.TryGetComponent(out Scaler scaler))
+            {
+                scaler.Scale(scaleStep).Forget();
+            }
+
             Disable();
         }
 
@@ -48,7 +54,7 @@ namespace Module.Player.Weapon
         {
             OnHit?.Invoke();
             OnHit = null;
-            
+
             rigBody.linearVelocity = Vector3.zero;
         }
     }
