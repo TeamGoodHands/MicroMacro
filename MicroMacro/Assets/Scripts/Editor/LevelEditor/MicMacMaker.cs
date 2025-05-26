@@ -8,6 +8,9 @@ using UnityEngine.UIElements;
 
 namespace Editor.LevelEditor
 {
+    /// <summary>
+    /// レベルエディタ
+    /// </summary>
     public class MicMacMaker : EditorWindow
     {
         private const string DictionaryPath = "Assets/Settings/LevelObjectDictionary.asset";
@@ -28,7 +31,7 @@ namespace Editor.LevelEditor
 
             var tabView = new TabView();
             var categories = AssetDatabase.LoadAssetAtPath<LevelObjectCategories>(DictionaryPath);
-
+            
             foreach (LevelObjectCategories.ObjectCategory category in categories.ObjectCategories)
             {
                 LevelObjectGroup group = new LevelObjectGroup(category.Name);
