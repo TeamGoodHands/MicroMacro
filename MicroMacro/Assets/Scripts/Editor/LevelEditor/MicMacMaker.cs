@@ -16,6 +16,7 @@ namespace Editor.LevelEditor
         private const string DictionaryPath = "Assets/Settings/LevelObjectDictionary.asset";
         private Dictionary<Tab, LevelObjectGroup> levelObjectGroups = new Dictionary<Tab, LevelObjectGroup>();
         private float createdTime;
+        private LevelObjectGroup selectedGroup;
 
         [MenuItem("Tools/MicMacMaker")]
         private static void CreateWindow()
@@ -26,14 +27,27 @@ namespace Editor.LevelEditor
 
         public void CreateGUI()
         {
+            var buttonElements = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row
+                }
+            };
+
             // Refreshボタン作成
             var refreshButton = CreateRefreshButton();
-            rootVisualElement.Add(refreshButton);
+            // Eraseボタン作成
+            var eraseButton = CreateEraseButton();
+            buttonElements.Add(refreshButton);
+            buttonElements.Add(eraseButton);
+
+            rootVisualElement.Add(buttonElements);
 
             // タブビューの作成
             var tabView = new TabView();
             var categories = AssetDatabase.LoadAssetAtPath<MicMacMakerSettings>(DictionaryPath);
-            
+
             foreach (MicMacMakerSettings.ObjectCategory category in categories.ObjectCategories)
             {
                 LevelObjectGroup group = new LevelObjectGroup(category.Name);
@@ -47,11 +61,13 @@ namespace Editor.LevelEditor
             {
                 levelObjectGroups[before].ResetButtonGroup();
                 levelObjectGroups[before].ResetSelectedButton();
+
+                selectedGroup = levelObjectGroups[after];
             };
 
             rootVisualElement.Add(tabView);
+            selectedGroup = levelObjectGroups.First().Value;
         }
-
 
 
         private Button CreateRefreshButton()
@@ -74,7 +90,32 @@ namespace Editor.LevelEditor
                 style =
                 {
                     width = 80f,
-                    height = 30f
+                    height = 30f,
+                    marginBottom = 4f,
+                    marginTop = 4f,
+                    marginLeft = 0f,
+                    marginRight = 0f,
+                }
+            };
+        }
+
+        private Button CreateEraseButton()
+        {
+            return new Button(() =>
+            {
+                selectedGroup.ResetButtonGroup();
+                selectedGroup.ResetSelectedButton();
+            })
+            {
+                text = "Erase",
+                style =
+                {
+                    width = 80f,
+                    height = 30f,
+                    marginBottom = 4f,
+                    marginTop = 4f,
+                    marginLeft = 0f,
+                    marginRight = 0f,
                 }
             };
         }

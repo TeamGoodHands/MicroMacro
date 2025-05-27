@@ -22,6 +22,11 @@ namespace Editor.LevelEditor
             this.name = name;
             previewTextureCreator = new PreviewTextureCreator();
             objectPlacer = new ObjectPlacer();
+            objectPlacer.OnSequenceCanceled += () =>
+            {
+                ResetButtonGroup();
+                ResetSelectedButton();
+            };
         }
 
         public Tab CreateTab(GameObject[] prefabs)
@@ -61,8 +66,7 @@ namespace Editor.LevelEditor
 
                     if (selectedButton == button)
                     {
-                        selectedButton = null;
-                        objectPlacer.StopPlaceSequence();
+                        ResetSelectedButton();
                     }
                     else
                     {
