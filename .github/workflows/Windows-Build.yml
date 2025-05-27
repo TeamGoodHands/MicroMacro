@@ -1,0 +1,62 @@
+﻿name: Windows-Build
+on:
+  pull_request:        # mainにプルリクor手動で実行
+    branches: main  
+  workflow_dispatch:  {}    
+
+jobs:
+  Unity-Build:          # checkout->cache->build->uploadの順番
+    name: Build for ${{ matrix.targetPlatform }}
+    runs-on: ${{ matrix.os }}
+    strategy: 
+      fail-fast: false  # 途中で失敗してもその先をキャンセルしない
+      matrix:
+        unity-editor-version: [6000.0.34f1]
+        root-project-path:    [MicroMacro]
+        os:                   [windows-latest]
+        buildName:            [MicroMacro_BuildData]
+        targetPlatform:
+          - StandaloneWindows64     
+          
+    steps:             
+      # Checkout  データ取得
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      
+      # Cache   Libraryを一時的に別の場所に保管して高速化する
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: MicroMacro/Library
+          key:  Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+          
+      # WindowsBuild
+      - name: Run the Windows Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE:  ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL:    ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+          projectPath:    ${{ matrix.root-project-path }}
+          unityVersion:   ${{ matrix.unity-editor-version }}
+          allowDirtyBuild: true
+          
+          
+      # Output
+      - name: Output Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name:       ${{ matrix.buildName }}
+          path: build/${{ matrix.targetPlatform }}
+
+      - name: Upload to Google Drive
+        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
+        with:
+          drive_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
+          credentials:     ${{ secrets.GDRIVE_CREDENTIALS }}
+          artifact_name:   ${{ matrix.buildName }} 
