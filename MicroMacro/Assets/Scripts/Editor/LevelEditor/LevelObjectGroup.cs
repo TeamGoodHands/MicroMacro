@@ -8,6 +8,7 @@ namespace Editor.LevelEditor
     {
         private string name;
         private PreviewTextureCreator previewTextureCreator;
+        private ObjectPlacer objectPlacer;
         private List<Button> buttonGroup = new List<Button>();
         private Button selectedButton;
 
@@ -20,6 +21,7 @@ namespace Editor.LevelEditor
         {
             this.name = name;
             previewTextureCreator = new PreviewTextureCreator();
+            objectPlacer = new ObjectPlacer();
         }
 
         public Tab CreateTab(GameObject[] prefabs)
@@ -47,8 +49,11 @@ namespace Editor.LevelEditor
                 buttonGroup.Add(button);
             }
 
-            foreach (Button button in buttonGroup)
+            for (var i = 0; i < buttonGroup.Count; i++)
             {
+                var button = buttonGroup[i];
+                var targetPrefab = prefabs[i];
+
                 button.focusable = false;
                 button.clicked += () =>
                 {
@@ -57,11 +62,13 @@ namespace Editor.LevelEditor
                     if (selectedButton == button)
                     {
                         selectedButton = null;
+                        objectPlacer.StopPlaceSequence();
                     }
                     else
                     {
                         selectedButton = button;
                         button.style.backgroundColor = selectedColor;
+                        objectPlacer.StartPlaceSequence(targetPrefab);
                     }
                 };
             }
@@ -98,10 +105,11 @@ namespace Editor.LevelEditor
                 button.style.backgroundColor = backgroundColor;
             }
         }
-        
+
         public void ResetSelectedButton()
         {
             selectedButton = null;
+            objectPlacer.StopPlaceSequence();
         }
 
         public void CleanUp()

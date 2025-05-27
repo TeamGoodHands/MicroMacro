@@ -26,13 +26,15 @@ namespace Editor.LevelEditor
 
         public void CreateGUI()
         {
+            // Refreshボタン作成
             var refreshButton = CreateRefreshButton();
             rootVisualElement.Add(refreshButton);
 
+            // タブビューの作成
             var tabView = new TabView();
-            var categories = AssetDatabase.LoadAssetAtPath<LevelObjectCategories>(DictionaryPath);
+            var categories = AssetDatabase.LoadAssetAtPath<MicMacMakerSettings>(DictionaryPath);
             
-            foreach (LevelObjectCategories.ObjectCategory category in categories.ObjectCategories)
+            foreach (MicMacMakerSettings.ObjectCategory category in categories.ObjectCategories)
             {
                 LevelObjectGroup group = new LevelObjectGroup(category.Name);
                 Tab tab = group.CreateTab(category.Prefabs);
@@ -50,39 +52,7 @@ namespace Editor.LevelEditor
             rootVisualElement.Add(tabView);
         }
 
-        private void StartPlaceSequence()
-        {
-            SceneView.duringSceneGui += UpdateSceneGUI;
-        }
 
-        private void UpdateSceneGUI(SceneView sceneView)
-        {
-            Event e = Event.current;
-            switch (e.type)
-            {
-                case EventType.MouseMove:
-                    Debug.Log("Mouse Move");
-
-                    break;
-                case EventType.MouseDown:
-                    if (e.shift)
-                    {
-                    }
-
-                    Debug.Log("Mouse Down");
-                    break;
-                case EventType.MouseLeaveWindow:
-                    Debug.Log("Mouse Leave Window");
-                    SceneView.duringSceneGui -= UpdateSceneGUI;
-                    break;
-                case EventType.MouseEnterWindow:
-                    Debug.Log("Mouse Enter Window");
-                    break;
-                case EventType.ScrollWheel:
-                    Debug.Log("Scroll Wheel");
-                    break;
-            }
-        }
 
         private Button CreateRefreshButton()
         {
