@@ -18,11 +18,7 @@ jobs:
         targetPlatform:
           - StandaloneWindows64     
           
-    steps:             
-      - name: Create Unity Cache Directory
-        run: |
-          mkdir -p "C:/Users/ContainerAdministrator/AppData/Local/Unity/Caches"
-        
+    steps:                     
       # Checkout  データ取得
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -61,7 +57,7 @@ jobs:
       - name: Upload to Google Drive
         uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
         with:
-          target:           ${{ matrix.buildName }}
+          target:           build/${{ matrix.targetPlatform }}
           credentials:      ${{ secrets.GDRIVE_CREDENTIALS }}
           parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
          
