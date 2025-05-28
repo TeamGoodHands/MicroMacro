@@ -61,6 +61,7 @@ jobs:
       - name: Upload to Google Drive
         uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
         with:
-          drive_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-          credentials:     ${{ secrets.GDRIVE_CREDENTIALS }}
-          artifact_name:   ${{ matrix.buildName }} 
+          target:           ${{ matrix.buildName }}
+          credentials:      ${{ secrets.GDRIVE_CREDENTIALS }}
+          parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
+         
