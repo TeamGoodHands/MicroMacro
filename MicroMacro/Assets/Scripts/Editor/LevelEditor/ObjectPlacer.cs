@@ -15,6 +15,7 @@ namespace Editor
         private bool isErasing;
 
         public event Action OnSequenceCanceled;
+        public bool IsPlacing => prefab != null;
 
         public ObjectPlacer()
         {
@@ -26,6 +27,7 @@ namespace Editor
             Debug.Log("Start Place Sequence: " + prefab.name);
             this.prefab = prefab;
             targetObject = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+            targetObject.SetActive(false);
             SceneView.duringSceneGui += HandleSceneGUI;
             SceneView.lastActiveSceneView.Focus();
         }
@@ -91,6 +93,7 @@ namespace Editor
                 case EventType.KeyDown:
                     if (e.keyCode == KeyCode.Escape)
                     {
+                        StopPlaceSequence();
                         OnSequenceCanceled?.Invoke();
                     }
 

@@ -13,10 +13,11 @@ namespace Editor.LevelEditor
     /// </summary>
     public class MicMacMaker : EditorWindow
     {
-        private const string DictionaryPath = "Assets/Settings/LevelObjectDictionary.asset";
-        private Dictionary<Tab, LevelObjectGroup> levelObjectGroups = new Dictionary<Tab, LevelObjectGroup>();
+        private const string dictionaryPath = "Assets/Settings/LevelObjectDictionary.asset";
+        private Dictionary<Tab, Category> categoryGroups = new Dictionary<Tab, Category>();
         private float createdTime;
-        private LevelObjectGroup selectedGroup;
+        private Category selectedCategory;
+        private ObjectPlacer objectPlacer;
 
         [MenuItem("Tools/MicMacMaker")]
         private static void CreateWindow()
@@ -27,6 +28,55 @@ namespace Editor.LevelEditor
 
         public void CreateGUI()
         {
+            objectPlacer = new ObjectPlacer();
+            objectPlacer.OnSequenceCanceled += ResetCategory;
+
+            windowFocusChanged += () =>
+            {
+                if (!IsSceneViewFocused() && objectPlacer.IsPlacing)
+                {
+                    objectPlacer.StopPlaceSequence();
+                    ResetCategory();
+                }
+            };
+
+            // 上部のタブバーの作成
+            var buttonGroup = CreateButtonGroup();
+            rootVisualElement.Add(buttonGroup);
+
+            // タブビューの作成
+            var tabView = new TabView();
+            var categories = AssetDatabase.LoadAssetAtPath<MicMacMakerSettings>(dictionaryPath);
+
+            foreach (MicMacMakerSettings.ObjectCategory category in categories.ObjectCategories)
+            {
+                // カテゴリタブの作成
+                var group = new Category(category.Name);
+                var tab = group.CreateTab(category.Prefabs);
+                categoryGroups.Add(tab, group);
+
+                group.OnObjectChanged += OnObjectChanged;
+                group.OnPlaceCanceled += OnPlaceCanceled;
+
+                tabView.Add(tab);
+            }
+
+            // カテゴリタブが切り替わったときはカテゴリグループをリセットする
+            tabView.activeTabChanged += (before, after) =>
+            {
+                categoryGroups[before].ResetCategoryGroup();
+                categoryGroups[before].ResetSelectedButton();
+
+                selectedCategory = categoryGroups[after];
+            };
+
+            rootVisualElement.Add(tabView);
+            selectedCategory = categoryGroups.First().Value;
+        }
+
+
+        private VisualElement CreateButtonGroup()
+        {
             var buttonElements = new VisualElement
             {
                 style =
@@ -36,37 +86,12 @@ namespace Editor.LevelEditor
             };
 
             // Refreshボタン作成
-            var refreshButton = CreateRefreshButton();
+            buttonElements.Add(CreateRefreshButton());
+
             // Eraseボタン作成
-            var eraseButton = CreateEraseButton();
-            buttonElements.Add(refreshButton);
-            buttonElements.Add(eraseButton);
+            buttonElements.Add(CreateEraseButton());
 
-            rootVisualElement.Add(buttonElements);
-
-            // タブビューの作成
-            var tabView = new TabView();
-            var categories = AssetDatabase.LoadAssetAtPath<MicMacMakerSettings>(DictionaryPath);
-
-            foreach (MicMacMakerSettings.ObjectCategory category in categories.ObjectCategories)
-            {
-                LevelObjectGroup group = new LevelObjectGroup(category.Name);
-                Tab tab = group.CreateTab(category.Prefabs);
-
-                levelObjectGroups.Add(tab, group);
-                tabView.Add(tab);
-            }
-
-            tabView.activeTabChanged += (before, after) =>
-            {
-                levelObjectGroups[before].ResetButtonGroup();
-                levelObjectGroups[before].ResetSelectedButton();
-
-                selectedGroup = levelObjectGroups[after];
-            };
-
-            rootVisualElement.Add(tabView);
-            selectedGroup = levelObjectGroups.First().Value;
+            return buttonElements;
         }
 
 
@@ -101,11 +126,7 @@ namespace Editor.LevelEditor
 
         private Button CreateEraseButton()
         {
-            return new Button(() =>
-            {
-                selectedGroup.ResetButtonGroup();
-                selectedGroup.ResetSelectedButton();
-            })
+            return new Button(ResetCategory)
             {
                 text = "Erase",
                 style =
@@ -120,14 +141,37 @@ namespace Editor.LevelEditor
             };
         }
 
+        private void OnObjectChanged(GameObject prefab)
+        {
+            objectPlacer.StopPlaceSequence();
+            objectPlacer.StartPlaceSequence(prefab);
+        }
+
+        private void OnPlaceCanceled()
+        {
+            objectPlacer.StopPlaceSequence();
+        }
+
+        private void ResetCategory()
+        {
+            selectedCategory.ResetCategoryGroup();
+            selectedCategory.ResetSelectedButton();
+        }
+
+        private bool IsSceneViewFocused()
+        {
+            var sceneView = SceneView.lastActiveSceneView;
+            return sceneView != null && focusedWindow == sceneView;
+        }
+
         private void OnDisable()
         {
-            foreach (LevelObjectGroup group in levelObjectGroups.Values)
+            foreach (Category group in categoryGroups.Values)
             {
                 group.CleanUp();
             }
 
-            levelObjectGroups.Clear();
+            categoryGroups.Clear();
         }
     }
 }

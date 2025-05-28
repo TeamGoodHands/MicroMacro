@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Editor.LevelEditor
 {
-    public class LevelObjectGroup
+    public class Category
     {
         private string name;
         private PreviewTextureCreator previewTextureCreator;
-        private ObjectPlacer objectPlacer;
         private List<Button> buttonGroup = new List<Button>();
         private Button selectedButton;
 
@@ -17,16 +17,13 @@ namespace Editor.LevelEditor
         private static readonly float buttonSize = 64;
         private static readonly float rowCount = 3;
 
-        public LevelObjectGroup(string name)
+        public event Action<GameObject> OnObjectChanged; 
+        public event Action OnPlaceCanceled; 
+
+        public Category(string name)
         {
             this.name = name;
             previewTextureCreator = new PreviewTextureCreator();
-            objectPlacer = new ObjectPlacer();
-            objectPlacer.OnSequenceCanceled += () =>
-            {
-                ResetButtonGroup();
-                ResetSelectedButton();
-            };
         }
 
         public Tab CreateTab(GameObject[] prefabs)
@@ -62,17 +59,18 @@ namespace Editor.LevelEditor
                 button.focusable = false;
                 button.clicked += () =>
                 {
-                    ResetButtonGroup();
+                    ResetCategoryGroup();
 
                     if (selectedButton == button)
                     {
                         ResetSelectedButton();
+                        OnPlaceCanceled?.Invoke();
                     }
                     else
                     {
                         selectedButton = button;
                         button.style.backgroundColor = selectedColor;
-                        objectPlacer.StartPlaceSequence(targetPrefab);
+                        OnObjectChanged?.Invoke(targetPrefab);
                     }
                 };
             }
@@ -102,7 +100,7 @@ namespace Editor.LevelEditor
             return button;
         }
 
-        public void ResetButtonGroup()
+        public void ResetCategoryGroup()
         {
             foreach (Button button in buttonGroup)
             {
@@ -113,7 +111,6 @@ namespace Editor.LevelEditor
         public void ResetSelectedButton()
         {
             selectedButton = null;
-            objectPlacer.StopPlaceSequence();
         }
 
         public void CleanUp()
