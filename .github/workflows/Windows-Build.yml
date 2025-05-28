@@ -19,6 +19,10 @@ jobs:
           - StandaloneWindows64     
           
     steps:             
+      - name: Create Unity Cache Directory
+        run: |
+          mkdir -p "C:/Users/ContainerAdministrator/AppData/Local/Unity/Caches"
+        
       # Checkout  データ取得
       - name: Checkout Repository
         uses: actions/checkout@v4
