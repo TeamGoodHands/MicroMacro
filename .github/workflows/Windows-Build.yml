@@ -53,11 +53,16 @@ jobs:
         with:
           name:       ${{ matrix.buildName }}
           path: build/${{ matrix.targetPlatform }}
-
+      
+      
+      # credentialsファイルの復元
+      - name: Write GDrive Credentials File
+        run: echo "${{ secrets.GDRIVE_CREDENTIALS }}" | base64 -d > credentials.json
+      
+      # Google Driveへアップロード
       - name: Upload to Google Drive
         uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
         with:
-          target:           build/${{ matrix.targetPlatform }}
-          credentials:      ${{ secrets.GDRIVE_CREDENTIALS }}
+          target: build/${{ matrix.targetPlatform }}
+          credentials: credentials.json
           parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-         
