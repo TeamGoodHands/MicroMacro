@@ -56,9 +56,7 @@ jobs:
       # Google Driveへアップロード
       - name: Upload to Google Drive
         uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
-        env:
-          CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
         with:
           target: build/${{ matrix.targetPlatform }}
-          credentials: "${CREDENTIALS}"                     # 文字化け対策で中間環境変数用いてみる
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
           parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
