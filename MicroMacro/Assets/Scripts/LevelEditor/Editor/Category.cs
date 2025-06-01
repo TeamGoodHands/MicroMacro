@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,7 +18,7 @@ namespace Editor.LevelEditor
         private static readonly float buttonSize = 64;
         private static readonly float rowCount = 3;
 
-        public event Action<GameObject> OnObjectChanged; 
+        public event Action<MicMacMakerSettings.PaletteItem> OnObjectChanged; 
         public event Action OnPlaceCanceled; 
 
         public Category(string name)
@@ -26,7 +27,7 @@ namespace Editor.LevelEditor
             previewTextureCreator = new PreviewTextureCreator();
         }
 
-        public Tab CreateTab(GameObject[] prefabs)
+        public Tab CreateTab(MicMacMakerSettings.PaletteItem[] items)
         {
             var tab = new Tab(name);
             var elementsView = new ScrollView(ScrollViewMode.Horizontal)
@@ -42,7 +43,7 @@ namespace Editor.LevelEditor
                 }
             };
 
-            var renderTextures = previewTextureCreator.CreatePreviewTextures(prefabs);
+            var renderTextures = previewTextureCreator.CreatePreviewTextures(items.Select(item => item.Prefab).ToArray());
 
             foreach (RenderTexture renderTexture in renderTextures)
             {
@@ -54,7 +55,7 @@ namespace Editor.LevelEditor
             for (var i = 0; i < buttonGroup.Count; i++)
             {
                 var button = buttonGroup[i];
-                var targetPrefab = prefabs[i];
+                var targetItem = items[i];
 
                 button.focusable = false;
                 button.clicked += () =>
@@ -70,7 +71,7 @@ namespace Editor.LevelEditor
                     {
                         selectedButton = button;
                         button.style.backgroundColor = selectedColor;
-                        OnObjectChanged?.Invoke(targetPrefab);
+                        OnObjectChanged?.Invoke(targetItem);
                     }
                 };
             }
