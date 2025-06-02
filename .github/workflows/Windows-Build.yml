@@ -44,21 +44,16 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           projectPath:    ${{ matrix.root-project-path }}
           unityVersion:   ${{ matrix.unity-editor-version }}
-          allowDirtyBuild: true
-            
-      - name: Zip Build Output
-        run: |
-          cd build/${{ matrix.targetPlatform }}
-          zip -r ../../${{ matrix.buildName }}.zip .        
-                                   
+          allowDirtyBuild: true         
+                                                
       # Google Driveへアップロード
-      - name: Upload to Google Drive
-        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
-        with:
-          target: ${{ matrix.buildName }}.zip
-          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
-          parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-          name: ${{ matrix.buildName }}
+#      - name: Upload to Google Drive
+#        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
+#        with:
+#          target: ${{ matrix.buildName }}.zip
+#          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+#          parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
+#          name: ${{ matrix.buildName }}
           
       # Output
       - name: Output Build Artifact
