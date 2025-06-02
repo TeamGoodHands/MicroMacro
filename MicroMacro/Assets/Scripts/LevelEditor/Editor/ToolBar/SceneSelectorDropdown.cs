@@ -64,20 +64,7 @@ namespace Editor.LevelEditor
         {
             Scene activeScene = SceneManager.GetActiveScene();
             string sceneName = activeScene.name;
-
-            string sceneAssetPath = AssetDatabase.FindAssets("t:Scene", new string[] { LevelEditorUtil.SceneSavePath })
-                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-                .First(path =>
-                {
-                    string fileName = Path.GetFileName(path);
-
-                    //.unityを削除する
-                    var slicedName = fileName.Substring(0, fileName.Length - 6);
-
-                    //シーン名とアセット名が等しかったらそのパスを返す
-                    return slicedName == sceneName;
-                });
-
+            string sceneAssetPath = FindScenePath(sceneName);
 
             if (activeScene.isDirty && EditorUtility.DisplayDialog("SceneToolbar", "現在編集中のシーンをセーブしますか？", "はい", "いいえ"))
             {
@@ -90,6 +77,32 @@ namespace Editor.LevelEditor
             Scene scene = EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Single);
             text = scene.name;
             OnSceneChanged?.Invoke(scene);
+        }
+
+        private string FindScenePath(string sceneName)
+        {
+            //シーン名からシーンのパスを取得
+
+            string sceneAssetPath = AssetDatabase.FindAssets("t:Scene", new string[] { LevelEditorUtil.SceneSavePath })
+                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
+                .FirstOrDefault(path =>
+                {
+                    string fileName = Path.GetFileName(path);
+
+                    //.unityを削除する
+                    var slicedName = fileName.Substring(0, fileName.Length - 6);
+
+                    //シーン名とアセット名が等しかったらそのパスを返す
+                    return slicedName == sceneName;
+                });
+
+            // シーンアセットが見つからなかった場合は、ルートパスを使用
+            if (string.IsNullOrEmpty(sceneAssetPath))
+            {
+                sceneAssetPath = $"{LevelEditorUtil.SceneSavePath}/{sceneName}.unity";
+            }
+
+            return sceneAssetPath;
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Constants
 		public static readonly string MainCamera = "MainCamera";
 		public static readonly string Player = "Player";
 		public static readonly string GameController = "GameController";
+		public static readonly string Level = "Level";
 		
 		public sealed class Handle
 		{
@@ -25,6 +26,7 @@ namespace Constants
 			public static readonly TagHandle MainCamera = TagHandle.GetExistingTag("MainCamera");
 			public static readonly TagHandle Player = TagHandle.GetExistingTag("Player");
 			public static readonly TagHandle GameController = TagHandle.GetExistingTag("GameController");
+			public static readonly TagHandle Level = TagHandle.GetExistingTag("Level");
 		}
 	}
 }
