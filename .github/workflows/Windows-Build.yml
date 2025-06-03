@@ -18,7 +18,7 @@ jobs:
         targetPlatform:
           - StandaloneWindows64     
           
-    steps:             
+    steps:                     
       # Checkout  データ取得
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -44,19 +44,20 @@ jobs:
           targetPlatform: ${{ matrix.targetPlatform }}
           projectPath:    ${{ matrix.root-project-path }}
           unityVersion:   ${{ matrix.unity-editor-version }}
-          allowDirtyBuild: true
-          
+          allowDirtyBuild: true         
+                                                
+      # Google Driveへアップロード
+#      - name: Upload to Google Drive
+#        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
+#        with:
+#          target: ${{ matrix.buildName }}.zip
+#          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+#          parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
+#          name: ${{ matrix.buildName }}
           
       # Output
       - name: Output Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name:       ${{ matrix.buildName }}
-          path: build/${{ matrix.targetPlatform }}
-
-      - name: Upload to Google Drive
-        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
-        with:
-          drive_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-          credentials:     ${{ secrets.GDRIVE_CREDENTIALS }}
-          artifact_name:   ${{ matrix.buildName }} 
+          name: ${{ matrix.buildName }}
+          path: build/${{ matrix.targetPlatform }}    
