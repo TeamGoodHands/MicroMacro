@@ -14,6 +14,7 @@ namespace Module.Scaling
     {
         [SerializeField, Header("1ステップあたりのスケール量")] private Vector2 scaleAmount;
         [SerializeField, Header("スケール時間")] private float scaleDuration;
+        [SerializeField, Header("座標移動の無効化")] private bool unlockPosition;
 
         [SerializeField, Header("ピボットポイント (0,0:中心 0.5,0.5:右上 -0.5,-0.5:左下)"), Range(-0.5f, 0.5f)]
         private float pivotX;
@@ -31,7 +32,7 @@ namespace Module.Scaling
         {
             Vector3 currentScale = transform.localScale;
             Vector3 currentPosition = transform.localPosition;
-            Vector3 targetScale = defaultScale + (Vector3)scaleAmount * step;
+            Vector3 targetScale = defaultScale + (Vector3)scaleAmount * currentStep;
 
             // スケール後の座標を求める
             Vector2 pivot = new Vector2(pivotX, pivotY);
@@ -46,7 +47,11 @@ namespace Module.Scaling
                     {
                         progress = value;
                         transform.localScale = currentScale + (targetScale - currentScale) * progress;
-                        transform.localPosition = currentPosition + positionOffset * progress;
+
+                        if (!unlockPosition)
+                        {
+                            transform.localPosition = currentPosition + positionOffset * progress;
+                        }
                     }, 1f, scaleDuration)
                 .SetEase(Ease.OutBack, 3f)
                 .SetLink(gameObject)

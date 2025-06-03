@@ -14,15 +14,15 @@ namespace Module.Scaling
 
         protected override async UniTask OnScale(CancellationToken cancellationToken)
         {
-            if (step < 0 || step >= bodyBones.Length)
+            if (currentStep < 0 || currentStep >= bodyBones.Length)
             {
-                Debug.LogError($"Invalid step value: {step}");
+                Debug.LogError($"Invalid step value: {currentStep}");
                 return;
             }
 
-            Transform target = bodyBones[-step - 1];
+            Transform target = bodyBones[-currentStep - 1];
             // 前のステップからの差分をスケール量とする
-            float amount = scaleAmount * (step - prevStep);
+            float amount = scaleAmount * (currentStep - previousStep);
             headBone.DOLocalMoveY(headBone.localPosition.y + amount, scaleDuration).SetEase(Ease.OutBack);
             await target.DOScaleY(0f, scaleDuration).SetEase(Ease.OutBack);
         }
