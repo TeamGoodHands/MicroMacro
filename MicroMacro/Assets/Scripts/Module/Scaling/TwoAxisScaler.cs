@@ -15,16 +15,16 @@ namespace Module.Scaling
         [SerializeField, Header("1ステップあたりのスケール量")] private Vector2 scaleAmount;
         [SerializeField, Header("スケール時間")] private float scaleDuration;
 
-        [SerializeField, Header("ピボットポイント (0,0:左下 1,1:右上)")]
-        private Vector2 pivot;
+        [SerializeField, Header("ピボットポイント (0,0:中心 0.5,0.5:右上 -0.5,-0.5:左下)"), Range(-0.5f, 0.5f)]
+        private float pivotX;
+
+        [SerializeField, Range(-0.5f, 0.5f)] private float pivotY;
 
         private Vector3 defaultScale;
-        private Vector2 defaultPosition;
 
         private void Start()
         {
             defaultScale = transform.localScale;
-            defaultPosition = transform.localPosition;
         }
 
         protected override async UniTask OnScale(CancellationToken cancellationToken)
@@ -33,6 +33,8 @@ namespace Module.Scaling
             Vector3 currentPosition = transform.localPosition;
             Vector3 targetScale = defaultScale + (Vector3)scaleAmount * step;
 
+            // スケール後の座標を求める
+            Vector2 pivot = new Vector2(pivotX, pivotY);
             Vector2 scaledPosition = CalculateScaledPosition(pivot, targetScale);
             Vector3 positionOffset = (Vector3)scaledPosition - currentPosition;
 
@@ -51,26 +53,16 @@ namespace Module.Scaling
                 .WithCancellation(cancellationToken);
         }
 
-        protected Vector2 pic;
-
         /// <summary>
         /// スケール後の座標を算出します
         /// </summary>
         private Vector2 CalculateScaledPosition(Vector2 pivot, Vector2 newScale)
         {
             Vector2 localPosition = transform.localPosition;
-            Vector2 pivotDelta = transform.localScale * pivot;
-
-            pic = localPosition + pivotDelta;
-
-            Vector2 position = localPosition - pivotDelta * (newScale - (Vector2)transform.localScale);
+            Vector2 amount = newScale - (Vector2)transform.localScale;
+            Vector2 position = localPosition - amount * pivot;
 
             return position;
-        }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.DrawSphere((Vector3)pic, 0.1f);
         }
     }
 }
