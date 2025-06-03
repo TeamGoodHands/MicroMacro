@@ -44,34 +44,29 @@ namespace Editor.LevelEditor
 
         private void SetupUtility(PreviewRenderUtility previewRenderUtility, Renderer targetRenderer)
         {
-            // カメラのセットアップ
-            var camera = previewRenderUtility.camera;
-            camera.fieldOfView = 30f;
-            camera.nearClipPlane = 0.3f;
-            camera.farClipPlane = 1000;
+            Camera targetCamera = previewRenderUtility.camera;
+            float padding = 2f; // カメラのパディング
 
+            if (targetCamera == null || targetRenderer == null)
+                return;
+
+            targetCamera.orthographic = true;
+
+            // Get bounds
             Bounds bounds = targetRenderer.bounds;
             Vector3 center = bounds.center;
-
-            float fovVertical = camera.fieldOfView * Mathf.Deg2Rad;
-            float aspect = camera.aspect;
-            float fovHorizontal = 2f * Mathf.Atan(Mathf.Tan(fovVertical / 2f) * aspect);
-
-            // バウンディングボックスのサイズから「横」「縦」の半径を取得
             Vector3 extents = bounds.extents;
-            float radiusVertical = extents.y;
-            float radiusHorizontal = extents.x;
 
-            // 必要な距離を両方向で計算して大きい方を使う
-            float distanceV = radiusVertical / Mathf.Tan(fovVertical / 2f);
-            float distanceH = radiusHorizontal / Mathf.Tan(fovHorizontal / 2f);
-            float distance = Mathf.Max(distanceV, distanceH) * 1.8f;
+            // Calculate orthographic size
+            float verticalSize = extents.y;
+            float horizontalSize = extents.x / targetCamera.aspect;
+            targetCamera.orthographicSize = Mathf.Max(verticalSize, horizontalSize) * padding;
 
-            Vector3 viewDirection = camera.transform.forward;
-            Vector3 newPosition = center - viewDirection * distance;
-
-            camera.transform.position = newPosition;
-            camera.transform.LookAt(center);
+            // Position camera
+            Vector3 viewDirection = -Vector3.forward;
+            Vector3 position = center + viewDirection * (extents.z + 5f);
+            targetCamera.transform.position = position;
+            targetCamera.transform.LookAt(center);
 
             // ライトののセットアップ
             previewRenderUtility.lights[0].transform.localEulerAngles = new Vector3(10, 10, 0);
