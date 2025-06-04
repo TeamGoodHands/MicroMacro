@@ -11,19 +11,33 @@ namespace Module.Scaling
         [SerializeField, Header("スケール時間")] private float scaleDuration;
         [SerializeField, Header("本体のボーン")] private Transform[] bodyBones;
         [SerializeField, Header("先端のボーン")] private Transform headBone;
+        [SerializeField, Header("本体のコライダー")] private BoxCollider bodyCollider;
 
         protected override async UniTask OnScale(CancellationToken cancellationToken)
         {
-            if (currentStep < 0 || currentStep >= bodyBones.Length)
+            int index = -currentStep - 1;
+
+            if (0 > index || index >= bodyBones.Length)
             {
-                Debug.LogError($"Invalid step value: {currentStep}");
                 return;
             }
 
-            Transform target = bodyBones[-currentStep - 1];
+            Transform target = bodyBones[index];
             // 前のステップからの差分をスケール量とする
             float amount = scaleAmount * (currentStep - previousStep);
             headBone.DOLocalMoveY(headBone.localPosition.y + amount, scaleDuration).SetEase(Ease.OutBack);
+            DOTween.To(() => bodyCollider.center,
+                    value => bodyCollider.center = value,
+                    new Vector3(bodyCollider.center.x, bodyCollider.center.y + amount * 50f, bodyCollider.center.z),
+                    scaleDuration)
+                .SetEase(Ease.OutBack);
+
+            DOTween.To(() => bodyCollider.size,
+                    value => bodyCollider.size = value,
+                    new Vector3(bodyCollider.size.x, bodyCollider.size.y + amount * 100f, bodyCollider.size.z),
+                    scaleDuration)
+                .SetEase(Ease.OutBack);
+
             await target.DOScaleY(0f, scaleDuration).SetEase(Ease.OutBack);
         }
     }
