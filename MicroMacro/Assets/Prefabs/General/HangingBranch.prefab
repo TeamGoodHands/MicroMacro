@@ -165,7 +165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actorTransform: {fileID: 6524372934964431293}
-  childTransform: {fileID: 7509010767734719669}
+  childRigidbody: {fileID: 5809541117741559675}
   footScaler: {fileID: 1760651234970976040}
   stepAngle: -30
   rotateDuration: 0.4
@@ -179,10 +179,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7509010767734719669}
+  - component: {fileID: 1760651234970976040}
+  - component: {fileID: 7895204335518841593}
   - component: {fileID: 2389225288193723456}
   - component: {fileID: 7868155143373906069}
   - component: {fileID: 460433918048493173}
-  - component: {fileID: 1760651234970976040}
+  - component: {fileID: 5809541117741559675}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -205,6 +207,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6002177004607208586}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1760651234970976040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5969045164473538359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 623f6a1fabfc4e47854f71718084ea07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minStep: 0
+  maxStep: 3
+  currentStep: 0
+  previousStep: 0
+  state: 0
+  isScaling: 0
+  scaleAmount: {x: 0.8, y: 0.8}
+  scaleDuration: 0.4
+  unlockPosition: 1
+  pivotX: 0
+  pivotY: 0
+--- !u!114 &7895204335518841593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5969045164473538359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c04df529beed49c29fdb5713bacd4caa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rigidBody: {fileID: 5809541117741559675}
 --- !u!33 &2389225288193723456
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -279,26 +317,30 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1760651234970976040
-MonoBehaviour:
+--- !u!54 &5809541117741559675
+Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5969045164473538359}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 623f6a1fabfc4e47854f71718084ea07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  minStep: 0
-  maxStep: 3
-  currentStep: 0
-  previousStep: 0
-  state: 0
-  isScaling: 0
-  scaleAmount: {x: 0.8, y: 0.8}
-  scaleDuration: 0.4
-  unlockPosition: 1
-  pivotX: 0
-  pivotY: 0
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 2

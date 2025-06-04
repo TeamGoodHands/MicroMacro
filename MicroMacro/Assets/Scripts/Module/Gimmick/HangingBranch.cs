@@ -7,7 +7,7 @@ namespace Module.Gimmick
     public class HangingBranch : MonoBehaviour
     {
         [SerializeField] private Transform actorTransform;
-        [SerializeField] private Transform childTransform;
+        [SerializeField] private Rigidbody childRigidbody;
         [SerializeField] private Scaler footScaler;
         [SerializeField] private float stepAngle;
         [SerializeField] private float rotateDuration;
@@ -20,15 +20,16 @@ namespace Module.Gimmick
 
         private void OnScaleStarted(ScaleEventArgs args)
         {
-            Vector3 targetRotation = actorTransform.localEulerAngles + new Vector3(0f, 0f, (args.CurrentStep - args.PreviousStep) * stepAngle);
+            Vector3 rotationAmount = new Vector3(0f, 0f, (args.CurrentStep - args.PreviousStep) * stepAngle);
+            Vector3 targetRotation = actorTransform.localEulerAngles + rotationAmount;
             actorTransform.DOLocalRotate(targetRotation, rotateDuration).SetEase(Ease.OutBack);
 
-            Vector3 targetPosition = new Vector3(
+            Vector2 targetPosition = new Vector2(
                 radius * Mathf.Cos(Mathf.Deg2Rad * args.CurrentStep * stepAngle),
-                radius * Mathf.Sin(Mathf.Deg2Rad * args.CurrentStep * stepAngle),
-                childTransform.localPosition.z
+                radius * Mathf.Sin(Mathf.Deg2Rad * args.CurrentStep * stepAngle)
             );
-            childTransform.DOLocalMove(targetPosition, rotateDuration).SetEase(Ease.OutBack);
+
+            childRigidbody.DOMove(transform.TransformPoint(targetPosition), rotateDuration).SetEase(Ease.OutBack);
         }
     }
 }
