@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -26,6 +26,13 @@ namespace Module.Scaling
             defaultScale = transform.localScale;
         }
 
+        /// <summary>
+        /// オブジェクトをXY方向に指定したステップ分だけ滑らかにスケールし、必要に応じてピボット位置を維持するよう座標も補正します。
+        /// </summary>
+        /// <param name="cancellationToken">スケーリング処理のキャンセルに使用されるトークン。</param>
+        /// <remarks>
+        /// スケールアニメーションは指定した時間で実行され、<c>unlockPosition</c>がfalseの場合はピボット位置を維持するために座標も補正されます。キャンセルが要求された場合は途中で処理が中断されます。
+        /// </remarks>
         protected override async UniTask OnScale(CancellationToken cancellationToken)
         {
             Vector3 currentScale = transform.localScale;

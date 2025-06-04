@@ -25,6 +25,13 @@ namespace Module.Scaling
         public readonly float Duration;
         public readonly State State;
 
+        /// <summary>
+        /// スケールイベントの情報を指定された値で初期化します。
+        /// </summary>
+        /// <param name="currentStep">現在のスケールステップ。</param>
+        /// <param name="previousStep">直前のスケールステップ。</param>
+        /// <param name="duration">スケール操作の所要時間（秒）。</param>
+        /// <param name="state">現在のスケール状態。</param>
         public ScaleEventArgs(int currentStep, int previousStep, float duration, State state)
         {
             CurrentStep = currentStep;
@@ -71,7 +78,13 @@ namespace Module.Scaling
         /// <summary>
         /// オブジェクトをスケールします
         /// </summary>
-        /// <param name="additionalStep">追加段階</param>
+        /// <summary>
+        /// 指定した段階だけオブジェクトのスケールを非同期で変更します。
+        /// </summary>
+        /// <param name="additionalStep">現在のスケール段階に加算する値。</param>
+        /// <remarks>
+        /// スケール中は再度呼び出しても無効です。スケール開始時と完了時にイベントが発火します。
+        /// </remarks>
         public async UniTaskVoid Scale(int additionalStep)
         {
             // スケール中であればキャンセル
@@ -106,6 +119,8 @@ namespace Module.Scaling
 
         /// <summary>
         /// スケール処理をキャンセルします
+        /// <summary>
+        /// 現在進行中のスケール操作をキャンセルし、スケール状態とステップを直前の値に戻します。
         /// </summary>
         public void CancelScale()
         {
@@ -127,6 +142,10 @@ namespace Module.Scaling
             return CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken, scaleCancellationToken).Token;
         }
 
+        /// <summary>
+        /// 現在のスケールステップに基づいてスケール状態を返します。
+        /// </summary>
+        /// <returns>最小値の場合は <see cref="State.MinScale"/>、最大値の場合は <see cref="State.MaxScale"/>、それ以外は <see cref="State.InScale"/> を返します。</returns>
         private State GetScaleState()
         {
             if (currentStep == minStep)
