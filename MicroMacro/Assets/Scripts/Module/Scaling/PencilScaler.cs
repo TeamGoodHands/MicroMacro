@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -13,6 +13,12 @@ namespace Module.Scaling
         [SerializeField, Header("先端のボーン")] private Transform headBone;
         [SerializeField, Header("本体のコライダー")] private BoxCollider bodyCollider;
 
+        /// <summary>
+        /// 現在のステップに基づき、鉛筆モデルの特定のボーンとコライダーをアニメーションしながらスケーリングします。
+        /// </summary>
+        /// <remarks>
+        /// ステップの進行に応じて対象ボーンのYスケールを0にし、鉛筆の先端やコライダーの位置・サイズも滑らかに変化させます。対象インデックスが範囲外の場合は何も行いません。
+        /// </remarks>
         protected override async UniTask OnScale(CancellationToken cancellationToken)
         {
             int index = -currentStep - 1;
