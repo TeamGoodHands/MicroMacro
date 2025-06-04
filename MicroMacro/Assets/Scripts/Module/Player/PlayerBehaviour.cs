@@ -9,6 +9,8 @@ namespace Module.Player
     public class PlayerBehaviour : MonoBehaviour
     {
         [SerializeField] private PlayerComponent component;
+        
+        public PlayerComponent Component => component;
 
         private HierarchicalStateMachine stateMachine;
 
