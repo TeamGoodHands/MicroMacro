@@ -32,7 +32,7 @@ namespace Gimmick
 
         private void OnCollisionStay(Collision other)
         {
-            if (!isUpScaling)
+            if (!isUpScaling || other.contactCount == 0)
                 return;
 
             GameObject obj = other.gameObject;

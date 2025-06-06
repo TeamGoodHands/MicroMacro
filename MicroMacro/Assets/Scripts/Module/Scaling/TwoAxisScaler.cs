@@ -61,11 +61,12 @@ namespace Module.Scaling
         /// </summary>
         private Vector2 CalculateScaledPosition(Vector2 pivot, Vector2 newScale)
         {
+            // ピボットを基準にした座標補正の計算
             Vector2 localPosition = transform.localPosition;
-            Vector2 amount = newScale - (Vector2)transform.localScale;
-            Vector2 position = localPosition - amount * pivot;
+            Vector2 changeAmount = newScale - (Vector2)transform.localScale;
 
-            return position;
+            // ピボット分のオフセットを適用
+            return localPosition - changeAmount * pivot;
         }
     }
 }
