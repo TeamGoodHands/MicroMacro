@@ -4,6 +4,7 @@ using Constants;
 using LevelEditor.Runtime;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace LevelEditor.Editor
@@ -79,11 +80,15 @@ namespace LevelEditor.Editor
 
         public void DestroyAll()
         {
+            UpdateParentObject();
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Delete Multiple Map Objects");
 
             foreach (GameObject obj in parentObject.MapData.Select(item => item.Value.Object))
             {
+                if (obj == null)
+                    continue;
+
                 Undo.DestroyObjectImmediate(obj);
             }
 
@@ -221,7 +226,7 @@ namespace LevelEditor.Editor
 
                 // マップデータ変更
                 Undo.RecordObject(parentObject, "Erase Map Data");
-                parentObject.MapData.Add(gridIndex, new ConnectionPair(obj, new long[] { gridIndex }));
+                parentObject.MapData.Add(gridIndex, new CellData(obj, new long[] { gridIndex }));
 
                 // シーンに変更を登録
                 EditorUtility.SetDirty(parentObject);
