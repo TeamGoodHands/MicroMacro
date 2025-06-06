@@ -10,9 +10,9 @@ namespace Module.Scaling
     /// </summary>
     public class TwoAxisScaler : Scaler
     {
-        [SerializeField, Header("1ステップあたりのスケール量")] private Vector2 scaleAmount;
-        [SerializeField, Header("スケール時間")] private float scaleDuration;
-        [SerializeField, Header("座標移動の無効化")] private bool unlockPosition;
+        [SerializeField, Header("1ステップあたりのスケール量")] private Vector2 scaleAmount = new Vector2(1, 1);
+        [SerializeField, Header("スケール時間")] private float scaleDuration = 0.5f;
+        [SerializeField, Header("座標移動の無効化")] private bool unlockPosition = false;
 
         [SerializeField, Header("ピボットポイント (0,0:中心 0.5,0.5:右上 -0.5,-0.5:左下)"), Range(-0.5f, 0.5f)]
         private float pivotX;
@@ -61,11 +61,12 @@ namespace Module.Scaling
         /// </summary>
         private Vector2 CalculateScaledPosition(Vector2 pivot, Vector2 newScale)
         {
+            // ピボットを基準にした座標補正の計算
             Vector2 localPosition = transform.localPosition;
-            Vector2 amount = newScale - (Vector2)transform.localScale;
-            Vector2 position = localPosition - amount * pivot;
+            Vector2 changeAmount = newScale - (Vector2)transform.localScale;
 
-            return position;
+            // ピボット分のオフセットを適用
+            return localPosition - changeAmount * pivot;
         }
     }
 }

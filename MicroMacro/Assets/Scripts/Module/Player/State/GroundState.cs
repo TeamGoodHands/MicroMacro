@@ -63,7 +63,8 @@ namespace Module.Player.State
             movement.PerformExternalDamping(ref externalVelocity); // 外部力への減衰を適用
 
             rigidbody.linearVelocity = velocity + externalVelocity;
-            
+            condition.ExternalForce = externalVelocity;
+
             // 着地状態を更新
             condition.IsGround = movement.IsGround(transform);
         }
