@@ -53,5 +53,10 @@ namespace Gimmick
                 isUpScaling = false;
             }
         }
+
+        private void OnDestroy()
+        {
+            scaleRewinder.Dispose();
+        }
     }
 }
