@@ -52,6 +52,16 @@ namespace Module.Scaling
         public int CurrentStep => currentStep;
 
         /// <summary>
+        /// 最大のスケール段階
+        /// </summary>
+        public int MaxStep => maxStep;
+
+        /// <summary>
+        /// 最小のスケール段階
+        /// </summary>
+        public int MinStep => minStep;
+
+        /// <summary>
         /// スケール中か
         /// </summary>
         public bool IsScaling => isScaling;
@@ -99,7 +109,7 @@ namespace Module.Scaling
             isScaling = false;
             scaleCanceller?.Dispose();
             scaleCanceller = null;
-            
+
             // スケール完了イベントを送信
             OnScaleCompleted?.Invoke(args);
         }

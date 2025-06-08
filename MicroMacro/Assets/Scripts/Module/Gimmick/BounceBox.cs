@@ -10,6 +10,7 @@ namespace Gimmick
     {
         [SerializeField] private TwoAxisScaler scaler;
         [SerializeField] private float bounceForce = 5f;
+        [SerializeField] private ScaleRewinder scaleRewinder;
 
         public event Action OnBounce;
         private bool isUpScaling = false;
@@ -28,6 +29,9 @@ namespace Gimmick
             {
                 isUpScaling = false;
             };
+            
+            // 巻き戻しをスケジュール
+            scaleRewinder.Schedule(scaler);
         }
 
         private void OnCollisionStay(Collision other)
