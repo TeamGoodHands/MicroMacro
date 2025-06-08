@@ -44,6 +44,10 @@ namespace Editor.LevelEditor
             }
 
             objectPlacer = new ObjectPlacer();
+            if (IsToolActive())
+            {
+                objectPlacer.Enable();
+            }
             objectPlacer.OnSequenceCanceled += ResetCategory;
 
             windowFocusChanged += OnWindowFocusChanged;
@@ -91,11 +95,13 @@ namespace Editor.LevelEditor
             {
                 rootVisualElement.SetEnabled(true);
                 rootVisualElement.style.opacity = 1f;
+                objectPlacer?.Enable();
             }
             else
             {
                 rootVisualElement.SetEnabled(false);
                 rootVisualElement.style.opacity = 0.5f;
+                objectPlacer?.Disable();
             }
         }
 

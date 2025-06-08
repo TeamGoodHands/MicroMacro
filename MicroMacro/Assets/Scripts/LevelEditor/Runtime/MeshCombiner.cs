@@ -40,7 +40,7 @@ namespace LevelEditor.Runtime
 
             MeshCollider collider = combinedObject.AddComponent<MeshCollider>();
             collider.sharedMesh = combinedMesh;
-            collider.convex = false;
+            collider.convex = true;
 
             return combinedObject;
         }

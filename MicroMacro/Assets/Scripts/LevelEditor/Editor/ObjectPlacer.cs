@@ -23,8 +23,17 @@ namespace LevelEditor.Editor
         public ObjectPlacer()
         {
             UpdateParentObject();
-            SceneView.duringSceneGui -= HandleSceneGUI;
+        }
+
+        public void Enable()
+        {
+            isWindowEnter = true;
             SceneView.duringSceneGui += HandleSceneGUI;
+        }
+
+        public void Disable()
+        {
+            SceneView.duringSceneGui -= HandleSceneGUI;
         }
 
         public void UpdateParentObject()
@@ -114,8 +123,23 @@ namespace LevelEditor.Editor
                 new Vector3(mousePosition.x - 0.5f, mousePosition.y - 0.5f, 0f));
         }
 
+        public void DrawMap()
+        {
+            if (parentObject == null || parentObject.MapData == null)
+                return;
+
+            foreach (var data in parentObject.MapData)
+            {
+                Vector2Int coord = parentObject.IndexToCoord(data.Key);
+
+                Handles.color = new Color(1f, 0.48f, 0.51f);
+                Handles.DrawWireCube(new Vector3(coord.x, coord.y, 0f), Vector3.one);
+            }
+        }
+
         private void HandleSceneGUI(SceneView sceneView)
         {
+            Debug.Log("HandleSceneGUI called");
             Event e = Event.current;
 
             UpdateEraseMode(e);

@@ -14,34 +14,106 @@ namespace LevelEditor.Runtime
 
         public long CoordToIndex(Vector2Int coord)
         {
-            return coord.y * MapSize + coord.x;
+            var offsetX = coord.x + (MapSize / 2);
+            var offsetY = coord.y + (MapSize / 2);
+            return offsetY * MapSize + offsetX;
+        }
+
+        public Vector2Int IndexToCoord(long index)
+        {
+            var x = (int)(index % MapSize) - (MapSize / 2);
+            var y = (int)(index / MapSize) - (MapSize / 2);
+            return new Vector2Int(x, y);
         }
 
         private MeshCombiner meshCombiner = new MeshCombiner();
 
-        private void OnValidate()
-        {
-            Debug.Log(MapData.Values.First().Object);
-        }
-
         private void Start()
         {
-            var meshFilters = new List<MeshFilter>();
-            const string colliderObjectKey = "Collider";
+            // Y座標でグリッドデータを分割する
+            var splitedFilters = SplitByY();
 
-            Debug.Log(MapData.Values.First().Object);
-
-            foreach (Transform rootTransform in MapData.Values.Select(cellData => cellData.Object.transform))
+            foreach (var filters in splitedFilters.Values)
             {
-                Transform colliderObj = rootTransform.Find(colliderObjectKey);
+                // 座標が連続しているMeshFilterをグループ化する
+                var continuousX = GroupByContinuousX(filters);
+
+                // 各グループをメッシュとして結合する
+                foreach (List<MeshFilter> group in continuousX)
+                {
+                    GameObject combinedObject = meshCombiner.CombineMeshes(group);
+                    combinedObject.transform.SetParent(transform, false);
+                }
+            }
+        }
+
+        private Dictionary<int, List<(int x, MeshFilter filter)>> SplitByY()
+        {
+            const string colliderObjectKey = "Collider";
+            var meshFilters = new Dictionary<int, List<(int x, MeshFilter filter)>>();
+
+            foreach (var data in MapData)
+            {
+                // 各セルのオブジェクトからコライダーオブジェクトを取得
+                Transform colliderObj = data.Value.Object.transform.Find(colliderObjectKey);
+
                 if (colliderObj != null && colliderObj.TryGetComponent(out MeshFilter meshFilter))
                 {
-                    meshFilters.Add(meshFilter);
+                    Vector2Int coord = IndexToCoord(data.Key);
+
+                    // Y座標をキーにして、MeshFilterをリストに追加
+                    if (meshFilters.ContainsKey(coord.y))
+                    {
+                        meshFilters[coord.y].Add((coord.x, meshFilter));
+                    }
+                    else
+                    {
+                        meshFilters.Add(coord.y, new List<(int x, MeshFilter filter)>() { (coord.x, meshFilter) });
+                    }
                 }
             }
 
-            GameObject combinedObject = meshCombiner.CombineMeshes(meshFilters);
-            combinedObject.transform.SetParent(transform, false);
+            return meshFilters;
+        }
+
+        private List<List<MeshFilter>> GroupByContinuousX(List<(int x, MeshFilter filter)> filters)
+        {
+            var groups = new List<List<MeshFilter>>();
+
+            if (filters.Count == 0)
+                return groups;
+
+            // x座標でソート
+            var sortedFilters = filters.OrderBy(f => f.x).ToList();
+
+            // 最初の要素をグループに追加
+            var currentGroup = new List<MeshFilter> { sortedFilters[0].filter };
+            var previousX = sortedFilters[0].x;
+
+            // 2番目以降の要素を処理
+            for (int i = 1; i < sortedFilters.Count; i++)
+            {
+                var currentX = sortedFilters[i].x;
+
+                // x座標が連続しているか確認
+                if (currentX == previousX + 1)
+                {
+                    currentGroup.Add(sortedFilters[i].filter);
+                }
+                else
+                {
+                    // 連続していない場合は新しいグループを作成
+                    groups.Add(currentGroup);
+                    currentGroup = new List<MeshFilter> { sortedFilters[i].filter };
+                }
+
+                previousX = currentX;
+            }
+
+            // 最後のグループを追加
+            groups.Add(currentGroup);
+
+            return groups;
         }
     }
 
@@ -54,7 +126,6 @@ namespace LevelEditor.Runtime
         public CellData(GameObject obj, long[] connections)
         {
             Object = obj;
-            Debug.Log(obj.GetInstanceID());
             Connections = connections;
         }
     }
