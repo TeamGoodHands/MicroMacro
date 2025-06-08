@@ -73,6 +73,7 @@ namespace Module.Player.State
             }
 
             rigidbody.linearVelocity = velocity + externalVelocity;
+            condition.ExternalForce = externalVelocity;
 
             // ジャンプから一定時間経過してから、着地状態を更新
             if (condition.JumpStartTime + parameter.GroundInterval < Time.time)

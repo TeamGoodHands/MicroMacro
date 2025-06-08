@@ -4,6 +4,7 @@ using Constants;
 using LevelEditor.Runtime;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace LevelEditor.Editor
@@ -22,8 +23,17 @@ namespace LevelEditor.Editor
         public ObjectPlacer()
         {
             UpdateParentObject();
-            SceneView.duringSceneGui -= HandleSceneGUI;
+        }
+
+        public void Enable()
+        {
+            isWindowEnter = true;
             SceneView.duringSceneGui += HandleSceneGUI;
+        }
+
+        public void Disable()
+        {
+            SceneView.duringSceneGui -= HandleSceneGUI;
         }
 
         public void UpdateParentObject()
@@ -79,11 +89,15 @@ namespace LevelEditor.Editor
 
         public void DestroyAll()
         {
+            UpdateParentObject();
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Delete Multiple Map Objects");
 
             foreach (GameObject obj in parentObject.MapData.Select(item => item.Value.Object))
             {
+                if (obj == null)
+                    continue;
+
                 Undo.DestroyObjectImmediate(obj);
             }
 
@@ -107,6 +121,20 @@ namespace LevelEditor.Editor
                 new Vector3(mousePosition.x + 0.5f, mousePosition.y + 0.5f, 0f),
                 new Vector3(mousePosition.x + 0.5f, mousePosition.y - 0.5f, 0f),
                 new Vector3(mousePosition.x - 0.5f, mousePosition.y - 0.5f, 0f));
+        }
+
+        public void DrawMap()
+        {
+            if (parentObject == null || parentObject.MapData == null)
+                return;
+
+            foreach (var data in parentObject.MapData)
+            {
+                Vector2Int coord = parentObject.IndexToCoord(data.Key);
+
+                Handles.color = new Color(1f, 0.48f, 0.51f);
+                Handles.DrawWireCube(new Vector3(coord.x, coord.y, 0f), Vector3.one);
+            }
         }
 
         private void HandleSceneGUI(SceneView sceneView)
@@ -221,7 +249,7 @@ namespace LevelEditor.Editor
 
                 // マップデータ変更
                 Undo.RecordObject(parentObject, "Erase Map Data");
-                parentObject.MapData.Add(gridIndex, new ConnectionPair(obj, new long[] { gridIndex }));
+                parentObject.MapData.Add(gridIndex, new CellData(obj, new long[] { gridIndex }));
 
                 // シーンに変更を登録
                 EditorUtility.SetDirty(parentObject);
