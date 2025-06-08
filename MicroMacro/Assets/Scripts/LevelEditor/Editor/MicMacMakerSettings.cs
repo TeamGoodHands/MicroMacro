@@ -8,29 +8,17 @@ namespace Editor.LevelEditor
     public class MicMacMakerSettings : ScriptableObject
     {
         public ObjectCategory[] ObjectCategories => objectCategories;
-        public Vector2 SnapSize => snapSize;
 
-        [SerializeField] private Vector2 snapSize;
         [SerializeField] private ObjectCategory[] objectCategories;
 
         [Serializable]
         public class ObjectCategory
         {
             public string Name => name;
-            public PaletteItem[] Items => items;
+            public GameObject[] Prefabs => prefabs;
 
             [SerializeField] private string name;
-            [SerializeField] private PaletteItem[] items;
-        }
-
-        [Serializable]
-        public struct PaletteItem
-        {
-            [SerializeField] private GameObject prefab;
-            [SerializeField] private Vector2Int size;
-
-            public GameObject Prefab => prefab;
-            public GameObject Size => prefab;
+            [SerializeField] private GameObject[] prefabs;
         }
     }
 }

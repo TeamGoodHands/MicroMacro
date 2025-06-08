@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Editor.LevelEditor
@@ -11,8 +12,12 @@ namespace Editor.LevelEditor
         private PreviewRenderUtility[] previewRenderUtilities;
         private GameObject[] instances;
 
-        public RenderTexture[] CreatePreviewTextures(GameObject[] prefabs)
+        public List<RenderTexture> CreatePreviewTextures(GameObject[] prefabs)
         {
+            // 空の場合は空のリストを返す
+            if (prefabs.Length == 0)
+                return new List<RenderTexture>();
+            
             previewRenderUtilities = new PreviewRenderUtility[prefabs.Length];
             instances = new GameObject[prefabs.Length];
 
@@ -29,14 +34,14 @@ namespace Editor.LevelEditor
                 renderUtility.AddSingleGO(instances[i]);
             }
 
-            var textures = new RenderTexture[prefabs.Length];
-
-            for (int i = 0; i < prefabs.Length; i++)
+            var textures = new List<RenderTexture>();
+            
+            foreach (PreviewRenderUtility utility in previewRenderUtilities)
             {
                 // 対象オブジェクトをレンダリングしてテクスチャを取得
-                previewRenderUtilities[i].camera.Render();
-                RenderTexture texture = (RenderTexture)previewRenderUtilities[i].EndPreview();
-                textures[i] = texture;
+                utility.camera.Render();
+                RenderTexture texture = (RenderTexture)utility.EndPreview();
+                textures.Add(texture);
             }
 
             return textures;
@@ -70,7 +75,7 @@ namespace Editor.LevelEditor
 
             // ライトののセットアップ
             previewRenderUtility.lights[0].transform.localEulerAngles = new Vector3(10, 10, 0);
-            previewRenderUtility.lights[0].intensity = 4;
+            previewRenderUtility.lights[0].intensity = 2;
 
             previewRenderUtility.BeginPreview(new Rect(0, 0, 128, 128), GUIStyle.none);
         }

@@ -18,7 +18,7 @@ namespace Editor.LevelEditor
         private static readonly float buttonSize = 64;
         private static readonly float rowCount = 3;
 
-        public event Action<MicMacMakerSettings.PaletteItem> OnObjectChanged; 
+        public event Action<GameObject> OnObjectChanged; 
         public event Action OnPlaceCanceled; 
 
         public Category(string name)
@@ -27,7 +27,7 @@ namespace Editor.LevelEditor
             previewTextureCreator = new PreviewTextureCreator();
         }
 
-        public Tab CreateTab(MicMacMakerSettings.PaletteItem[] items)
+        public Tab CreateTab(GameObject[] prefabs)
         {
             var tab = new Tab(name);
             var elementsView = new ScrollView(ScrollViewMode.Horizontal)
@@ -43,7 +43,7 @@ namespace Editor.LevelEditor
                 }
             };
 
-            var renderTextures = previewTextureCreator.CreatePreviewTextures(items.Select(item => item.Prefab).ToArray());
+            var renderTextures = previewTextureCreator.CreatePreviewTextures(prefabs);
 
             foreach (RenderTexture renderTexture in renderTextures)
             {
@@ -55,7 +55,7 @@ namespace Editor.LevelEditor
             for (var i = 0; i < buttonGroup.Count; i++)
             {
                 var button = buttonGroup[i];
-                var targetItem = items[i];
+                var prefab = prefabs[i];
 
                 button.focusable = false;
                 button.clicked += () =>
@@ -71,7 +71,7 @@ namespace Editor.LevelEditor
                     {
                         selectedButton = button;
                         button.style.backgroundColor = selectedColor;
-                        OnObjectChanged?.Invoke(targetItem);
+                        OnObjectChanged?.Invoke(prefab);
                     }
                 };
             }

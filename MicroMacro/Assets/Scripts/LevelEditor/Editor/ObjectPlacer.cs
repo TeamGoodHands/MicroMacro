@@ -218,6 +218,9 @@ namespace LevelEditor.Editor
 
         private void RotateSelectedObject(Vector2 delta)
         {
+            if (targetObject == null)
+                return;
+            
             float direction = Mathf.Sign(delta.x);
             targetObject.transform.eulerAngles += new Vector3(0f, 0f, direction * 90f);
         }
