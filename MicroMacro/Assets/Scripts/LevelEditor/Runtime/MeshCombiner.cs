@@ -8,6 +8,11 @@ namespace LevelEditor.Runtime
     {
         public GameObject CombineMeshes(List<MeshFilter> meshFilters)
         {
++            if (meshFilters == null || meshFilters.Count == 0)
++            {
++                Debug.LogWarning("MeshCombiner: メッシュフィルターのリストが空です");
++                return null;
++            }
             CombineInstance[] combineInstances = new CombineInstance[meshFilters.Count];
 
             for (var i = 0; i < meshFilters.Count; i++)
