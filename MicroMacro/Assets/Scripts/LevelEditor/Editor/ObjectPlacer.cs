@@ -139,7 +139,6 @@ namespace LevelEditor.Editor
 
         private void HandleSceneGUI(SceneView sceneView)
         {
-            Debug.Log("HandleSceneGUI called");
             Event e = Event.current;
 
             UpdateEraseMode(e);
