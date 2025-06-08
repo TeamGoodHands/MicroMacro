@@ -8,16 +8,23 @@ namespace LevelEditor.Runtime
     {
         public GameObject CombineMeshes(List<MeshFilter> meshFilters)
         {
-+            if (meshFilters == null || meshFilters.Count == 0)
-+            {
-+                Debug.LogWarning("MeshCombiner: メッシュフィルターのリストが空です");
-+                return null;
-+            }
+            if (meshFilters == null || meshFilters.Count == 0)
+            {
+                Debug.LogWarning("MeshCombiner: メッシュフィルターのリストが空です");
+                return null;
+            }
+
             CombineInstance[] combineInstances = new CombineInstance[meshFilters.Count];
 
             for (var i = 0; i < meshFilters.Count; i++)
             {
                 MeshFilter meshFilter = meshFilters[i];
+                if (meshFilter == null || meshFilter.sharedMesh == null)
+                {
+                    Debug.LogWarning($"MeshCombiner: インデックス{i}のメッシュフィルターが無効です");
+                    continue;
+                }
+
                 combineInstances[i] = new CombineInstance()
                 {
                     mesh = meshFilter.sharedMesh,
