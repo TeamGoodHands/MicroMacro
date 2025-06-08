@@ -17,21 +17,23 @@ namespace Gimmick
 
         private void Start()
         {
-            // スケール開始時のイベントを登録
-            scaler.OnScaleStarted += args =>
-            {
-                // スケールの段階が上がっていたらtrue
-                isUpScaling = args.CurrentStep - args.PreviousStep > 0;
-            };
+            // スケールイベントを購読
+            scaler.OnScaleStarted += OnScaleStarted;
+            scaler.OnScaleCompleted += OnScaleCompleted;
 
-            // スケール完了時のイベントを登録
-            scaler.OnScaleCompleted += args =>
-            {
-                isUpScaling = false;
-            };
-            
             // 巻き戻しをスケジュール
             scaleRewinder.Schedule(scaler);
+        }
+
+        private void OnScaleStarted(ScaleEventArgs args)
+        {
+            // スケールの段階が上がっていたらtrue
+            isUpScaling = args.CurrentStep - args.PreviousStep > 0;
+        }
+
+        private void OnScaleCompleted(ScaleEventArgs args)
+        {
+            isUpScaling = false;
         }
 
         private void OnCollisionStay(Collision other)
@@ -56,6 +58,11 @@ namespace Gimmick
 
         private void OnDestroy()
         {
+            // スケールイベントを解除
+            scaler.OnScaleStarted -= OnScaleStarted;
+            scaler.OnScaleCompleted -= OnScaleCompleted;
+                
+            // 巻き戻しを破棄
             scaleRewinder.Dispose();
         }
     }
