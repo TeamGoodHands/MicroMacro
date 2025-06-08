@@ -44,10 +44,6 @@ namespace Editor.LevelEditor
             }
 
             objectPlacer = new ObjectPlacer();
-            if (IsToolActive())
-            {
-                objectPlacer.Enable();
-            }
             objectPlacer.OnSequenceCanceled += ResetCategory;
 
             windowFocusChanged += OnWindowFocusChanged;
@@ -67,7 +63,7 @@ namespace Editor.LevelEditor
             {
                 // カテゴリタブの作成
                 var group = new Category(category.Name);
-                var tab = group.CreateTab(category.Items);
+                var tab = group.CreateTab(category.Prefabs);
                 categoryGroups.Add(tab, group);
 
                 group.OnObjectChanged += OnObjectChanged;
@@ -205,11 +201,11 @@ namespace Editor.LevelEditor
             }
         }
 
-        private void OnObjectChanged(MicMacMakerSettings.PaletteItem item)
+        private void OnObjectChanged(GameObject prefab)
         {
             objectPlacer.StopPlaceSequence();
-            objectPlacer.StartPlaceSequence(item.Prefab);
-            lastSelectedObject = item.Prefab;
+            objectPlacer.StartPlaceSequence(prefab);
+            lastSelectedObject = prefab;
         }
 
         private void OnPlaceCanceled()
@@ -220,8 +216,8 @@ namespace Editor.LevelEditor
 
         private void ResetCategory()
         {
-            selectedCategory.ResetCategoryGroup();
-            selectedCategory.ResetSelectedButton();
+            selectedCategory?.ResetCategoryGroup();
+            selectedCategory?.ResetSelectedButton();
         }
 
         private bool IsSceneViewFocused()
