@@ -1,6 +1,7 @@
 ﻿using System;
 using Constants;
 using Module.Scaling;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Module.Player.Weapon
@@ -10,6 +11,8 @@ namespace Module.Player.Weapon
         [SerializeField] private Rigidbody rigBody;
         [SerializeField] private int scaleStep;
         [SerializeField] private float disappearDistance;
+        [Header("加わる重力の強さ")]
+        [SerializeField] private float gravityScale;
 
         public event Action OnHit;
         private Camera mainCamera;
@@ -25,6 +28,11 @@ namespace Module.Player.Weapon
             if (IsOutOfScreen())
             {
                 Disable();
+            }
+
+            if (rigBody.useGravity)
+            {
+                rigBody.AddForce(Vector2.down * gravityScale, ForceMode.Force);
             }
         }
 
@@ -42,6 +50,18 @@ namespace Module.Player.Weapon
             }
 
             Disable();
+        }
+
+        private void OnCollisionEnter(Collision other)
+        {
+            // TODO: グレと通常弾でクラス分けたい
+            if (other.gameObject.TryGetComponent(out Scaler scaler))
+            {
+                scaler.Scale(scaleStep).Forget();
+                
+                // サイズ変動が無くても無効化
+                Disable();
+            }
         }
 
         private bool IsOutOfScreen()

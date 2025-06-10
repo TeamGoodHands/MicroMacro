@@ -24,6 +24,7 @@ namespace Module.Player.Component
             foreach (AbstractWeapon weapon in weapons)
             {
                 weapon.Initialize(component);
+                weapon.OnDisabled();
             }
             
             weapons[currentIndex].OnEnabled();
