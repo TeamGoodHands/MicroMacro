@@ -18,7 +18,8 @@ namespace LevelEditor.Editor
         private MicMacLevelData parentObject;
         private bool isErasing;
         private bool isWindowEnter;
-        private Vector2Int mousePosition;
+        private Vector2 mousePosition;
+        private Vector2Int gridPosition;
 
         public ObjectPlacer()
         {
@@ -90,22 +91,23 @@ namespace LevelEditor.Editor
         public void DestroyAll()
         {
             UpdateParentObject();
+
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Delete Multiple Map Objects");
-
-            foreach (GameObject obj in parentObject.MapData.Select(item => item.Value.Object))
             {
-                if (obj == null)
-                    continue;
+                foreach (GameObject obj in parentObject.MapData.Select(item => item.Value.Object))
+                {
+                    if (obj == null)
+                        continue;
 
-                Undo.DestroyObjectImmediate(obj);
+                    Undo.DestroyObjectImmediate(obj);
+                }
+
+                Undo.RecordObject(parentObject, "Delete Map Data");
+                parentObject.MapData.Clear();
+
+                EditorUtility.SetDirty(parentObject);
             }
-
-            Undo.RecordObject(parentObject, "Delete Map Data");
-            parentObject.MapData.Clear();
-
-            EditorUtility.SetDirty(parentObject);
-
             Undo.CollapseUndoOperations(undoGroup);
         }
 
@@ -150,7 +152,7 @@ namespace LevelEditor.Editor
 
             if (e.type == EventType.MouseMove || e.type == EventType.MouseDrag)
             {
-                mousePosition = GetCurrentGridPosition();
+                UpdateCurrentPosition();
                 MoveSelectedObject();
             }
 
@@ -220,7 +222,7 @@ namespace LevelEditor.Editor
         {
             if (targetObject == null)
                 return;
-            
+
             float direction = Mathf.Sign(delta.x);
             targetObject.transform.eulerAngles += new Vector3(0f, 0f, direction * 90f);
         }
@@ -276,7 +278,7 @@ namespace LevelEditor.Editor
         private void Erase()
         {
             // インデックスからマップデータを取得
-            long gridIndex = parentObject.CoordToIndex(mousePosition);
+            long gridIndex = parentObject.CoordToIndex(gridPosition);
             if (!parentObject.MapData.TryGetValue(gridIndex, out var value))
                 return;
 
@@ -296,7 +298,7 @@ namespace LevelEditor.Editor
             Undo.CollapseUndoOperations(undoGroup);
         }
 
-        private Vector2Int GetCurrentGridPosition()
+        private void UpdateCurrentPosition()
         {
             UpdateParentObject();
 
@@ -307,9 +309,11 @@ namespace LevelEditor.Editor
             Vector3 worldPosition = sceneView.camera.ScreenToWorldPoint(screenPosition);
             worldPosition -= parentObject.transform.position;
 
+            mousePosition = worldPosition;
+
             // スナッピングする
             worldPosition = Snapping.Snap(worldPosition, EditorSnapSettings.move);
-            return new Vector2Int((int)worldPosition.x, (int)worldPosition.y);
+            gridPosition = new Vector2Int((int)worldPosition.x, (int)worldPosition.y);
         }
     }
 }
