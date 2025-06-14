@@ -323,23 +323,30 @@ namespace LevelEditor.Editor
 
             // インデックスからマップデータを取得
             long gridIndex = parentObject.CoordToIndex(gridPosition);
-            bool isMapObject = parentObject.MapData.TryGetValue(gridIndex, out var cellData) || cellData.Object == target;
-            if (isSnapping)
+            bool isGridObject = parentObject.MapData.TryGetValue(gridIndex, out CellData cellData);
+            bool isMapObject = cellData.Object == target;
+
+            if (isGridObject)
             {
                 target = cellData.Object;
-
-                if (target == null)
-                    return;
+            }
+            else if (isSnapping)
+            {
+                return;
             }
 
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Erase Object");
             {
                 // 対象のオブジェクトを削除
-                Undo.DestroyObjectImmediate(target);
+                if (target != null)
+                {
+                    Undo.DestroyObjectImmediate(target);
+                }
+
                 Undo.RecordObject(parentObject, "Erase Map Data");
 
-                if (isMapObject)
+                if (isSnapping || isMapObject)
                 {
                     // マップデータ変更
                     parentObject.MapData.Remove(gridIndex);
