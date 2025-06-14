@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Constants;
 using LevelEditor.Runtime;
@@ -18,7 +19,9 @@ namespace LevelEditor.Editor
         private MicMacLevelData parentObject;
         private bool isErasing;
         private bool isWindowEnter;
-        private Vector2Int mousePosition;
+        private bool isSnapping = true;
+        private Vector2 mousePosition;
+        private Vector2Int gridPosition;
 
         public ObjectPlacer()
         {
@@ -90,22 +93,29 @@ namespace LevelEditor.Editor
         public void DestroyAll()
         {
             UpdateParentObject();
+
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Delete Multiple Map Objects");
-
-            foreach (GameObject obj in parentObject.MapData.Select(item => item.Value.Object))
             {
-                if (obj == null)
-                    continue;
+                // レベル上のオブジェクトをすべて削除
+                var destroyObjects = new List<GameObject>(parentObject.transform.childCount);
+                ;
+                for (int i = 0; i < destroyObjects.Capacity; i++)
+                {
+                    destroyObjects.Add(parentObject.transform.GetChild(i).gameObject);
+                }
 
-                Undo.DestroyObjectImmediate(obj);
+                foreach (var obj in destroyObjects)
+                {
+                    Undo.DestroyObjectImmediate(obj);
+                }
+
+                // マップデータのクリア
+                Undo.RecordObject(parentObject, "Delete Map Data");
+                parentObject.MapData.Clear();
+
+                EditorUtility.SetDirty(parentObject);
             }
-
-            Undo.RecordObject(parentObject, "Delete Map Data");
-            parentObject.MapData.Clear();
-
-            EditorUtility.SetDirty(parentObject);
-
             Undo.CollapseUndoOperations(undoGroup);
         }
 
@@ -143,14 +153,14 @@ namespace LevelEditor.Editor
 
             UpdateEraseMode(e);
 
-            if (e.type == EventType.MouseDown || e.type == EventType.MouseDrag)
+            if (e.type == EventType.MouseDown || (isSnapping && e.type == EventType.MouseDrag))
             {
                 TryPlaceOrErase(e);
             }
 
             if (e.type == EventType.MouseMove || e.type == EventType.MouseDrag)
             {
-                mousePosition = GetCurrentGridPosition();
+                UpdateCurrentPosition();
                 MoveSelectedObject();
             }
 
@@ -186,6 +196,11 @@ namespace LevelEditor.Editor
                     StopPlaceSequence();
                     OnSequenceCanceled?.Invoke();
                 }
+
+                if (e.keyCode == KeyCode.C)
+                {
+                    isSnapping = !isSnapping;
+                }
             }
         }
 
@@ -220,9 +235,22 @@ namespace LevelEditor.Editor
         {
             if (targetObject == null)
                 return;
-            
+
             float direction = Mathf.Sign(delta.x);
-            targetObject.transform.eulerAngles += new Vector3(0f, 0f, direction * 90f);
+            float angle;
+            if (isSnapping)
+            {
+                float currentAngle = targetObject.transform.eulerAngles.z;
+                int quadrant = Mathf.RoundToInt(currentAngle / 90f);
+                angle = quadrant * 90f - currentAngle;
+                angle += direction * 90f;
+            }
+            else
+            {
+                angle = direction * 3f;
+            }
+
+            targetObject.transform.eulerAngles += new Vector3(0f, 0f, angle);
         }
 
         private void Place()
@@ -236,7 +264,7 @@ namespace LevelEditor.Editor
             long gridIndex = parentObject.CoordToIndex(gridPos);
 
             // 既に配置されている位置であれば何もしない
-            if (parentObject.MapData.ContainsKey(gridIndex))
+            if (isSnapping && parentObject.MapData.ContainsKey(gridIndex))
             {
                 return;
             }
@@ -249,10 +277,13 @@ namespace LevelEditor.Editor
                 GameObject obj = PrefabUtility.InstantiatePrefab(prefab, parentObject.transform) as GameObject;
                 obj.transform.SetPositionAndRotation(targetObject.transform.position, targetObject.transform.rotation);
                 Undo.RegisterCreatedObjectUndo(obj, "Place Object: " + obj.name);
-
-                // マップデータ変更
                 Undo.RecordObject(parentObject, "Erase Map Data");
-                parentObject.MapData.Add(gridIndex, new CellData(obj, new long[] { gridIndex }));
+
+                if (isSnapping)
+                {
+                    // マップデータ変更
+                    parentObject.MapData.Add(gridIndex, new CellData(obj, new long[] { gridIndex }));
+                }
 
                 // シーンに変更を登録
                 EditorUtility.SetDirty(parentObject);
@@ -275,20 +306,51 @@ namespace LevelEditor.Editor
 
         private void Erase()
         {
+            GameObject target = null;
+
+            if (!isSnapping)
+            {
+                SceneView sceneView = SceneView.currentDrawingSceneView;
+                Vector3 screenPosition = Event.current.mousePosition * EditorGUIUtility.pixelsPerPoint;
+                screenPosition.y = sceneView.camera.pixelHeight - screenPosition.y;
+
+                Ray ray = sceneView.camera.ScreenPointToRay(screenPosition);
+                if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || hit.transform.root != parentObject.transform)
+                    return;
+
+                target = hit.transform.parent.gameObject;
+            }
+
             // インデックスからマップデータを取得
-            long gridIndex = parentObject.CoordToIndex(mousePosition);
-            if (!parentObject.MapData.TryGetValue(gridIndex, out var value))
+            long gridIndex = parentObject.CoordToIndex(gridPosition);
+            bool isGridObject = parentObject.MapData.TryGetValue(gridIndex, out CellData cellData);
+            bool isMapObject = cellData.Object == target;
+
+            if (isGridObject)
+            {
+                target = cellData.Object;
+            }
+            else if (isSnapping)
+            {
                 return;
+            }
 
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Erase Object");
             {
                 // 対象のオブジェクトを削除
-                Undo.DestroyObjectImmediate(value.Object);
+                if (target != null)
+                {
+                    Undo.DestroyObjectImmediate(target);
+                }
 
-                // マップデータ変更
                 Undo.RecordObject(parentObject, "Erase Map Data");
-                parentObject.MapData.Remove(gridIndex);
+
+                if (isSnapping || isMapObject)
+                {
+                    // マップデータ変更
+                    parentObject.MapData.Remove(gridIndex);
+                }
 
                 // シーンに変更を登録
                 EditorUtility.SetDirty(parentObject);
@@ -296,7 +358,7 @@ namespace LevelEditor.Editor
             Undo.CollapseUndoOperations(undoGroup);
         }
 
-        private Vector2Int GetCurrentGridPosition()
+        private void UpdateCurrentPosition()
         {
             UpdateParentObject();
 
@@ -308,8 +370,18 @@ namespace LevelEditor.Editor
             worldPosition -= parentObject.transform.position;
 
             // スナッピングする
-            worldPosition = Snapping.Snap(worldPosition, EditorSnapSettings.move);
-            return new Vector2Int((int)worldPosition.x, (int)worldPosition.y);
+            Vector2 snappedPosition = Snapping.Snap(worldPosition, EditorSnapSettings.move);
+            gridPosition = new Vector2Int((int)snappedPosition.x, (int)snappedPosition.y);
+
+
+            if (isSnapping)
+            {
+                mousePosition = gridPosition;
+            }
+            else
+            {
+                mousePosition = worldPosition;
+            }
         }
     }
 }

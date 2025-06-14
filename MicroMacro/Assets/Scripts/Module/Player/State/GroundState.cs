@@ -55,7 +55,7 @@ namespace Module.Player.State
         {
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
-
+            
             velocity.y += parameter.Gravity; // 重力を加算
 
             movement.PerformMovement(moveInput.x, ref velocity); // 移動速度を適用
