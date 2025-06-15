@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Constants;
 using LevelEditor.Runtime;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace LevelEditor.Editor
@@ -99,7 +97,7 @@ namespace LevelEditor.Editor
             {
                 // レベル上のオブジェクトをすべて削除
                 var destroyObjects = new List<GameObject>(parentObject.transform.childCount);
-                ;
+
                 for (int i = 0; i < destroyObjects.Capacity; i++)
                 {
                     destroyObjects.Add(parentObject.transform.GetChild(i).gameObject);
@@ -238,6 +236,7 @@ namespace LevelEditor.Editor
 
             float direction = Mathf.Sign(delta.x);
             float angle;
+
             if (isSnapping)
             {
                 float currentAngle = targetObject.transform.eulerAngles.z;
@@ -306,51 +305,70 @@ namespace LevelEditor.Editor
 
         private void Erase()
         {
-            GameObject target = null;
-
-            if (!isSnapping)
+            if (isSnapping)
             {
-                SceneView sceneView = SceneView.currentDrawingSceneView;
-                Vector3 screenPosition = Event.current.mousePosition * EditorGUIUtility.pixelsPerPoint;
-                screenPosition.y = sceneView.camera.pixelHeight - screenPosition.y;
-
-                Ray ray = sceneView.camera.ScreenPointToRay(screenPosition);
-                if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || hit.transform.root != parentObject.transform)
-                    return;
-
-                target = hit.transform.parent.gameObject;
+                EraseGridObject();
             }
+            else
+            {
+                EraseFreeObject();
+            }
+        }
 
+        private void EraseGridObject()
+        {
             // インデックスからマップデータを取得
             long gridIndex = parentObject.CoordToIndex(gridPosition);
-            bool isGridObject = parentObject.MapData.TryGetValue(gridIndex, out CellData cellData);
-            bool isMapObject = cellData.Object == target;
 
-            if (isGridObject)
+            if (parentObject.MapData.TryGetValue(gridIndex, out CellData cellData))
             {
-                target = cellData.Object;
+                // マップデータ変更
+                parentObject.MapData.Remove(gridIndex);
             }
-            else if (isSnapping)
+            else
             {
                 return;
             }
+
+            GameObject target = cellData.Object;
+
+            DestroyLevelObject(target);
+        }
+
+        private void EraseFreeObject()
+        {
+            SceneView sceneView = SceneView.currentDrawingSceneView;
+            Vector3 screenPosition = Event.current.mousePosition * EditorGUIUtility.pixelsPerPoint;
+            screenPosition.y = sceneView.camera.pixelHeight - screenPosition.y;
+
+            Ray ray = sceneView.camera.ScreenPointToRay(screenPosition);
+            if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || hit.transform.root != parentObject.transform)
+                return;
+
+            GameObject target = hit.transform.parent.gameObject;
+
+            long gridIndex = parentObject.CoordToIndex(gridPosition);
+            if (parentObject.MapData.TryGetValue(gridIndex, out CellData cellData) && cellData.Object == target)
+            {
+                // マップデータ変更
+                parentObject.MapData.Remove(gridIndex);
+            }
+            
+            DestroyLevelObject(target);
+        }
+
+        private void DestroyLevelObject(GameObject target)
+        {
+            if (target == null)
+                return;
 
             int undoGroup = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("Erase Object");
             {
                 // 対象のオブジェクトを削除
-                if (target != null)
-                {
-                    Undo.DestroyObjectImmediate(target);
-                }
+                Undo.DestroyObjectImmediate(target);
 
                 Undo.RecordObject(parentObject, "Erase Map Data");
-
-                if (isSnapping || isMapObject)
-                {
-                    // マップデータ変更
-                    parentObject.MapData.Remove(gridIndex);
-                }
 
                 // シーンに変更を登録
                 EditorUtility.SetDirty(parentObject);
