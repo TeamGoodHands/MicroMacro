@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Constants;
 using LevelEditor.Runtime;
 using UnityEditor;
@@ -96,16 +97,10 @@ namespace LevelEditor.Editor
             Undo.SetCurrentGroupName("Delete Multiple Map Objects");
             {
                 // レベル上のオブジェクトをすべて削除
-                var destroyObjects = new List<GameObject>(parentObject.transform.childCount);
-
-                for (int i = 0; i < destroyObjects.Capacity; i++)
+                var transforms = parentObject.transform.Cast<Transform>().ToList();
+                foreach (Transform transform in transforms)
                 {
-                    destroyObjects.Add(parentObject.transform.GetChild(i).gameObject);
-                }
-
-                foreach (var obj in destroyObjects)
-                {
-                    Undo.DestroyObjectImmediate(obj);
+                    Undo.DestroyObjectImmediate(transform.gameObject);
                 }
 
                 // マップデータのクリア
@@ -264,9 +259,7 @@ namespace LevelEditor.Editor
 
             // 既に配置されている位置であれば何もしない
             if (isSnapping && parentObject.MapData.ContainsKey(gridIndex))
-            {
                 return;
-            }
 
             int undoGroup = Undo.GetCurrentGroup();
 
@@ -320,18 +313,15 @@ namespace LevelEditor.Editor
             // インデックスからマップデータを取得
             long gridIndex = parentObject.CoordToIndex(gridPosition);
 
-            if (parentObject.MapData.TryGetValue(gridIndex, out CellData cellData))
-            {
-                // マップデータ変更
-                parentObject.MapData.Remove(gridIndex);
-            }
-            else
-            {
+            // マップデータに存在しなかったら終了
+            if (!parentObject.MapData.TryGetValue(gridIndex, out CellData cellData))
                 return;
-            }
 
+            // マップデータ変更
+            parentObject.MapData.Remove(gridIndex);
+
+            // GameObjectを削除
             GameObject target = cellData.Object;
-
             DestroyLevelObject(target);
         }
 
@@ -341,19 +331,22 @@ namespace LevelEditor.Editor
             Vector3 screenPosition = Event.current.mousePosition * EditorGUIUtility.pixelsPerPoint;
             screenPosition.y = sceneView.camera.pixelHeight - screenPosition.y;
 
+            // カーソルが触れているオブジェクトを取得
             Ray ray = sceneView.camera.ScreenPointToRay(screenPosition);
             if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || hit.transform.root != parentObject.transform)
                 return;
 
             GameObject target = hit.transform.parent.gameObject;
 
+            // グリッド上に存在すれば削除
             long gridIndex = parentObject.CoordToIndex(gridPosition);
             if (parentObject.MapData.TryGetValue(gridIndex, out CellData cellData) && cellData.Object == target)
             {
                 // マップデータ変更
                 parentObject.MapData.Remove(gridIndex);
             }
-            
+
+            // GameObjectを削除
             DestroyLevelObject(target);
         }
 
