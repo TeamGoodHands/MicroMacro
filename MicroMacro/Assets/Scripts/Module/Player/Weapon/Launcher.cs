@@ -28,11 +28,13 @@ namespace Module.Player.Weapon
         private InputEvent macroShootEvent;
         private InputEvent microShootEvent;
 
+        private Vector3 defaultPosition;
         private float lastShootTime;
         public override void Initialize(PlayerComponent component)
         {
             condition = component.Condition;
             playerRigBody = component.Rigidbody;
+            defaultPosition = transform.localPosition;
 
             // 弾のObjectPoolの初期化
             macroGrenadePool = new ObjectPool<GameObject>(() => OnBulletCreate(macroGrenadePrefab), null, poolAmount);
@@ -84,6 +86,8 @@ namespace Module.Player.Weapon
             {
                 transform.localRotation = Quaternion.Euler(0f, 0f, condition.Direction.y * 90f);
             }
+
+            SwitchLauncherPosition(condition.Direction);
         }
 
         private void Shoot(ObjectPool<GameObject> targetPool)
@@ -111,13 +115,12 @@ namespace Module.Player.Weapon
 
             // 砲口に移動
             bullet.transform.position = muzzle.transform.position;
-           
-            // WARNING: ちゃんと速度乗ってなさそう 
+            
             // プレイヤーの速度を足して発射　
             Vector2 dirVelocity = GetDirectedVelocity(condition.Direction, playerRigBody.linearVelocity, maxAdditionalSpeed);
 
             // condition.Directionに角度足す感じで出来そうな気もする。
-            Vector2 dir = (muzzle.transform.position - transform.position).normalized;
+            Vector2 dir = muzzle.transform.right;
             bullet.AddForce(dir * shootPower + dirVelocity);
             lastShootTime = Time.time;
         }
@@ -138,6 +141,30 @@ namespace Module.Player.Weapon
 
             Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
             return Vector2.zero;
+        }
+        
+        /// <summary>
+        /// 銃口の向きに応じてLauncherの位置を切り替える
+        /// </summary>
+        private void SwitchLauncherPosition(Vector2 direction)
+        {
+           if (direction == Vector2.up)
+           {
+               transform.localPosition = new Vector3(0f, 1f, 0f);
+           }
+           else if (direction == Vector2.down)
+           {
+               transform.localPosition = new Vector3(0f, -1.5f, 0f);
+           }
+           else if (direction == Vector2.right || direction == Vector2.left)
+           {
+               if (transform.localPosition != defaultPosition)
+                   transform.localPosition = defaultPosition;
+           }
+           else
+           {
+               Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
+           }
         }
     }
 }

@@ -411,7 +411,7 @@ Transform:
   m_GameObject: {fileID: 4585977749054921538}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.58, y: 0, z: 0}
+  m_LocalPosition: {x: 1, y: 0.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -435,7 +435,7 @@ MonoBehaviour:
   shootRadius: 1
   shootInterval: 0.3
   maxAdditionalSpeed: 4
-  launcherAngle: 45
+  launcherAngle: 50
   poolAmount: 8
   poolParent: {fileID: 0}
   macroGrenadePrefab: {fileID: 3385789982444698467, guid: 52d16400fd9dbe04f9c45dab9fb5e59c, type: 3}
@@ -661,7 +661,7 @@ Transform:
   m_GameObject: {fileID: 6273185181649389201}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.464, y: 0.61, z: 0}
+  m_LocalPosition: {x: 0.492, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -678,7 +678,6 @@ GameObject:
   - component: {fileID: 359607238297452984}
   - component: {fileID: 7338298723325662502}
   - component: {fileID: 8914199411745110829}
-  - component: {fileID: 7019882598498104681}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -695,7 +694,7 @@ Transform:
   m_GameObject: {fileID: 9059875819990294882}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.758, y: 0.551, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.6017622, y: 0.244818, z: 0.244818}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -754,24 +753,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &7019882598498104681
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9059875819990294882}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.99999994, y: 0.99999994, z: 0.99999994}
-  m_Center: {x: 0, y: 0, z: 0}
