@@ -14,6 +14,7 @@ namespace Constants
 		public const int Water = 4;
 		public const int UI = 5;
 		public const int Bullet = 6;
+		public const int ThroughPlatform = 7;
 		
 		public sealed class Mask
 		{
@@ -24,6 +25,7 @@ namespace Constants
 			public const int Water = 16;
 			public const int UI = 32;
 			public const int Bullet = 64;
+			public const int ThroughPlatform = 128;
 		}
 	}
 }
