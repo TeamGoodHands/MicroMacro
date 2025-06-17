@@ -1,9 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace CoreModule.ObjectPool
 {
+    public static class ObjectPool
+    {
+        public static Transform Root => poolRoot ??= new GameObject("Pool").transform;
+        private static Transform poolRoot;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Initialize()
+        {
+            poolRoot = null;
+        }
+    }
+
     /// <summary>
     /// オブジェクトプール (マルチスレッド非対応)
     /// </summary>

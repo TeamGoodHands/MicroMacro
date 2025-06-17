@@ -51,7 +51,6 @@ MonoBehaviour:
   shootInterval: 0.3
   maxAdditionalSpeed: 4
   poolAmount: 8
-  poolParent: {fileID: 0}
   macroBulletPrefab: {fileID: 3385789982444698467, guid: e4614154faec2d741b6cf8c09ff6702f, type: 3}
   microBulletPrefab: {fileID: 2584283300275584479, guid: ede17a17c98e84c42a5b10bc44c82900, type: 3}
 --- !u!1 &296838339659724699
@@ -152,6 +151,7 @@ GameObject:
   - component: {fileID: 4222473398700719601}
   - component: {fileID: 3768903610724826711}
   - component: {fileID: 9111796362693662857}
+  - component: {fileID: 4667942627592755181}
   - component: {fileID: 2500792367917730159}
   m_Layer: 0
   m_Name: Player
@@ -270,6 +270,18 @@ MonoBehaviour:
   isGround: 0
   direction: {x: 1, y: 0}
   lastSideInput: {x: 1, y: 0}
+--- !u!114 &4667942627592755181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606406522880336005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54de8fcca5ad39648ab69b939e2704ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!54 &2500792367917730159
 Rigidbody:
   m_ObjectHideFlags: 0
