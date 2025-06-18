@@ -14,7 +14,6 @@ namespace Module.Player.Weapon
         [SerializeField] private float shootInterval;
         [SerializeField] private float maxAdditionalSpeed;
         [SerializeField] private int poolAmount;
-        [SerializeField] private Transform poolParent;
 
         [SerializeField] private GameObject macroBulletPrefab;
         [SerializeField] private GameObject microBulletPrefab;
@@ -58,7 +57,7 @@ namespace Module.Player.Weapon
 
         private GameObject OnBulletCreate(GameObject prefab)
         {
-            GameObject obj = Instantiate(prefab, poolParent, true);
+            GameObject obj = Instantiate(prefab, ObjectPool.Root, true);
             obj.SetActive(false);
             return obj;
         }
