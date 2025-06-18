@@ -1,5 +1,4 @@
-﻿using System;
-using Constants;
+﻿using Constants;
 using UnityEngine;
 
 namespace Module.Gimmick
@@ -12,15 +11,18 @@ namespace Module.Gimmick
         private Vector3 prevPosition;
         private Vector3 moveDelta;
 
-        private void FixedUpdate()
+        private void Update()
         {
+            // 床の移動量を先に計算
+            moveDelta = rigidBody.position - prevPosition;
+
+            // プレイヤーが乗っていたら、移動分加算
             if (playerRigidBody != null)
             {
-                // プレイヤーのRigidbodyに移動量を適用
+                // position変更だけでなく、速度も床に合わせると自然
                 playerRigidBody.position += moveDelta;
             }
 
-            moveDelta = rigidBody.position - prevPosition;
             prevPosition = rigidBody.position;
         }
 

@@ -15,7 +15,7 @@ namespace Module.Gimmick
 
         private void Start()
         {
-            footScaler.OnScaleStarted += OnScaleStarted;
+            footScaler.OnScaleCompleted += OnScaleStarted;
         }
 
         private void OnScaleStarted(ScaleEventArgs args)
