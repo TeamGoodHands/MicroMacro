@@ -51,11 +51,18 @@ namespace Module.Gimmick
             };
         }
         
+        private void OnDestroy()
+        {
+            if (aroundTrigger != null)
+                aroundTrigger.OnTriggerChanged -= StatusCheck;
+            if (objectTrigger != null)
+                objectTrigger.OnTriggerChanged -= StatusCheck;
+        }
+        
         private void SwitchPlatformLayer(bool isEnabled)
         {
-            Debug.Log("SwitchPlatformLayer: " + isEnabled);
             // 貫通可能なオブジェクトのレイヤーを切り替える
-            gameObject.layer = isEnabled ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("Through Platform");
+            gameObject.layer = isEnabled ? Layer.Default : Layer.ThroughPlatform;
         }
         
         /// <summary>
@@ -83,7 +90,7 @@ namespace Module.Gimmick
           
         private void OnCollisionStay(Collision collision)
         {
-            if (isOneWay)
+            if (isOneWay || condition == null)
                 return;
             
             // 下入力で降りる

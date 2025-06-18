@@ -23,7 +23,6 @@ namespace Module.Gimmick
         {
             if (other.CompareTag(Tag.Handle.Player))
             {
-                Debug.Log("Trigger Exit");
                 IsTriggered = false;
                 OnTriggerChanged?.Invoke(other.gameObject);
             }
