@@ -2,10 +2,11 @@
 using Module.Player;
 using Module.Player.Component;
 using UnityEngine;
+using Constants;
+using UnityEngine.Serialization;
 
 namespace Module.Gimmick
 {
-    
     /// <summary>
     /// (例：貫通床)
     /// 通常時は貫通可能で、aroundTriggerに触れると床に乗れるようになる。乗った状態で下入力で再度貫通可能に。
@@ -14,16 +15,18 @@ namespace Module.Gimmick
     {
         [SerializeField] private ThroughTrigger aroundTrigger;
         [Tooltip("貫通するオブジェクトと同じサイズのトリガーを設定してください。")]
-        [SerializeField] private ThroughTrigger objectTrigger;
-        [SerializeField] private PlayerCondition condition;
+        [SerializeField] private ThroughTrigger objectTrigger; 
         [Header("貫通の入力方向")]
-        [SerializeField] private Direction _direction;
+        [SerializeField] private Direction inputDirection;
         
         [Header("完全なすり抜けを可能にするか")]
         [Tooltip("trueにすると、スティック入力をし続けた時に引っ掛からずに通り抜けれます")]
         [SerializeField] private bool isCompleteThrough = true;
-
+        
+        [Header("一方通行にするか")]
+        [SerializeField] private bool isOneWay = false;
         private Vector2 direction;
+        private PlayerCondition condition;
 
         private void Start() => Initialize();
 
@@ -32,8 +35,13 @@ namespace Module.Gimmick
         /// </summary>
         private void Initialize()
         {
+            if (aroundTrigger != null)
+                aroundTrigger.OnTriggerChanged += StatusCheck;
+            if (objectTrigger != null)
+                objectTrigger.OnTriggerChanged += StatusCheck;
+            
             // switch文を簡略化したswitch式
-            direction = _direction switch
+            direction = inputDirection switch
             {
                 Direction.Up => Vector2.up,
                 Direction.Down => Vector2.down,
@@ -45,6 +53,7 @@ namespace Module.Gimmick
         
         private void SwitchPlatformLayer(bool isEnabled)
         {
+            Debug.Log("SwitchPlatformLayer: " + isEnabled);
             // 貫通可能なオブジェクトのレイヤーを切り替える
             gameObject.layer = isEnabled ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("Through Platform");
         }
@@ -52,11 +61,13 @@ namespace Module.Gimmick
         /// <summary>
         ///  二つのトリガーをもとに台を接触可能な状態にするか判断
         /// </summary>
-        public void StatusCheck()
+        private void StatusCheck(GameObject player)
         {
+            if (condition == null)
+                condition = player.GetComponentInParent<PlayerCondition>();
+            
             // WARNING: Triggerを大きくしすぎると、下入力しながら落下->Triggerに入ってから離す、ですり抜けが出来てしまう可能性あり。
             // 引っ掛からずにすり抜けも可能に
-          
             if (condition.Direction == direction && isCompleteThrough)
                 return;
             
@@ -72,11 +83,16 @@ namespace Module.Gimmick
           
         private void OnCollisionStay(Collision collision)
         {
+            if (isOneWay)
+                return;
+            
             // 下入力で降りる
-            if (collision.gameObject.CompareTag("Player"))
+            if (collision.gameObject.CompareTag(Tag.Handle.Player))
             {
                 if (condition.Direction == direction)
-                   SwitchPlatformLayer(false);
+                {
+                    SwitchPlatformLayer(false);
+                }
             }
         }
     }
