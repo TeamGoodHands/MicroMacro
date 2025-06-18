@@ -1,5 +1,6 @@
 ﻿using System;
 using Module.Player.Component;
+using Module.Gimmick;
 using UnityEngine;
 
 namespace Module.Player
@@ -10,7 +11,7 @@ namespace Module.Player
         [SerializeField] private PlayerParameter parameter;
         [SerializeField] private PlayerCondition condition;
         [SerializeField] private Rigidbody rigidbody;
-
+       
         public PlayerParameter Parameter => parameter;
         public PlayerCondition Condition => condition;
         public Rigidbody Rigidbody => rigidbody;
