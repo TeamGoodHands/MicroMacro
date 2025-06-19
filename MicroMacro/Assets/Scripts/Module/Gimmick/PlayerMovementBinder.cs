@@ -3,13 +3,22 @@ using UnityEngine;
 
 namespace Module.Gimmick
 {
+    /// <summary>
+    /// 動的なオブジェクトにプレイヤーを追従させるコンポーネント
+    /// </summary>
     [RequireComponent(typeof(Rigidbody))]
+    [DefaultExecutionOrder(10)]
     public class PlayerMovementBinder : MonoBehaviour
     {
         [SerializeField] private Rigidbody rigidBody;
         private Rigidbody playerRigidBody;
         private Vector3 prevPosition;
         private Vector3 moveDelta;
+
+        private void Start()
+        {
+            prevPosition = rigidBody.position;
+        }
 
         private void Update()
         {
@@ -19,14 +28,16 @@ namespace Module.Gimmick
             // プレイヤーが乗っていたら、移動分加算
             if (playerRigidBody != null)
             {
-                // position変更だけでなく、速度も床に合わせると自然
+                // プレイヤーが浮いてしまうので上方向の加算は行わない
+                moveDelta.y = Mathf.Min(moveDelta.y, 0f);
+                
                 playerRigidBody.position += moveDelta;
             }
 
             prevPosition = rigidBody.position;
         }
 
-        private void OnCollisionEnter(Collision other)
+        private void OnTriggerEnter(Collider other)
         {
             if (other.transform.root.CompareTag(Tag.Handle.Player) &&
                 other.transform.root.TryGetComponent(out Rigidbody playerRigidbody))
@@ -35,7 +46,7 @@ namespace Module.Gimmick
             }
         }
 
-        private void OnCollisionExit(Collision other)
+        private void OnTriggerExit(Collider other)
         {
             if (other.transform.root.CompareTag(Tag.Handle.Player))
             {
