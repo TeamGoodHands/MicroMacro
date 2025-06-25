@@ -78,11 +78,8 @@ namespace Module.Gimmick
             if (condition.Direction == direction && isCompleteThrough)
                 return;
             
-            if (aroundTrigger.IsTriggered && !objectTrigger.IsTriggered)
-            {
-                // 接触可能な状態に
-                SwitchPlatformLayer(true);
-            }
+            if (aroundTrigger.IsTriggered && !objectTrigger.IsTriggered) 
+                SwitchPlatformLayer(true);  // 接触可能な状態に
             
             if (!aroundTrigger.IsTriggered && !objectTrigger.IsTriggered)
                 SwitchPlatformLayer(false);
@@ -96,10 +93,8 @@ namespace Module.Gimmick
             // 下入力で降りる
             if (collision.gameObject.CompareTag(Tag.Handle.Player))
             {
-                if (condition.Direction == direction)
-                {
+                if (condition.Direction == direction) 
                     SwitchPlatformLayer(false);
-                }
             }
         }
     }
