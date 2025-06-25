@@ -270,7 +270,7 @@ namespace LevelEditor.Editor
                 Undo.RegisterCreatedObjectUndo(obj, "Place Object: " + obj.name);
                 Undo.RecordObject(parentObject, "Erase Map Data");
 
-                if (isSnapping)
+                if (isSnapping && obj.isStatic)
                 {
                     // マップデータ変更
                     parentObject.MapData.Add(gridIndex, new CellData(obj, new long[] { gridIndex }));
