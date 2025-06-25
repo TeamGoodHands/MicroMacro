@@ -27,7 +27,7 @@ namespace Module.Scaling
             this.scaler = scaler;
             scaler.OnScaleCompleted += OnScaleCompleted;
         }
-        
+
         public void Dispose()
         {
             if (scaler != null)
@@ -42,8 +42,8 @@ namespace Module.Scaling
 
         private void OnScaleCompleted(ScaleEventArgs args)
         {
-            // スケールが最小段階のときは巻き戻し不要
-            if (args.State == State.MinScale)
+            // スケールが0のときは巻き戻し不要
+            if (args.CurrentStep == 0)
                 return;
 
             // 現在の巻き戻しをキャンセル
@@ -56,11 +56,14 @@ namespace Module.Scaling
 
         private async UniTaskVoid RewindAsync()
         {
-            // 巻き戻しステップ数
-            int stepCount = isPhasedRewind ? -1 : -scaler.MaxStep;
-
             // 遅延させる
             await UniTask.Delay(TimeSpan.FromSeconds(rewindDelay), cancellationToken: rewindCanceller.Token);
+
+            // 巻き戻し量
+            int rewindAmount = scaler.CurrentStep > 0 ? -1 : 1;
+
+            // 巻き戻しステップ数
+            int stepCount = isPhasedRewind ? rewindAmount : -scaler.MaxStep;
 
             scaler.Scale(stepCount).Forget();
         }
