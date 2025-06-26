@@ -3,18 +3,25 @@ using Module.Player.Component;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerSpawner : MonoBehaviour
+namespace Module.System
 {
-    private PlayerStatus playerStatus;
-
-    private void Start()
+    /// <summary>
+    /// プレイヤーをスポーンさせるクラス
+    /// </summary>
+    public class PlayerSpawner : MonoBehaviour
     {
-        playerStatus = GameObject.FindWithTag(Tag.Player).GetComponent<PlayerStatus>();
-        playerStatus.OnDeath += OnPlayerDeath;
-    }
+        private PlayerStatus playerStatus;
 
-    private void OnPlayerDeath()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        private void Start()
+        {
+            playerStatus = GameObject.FindWithTag(Tag.Player).GetComponent<PlayerStatus>();
+            playerStatus.OnDeath += OnPlayerDeath;
+        }
+
+        private void OnPlayerDeath()
+        {
+            // 今はとりあえずシーンを読み込み直す
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 }

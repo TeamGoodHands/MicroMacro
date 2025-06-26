@@ -3,16 +3,41 @@ using Constants;
 using Module.Player.Component;
 using UnityEngine;
 
-public class DeathArea : MonoBehaviour
+namespace Module.Gimmick
 {
-    private const int maxDamage = 99999999;
-    
-    private void OnTriggerEnter(Collider other)
+    /// <summary>
+    /// 入ると死亡するエリアのコンポーネント
+    /// </summary>
+    public class DeathArea : MonoBehaviour
     {
-        if (other.CompareTag(Tag.Player) && 
-            other.transform.root.TryGetComponent(out PlayerStatus player))
+        private const int maxDamage = 99999999;
+        private BoxCollider boxCollider;
+
+        private void OnValidate()
         {
-            player.Damage(maxDamage);
-        };
+            boxCollider = GetComponent<BoxCollider>();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            // ダメージを与える
+            SendDamage(other.gameObject);
+        }
+
+        private void SendDamage(GameObject obj)
+        {
+            if (obj.CompareTag(Tag.Player) &&
+                obj.TryGetComponent(out PlayerStatus player))
+            {
+                player.Damage(maxDamage);
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = new Color(1f, 0.06f, 0.1f, 0.35f);
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+        }
     }
 }
