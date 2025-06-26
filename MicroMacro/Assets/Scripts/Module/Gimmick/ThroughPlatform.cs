@@ -71,7 +71,7 @@ namespace Module.Gimmick
         private void StatusCheck(GameObject player)
         {
             if (condition == null)
-                condition = player.GetComponentInParent<PlayerCondition>();
+                condition = player.GetComponent<PlayerCondition>();
             
             // WARNING: Triggerを大きくしすぎると、下入力しながら落下->Triggerに入ってから離す、ですり抜けが出来てしまう可能性あり。
             // 引っ掛からずにすり抜けも可能に

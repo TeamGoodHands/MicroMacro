@@ -153,6 +153,7 @@ GameObject:
   - component: {fileID: 9111796362693662857}
   - component: {fileID: 4667942627592755181}
   - component: {fileID: 2500792367917730159}
+  - component: {fileID: 8843241842951495362}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -282,6 +283,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54de8fcca5ad39648ab69b939e2704ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 0
+  currentHealth: 0
 --- !u!54 &2500792367917730159
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -309,6 +312,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 2
+--- !u!65 &8843241842951495362
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606406522880336005}
+  m_Material: {fileID: 13400000, guid: 37b45b8ac20edb84085dec5129a3e999, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1.6960007, z: 1}
+  m_Center: {x: 0, y: -0.20061144, z: 0}
 --- !u!1 &3034561087786929050
 GameObject:
   m_ObjectHideFlags: 0
@@ -406,10 +430,9 @@ GameObject:
   - component: {fileID: 6690612206636288863}
   - component: {fileID: 1717446344402134669}
   - component: {fileID: 6667720053602156786}
-  - component: {fileID: 8293623826278550413}
   m_Layer: 3
   m_Name: Body
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -483,27 +506,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8293623826278550413
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5259000648017406399}
-  m_Material: {fileID: 13400000, guid: 37b45b8ac20edb84085dec5129a3e999, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.99999994, y: 1.9999999, z: 0.99999994}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5517747652530668169
 GameObject:
   m_ObjectHideFlags: 0

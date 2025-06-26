@@ -39,8 +39,8 @@ namespace Module.Gimmick
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.transform.root.CompareTag(Tag.Handle.Player) &&
-                other.transform.root.TryGetComponent(out Rigidbody playerRigidbody))
+            if (other.CompareTag(Tag.Handle.Player) &&
+                other.TryGetComponent(out Rigidbody playerRigidbody))
             {
                 playerRigidBody = playerRigidbody;
             }
@@ -48,7 +48,7 @@ namespace Module.Gimmick
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.transform.root.CompareTag(Tag.Handle.Player))
+            if (other.CompareTag(Tag.Handle.Player))
             {
                 playerRigidBody = null;
             }
