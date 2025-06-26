@@ -48,7 +48,7 @@ namespace Module.Gimmick
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.transform.root.CompareTag(Tag.Handle.Player))
+            if (other.CompareTag(Tag.Handle.Player))
             {
                 playerRigidBody = null;
             }
