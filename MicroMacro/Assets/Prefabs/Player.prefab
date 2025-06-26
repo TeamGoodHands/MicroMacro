@@ -153,6 +153,7 @@ GameObject:
   - component: {fileID: 3768903610724826711}
   - component: {fileID: 9111796362693662857}
   - component: {fileID: 2500792367917730159}
+  - component: {fileID: 6987987735228162460}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -299,6 +300,21 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 2
+--- !u!114 &6987987735228162460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606406522880336005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40ea4a280c8e43ee967883d38ac5687f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ballSimPrefab: {fileID: 930055790018447129, guid: 8e7702090119c9049b0435d8a094cb98, type: 3}
+  simulateCount: 13
+  startPosition: {fileID: 6273185181649389201}
 --- !u!1 &3034561087786929050
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,6 +457,7 @@ MonoBehaviour:
   macroGrenadePrefab: {fileID: 3385789982444698467, guid: 52d16400fd9dbe04f9c45dab9fb5e59c, type: 3}
   microGrenadePrefab: {fileID: 2584283300275584479, guid: bc1274688673f7242a8ea6ab737f6866, type: 3}
   muzzle: {fileID: 6273185181649389201}
+  ballSimulator: {fileID: 6987987735228162460}
 --- !u!1 &5259000648017406399
 GameObject:
   m_ObjectHideFlags: 0

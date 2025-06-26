@@ -1,4 +1,5 @@
-﻿using CoreModule.Input;
+﻿using System;
+using CoreModule.Input;
 using CoreModule.ObjectPool;
 using Module.Player.Component;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace Module.Player.Weapon
         [SerializeField] private GameObject microGrenadePrefab;
         [SerializeField] private GameObject muzzle;
         
+        [SerializeField] private BallSimulator ballSimulator;
         
         private PlayerCondition condition;
         private Rigidbody playerRigBody;
@@ -30,6 +32,8 @@ namespace Module.Player.Weapon
 
         private Vector3 defaultPosition;
         private float lastShootTime;
+        
+        private Vector2 velocity;
         public override void Initialize(PlayerComponent component)
         {
             condition = component.Condition;
@@ -44,19 +48,24 @@ namespace Module.Player.Weapon
             macroShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MacroShoot);
             microShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MicroShoot);
         }
-        
+    
         public override void OnEnabled()
         {
             macroShootEvent.Started += OnMacroShoot;
             microShootEvent.Started += OnMicroShoot;
+            
+            // 武器と弾道予測の有効化
             gameObject.SetActive(true);
+            ballSimulator.IsSimulate = true;
         }
 
         public override void OnDisabled()
         {
             macroShootEvent.Started -= OnMacroShoot;
             microShootEvent.Started -= OnMicroShoot;
+            
             gameObject.SetActive(false);
+            ballSimulator.IsSimulate = false;
         }
 
         private GameObject OnBulletCreate(GameObject prefab)
@@ -88,6 +97,21 @@ namespace Module.Player.Weapon
             }
 
             SwitchLauncherPosition(condition.Direction);
+            
+            CalcVelocity();
+            
+            ballSimulator.Simulate(velocity);
+        }
+        
+        /// <summary>
+        /// 弾道予測のため速度計算は毎フレーム行う
+        /// </summary>
+        private void CalcVelocity()
+        {
+            // プレイヤーの速度を足して弾に加える力を計算　
+            Vector2 playerVelocity = ClampVelocity(playerRigBody.linearVelocity, maxAdditionalSpeed);
+            Vector2 dir = muzzle.transform.right;
+            velocity = dir * shootPower + playerVelocity;
         }
 
         private void Shoot(ObjectPool<GameObject> targetPool)
@@ -116,50 +140,52 @@ namespace Module.Player.Weapon
             // 砲口に移動
             bullet.transform.position = muzzle.transform.position;
             
-            // プレイヤーの速度を足して発射　
-            Vector2 dirVelocity = GetDirectedVelocity(condition.Direction, playerRigBody.linearVelocity, maxAdditionalSpeed);
-
-            // condition.Directionに角度足す感じで出来そうな気もする。
-            Vector2 dir = muzzle.transform.right;
-            bullet.AddForce(dir * shootPower + dirVelocity);
+            bullet.AddForce(velocity);
             lastShootTime = Time.time;
         }
 
         /// <summary>
-        /// directionと同じ方向の移動ベクトルを返します
+        /// プレイヤーの速度を足す際、極端に強い力が足されない用制限したVelocityを返す関数
         /// </summary>
-        private Vector2 GetDirectedVelocity(Vector2 direction, Vector2 velocity, float maxSpeed)
+        private Vector2 ClampVelocity(Vector2 velocity, float maxSpeed)
         {
-            if (direction == Vector2.right)
-                return new Vector2(Mathf.Clamp(velocity.x, 0f, maxSpeed), 0f);
-            if (direction == Vector2.left)
-                return new Vector2(Mathf.Clamp(velocity.x, -maxSpeed, 0f), 0f);
-            if (direction == Vector2.up)
-                return new Vector2(0f, Mathf.Clamp(velocity.y, 0f, maxSpeed));
-            if (direction == Vector2.down)
-                return new Vector2(0f, Mathf.Clamp(velocity.y, -maxSpeed, 0f));
-
-            Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
-            return Vector2.zero;
+            float x = 0f, y = 0f;
+            
+            if (velocity.x >= 0)
+                x = Mathf.Clamp(velocity.x, 0f, maxSpeed);
+            else if (velocity.x < 0)
+                x = Mathf.Clamp(velocity.x, -maxSpeed, 0f);
+            
+            if (velocity.y >= 0)
+                y = Mathf.Clamp(velocity.y, 0f, maxSpeed);
+            else if (velocity.y < 0)
+                y = Mathf.Clamp(velocity.y, -maxSpeed, 0f);
+            
+            return new Vector2(x, y);
         }
         
         /// <summary>
         /// 銃口の向きに応じてLauncherの位置を切り替える
+        /// TODO: アニメーション実装時要修正
         /// </summary>
         private void SwitchLauncherPosition(Vector2 direction)
         {
            if (direction == Vector2.up)
            {
                transform.localPosition = new Vector3(0f, 1f, 0f);
+               ballSimulator.IsSimulate = false;    // 上下の時は弾道予測off
            }
            else if (direction == Vector2.down)
            {
                transform.localPosition = new Vector3(0f, -1.5f, 0f);
+               ballSimulator.IsSimulate = false;
            }
            else if (direction == Vector2.right || direction == Vector2.left)
            {
                if (transform.localPosition != defaultPosition)
                    transform.localPosition = defaultPosition;
+               
+               ballSimulator.IsSimulate = true;
            }
            else
            {
