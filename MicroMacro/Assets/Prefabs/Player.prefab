@@ -154,7 +154,8 @@ GameObject:
   - component: {fileID: 4667942627592755181}
   - component: {fileID: 2500792367917730159}
   - component: {fileID: 6987987735228162460}
-  m_Layer: 0
+  - component: {fileID: 9125841179918205456}
+  m_Layer: 3
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -329,6 +330,29 @@ MonoBehaviour:
   ballSimPrefab: {fileID: 930055790018447129, guid: 8e7702090119c9049b0435d8a094cb98, type: 3}
   simulateCount: 13
   startPosition: {fileID: 6273185181649389201}
+--- !u!136 &9125841179918205456
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2606406522880336005}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.76
+  m_Direction: 1
+  m_Center: {x: 0, y: -0.19, z: 0}
 --- !u!1 &3034561087786929050
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,7 +449,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3424282972837721278}
   - component: {fileID: 1452776760883832294}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Launcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -461,7 +485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ce78e59671648b483b5eac289ba1784, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shootPower: 30
+  shootPower: 15
   shootRadius: 1
   shootInterval: 0.3
   maxAdditionalSpeed: 4
@@ -654,7 +678,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7947452176664189332}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: muzzle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -687,7 +711,7 @@ GameObject:
   - component: {fileID: 359607238297452984}
   - component: {fileID: 7338298723325662502}
   - component: {fileID: 8914199411745110829}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}

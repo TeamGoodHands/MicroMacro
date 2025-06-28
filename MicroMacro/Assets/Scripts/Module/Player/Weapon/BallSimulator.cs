@@ -12,8 +12,10 @@ namespace Module.Player.Weapon
         [SerializeField] private int simulateCount = 13;
         [SerializeField] private GameObject startPosition; // 発射開始位置
         
-        private const float GRAVITY_SCALE = 3f; // Bullet.csの加わる重力
+        [SerializeField] private float gravityScale = 5f; // Bullet.csの加わる重力
 
+        private const float TIME_STEP = 0.05f; // 軌道予測の時間刻み
+        
         private List<GameObject> simulatePointList;
         private List<Renderer> rendererList;
 
@@ -90,9 +92,9 @@ namespace Module.Player.Weapon
                 //弾道予測の位置に点を移動
                 for (int i = 0; i < simulateCount; i++)
                 {
-                    var time = (i * 0.05f); // 〇秒ごとの位置を予測。
+                    var time = (i * TIME_STEP); // 〇秒ごとの位置を予測。
                     var x = time * force.x;
-                    var y = (force.y * time) - 0.5f * (-Physics.gravity.y * GRAVITY_SCALE) * Mathf.Pow(time, 2.0f);
+                    var y = (force.y * time) - 0.5f * (-Physics.gravity.y * gravityScale) * Mathf.Pow(time, 2.0f);
 
                     simulatePointList[i].transform.position = startPosition.transform.position + new Vector3(x, y, 0f);
                 }
