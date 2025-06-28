@@ -9,13 +9,13 @@ namespace Module.Player.Weapon
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.CompareTag(Tag.Handle.Ball))
+            if (!other.CompareTag(Tag.Ball))
                 renderer.enabled = false;
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (!other.CompareTag(Tag.Handle.Ball))
+            if (!other.CompareTag(Tag.Ball))
                 renderer.enabled = true;
         }
     }

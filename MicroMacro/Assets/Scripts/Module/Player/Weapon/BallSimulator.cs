@@ -12,7 +12,7 @@ namespace Module.Player.Weapon
         [SerializeField] private int simulateCount = 13;
         [SerializeField] private GameObject startPosition; // 発射開始位置
         
-        private const float　GRAVITY_SCALE = 3f; // Bullet.csの加わる重力
+        private const float GRAVITY_SCALE = 3f; // Bullet.csの加わる重力
 
         private List<GameObject> simulatePointList;
         private List<Renderer> rendererList;

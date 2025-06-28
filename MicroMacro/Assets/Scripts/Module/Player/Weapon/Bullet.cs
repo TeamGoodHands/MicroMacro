@@ -41,27 +41,26 @@ namespace Module.Player.Weapon
             rigBody.AddForce(force, ForceMode.Impulse);
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void HandleHit(GameObject hitObject)
         {
-            // TODO: ここにスケール処理を書く   
-            if (other.TryGetComponent(out Scaler scaler))
+            if (hitObject.TryGetComponent(out Scaler scaler))
             {
                 scaler.Scale(scaleStep).Forget();
             }
-
+            // サイズ変動が無くても無効化
             Disable();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            // TODO: ここにスケール処理を書く   
+            HandleHit(other.gameObject);
         }
 
         private void OnCollisionEnter(Collision other)
         {
             // TODO: グレと通常弾でクラス分けたい
-            if (other.gameObject.TryGetComponent(out Scaler scaler))
-            {
-                scaler.Scale(scaleStep).Forget();
-                
-                // サイズ変動が無くても無効化
-                Disable();
-            }
+            HandleHit(other.gameObject);
         }
 
         private bool IsOutOfScreen()
