@@ -15,7 +15,6 @@ namespace Module.Player.Weapon
         [SerializeField] private float maxAdditionalSpeed;
         [SerializeField, Range(0f, 90f)] float launcherAngle = 45f;
         [SerializeField] private int poolAmount;
-        [SerializeField] private Transform poolParent;
         
         [SerializeField] private GameObject macroGrenadePrefab;
         [SerializeField] private GameObject microGrenadePrefab;
@@ -41,8 +40,8 @@ namespace Module.Player.Weapon
             defaultPosition = transform.localPosition;
 
             // 弾のObjectPoolの初期化
-            macroGrenadePool = new ObjectPool<GameObject>(() => OnBulletCreate(macroGrenadePrefab), null, poolAmount);
-            microGrenadePool = new ObjectPool<GameObject>(() => OnBulletCreate(microGrenadePrefab), null, poolAmount);
+            macroGrenadePool = new ObjectPool<GameObject>(() => OnGrenadeCreate(macroGrenadePrefab), null, poolAmount);
+            microGrenadePool = new ObjectPool<GameObject>(() => OnGrenadeCreate(microGrenadePrefab), null, poolAmount);
 
             // 入力イベントを取得
             macroShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MacroShoot);
@@ -68,9 +67,9 @@ namespace Module.Player.Weapon
             ballSimulator.IsSimulate = false;
         }
 
-        private GameObject OnBulletCreate(GameObject prefab)
+        private GameObject OnGrenadeCreate(GameObject prefab)
         {
-            GameObject obj = Instantiate(prefab, poolParent, true);
+            GameObject obj = Instantiate(prefab, ObjectPool.Root, true);
             obj.SetActive(false);
             return obj;
         }
