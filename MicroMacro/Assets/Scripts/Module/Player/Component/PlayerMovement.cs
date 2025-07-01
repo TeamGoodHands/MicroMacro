@@ -73,7 +73,8 @@ namespace Module.Player.Component
                 -transform.up,
                 Quaternion.identity,
                 parameter.CheckGroundDistance,
-                mask);
+                mask,
+                QueryTriggerInteraction.Ignore);
         }
 
         /// <summary>
