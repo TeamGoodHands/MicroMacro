@@ -330,6 +330,7 @@ MonoBehaviour:
   ballSimPrefab: {fileID: 930055790018447129, guid: 8e7702090119c9049b0435d8a094cb98, type: 3}
   simulateCount: 13
   startPosition: {fileID: 6273185181649389201}
+  gravityScale: 5
 --- !u!136 &9125841179918205456
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -337,7 +338,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2606406522880336005}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 37b45b8ac20edb84085dec5129a3e999, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -491,7 +492,6 @@ MonoBehaviour:
   maxAdditionalSpeed: 4
   launcherAngle: 50
   poolAmount: 8
-  poolParent: {fileID: 0}
   macroGrenadePrefab: {fileID: 3385789982444698467, guid: 52d16400fd9dbe04f9c45dab9fb5e59c, type: 3}
   microGrenadePrefab: {fileID: 2584283300275584479, guid: bc1274688673f7242a8ea6ab737f6866, type: 3}
   muzzle: {fileID: 6273185181649389201}
@@ -764,7 +764,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: bd5ee83d86af6434c819fc18fbb20a1a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
