@@ -45,7 +45,7 @@ namespace LevelEditor.Editor
             GameObject parent = GameObject.FindWithTag(Tag.Level);
             if (parent == null || !parent.TryGetComponent(out parentObject))
             {
-                Debug.LogError("マップオブジェクトの親オブジェクトがありません。");
+                Debug.LogWarning("マップオブジェクトの親オブジェクトがありません。");
             }
         }
 

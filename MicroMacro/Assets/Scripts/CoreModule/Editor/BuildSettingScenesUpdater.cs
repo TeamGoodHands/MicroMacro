@@ -18,11 +18,11 @@ namespace CoreModule.Editor
             //プラットフォーム毎に異なるpathを設定
 #if UNITY_EDITOR_WIN
             sceneDirLevel = @"Scenes\Level\Main";
-            sceneDirTitle = @"Scenes\Level\Title";
+            sceneDirTitle = @"Scenes\Level\OutGame";
             initialLoadScene = @"Scenes\Level\Main\Root.unity";
 #elif UNITY_EDITOR_OSX
             sceneDirLevel = "Scenes/Level/Main";
-            sceneDirTitle = "Scenes/Level/Title";
+            sceneDirTitle = "Scenes/Level/OutGame";
             initialLoadScene = "Scenes/Level/Main/Root.unity";
 #endif
         }
