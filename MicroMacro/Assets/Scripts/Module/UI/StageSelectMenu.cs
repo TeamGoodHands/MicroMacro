@@ -23,6 +23,13 @@ namespace Module.UI
         {
             // シーン遷移ボタンを生成
             List<string> sceneNames = GetSceneNames();
+
+            if (sceneNames.Count == 0)
+            {
+                Debug.LogWarning("No scenes found for stage selection.");
+                return;
+            }
+
             CreateSceneButtons(sceneNames);
 
             await UniTask.Yield();
@@ -34,7 +41,8 @@ namespace Module.UI
         private void Update()
         {
             // 現在何もUIが選択されていない状態になったら
-            if (EventSystem.current.currentSelectedGameObject == null)
+            if (EventSystem.current.currentSelectedGameObject == null &&
+                createdButtons.Count > 0)
             {
                 // もう一度ボタンを選択状態する
                 createdButtons[currentIndex].Select();
@@ -77,7 +85,7 @@ namespace Module.UI
             {
                 // ボタンのオブジェクト生成
                 GameObject buttonObject = Instantiate(buttonPrefab, transform);
-                
+
                 // シーン名を設定
                 var textMesh = buttonObject.GetComponentInChildren<TextMeshProUGUI>();
                 textMesh.text = sceneName;

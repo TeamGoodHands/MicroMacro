@@ -13,9 +13,16 @@ namespace Module.Application
         {
             // DOTweenのCapacityを設定
             DOTween.SetTweensCapacity(500, 50);
-            
+
             // TODO: セーブデータの読み込みや初期化処理をここに追加する
-            await GameBoot.LoadRootScene(startScene, forceStartScene);
+            try
+            {
+                await GameBoot.LoadRootScene(startScene, forceStartScene);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to load root scene: {ex.Message}");
+            }
         }
     }
 }

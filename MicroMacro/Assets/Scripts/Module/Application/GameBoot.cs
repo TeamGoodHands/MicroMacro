@@ -12,7 +12,7 @@ namespace Module.Application
     {
         public static bool IsBooted { get; private set; } = false;
 
-        private static string defaultScene ;
+        private static string defaultScene;
         private const string BootSceneName = "Root";
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -46,7 +46,15 @@ namespace Module.Application
 
             string sceneName = forceStartScene ? startScene : defaultScene;
 
-            await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            try
+            {
+                await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to load scene '{sceneName}': {ex.Message}");
+                throw;
+            }
         }
     }
 }
