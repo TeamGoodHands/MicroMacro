@@ -69,6 +69,10 @@ namespace Module.Player.State
             condition.IsGround = movement.IsGround(transform);
         }
 
+        internal override void Dispose()
+        {
+        }
+
         private void OnJump(InputAction.CallbackContext _)
         {
             // プレイヤーにかかった重力をリセット

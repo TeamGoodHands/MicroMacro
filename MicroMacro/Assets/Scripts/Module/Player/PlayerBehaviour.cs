@@ -41,5 +41,11 @@ namespace Module.Player
         {
             stateMachine.UpdatePhysics();
         }
+        
+        private void OnDestroy()
+        {
+            // ステートマシンのクリーンアップ
+            stateMachine?.Dispose();
+        }
     }
 }

@@ -84,5 +84,10 @@ namespace Module.Player.State
         internal override void UpdatePhysics()
         {
         }
+
+        internal override void Dispose()
+        {
+            weaponSwitcher.Destroy();
+        }
     }
 }
