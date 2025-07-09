@@ -52,6 +52,7 @@ namespace Module.UI
         private List<string> GetSceneNames()
         {
             const string sceneSavePath = "Assets/Scenes/Level/Main";
+            const string sceneSavePathTest = "Assets/Scenes/Level/Test";
             const string rootSceneName = "Root";
             var sceneNames = new List<string>();
 
@@ -61,7 +62,7 @@ namespace Module.UI
                 string scenePath = SceneUtility.GetScenePathByBuildIndex(i);
 
                 // 指定したパスに含まれていなかったらスキップ
-                if (!scenePath.Contains(sceneSavePath))
+                if (!scenePath.Contains(sceneSavePath) && !scenePath.Contains(sceneSavePathTest))
                     continue;
 
                 // 拡張子を除いたファイル名(シーン名)を取得

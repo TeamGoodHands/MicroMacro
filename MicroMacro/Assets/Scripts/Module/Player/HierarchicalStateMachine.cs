@@ -218,6 +218,25 @@ namespace Module.Player
             // 遷移条件を追加する
             transitions[from].Add(to, condition);
         }
+        
+        public void Dispose()
+        {
+            // すべてのステートを終了する
+            foreach (var state in states.Values)
+            {
+                state.Group.Exit();
+                state.DisposeCanceller();
+                state.Dispose();
+            }
+
+            // ステートとトランジションをクリアする
+            states.Clear();
+            transitions.Clear();
+            currentTransition.Clear();
+            stateGroups.Clear();
+
+            Started = false;
+        }
 
         /// <summary>
         /// ステートをステートマシンに登録します
@@ -295,8 +314,8 @@ namespace Module.Player
 
             internal void DisposeCanceller()
             {
-                stateCanceller.Cancel();
-                stateCanceller.Dispose();
+                stateCanceller?.Cancel();
+                stateCanceller?.Dispose();
 
                 stateCanceller = null;
             }
@@ -305,6 +324,7 @@ namespace Module.Player
             internal abstract void OnExit();
             internal abstract void Update();
             internal abstract void UpdatePhysics();
+            internal abstract void Dispose();
         }
 
         /// <summary>
@@ -416,5 +436,6 @@ namespace Module.Player
                 Current = null;
             }
         }
+
     }
 }

@@ -20,6 +20,7 @@ namespace CoreModule.Input
        public readonly Guid MacroShoot = new Guid("b2807df1-b81a-4c22-8bd0-7af2b1dde5ce");
        public readonly Guid MicroShoot = new Guid("3e0df64b-e9ce-4b35-9eed-219cb0df794b");
        public readonly Guid SwitchWeapon = new Guid("8cf3eb97-db56-47b5-9203-57ce106d3d79");
+       public readonly Guid ExitLevel = new Guid("8465cbc9-1b5e-47e3-800a-5015c4372b25");
     }
 
     public class UI
