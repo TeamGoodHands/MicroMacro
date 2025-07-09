@@ -3,7 +3,7 @@ using Module.Player.Component;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Module.System
+namespace Module.Management
 {
     /// <summary>
     /// プレイヤーをスポーンさせるクラス
