@@ -82,6 +82,10 @@ namespace Module.Player.State
             }
         }
 
+        internal override void Dispose()
+        {
+        }
+
         private void UpdateGroundState()
         {
             // 着地状態を更新

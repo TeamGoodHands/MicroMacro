@@ -11,6 +11,7 @@ namespace CoreModule.Editor
     {
         private static readonly string sceneDirLevel;
         private static readonly string sceneDirTitle;
+        private static readonly string sceneDirTest;
         private static readonly string initialLoadScene;
 
         static BuildSettingScenesUpdater()
@@ -19,10 +20,12 @@ namespace CoreModule.Editor
 #if UNITY_EDITOR_WIN
             sceneDirLevel = @"Scenes\Level\Main";
             sceneDirTitle = @"Scenes\Level\OutGame";
+            sceneDirTest = @"Scenes\Level\Test";
             initialLoadScene = @"Scenes\Level\Main\Root.unity";
 #elif UNITY_EDITOR_OSX
             sceneDirLevel = "Scenes/Level/Main";
             sceneDirTitle = "Scenes/Level/OutGame";
+            sceneDirTitle = "Scenes/Level/Test";
             initialLoadScene = "Scenes/Level/Main/Root.unity";
 #endif
         }
@@ -54,7 +57,9 @@ namespace CoreModule.Editor
             return assets.Any(asset =>
             {
                 string directoryName = Path.GetDirectoryName(asset);
-                return directoryName == GetAssetsPath(sceneDirLevel);
+                return directoryName == GetAssetsPath(sceneDirLevel) ||
+                       directoryName == GetAssetsPath(sceneDirTitle) ||
+                       directoryName == GetAssetsPath(sceneDirTest);
             });
         }
 
@@ -84,12 +89,23 @@ namespace CoreModule.Editor
             string initialLoadSceneAssetsPath = GetAssetsPath(initialLoadScene);
             string initialLoadSceneAssetsUnityPath = ToUnityPath(initialLoadSceneAssetsPath);
 
-            var scenes = AssetDatabase.FindAssets("t:Scene", new string[] { GetAssetsPath(sceneDirLevel), GetAssetsPath(sceneDirTitle) })
+            var scenes = AssetDatabase.FindAssets("t:Scene", new string[]
+                {
+                    GetAssetsPath(sceneDirLevel),
+                    GetAssetsPath(sceneDirTitle),
+                    GetAssetsPath(sceneDirTest)
+                })
                 .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
                 .OrderBy(path => path)
                 .Where(path => path != initialLoadSceneAssetsUnityPath)
                 .Select(path => new EditorBuildSettingsScene(path, true))
                 .ToList();
+
+            foreach (string s1 in scenes.Select(s => s.path).ToList())
+            {
+                Debug.Log(s1);
+                
+            }
 
             // 初回に呼び込まれて欲しいシーンを先頭に配置する
             scenes.Insert(0, new EditorBuildSettingsScene(initialLoadSceneAssetsPath, true));
@@ -120,7 +136,6 @@ namespace CoreModule.Editor
 
         private static string ToUnityPath(string path)
         {
-            
 #if UNITY_EDITOR_WIN
             const char separator = '\\';
 #elif UNITY_EDITOR_OSX
@@ -134,9 +149,9 @@ namespace CoreModule.Editor
                 result.Append(dir);
                 result.Append('/');
             }
-            
+
             result.Remove(result.Length - 1, 1);
-            
+
             return result.ToString();
         }
     }

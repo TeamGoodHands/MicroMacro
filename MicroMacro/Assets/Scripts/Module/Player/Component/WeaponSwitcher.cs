@@ -39,5 +39,14 @@ namespace Module.Player.Component
 
             weapons[currentIndex].OnEnabled();
         }
+        
+        public void Destroy()
+        {
+            // 武器の無効化
+            foreach (AbstractWeapon weapon in weapons)
+            {
+                weapon.OnDisabled();
+            }
+        }
     }
 }
