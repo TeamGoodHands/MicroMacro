@@ -56,18 +56,17 @@ namespace Module.Scaling
         /// <param name="args">refScalerの情報</param>
         private void OnScaleCompleted(ScaleEventArgs args)
         {
-            if (args.CurrentStep > args.PreviousStep)
+            int diff = args.CurrentStep - args.PreviousStep;
+
+            if (diff != 0)
             {
-                trigScaler.Scale(1);
-            }
-            else if (args.CurrentStep < args.PreviousStep)
-            {
-                trigScaler.Scale(-1);
+                trigScaler.Scale(diff);
             }
             else
             {
                 Debug.LogAssertion("変動が発生しませんでした。");
             }
+    
         }
     }
 }

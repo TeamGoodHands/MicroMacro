@@ -96,12 +96,16 @@ namespace Module.Player.Weapon
             }
 
             SwitchLauncherPosition(condition.Direction);
-            
+       
+        }
+
+        private void FixedUpdate()
+        {
             CalcVelocity();
-            
             ballSimulator.Simulate(velocity);
         }
-        
+
+
         /// <summary>
         /// 弾道予測のため速度計算は毎フレーム行う
         /// </summary>
