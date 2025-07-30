@@ -14,31 +14,30 @@ namespace Editor.LevelEditor
 
         public List<RenderTexture> CreatePreviewTextures(GameObject[] prefabs)
         {
-            // 空の場合は空のリストを返す
             if (prefabs.Length == 0)
                 return new List<RenderTexture>();
-            
+
             previewRenderUtilities = new PreviewRenderUtility[prefabs.Length];
             instances = new GameObject[prefabs.Length];
 
             for (int i = 0; i < prefabs.Length; i++)
             {
                 var renderUtility = new PreviewRenderUtility(true);
-
-                // プレビューのセットアップ
                 previewRenderUtilities[i] = renderUtility;
                 instances[i] = Object.Instantiate(prefabs[i]);
-                SetupUtility(renderUtility, instances[i].GetComponentInChildren<Renderer>());
 
-                // プレビュー対象のGameObjectを追加
+                // 複数Rendererのバウンディングを結合して扱う
+                Renderer[] renderers = instances[i].GetComponentsInChildren<Renderer>();
+                SetupUtility(renderUtility, renderers);
+
                 renderUtility.AddSingleGO(instances[i]);
             }
 
             var textures = new List<RenderTexture>();
-            
+
             foreach (PreviewRenderUtility utility in previewRenderUtilities)
             {
-                // 対象オブジェクトをレンダリングしてテクスチャを取得
+                utility.BeginPreview(new Rect(0, 0, 128, 128), GUIStyle.none);
                 utility.camera.Render();
                 RenderTexture texture = (RenderTexture)utility.EndPreview();
                 textures.Add(texture);
@@ -47,41 +46,43 @@ namespace Editor.LevelEditor
             return textures;
         }
 
-        private void SetupUtility(PreviewRenderUtility previewRenderUtility, Renderer targetRenderer)
+        // 複数RendererのBoundsをまとめてカメラやライトの調整を実施
+        private void SetupUtility(PreviewRenderUtility previewRenderUtility, Renderer[] targetRenderers)
         {
             Camera targetCamera = previewRenderUtility.camera;
-            float padding = 2f; // カメラのパディング
+            float padding = 2f;
 
-            if (targetCamera == null || targetRenderer == null)
+            if (targetCamera == null || targetRenderers == null || targetRenderers.Length == 0)
                 return;
 
             targetCamera.orthographic = true;
 
-            // Get bounds
-            Bounds bounds = targetRenderer.bounds;
+            // 複数RendererのBoundsをまとめて算出
+            Bounds bounds = targetRenderers[0].bounds;
+            for (int i = 1; i < targetRenderers.Length; i++)
+            {
+                bounds.Encapsulate(targetRenderers[i].bounds);
+            }
+
             Vector3 center = bounds.center;
             Vector3 extents = bounds.extents;
 
-            // Calculate orthographic size
             float verticalSize = extents.y;
             float horizontalSize = extents.x / targetCamera.aspect;
             targetCamera.orthographicSize = Mathf.Max(verticalSize, horizontalSize) * padding;
 
-            // Position camera
             Vector3 viewDirection = -Vector3.forward;
             Vector3 position = center + viewDirection * (extents.z + 5f);
             targetCamera.transform.position = position;
             targetCamera.transform.LookAt(center);
 
-            // ライトののセットアップ
             previewRenderUtility.lights[0].transform.localEulerAngles = new Vector3(10, 10, 0);
             previewRenderUtility.lights[0].intensity = 2;
-
-            previewRenderUtility.BeginPreview(new Rect(0, 0, 128, 128), GUIStyle.none);
         }
 
         public void Dispose()
         {
+            if (previewRenderUtilities == null) return;
             foreach (PreviewRenderUtility utility in previewRenderUtilities)
             {
                 utility.Cleanup();

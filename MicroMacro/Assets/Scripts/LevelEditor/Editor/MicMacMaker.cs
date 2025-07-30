@@ -111,11 +111,14 @@ namespace Editor.LevelEditor
                 }
             };
 
-            // Refreshボタン作成
+            // 更新ボタン作成
             buttonElements.Add(CreateRefreshButton());
 
-            // DestroyAllボタン作成
+            // 全て破壊ボタン作成
             buttonElements.Add(CreateDestroyButton());
+            
+            // 重複確認ボタン作成
+            buttonElements.Add(CreateCheckOverlapButton());
 
             return buttonElements;
         }
@@ -138,7 +141,8 @@ namespace Editor.LevelEditor
                 objectPlacer.UpdateParentObject();
             })
             {
-                text = "Refresh",
+                text = "<b>更新</b>",
+                enableRichText = true,
                 style =
                 {
                     width = 80f,
@@ -155,7 +159,26 @@ namespace Editor.LevelEditor
         {
             return new Button(() => { objectPlacer.DestroyAll(); })
             {
-                text = "DestroyAll",
+                text = "<b>全て破壊</b>",
+                enableRichText = true,
+                style =
+                {
+                    width = 80f,
+                    height = 30f,
+                    marginBottom = 4f,
+                    marginTop = 4f,
+                    marginLeft = 0f,
+                    marginRight = 0f,
+                }
+            };
+        }
+
+        private Button CreateCheckOverlapButton()
+        {
+            return new Button(() => { objectPlacer.CheckOverlap(); })
+            {
+                text = "<b>重複確認</b>",
+                enableRichText = true,
                 style =
                 {
                     width = 80f,
