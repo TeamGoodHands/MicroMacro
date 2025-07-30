@@ -9,8 +9,7 @@ namespace LevelEditor.Runtime
     public class MicMacLevelData : MonoBehaviour
     {
         private const int MapSize = 8192;
-        [SerializeField, HideInInspector] private SerializableDictionary<long, CellData> mapData;
-        public Dictionary<long, CellData> MapData => mapData.ToDictionary();
+        [SerializeField, HideInInspector] private List<Vector2Int> overlapCoords = new List<Vector2Int>();
 
         public long CoordToIndex(Vector2Int coord)
         {
@@ -30,8 +29,10 @@ namespace LevelEditor.Runtime
 
         private void Start()
         {
+            Dictionary<long, GameObject> mapData = GetMapData();
+
             // Y座標でグリッドデータを分割する
-            var splitedFilters = SplitByY();
+            var splitedFilters = SplitByY(mapData);
 
             foreach (var filters in splitedFilters.Values)
             {
@@ -47,15 +48,70 @@ namespace LevelEditor.Runtime
             }
         }
 
-        private Dictionary<int, List<(int x, MeshFilter filter)>> SplitByY()
+        private void OnDrawGizmos()
+        {
+            foreach (Vector2Int coord in overlapCoords)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(new Vector3(coord.x, coord.y, -5), 0.2f);
+            }
+        }
+
+        private Dictionary<long, GameObject> GetMapData()
+        {
+            List<GameObject> gridObjects = transform.Cast<Transform>().Select(obj => obj.gameObject).Where(obj => obj.isStatic).ToList();
+            CheckOverlap(gridObjects);
+
+            if (overlapCoords.Count > 0)
+            {
+                Debug.LogWarning("重複して配置されているオブジェクトがあります！");
+            }
+
+            var mapData = new Dictionary<long, GameObject>();
+
+            foreach (GameObject obj in gridObjects)
+            {
+                Vector2 position = obj.transform.position;
+                mapData.Add(CoordToIndex(new Vector2Int((int)position.x, (int)position.y)), obj);
+            }
+
+            return mapData;
+        }
+
+        public List<Vector2Int> CheckOverlapNow()
+        {
+            return CheckOverlap(transform.Cast<Transform>().Select(obj => obj.gameObject).Where(obj => obj.isStatic).ToList());
+        }
+
+        private List<Vector2Int> CheckOverlap(List<GameObject> objects)
+        {
+            var checkedCoords = new HashSet<Vector2Int>();
+            overlapCoords.Clear();
+
+            foreach (GameObject obj in objects)
+            {
+                Vector2Int gridPos = new Vector2Int((int)obj.transform.position.x, (int)obj.transform.position.y);
+
+                if (checkedCoords.Contains(gridPos))
+                {
+                    overlapCoords.Add(gridPos);
+                }
+
+                checkedCoords.Add(gridPos);
+            }
+
+            return overlapCoords;
+        }
+
+        private Dictionary<int, List<(int x, MeshFilter filter)>> SplitByY(Dictionary<long, GameObject> mapData)
         {
             const string colliderObjectKey = "Collider";
             var meshFilters = new Dictionary<int, List<(int x, MeshFilter filter)>>();
 
-            foreach (var data in MapData)
+            foreach (var data in mapData)
             {
                 // 各セルのオブジェクトからコライダーオブジェクトを取得
-                Transform colliderObj = data.Value.Object.transform.Find(colliderObjectKey);
+                Transform colliderObj = data.Value.transform.Find(colliderObjectKey);
 
                 if (colliderObj != null && colliderObj.TryGetComponent(out MeshFilter meshFilter))
                 {
@@ -114,19 +170,6 @@ namespace LevelEditor.Runtime
             groups.Add(currentGroup);
 
             return groups;
-        }
-    }
-
-    [Serializable]
-    public struct CellData
-    {
-        public GameObject Object;
-        public long[] Connections;
-
-        public CellData(GameObject obj, long[] connections)
-        {
-            Object = obj;
-            Connections = connections;
         }
     }
 }
