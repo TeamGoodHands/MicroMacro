@@ -21,7 +21,7 @@ namespace Module.Scaling
 
         private Vector3 defaultScale;
 
-        private void Start()
+        private void Awake()
         {
             defaultScale = transform.localScale;
         }
@@ -36,9 +36,9 @@ namespace Module.Scaling
             Vector2 pivot = new Vector2(pivotX, pivotY);
             Vector2 scaledPosition = CalculateScaledPosition(pivot, targetScale);
             Vector3 positionOffset = (Vector3)scaledPosition - currentPosition;
-
           
             // targetScaleまで滑らかにスケールする
+            
             float progress = 0f;
 
             await DOTween.To(() => progress,

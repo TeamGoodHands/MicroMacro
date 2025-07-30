@@ -39,13 +39,13 @@ namespace Module.Scaling
     /// </summary>
     public abstract class Scaler : MonoBehaviour
     {
-        [SerializeField, Header("最小段階")] protected int minStep = 0;
-        [SerializeField, Header("最大段階")] protected int maxStep = 3;
+        [SerializeField, Header("最小段階")]  int minStep = 0;
+        [SerializeField, Header("最大段階")]  int maxStep = 3;
         [SerializeField, Header("現在の段階"), ReadOnly] protected int currentStep;
         [SerializeField, Header("前の段階"), ReadOnly] protected int previousStep;
         [SerializeField, Header("現在のステート"), ReadOnly] protected State state;
         [SerializeField, Header("スケール中か"), ReadOnly] protected bool isScaling;
-
+        
         /// <summary>
         /// 現在のスケール段階
         /// </summary>
@@ -54,12 +54,40 @@ namespace Module.Scaling
         /// <summary>
         /// 最大のスケール段階
         /// </summary>
-        public int MaxStep => maxStep;
+        public int MaxStep
+        {
+            get { return maxStep; }
+            set
+            {
+                if (!IsScaling)
+                {
+                    maxStep = value;
+                }
+                else
+                {
+                    Debug.LogError("スケール中にmaxStepを変更することはできません。");
+                }
+            }
+        }
 
         /// <summary>
         /// 最小のスケール段階
         /// </summary>
-        public int MinStep => minStep;
+        public int MinStep
+        {
+            get { return minStep; }
+            set
+            {
+                if (!IsScaling)
+                {
+                    minStep = value;
+                }
+                else
+                {
+                    Debug.LogError("スケール中にminStepを変更することはできません。");
+                }
+            }
+        }
 
         /// <summary>
         /// スケール中か

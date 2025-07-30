@@ -26,8 +26,11 @@ namespace Module.Scaling
             }
         }
 
-        private void Start() => InitTrigScaler();
-        
+        private void Start()
+        {
+            InitTrigScaler();
+        }
+
         /// <summary>
         /// トリガーのサイズを、基準のオブジェクト+1になるよう初期化
         /// </summary>
@@ -44,7 +47,6 @@ namespace Module.Scaling
                 refScaler.OnScaleCompleted -= OnScaleCompleted;
             }
         }
-
         private void OnScaleStarted(ScaleEventArgs args)
         {
             
