@@ -53,7 +53,7 @@ namespace LevelEditor.Runtime
             foreach (Vector2Int coord in overlapCoords)
             {
                 Gizmos.color = Color.red;
-                Gizmos.DrawSphere(new Vector3(coord.x, coord.y, -5), 0.2f);
+                Gizmos.DrawCube(new Vector3(coord.x, coord.y, -5), Vector3.one * 0.4f);
             }
         }
 
