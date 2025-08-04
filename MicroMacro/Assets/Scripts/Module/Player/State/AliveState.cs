@@ -1,5 +1,6 @@
 ﻿using CoreModule.Input;
 using Module.Player.Component;
+using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
 

@@ -1,5 +1,6 @@
 ﻿using CoreModule.Input;
 using Module.Player.Component;
+using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,6 +14,7 @@ namespace Module.Player.State
         private readonly PlayerCondition condition;
         private readonly PlayerParameter parameter;
         private readonly PlayerMovement movement;
+        private readonly PlayerControllerWrapper animatorWrapper;
         private readonly Rigidbody rigidbody;
         private readonly Transform transform;
 
@@ -28,6 +30,8 @@ namespace Module.Player.State
             movement = component.PlayerMovement;
             rigidbody = component.Rigidbody;
             transform = component.Transform;
+
+            animatorWrapper = component.AnimatorWrapper;
 
             // 入力イベントを取得
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
@@ -55,22 +59,37 @@ namespace Module.Player.State
         {
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
-            
+
             velocity.y += parameter.Gravity; // 重力を加算
 
             movement.PerformMovement(moveInput.x, ref velocity); // 移動速度を適用
             movement.PerformDamping(true, ref velocity); // 速度減衰を適用
             movement.PerformExternalDamping(ref externalVelocity); // 外部力への減衰を適用
 
+            // RigidBodyに適用
             rigidbody.linearVelocity = velocity + externalVelocity;
             condition.ExternalForce = externalVelocity;
 
             // 着地状態を更新
             condition.IsGround = movement.IsGround(transform);
+
+            float normalizedSpeed = CalculateNormalizedSpeed();
+            animatorWrapper.Speed = normalizedSpeed;
         }
 
         internal override void Dispose()
         {
+        }
+
+        /// <summary>
+        /// 最大速度で正規化した現在の速度を返します。
+        /// </summary>
+        private float CalculateNormalizedSpeed()
+        {
+            float xVelocity = Mathf.Abs(rigidbody.linearVelocity.x);
+            float maxSpeed = parameter.MaxSpeed;
+
+            return xVelocity / maxSpeed;
         }
 
         private void OnJump(InputAction.CallbackContext _)
