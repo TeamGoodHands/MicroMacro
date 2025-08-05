@@ -56,6 +56,10 @@ namespace Module.Scaling
 
         private async UniTaskVoid RewindAsync()
         {
+            // 0ステップになったら終了
+            if (scaler.CurrentStep == 0)
+                return;
+
             // 遅延させる
             await UniTask.Delay(TimeSpan.FromSeconds(rewindDelay), cancellationToken: rewindCanceller.Token);
 
