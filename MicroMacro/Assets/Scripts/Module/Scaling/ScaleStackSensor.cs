@@ -5,41 +5,55 @@ namespace Module.Scaling
 {
     public class ScaleStackSensor : MonoBehaviour
     {
-        
-        [SerializeField, Header("Rayの長さ")] private float rayLength = 10f;
-        private GameObject player;
-        private Vector2 trig2Player;
-        
-        private void Start()
+        // RayLengthはそれぞれコライダーの半径＋プレイヤーの直径
+        struct RayLength
         {
-          
+            public float x;
+            public float y;
         }
 
-        private void Update()
+        private RayLength rayLength;
+        private readonly RaycastHit[] hitInfo = new RaycastHit[5];   // RayCastで得た情報を格納する配列
+        private Vector2 rayDirection;                                // Rayを飛ばす方向
+        
+        private Collider playerCol;
+        private Collider trigger;
+
+        private bool isStack = true;
+
+        private void Start()
         {
-            // Rayを発射して、衝突したオブジェクトの情報を取得
-            Ray ray = new Ray(transform.position, transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hitInfo, rayLength))
-            {
-                // 衝突したオブジェクトの名前を表示
-                Debug.Log($"衝突したオブジェクト: {hitInfo.collider.gameObject.name}");
-            }
-            else
-            {
-                Debug.Log("何も衝突しませんでした。");
-            }
+            playerCol = GameObject.FindWithTag("Player").GetComponent<Collider>();
+            trigger = gameObject.GetComponent<Collider>();
+            CalcRayLength();
         }
         
+        /// <summary>
+        /// 飛ばすRayの長さを計算するクラス。Triggerの中心から半径＋プレイヤーの幅
+        /// </summary>
+        private void CalcRayLength()
+        {
+            // bounds.extents 中心から各面までの距離(Scaleも考慮されるのでRadiusより適している)
+            rayLength.x = trigger.bounds.extents.x;
+            rayLength.y = trigger.bounds.extents.y;
+            
+            // プレイヤーのコライダーの半径を取得
+            float playerRadius = playerCol.bounds.extents.x; // x軸方向の半径を使用
+            
+            // RayLengthを更新
+            rayLength.x += playerRadius;
+            rayLength.y += playerRadius;
+        }
+
         private void OnTriggerEnter(Collider other)
         {
-          
             if (other.CompareTag("Player"))
             {
-                player = other.gameObject;
-                trig2Player = (player.transform.position - transform.position).normalized;
+                // トリガーからプレイヤーへの方向ベクトル
+                Vector2 trig2Player = (playerCol.transform.position - transform.position).normalized;
+                
+                rayDirection = Normalize4Direction(trig2Player);
             }
-        
-            Debug.Log($"プレイヤーとトリガーの距離: {trig2Player.magnitude}");
         }
 
         /// <summary>
@@ -58,7 +72,7 @@ namespace Module.Scaling
                 else
                     return Vector2.left; // 左
             }
-            
+
             if (absX < absY)
             {
                 if (direction.y > 0)
@@ -66,10 +80,39 @@ namespace Module.Scaling
                 else
                     return Vector2.down; // 下
             }
-            
+
             // 角の時どうするか要検討
             Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
             return Vector2.zero;
+        }
+
+        private void ShootRay(Vector2 direction)
+        {
+            float _rayLength = 0f;
+            if (rayDirection == Vector2.up || rayDirection == Vector2.down)
+            {
+                _rayLength = rayLength.y; 
+            }
+            else
+            {
+                _rayLength = rayLength.x;
+            }
+
+            
+            Ray ray = new Ray(transform.position, direction);
+            if (Physics.RaycastNonAlloc(ray, hitInfo, _rayLength) > 0)
+            {
+                // 衝突したオブジェクトの名前を表示
+               
+
+                foreach (RaycastHit hit in hitInfo)
+                {
+                    if (hit.collider.CompareTag("Untagged"))
+                    {
+                        Debug.Log($"衝突したオブジェクト: {hit.collider.gameObject.name}");
+                    }
+                }
+            }
         }
     }
 }
