@@ -61,7 +61,8 @@ GameObject:
   - component: {fileID: 2268248879885921151}
   - component: {fileID: 5189658986702504}
   - component: {fileID: 6486551063019039286}
-  m_Layer: 8
+  - component: {fileID: 6487615463922569539}
+  m_Layer: 2
   m_Name: NextScale
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -180,6 +181,20 @@ MonoBehaviour:
   lockPosition: 0
   pivotX: 0
   pivotY: 0
+--- !u!114 &6487615463922569539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2684970760160395799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f88a713b48fc440ca94f6a2364a8480c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  refScaler: {fileID: 7727762347534094216}
+  scaler: {fileID: 6486551063019039286}
 --- !u!1 &2737855166873614177
 GameObject:
   m_ObjectHideFlags: 0

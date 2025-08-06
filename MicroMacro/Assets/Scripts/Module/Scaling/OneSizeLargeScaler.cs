@@ -26,7 +26,7 @@ namespace Module.Scaling
             }
         }
 
-        private void Start()
+        private void Start()    
         {
             InitTrigScaler();
         }
@@ -66,7 +66,7 @@ namespace Module.Scaling
             }
             else
             {
-                Debug.LogAssertion("変動が発生しませんでした。");
+                Debug.Log("変動が発生しませんでした。");
             }
     
         }
