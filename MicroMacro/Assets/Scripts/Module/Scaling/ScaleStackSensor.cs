@@ -11,6 +11,7 @@ namespace Module.Scaling
         
         [SerializeField, Header("基のオブジェクトのスケーラー")] private Scaler refScaler;
         [SerializeField, Header("このオブジェクトのスケーラー")] private Scaler scaler;
+        [SerializeField, Header("このオブジェクトのコライダー")] private Collider trigger;
         // RayLengthはそれぞれコライダーの半径＋プレイヤーの直径
         struct RayLength
         {
@@ -18,20 +19,20 @@ namespace Module.Scaling
             public float y;
         }
 
-        struct PlayerRadius
+        struct PlayerSize
         {
             public float x; 
             public float y;
         }
-
+        
+        private PlayerSize playerSize;
+        private Collider playerCol;
+        
         private RayLength rayLength;
-        private PlayerRadius playerSize;
         private readonly RaycastHit[] hitInfo = new RaycastHit[5];   // RayCastで得た情報を格納する配列
         private Vector2 rayDirection;                                // Rayを飛ばす方向
-        
-        private Collider playerCol;
-        private Collider trigger;
 
+        private Vector2 baseTriggerSize;
         private bool isStack = false;
 
         private void Awake()
@@ -43,11 +44,14 @@ namespace Module.Scaling
         private void Start()
         {
             playerCol = GameObject.FindWithTag("Player").GetComponent<Collider>();
-            trigger = gameObject.GetComponent<Collider>();
             
             // プレイヤーのコライダーの直径を取得 (colliderの種類変更にも対応)
             playerSize.x = playerCol.bounds.size.x;
             playerSize.y = playerCol.bounds.size.y;
+            
+            // スケール前の基準サイズ保持しておく
+            // bounds.extents：中心から各面までの距離(Scaleも考慮されるのでRadiusより適している)
+            baseTriggerSize = trigger.bounds.extents;
             
             CalcRayLength();
         }
@@ -77,33 +81,18 @@ namespace Module.Scaling
             scaler.OnScaleCompleted -= OnScaleCompleted;
         }
 
-        private void Update()
-        {
-            // rayの長さ検証用
-            /*Debug.DrawRay(transform.position, Vector2.up * rayLength.y, Color.red);
-            Debug.DrawRay(transform.position, Vector2.down * rayLength.y, Color.red);
-            Debug.DrawRay(transform.position, Vector2.right * rayLength.x, Color.red);
-            Debug.DrawRay(transform.position, Vector2.left * rayLength.x, Color.red);*/
-            
-            // rayの方向と長さ検証用
-            if (_rayLength > 0f && rayDirection != Vector2.zero)
-            {
-                Debug.DrawRay(transform.position, rayDirection * _rayLength, Color.red);
-            }
-        }
-
         /// <summary>
-        /// 飛ばすRayの長さを計算するクラス。Triggerの中心から半径＋プレイヤーの幅 ← 半径じゃなく直径だった
+        /// 飛ばすRayの長さを計算するクラス。Triggerの中心から半径＋プレイヤーの幅 
         /// </summary>
         private void CalcRayLength()
         {
-            // bounds.extents：中心から各面までの距離(Scaleも考慮されるのでRadiusより適している)
-            rayLength.x = trigger.bounds.size.x;
-            rayLength.y = trigger.bounds.size.y;
+            // 毎回bounds.extentsを取得するとRayの長さがずれるので、元サイズにlossyScale（ワールド座標）を掛けてスケール後の面の位置を再計算
+            // なぜこうなるのかあんまり納得いってない
+            Vector2 worldSize = Vector2.Scale(baseTriggerSize, transform.lossyScale);
             
-            // RayLengthを更新
-            rayLength.x += playerSize.x;
-            rayLength.y += playerSize.y;
+            // プレイヤーサイズ分足す
+            rayLength.x = worldSize.x + playerSize.x;
+            rayLength.y = worldSize.y + playerSize.y;
         }
         
         private void OnTriggerStay(Collider other)
@@ -132,7 +121,7 @@ namespace Module.Scaling
         /// ベクトルを絶対値で比較し上下左右で一番近いdirectionを返す
         /// 例: (0.5, 1) -> (0, 1)    
         /// </summary>
-        /// <param name="direction"></param>
+        const float HorizontalThreshold = 0.3f; // 閾値調整(小さいほど上下の判定エリアが狭くなるイメージ), プレイヤーサイズから計算してもいい 
         private Vector2 Normalize4Direction(Vector2 direction)
         {
             float absX = Mathf.Abs(direction.x);
@@ -142,27 +131,38 @@ namespace Module.Scaling
                 if (direction.x > 0)
                     return Vector2.right; // 右
                 else
-                    return Vector2.left; // 左
+                    return Vector2.left;  // 左
             }
 
-            if (absX < absY)    // TODO: 上下は明らかに上乗っているときか真下にいるときだけreturnしたい。
+            if (absX < absY)   
             {
-                if (direction.y > 0)
-                    return Vector2.up; // 上
+                // 水平方向のずれが小さい時 (ほぼ真上か真下) は上下判定
+                if (absX < HorizontalThreshold)
+                {
+                    if (direction.y > 0)
+                        return Vector2.up;   // 上
+                    else
+                        return Vector2.down; // 下
+                }
                 else
-                    return Vector2.down; // 下
+                {
+                    // 水平方向のずれが大きい時は左右判定
+                    if (direction.x > 0)
+                        return Vector2.right; 
+                    else
+                        return Vector2.left; 
+                }
             }
 
-            // 角の時どうするか要検討
+            // 角の時はゼロベクトル返す(ほぼ起きない)
             Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
             return Vector2.zero;
         }
   
         float _rayLength = 0f;
-        int   layerMask  = 1 << 0; // ignoreRaycastとPlayerLayerを除外(ignoreRaycastはデフォルトで入ってそう)
+        int   layerMask  = 1 << 0; // DefaultLayerのみを対象に
         private void ShootRay(Vector2 direction)
         {
-             _rayLength = 0f;
             if (rayDirection == Vector2.up || rayDirection == Vector2.down)
             {
                 _rayLength = rayLength.y; 
@@ -175,15 +175,13 @@ namespace Module.Scaling
             Ray ray = new Ray(transform.position, direction);
             if (Physics.RaycastNonAlloc(ray, hitInfo, _rayLength, layerMask) > 0)
             {
-                // 衝突したオブジェクトの名前を表示
+                // 衝突したオブジェクトがUntagged(壁など)ならスタック状態
                 foreach (RaycastHit hit in hitInfo)
                 {
                     if (hit.collider == null) continue;
-                    Debug.Log($"衝突したオブジェクト: {hit.collider.gameObject.name}");
                     
                     if (hit.collider.CompareTag("Untagged"))
                     {
-                        Debug.Log("isStackをtrueに");
                         isStack = true;
                     }
                     else
