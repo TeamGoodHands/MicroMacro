@@ -101,12 +101,6 @@ namespace CoreModule.Editor
                 .Select(path => new EditorBuildSettingsScene(path, true))
                 .ToList();
 
-            foreach (string s1 in scenes.Select(s => s.path).ToList())
-            {
-                Debug.Log(s1);
-                
-            }
-
             // 初回に呼び込まれて欲しいシーンを先頭に配置する
             scenes.Insert(0, new EditorBuildSettingsScene(initialLoadSceneAssetsPath, true));
 
