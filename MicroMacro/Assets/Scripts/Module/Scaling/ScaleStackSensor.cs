@@ -27,9 +27,11 @@ namespace Module.Scaling
         
         private PlayerSize playerSize;
         private Collider playerCol;
-        
+
+        private Ray ray;
         private RayLength rayLength;
         private readonly RaycastHit[] hitInfo = new RaycastHit[5];   // RayCastで得た情報を格納する配列
+        private int hitCount;
         private Vector2 rayDirection;                                // Rayを飛ばす方向
 
         private Vector2 baseTriggerSize;
@@ -63,6 +65,11 @@ namespace Module.Scaling
             
             CalcRayLength();
         }
+        private void OnDestroy()
+        {
+            refScaler.OnScaleStarted -= OnScaleStarted;
+            scaler.OnScaleCompleted -= OnScaleCompleted;
+        }
       
         private void OnScaleStarted(ScaleEventArgs args)
         {
@@ -83,12 +90,6 @@ namespace Module.Scaling
             // サイズ変動したらRayLengthを再計算
             CalcRayLength();
         }
-        
-        private void OnDestroy()
-        {
-            refScaler.OnScaleStarted -= OnScaleStarted;
-            scaler.OnScaleCompleted -= OnScaleCompleted;
-        }
 
         /// <summary>
         /// 飛ばすRayの長さを計算するクラス。Triggerの中心から半径＋プレイヤーの幅 
@@ -104,6 +105,9 @@ namespace Module.Scaling
             rayLength.y = worldSize.y + playerSize.y;
         }
         
+        /// <summary>
+        /// プレイヤーの方向を4方向で求める->Ray飛ばす->stack判断
+        /// </summary>
         private void OnTriggerStay(Collider other)
         {
             if (other.CompareTag("Player"))
@@ -112,7 +116,8 @@ namespace Module.Scaling
                 Vector2 trig2Player = (playerCol.transform.position - transform.position).normalized;
                 
                 rayDirection = Normalize4Direction(trig2Player);
-                ShootRay(rayDirection);
+                hitCount = ShootRay(rayDirection);
+                StackJudge(hitCount);
             }
         }
         
@@ -130,49 +135,37 @@ namespace Module.Scaling
         /// ベクトルを絶対値で比較し上下左右で一番近いdirectionを返す
         /// 例: (0.5, 1) -> (0, 1)    
         /// </summary>
-        const float HorizontalThreshold = 0.3f; // 閾値調整(小さいほど上下の判定エリアが狭くなるイメージ), プレイヤーサイズから計算してもいい 
+        const float HorizontalThreshold = 0.3f; // 閾値調整(小さいほど上下の判定エリアが狭くなるイメージ), プレイヤーサイズから計算してもいい。 
         private Vector2 Normalize4Direction(Vector2 direction)
         {
+            if (direction == Vector2.zero)
+            {
+                Debug.LogWarning("ゼロベクトルが渡されました");
+                return Vector2.zero;
+            }
+            
             float absX = Mathf.Abs(direction.x);
             float absY = Mathf.Abs(direction.y);
             
-            if (absX > absY)
+            
+            // Y成分の方が大きい、かつx成分が閾値に収まっているとき(ほぼ真上か真下)
+            if (absY > absX && absX < HorizontalThreshold)   
             {
-                if (direction.x > 0)
-                    return Vector2.right; // 右
-                else
-                    return Vector2.left;  // 左
-            }
-            else if (absX < absY)   
-            {
-                // 水平方向のずれが小さい時 (ほぼ真上か真下) は上下判定
-                if (absX < HorizontalThreshold)
-                {
-                    if (direction.y > 0)
-                        return Vector2.up;   // 上
-                    else
-                        return Vector2.down; // 下
-                }
-                else
-                {
-                    // 水平方向のずれが大きい時は左右判定
-                    if (direction.x > 0)
-                        return Vector2.right; 
-                    else
-                        return Vector2.left; 
-                }
+                // 上下方向 (Mathf.Sign: 符号を返す 正:1, 負-1, ゼロ:0)
+                return new Vector2(0, Mathf.Sign(direction.y));
             }
             else
             {
-                // absX == absY の場合水平方向を優先(ほぼ起きない)
-                return direction.x > 0 ? Vector2.right : Vector2.left;
+                // それ以外すべて左右
+                // absX == absY の場合も左右方向として判定
+                return new Vector2(Mathf.Sign(direction.x), 0);
             }
         }
-  
-        float _rayLength = 0f;
-        int   layerMask  = 1 << 0; // DefaultLayerのみを対象に
-        private void ShootRay(Vector2 direction)
+        
+        int layerMask  = 1 << 0; // RaycastはDefaultLayerのみを対象に 
+        private int ShootRay(Vector2 direction)
         {
+            float _rayLength = 0f;
             if (rayDirection == Vector2.up || rayDirection == Vector2.down)
             {
                 _rayLength = rayLength.y; 
@@ -182,12 +175,21 @@ namespace Module.Scaling
                 _rayLength = rayLength.x;
             }
             
-            Ray ray = new Ray(transform.position, direction);
-            if (Physics.RaycastNonAlloc(ray, hitInfo, _rayLength, layerMask) > 0)
+            // RayCastNonAlloc: ヒット結果を既存配列に格納する。
+            // 毎回配列生成する必要ないからGC回避ができるが、配列サイズを超えないよう注意。
+            ray = new Ray(transform.position, direction);
+            return Physics.RaycastNonAlloc(ray, hitInfo, _rayLength, layerMask);
+        }
+
+        private void StackJudge(int hitCount)
+        {
+            if (hitCount > 0)
             {
                 // 衝突したオブジェクトがUntagged(壁など)ならスタック状態
-                foreach (RaycastHit hit in hitInfo)
+                for (int i = 0; i < hitCount; i++)
                 {
+                    var hit = hitInfo[i];
+                    
                     if (hit.collider == null) continue;
                     
                     if (hit.collider.CompareTag("Untagged"))

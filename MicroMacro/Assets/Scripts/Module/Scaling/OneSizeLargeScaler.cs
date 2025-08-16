@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Threading;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
+﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Module.Scaling
 {
@@ -64,17 +59,15 @@ namespace Module.Scaling
         /// <param name="args">refScalerの情報</param>
         private void OnScaleCompleted(ScaleEventArgs args)
         {
+            if (trigScaler == null)
+            {
+                Debug.LogError("trigScalerが未設定の状態でイベントを受信しました",　this);
+                return;
+            }
+            
             int diff = args.CurrentStep - args.PreviousStep;
-
-            if (diff != 0)
-            {
-                trigScaler.Scale(diff);
-            }
-            else
-            {
-                Debug.Log("変動が発生しませんでした。");
-            }
-    
+            if (diff == 0) return;
+            trigScaler.Scale(diff);
         }
     }
 }
