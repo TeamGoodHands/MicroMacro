@@ -88,13 +88,18 @@ namespace Module.Player.Weapon
             if (simulatePointList != null && simulatePointList.Count > 0)
             {
                 Vector2 force = velocity;
+                float gravity = Physics.gravity.y * gravityScale;
 
                 //弾道予測の位置に点を移動
                 for (int i = 0; i < simulateCount; i++)
                 {
                     var time = (i * TIME_STEP); // 〇秒ごとの位置を予測。
                     var x = time * force.x;
-                    var y = (force.y * time) - 0.5f * (-Physics.gravity.y * gravityScale) * Mathf.Pow(time, 2.0f);
+                    
+                    // 弾道予測の式の一般形
+                    // y = v0 * t + 1/2 * g * t^2
+                    // 初速v0、重力加速度g、時間t
+                    var y = force.y * time + 0.5f * gravity * Mathf.Pow(time, 2.0f);
 
                     simulatePointList[i].transform.position = startPosition.transform.position + new Vector3(x, y, 0f);
                 }
