@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -19,16 +20,26 @@ namespace Module.Scaling
 
         private void Awake()
         {
-            if (trigScaler != null)
+            if (refScaler != null)
             {
-                refScaler.OnScaleStarted += OnScaleStarted;
                 refScaler.OnScaleCompleted += OnScaleCompleted;
             }
         }
 
-        private void Start()    
+        /// <summary>
+        /// 念のため1フレ遅延かけてスケール呼び出す
+        /// </summary>
+        private IEnumerator Start()
         {
-            InitTrigScaler();
+            yield return null;
+            if (refScaler != null && trigScaler != null)
+            {
+                InitTrigScaler();
+            }
+            else
+            {
+                Debug.LogError("refScalerまたはtrigScalerが設定されていません。", this);
+            }
         }
 
         /// <summary>
@@ -41,15 +52,10 @@ namespace Module.Scaling
         }
         private void OnDestroy()
         {
-            if (trigScaler != null)
+            if (refScaler != null)
             {
-                refScaler.OnScaleStarted -= OnScaleStarted;
                 refScaler.OnScaleCompleted -= OnScaleCompleted;
             }
-        }
-        private void OnScaleStarted(ScaleEventArgs args)
-        {
-            
         }
 
         /// <summary>

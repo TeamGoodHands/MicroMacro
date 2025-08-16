@@ -43,7 +43,15 @@ namespace Module.Scaling
 
         private void Start()
         {
-            playerCol = GameObject.FindWithTag("Player").GetComponent<Collider>();
+            GameObject player = GameObject.FindWithTag("Player");
+
+            if (player == null)
+            {
+                Debug.LogError("Playerが見つかりません。");
+                enabled = false;
+                return;
+            }
+            playerCol = player.GetComponent<Collider>();
             
             // プレイヤーのコライダーの直径を取得 (colliderの種類変更にも対応)
             playerSize.x = playerCol.bounds.size.x;
@@ -55,6 +63,7 @@ namespace Module.Scaling
             
             CalcRayLength();
         }
+      
         private void OnScaleStarted(ScaleEventArgs args)
         {
             if (isStack)
@@ -126,6 +135,7 @@ namespace Module.Scaling
         {
             float absX = Mathf.Abs(direction.x);
             float absY = Mathf.Abs(direction.y);
+            
             if (absX > absY)
             {
                 if (direction.x > 0)
@@ -133,8 +143,7 @@ namespace Module.Scaling
                 else
                     return Vector2.left;  // 左
             }
-
-            if (absX < absY)   
+            else if (absX < absY)   
             {
                 // 水平方向のずれが小さい時 (ほぼ真上か真下) は上下判定
                 if (absX < HorizontalThreshold)
@@ -153,10 +162,11 @@ namespace Module.Scaling
                         return Vector2.left; 
                 }
             }
-
-            // 角の時はゼロベクトル返す(ほぼ起きない)
-            Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
-            return Vector2.zero;
+            else
+            {
+                // absX == absY の場合水平方向を優先(ほぼ起きない)
+                return direction.x > 0 ? Vector2.right : Vector2.left;
+            }
         }
   
         float _rayLength = 0f;
@@ -184,11 +194,11 @@ namespace Module.Scaling
                     {
                         isStack = true;
                     }
-                    else
-                    {
-                        isStack = false;
-                    }
                 }
+            }
+            else
+            {
+                isStack = false;    // ヒットなし
             }
         }
     }
