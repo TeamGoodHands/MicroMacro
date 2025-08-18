@@ -1,4 +1,5 @@
 ﻿using System;
+using Constants;
 using UnityEngine;
 
 namespace Module.Scaling
@@ -34,7 +35,7 @@ namespace Module.Scaling
         private int hitCount;
         private Vector2 rayDirection;                                // Rayを飛ばす方向
 
-        private Vector2 baseTriggerSize;
+        private Vector2 baseTriggerRadius;
         private bool isStack = false;
 
         private void Awake()
@@ -45,7 +46,14 @@ namespace Module.Scaling
 
         private void Start()
         {
-            GameObject player = GameObject.FindWithTag("Player");
+            // 開始時にScale変動が必ず発生する仕様のため、Ray長計算は呼ぶ必要ない
+            RetentionColliderSize();
+        }
+
+        private Vector2 debugTriggerSize;
+        private void RetentionColliderSize()
+        {
+            GameObject player = GameObject.FindWithTag(Tag.Player);
 
             if (player == null)
             {
@@ -58,12 +66,10 @@ namespace Module.Scaling
             // プレイヤーのコライダーの直径を取得 (colliderの種類変更にも対応)
             playerSize.x = playerCol.bounds.size.x;
             playerSize.y = playerCol.bounds.size.y;
-            
+       
             // スケール前の基準サイズ保持しておく
-            // bounds.extents：中心から各面までの距離(Scaleも考慮されるのでRadiusより適している)
-            baseTriggerSize = trigger.bounds.extents;
-            
-            CalcRayLength();
+            // Scale考慮された半径 / Scale でコライダーのサイズの半径を計算
+            baseTriggerRadius = Vector3Util.Divide(trigger.bounds.extents, transform.lossyScale);
         }
         private void OnDestroy()
         {
@@ -97,10 +103,9 @@ namespace Module.Scaling
         private void CalcRayLength()
         {
             // 毎回bounds.extentsを取得するとRayの長さがずれるので、元サイズにlossyScale（ワールド座標）を掛けてスケール後の面の位置を再計算
-            // なぜこうなるのかあんまり納得いってない
-            Vector2 worldSize = Vector2.Scale(baseTriggerSize, transform.lossyScale);
-            
-            // プレイヤーサイズ分足す
+            // なぜこうなるのかあんまり納得いってない　->triggerのサイズ情報が古い説濃厚->どう直す？
+            Vector2 worldSize = Vector2.Scale(baseTriggerRadius, transform.lossyScale);
+             
             rayLength.x = worldSize.x + playerSize.x;
             rayLength.y = worldSize.y + playerSize.y;
         }
@@ -110,15 +115,22 @@ namespace Module.Scaling
         /// </summary>
         private void OnTriggerStay(Collider other)
         {
-            if (other.CompareTag("Player"))
+            if (other.CompareTag(Tag.Handle.Player))
             {
-                // トリガーからプレイヤーへの方向ベクトル
-                Vector2 trig2Player = (playerCol.transform.position - transform.position).normalized;
+                Vector2 trig2Player = GetTrig2Player();
                 
                 rayDirection = Normalize4Direction(trig2Player);
                 hitCount = ShootRay(rayDirection);
                 StackJudge(hitCount);
             }
+        }
+
+        private Vector2 GetTrig2Player()
+        {
+            // トリガーからプレイヤー（コライダー中心）への方向ベクトル
+            // transform.positionだと若干のズレがあったのでbounds使用
+            Vector3 delta = playerCol.bounds.center - trigger.bounds.center;
+            return new Vector2(delta.x, delta.y).normalized;
         }
         
         private void OnTriggerExit(Collider other)
@@ -166,11 +178,11 @@ namespace Module.Scaling
         private int ShootRay(Vector2 direction)
         {
             float _rayLength = 0f;
-            if (rayDirection == Vector2.up || rayDirection == Vector2.down)
+            if (direction == Vector2.up || direction == Vector2.down)
             {
                 _rayLength = rayLength.y; 
             }
-            else if (rayDirection == Vector2.left || rayDirection == Vector2.right)
+            else if (direction == Vector2.left || direction == Vector2.right)
             {
                 _rayLength = rayLength.x;
             }
@@ -192,7 +204,8 @@ namespace Module.Scaling
                     
                     if (hit.collider == null) continue;
                     
-                    if (hit.collider.CompareTag("Untagged"))
+                    // 壁用タグ追加してもいいかも
+                    if (hit.collider.CompareTag(Tag.Handle.Untagged))
                     {
                         isStack = true;
                     }
