@@ -1,4 +1,6 @@
-﻿namespace Module.Player.State
+﻿using CoreModule.AI.HSM;
+
+namespace Module.Player.State
 {
     public class DeathState : HierarchicalStateMachine.State
     {
