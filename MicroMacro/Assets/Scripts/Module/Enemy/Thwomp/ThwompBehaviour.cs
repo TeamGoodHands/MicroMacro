@@ -16,11 +16,14 @@ namespace Module.Enemy.Thwomp
         private void Start()
         {
             stateMachine = new HierarchicalStateMachine();
+            
+            // 状態の登録
             stateMachine.AddState(new WaitState(component));
             stateMachine.AddState(new AscentState(component));
             stateMachine.AddState(new MoveState(component));
             stateMachine.AddState(new FallState(component));
             
+            // 遷移の登録
             stateMachine.AddTransition<WaitState, AscentState>(() => component.Condition.CurrentState == ThwompCondition.State.Ascending);
             stateMachine.AddTransition<AscentState, MoveState>(() => component.Condition.CurrentState == ThwompCondition.State.Moving);
             stateMachine.AddTransition<MoveState, FallState>(() => component.Condition.CurrentState == ThwompCondition.State.Falling);

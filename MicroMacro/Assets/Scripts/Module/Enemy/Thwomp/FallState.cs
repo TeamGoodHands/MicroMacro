@@ -44,6 +44,7 @@ namespace Module.Enemy.Thwomp
 
             PerformFall();
 
+            // 地面の設置判定
             if (IsGround())
             {
                 condition.LastAttackTime = Time.time;
@@ -56,14 +57,14 @@ namespace Module.Enemy.Thwomp
             // 判定に用いる距離
             const float checkDistance = 0.6f;
 
-            // BoxCast 用パラメータ
+            // BoxCastのパラメータ
             Vector3 center = rigidbody.transform.position;
             Vector3 halfExtents = collider.bounds.extents * 0.95f; // 少し縮小して誤検知を防ぐ
             Quaternion rotation = Quaternion.identity;
             Vector3 direction = Vector3.down;
             const int layer = Layer.Mask.Player | Layer.Mask.Default;
 
-            // BoxCast を実行 (Trigger を無視)
+            // 真下にBoxCast実行してコライダーを判定する
             if (Physics.BoxCast(center, halfExtents, direction, out var hit, rotation, checkDistance, layer, QueryTriggerInteraction.Ignore))
             {
                 // 自分自身でなければ接地

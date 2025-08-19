@@ -32,13 +32,15 @@ namespace Module.Enemy.Thwomp
 
         internal override void UpdatePhysics()
         {
+            // 上昇が完了したか判定
             if (IsAscentCompleted())
             {
-                // 完了
+                // 完了したらステートを変える
                 condition.CurrentState = ThwompCondition.State.Moving;
                 return;
             }
 
+            // 上昇
             PerformAscent();
         }
 

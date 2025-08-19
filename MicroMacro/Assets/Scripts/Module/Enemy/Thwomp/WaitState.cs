@@ -30,9 +30,11 @@ namespace Module.Enemy.Thwomp
 
         internal override void Update()
         {
+            // 攻撃間隔を待つ
             if (condition.LastAttackTime + parameter.AttackIntervalTime >= Time.time)
                 return;
             
+            // プレイヤーが一定距離まで近づき検知
             if (IsPlayerApproach())
             {
                 condition.CurrentState = ThwompCondition.State.Ascending;
@@ -41,7 +43,6 @@ namespace Module.Enemy.Thwomp
 
         private bool IsPlayerApproach()
         {
-            // 距離判定
             float sqrDistance = (player.position - transform.position).sqrMagnitude;
             float sqrRange = parameter.DetectionRange * parameter.DetectionRange;
 
