@@ -22,12 +22,14 @@ namespace Module.Enemy.Thwomp
             stateMachine.AddState(new AscentState(component));
             stateMachine.AddState(new MoveState(component));
             stateMachine.AddState(new FallState(component));
+            stateMachine.AddState(new DeathState(component));
             
             // 遷移の登録
             stateMachine.AddTransition<WaitState, AscentState>(() => component.Condition.CurrentState == ThwompCondition.State.Ascending);
             stateMachine.AddTransition<AscentState, MoveState>(() => component.Condition.CurrentState == ThwompCondition.State.Moving);
             stateMachine.AddTransition<MoveState, FallState>(() => component.Condition.CurrentState == ThwompCondition.State.Falling);
             stateMachine.AddTransition<FallState, WaitState>(() => component.Condition.CurrentState == ThwompCondition.State.Idle);
+            stateMachine.AddTransition<FallState, DeathState>(() => component.Condition.CurrentState == ThwompCondition.State.Death);
             
             stateMachine.Start<WaitState>();
         }
