@@ -69,7 +69,7 @@ namespace Module.Scaling
        
             // スケール前の基準サイズ保持しておく
             // Scale考慮された半径 / Scale でコライダーのサイズの半径を計算
-            baseTriggerRadius = Vector3Util.Divide(trigger.bounds.extents, transform.lossyScale);
+            baseTriggerRadius = Vector2Util.Divide(trigger.bounds.extents, transform.lossyScale);
         }
         private void OnDestroy()
         {
@@ -136,7 +136,7 @@ namespace Module.Scaling
         private void OnTriggerExit(Collider other)
         {
             // リセット
-            if (other.CompareTag("Player"))
+            if (other.CompareTag(Tag.Handle.Player))
             {
                 isStack = false;
                 rayDirection = Vector2.zero; 
