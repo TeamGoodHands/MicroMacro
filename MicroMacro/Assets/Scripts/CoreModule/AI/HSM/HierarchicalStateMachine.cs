@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-namespace Module.Player
+namespace CoreModule.AI.HSM
 {
     /// <summary>
     /// 階層型有限状態マシン
@@ -90,7 +90,7 @@ namespace Module.Player
                     // 遷移条件を満たした場合は遷移する
                     if (condition())
                     {
-                        //Debug.Log("Transition: " + from + " -> " + to);
+                        // Debug.Log("Transition: " + from + " -> " + to);
                         doTransition = true;
                         break;
                     }

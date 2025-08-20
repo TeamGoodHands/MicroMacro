@@ -22,18 +22,16 @@ namespace Module.Player.Weapon
             mainCamera = Camera.main;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             // 画面外に出たら無効化する
             if (IsOutOfScreen())
             {
                 Disable();
             }
-
-            if (rigBody.useGravity)
-            {
-                rigBody.AddForce(Vector2.down * gravityScale, ForceMode.Force);
-            }
+         
+            // useGravityをtrueにするとさらに余計に重力が加わり弾道予測線がずれる
+            rigBody.AddForce(new Vector2(0, Physics.gravity.y * gravityScale) , ForceMode.Acceleration);
         }
 
         public void AddForce(Vector2 force)
