@@ -1,6 +1,7 @@
 ﻿using Constants;
 using CoreModule.AI.HSM;
 using DG.Tweening;
+using Module.Scaling;
 using UnityEngine;
 
 namespace Module.Enemy.Thwomp
@@ -9,6 +10,7 @@ namespace Module.Enemy.Thwomp
     {
         private readonly ThwompParameter parameter;
         private readonly ThwompCondition condition;
+        private readonly TwoAxisScaler scaler;
         private readonly Rigidbody rigidbody;
         private readonly Collider collider;
         private float startTime;
@@ -19,6 +21,7 @@ namespace Module.Enemy.Thwomp
             condition = component.Condition;
             rigidbody = component.Rigidbody;
             collider = component.Collider;
+            scaler= component.Scaler;
         }
 
         internal override void OnEnter()
@@ -27,6 +30,7 @@ namespace Module.Enemy.Thwomp
 
             // 落ちる前に少し揺らす
             rigidbody.transform.DOShakePosition(parameter.FallDelay, 0.1f, 30, fadeOut: false).SetDelay(0.5f);
+            scaler.enabled = true;
         }
 
         internal override void OnExit()
