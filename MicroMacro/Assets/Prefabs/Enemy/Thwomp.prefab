@@ -585,7 +585,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 11930
+  m_VersionIndex: 11948
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -974,6 +974,7 @@ GameObject:
   - component: {fileID: 2219164156044598615}
   - component: {fileID: 318748120431272332}
   - component: {fileID: 1672181433824338460}
+  - component: {fileID: 5319719918906174777}
   m_Layer: 0
   m_Name: Thwomp
   m_TagString: Untagged
@@ -1048,7 +1049,6 @@ MonoBehaviour:
       lastAttackTime: 0
     rigidbody: {fileID: 2219164156044598615}
     collider: {fileID: 1058458403737968772}
-    bodyRenderer: {fileID: 0}
     crackEffect: {fileID: 6026985373655894119}
     scaler: {fileID: 318748120431272332}
     status: {fileID: 1672181433824338460}
@@ -1116,6 +1116,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 6
   currentHealth: 0
+--- !u!114 &5319719918906174777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8820425743407784412}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e23da97a8da7ff345a56020c58687de6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  status: {fileID: 1672181433824338460}
+  crackTextures:
+  - {fileID: 2800000, guid: 8fa0ce92f4977e24f8b2bca4ccf607fd, type: 3}
+  - {fileID: 2800000, guid: 01ca11d04411ae342b39a4368ffb2824, type: 3}
+  - {fileID: 2800000, guid: 612d518fec8747d43baa0e3bb1f64150, type: 3}
+  - {fileID: 2800000, guid: f5b113cf38d8fa2488c075e78ac19712, type: 3}
+  - {fileID: 2800000, guid: b0ffa2ed975935c4790e35083d38bce3, type: 3}
+  - {fileID: 2800000, guid: 21b5fc7bd792e4d41b16c0e3286750e3, type: 3}
+  bodyRenderer: {fileID: 8186572386127734474}
 --- !u!1 &8936284700510318042
 GameObject:
   m_ObjectHideFlags: 0
