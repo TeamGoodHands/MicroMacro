@@ -14,6 +14,7 @@ namespace Module.Enemy.Thwomp
         private readonly Rigidbody rigidbody;
         private readonly Collider collider;
         private float startTime;
+        private int hp = 6;
 
         public FallState(ThwompComponent component)
         {
@@ -53,6 +54,13 @@ namespace Module.Enemy.Thwomp
             {
                 condition.LastAttackTime = Time.time;
                 condition.CurrentState = ThwompCondition.State.Idle;
+                scaler.enabled = false;
+
+                hp -= scaler.CurrentStep;
+                if (hp <= 0)
+                {
+                    Object.Destroy(rigidbody.gameObject);
+                }
             }
         }
 

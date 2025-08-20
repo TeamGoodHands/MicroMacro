@@ -43,7 +43,6 @@ namespace Module.Enemy.Thwomp
             if (doResetScaler)
             {
                 scaler.ResetScale();
-                scaler.enabled = false;
                 doResetScaler = false;
             }
 

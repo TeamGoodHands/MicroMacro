@@ -110,21 +110,23 @@ namespace Module.Scaling
         /// 指定スケールにセットします
         /// </summary>
         /// <param name="step">指定段階</param>
-        public UniTaskVoid SetScale(int step)
+        /// <param name="forceScale"></param>
+        public UniTaskVoid SetScale(int step, bool forceScale = false)
         {
             int targetStep = Mathf.Clamp(step, minStep, maxStep);
             int scaleDiff = targetStep - currentStep;
-            return Scale(scaleDiff);
+            return Scale(scaleDiff, forceScale);
         }
-        
+
         /// <summary>
         /// オブジェクトを追加スケールします
         /// </summary>
         /// <param name="additionalStep">追加段階</param>
-        public async UniTaskVoid Scale(int additionalStep)
+        /// <param name="forceScale"></param>
+        public async UniTaskVoid Scale(int additionalStep, bool forceScale = false)
         {
             // コンポーネントが無効 or スケール中であればキャンセル
-            if (!enabled || isScaling)
+            if ((!enabled && !forceScale) || isScaling)
                 return;
 
             isScaling = true;
@@ -178,9 +180,9 @@ namespace Module.Scaling
             scaleCanceller?.Cancel();
             scaleCanceller?.Dispose();
             scaleCanceller = null;
-            
+
             // スケールを初期値に戻す
-            SetScale(0).Forget();
+            SetScale(0, true).Forget();
         }
 
         protected abstract UniTask OnScale(CancellationToken cancellationToken);
