@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
 using Cysharp.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace Module.Application
         // 対応するUIコンポーネント 使うものだけInspectorで設定
         public TMP_InputField inputField;
         public TMP_Dropdown   dropdown;
-        public ToggleGroup    toggleGrope;
+        public ToggleGroup    toggleGroup;
     }
 
     // GoogleFormの質問タイプ (ToggleGroupはラジオボタン)
@@ -62,24 +63,38 @@ namespace Module.Application
             }
             
             // 一度ボタンを無効化
-            sendButton.interactable = false;
+            if (sendButton != null)
+                sendButton.interactable = false;
             isSending = true;
-
-            await PostAsync();
             
+            await PostAsync(); 
+           
             isSending = false;
-            sendButton.interactable = true;
+            if (sendButton != null)
+                sendButton.interactable = true;
+            
         }
 
         private async UniTask PostAsync()
         {
+            // 未設定チェック
+            if (questions == null || questions.Length == 0)
+            {
+                Debug.LogWarning("questionsが未設定または空です。");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(formActionURL))
+            {
+                Debug.LogError("formActionURLが未設定です。");
+                return;
+            }
+            
             // WWWFormを使って送信するデータを作成
             WWWForm form = new WWWForm();
 
             foreach (var q in questions)
             {
                 string value = "";
-                
                 
                 // ドロップダウンもラジオボタンも、フォーム側が持っている情報は質問項目の番号ではなく原文なので、Unity側でもtextを取得する
                 switch (q.type)
@@ -94,7 +109,7 @@ namespace Module.Application
                     
                     // 選択されている項目を取得->text取得
                     case QuestionType.ToggleGroup:
-                        Toggle activeToggle = q.toggleGrope.GetFirstActiveToggle();
+                        Toggle activeToggle = q.toggleGroup.GetFirstActiveToggle();
                         if (activeToggle != null)
                         {
                             value = activeToggle.GetComponentInChildren<Text>().text;
@@ -109,6 +124,7 @@ namespace Module.Application
                 }
             }
            
+            
             // PostでformActionURLにデータを送信と待機
             UnityWebRequest www = UnityWebRequest.Post(formActionURL, form);
             await www.SendWebRequest();
@@ -125,8 +141,8 @@ namespace Module.Application
                     if (q.dropdown != null)
                         q.dropdown.value = 0;
                     
-                    if (q.toggleGrope != null)
-                        q.toggleGrope.SetAllTogglesOff();
+                    if (q.toggleGroup != null)
+                        q.toggleGroup.SetAllTogglesOff();
                 }
                 
             }
