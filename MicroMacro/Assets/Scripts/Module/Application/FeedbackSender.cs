@@ -3,24 +3,40 @@ using UnityEngine.Networking;
 using TMPro;
 using Cysharp.Threading.Tasks;
 using UnityEngine.UI;
+using System.Linq;
 
 namespace Module.Application
 {
+    
+    [System.Serializable]
+    public class FormQuestion
+    {
+        public string entryID;   // 質問項目に対応するID  例:entry.123456
+        public QuestionType type;
+        
+        // 対応するUIコンポーネント 使うものだけInspectorで設定
+        public TMP_InputField inputField;
+        public TMP_Dropdown   dropdown;
+        public ToggleGroup    toggleGrope;
+    }
+
+    // GoogleFormの質問タイプ (ToggleGroupはラジオボタン)
+    public enum QuestionType
+    {
+        InputField,
+        Dropdown,
+        ToggleGroup
+    }
+    
     public class FeedbackSender : MonoBehaviour
     {
         [Header("共通設定")]
         [SerializeField] private string formActionURL; // 末尾の/viewformを/formResponseに書き換えた送信先URL 
+
+        [Header("質問リスト")] 
+        [SerializeField] private FormQuestion[] questions;  // 構造体の配列 
         
-        [Header("感想テキスト欄")]
-        [SerializeField] private string textFieldEntryID;       // 質問項目に対応するID  例:entry.123456
-        [SerializeField] private TMP_InputField feedbackInputField; // HierarchyからInputFieldをアタッチ
-
-        [Header("選択肢 (プルダウン)")] 
-        [SerializeField] private string dropdownEntryID;
-        [SerializeField] private TMP_Dropdown questionDropdown;
-
         [SerializeField] private Button sendButton;
-
         private bool isSending = false;
         
         // UnitaskはOnClickじゃ呼び出せない
@@ -37,34 +53,61 @@ namespace Module.Application
                 return;
             
             // InputFieldが空でなければ送信処理を開始
-            if (string.IsNullOrEmpty(feedbackInputField.text))
+            FormQuestion firstInput = questions.FirstOrDefault(q => q.type == QuestionType.InputField);
+            
+            if (firstInput != null && string.IsNullOrEmpty(firstInput.inputField.text))
             {
-                Debug.Log("空欄で送信することはできません！");
+                Debug.Log("必須項目が空欄です！");
                 return;
             }
             
             // 一度ボタンを無効化
-            sendButton.enabled = false;
+            sendButton.interactable = false;
             isSending = true;
 
             await PostAsync();
             
-            sendButton.enabled = true;
+            isSending = false;
+            sendButton.interactable = true;
         }
 
         private async UniTask PostAsync()
         {
-            // テキスト取得
-            string feedbackText = feedbackInputField.text;
-
-            string selectedOptionText = questionDropdown.options[questionDropdown.value].text;
-            
             // WWWFormを使って送信するデータを作成
             WWWForm form = new WWWForm();
-            
-            // EntryIDに感想のテキストをセット
-            form.AddField(textFieldEntryID, feedbackText);  
-            form.AddField(dropdownEntryID, selectedOptionText);
+
+            foreach (var q in questions)
+            {
+                string value = "";
+                
+                
+                // ドロップダウンもラジオボタンも、フォーム側が持っている情報は質問項目の番号ではなく原文なので、Unity側でもtextを取得する
+                switch (q.type)
+                {
+                    case QuestionType.InputField:
+                        value = q.inputField.text;
+                        break;
+                    
+                    case QuestionType.Dropdown:
+                        value = q.dropdown.options[q.dropdown.value].text;
+                        break;
+                    
+                    // 選択されている項目を取得->text取得
+                    case QuestionType.ToggleGroup:
+                        Toggle activeToggle = q.toggleGrope.GetFirstActiveToggle();
+                        if (activeToggle != null)
+                        {
+                            value = activeToggle.GetComponentInChildren<Text>().text;
+                        }
+                        break;
+                }
+
+                // 項目(entryID)とその回答をフォームに追加
+                if (!string.IsNullOrEmpty(value))
+                {
+                    form.AddField(q.entryID, value);
+                }
+            }
            
             // PostでformActionURLにデータを送信と待機
             UnityWebRequest www = UnityWebRequest.Post(formActionURL, form);
@@ -74,8 +117,18 @@ namespace Module.Application
             {
                 Debug.Log("フィードバックが正常に送信されました！");
                 //TODO 送信完了メッセージ表示
-                feedbackInputField.text = "";    // 送信後空に
-                questionDropdown.value = 0;
+                foreach (var q in questions)
+                {
+                    if (q.inputField != null)
+                        q.inputField.text = "";
+                    
+                    if (q.dropdown != null)
+                        q.dropdown.value = 0;
+                    
+                    if (q.toggleGrope != null)
+                        q.toggleGrope.SetAllTogglesOff();
+                }
+                
             }
             else
             {
