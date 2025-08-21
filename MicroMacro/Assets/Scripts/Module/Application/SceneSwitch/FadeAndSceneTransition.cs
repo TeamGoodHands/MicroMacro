@@ -33,6 +33,12 @@ namespace Module.Application.SceneSwitch
             if (isSceneTransitioning || m_fade == null)
                 return;
 
+            if (nextSceneName == SceneManager.GetActiveScene().name)
+            {
+                Debug.LogError("nextSceneNameと現在アクティブなシーンが同じです");
+                return;
+            }
+
             isSceneTransitioning = true;
 
             //余計なサウンド停止 
