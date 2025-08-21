@@ -17,5 +17,11 @@ namespace PropertyGenerator.Generated
 			get => target.GetFloat(-823668238);
 			set => target.SetFloat(-823668238, value);
 		}
+		
+		public float Direction
+		{
+			get => target.GetFloat(-1128574192);
+			set => target.SetFloat(-1128574192, value);
+		}
 	}
 }

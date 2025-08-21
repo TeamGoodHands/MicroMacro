@@ -17,6 +17,7 @@ namespace Module.Player.State
         private readonly PlayerCondition condition;
         private readonly PlayerRotation rotation;
         private readonly WeaponSwitcher weaponSwitcher;
+        private readonly PlayerControllerWrapper animatorWrapper;
 
         private readonly InputEvent moveEvent;
         private readonly InputEvent switchEvent;
@@ -28,6 +29,7 @@ namespace Module.Player.State
             condition = component.Condition;
             rotation = component.PlayerRotation;
             weaponSwitcher = component.WeaponSwitcher;
+            animatorWrapper = component.AnimatorWrapper;
 
             // 武器の初期化
             weaponSwitcher.Initialize();
@@ -81,6 +83,28 @@ namespace Module.Player.State
             // プレイヤーの向きを更新
             float angle = condition.LastSideInput.x > 0f ? 0f : -180f;
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.deltaTime);
+            UpdateAnimatorParameter();
+        }
+
+        private void UpdateAnimatorParameter()
+        {
+            // Animatorに適用
+            float paramDir = animatorWrapper.Direction;
+            
+            if (condition.Direction == Vector2.up)
+            {
+                paramDir = Mathf.Lerp(paramDir, 1, Time.deltaTime * parameter.VerticalLookSpeed);
+            }
+            else if (condition.Direction == Vector2.down)
+            {
+                paramDir = Mathf.Lerp(paramDir, -1, Time.deltaTime * parameter.VerticalLookSpeed);
+            }
+            else
+            {
+                paramDir = Mathf.Lerp(paramDir, 0, Time.deltaTime * parameter.VerticalLookSpeed);
+            }
+            
+            animatorWrapper.Direction = paramDir;
         }
 
         internal override void UpdatePhysics()

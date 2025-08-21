@@ -25,6 +25,7 @@ namespace Module.Player.Component
         [SerializeField, Header("縦方向へのデッドゾーン")] private float verticalDeadZone;
         [SerializeField, Header("縦方向の有効角度")] private float verticalValidAngle;
         [SerializeField, Header("回転速度")] private float rotationSpeed;
+        [SerializeField, Header("上下に向く速度")] private float verticalLookSpeed;
 
         [Header("武器")]
         [SerializeField, Header("武器リスト")] private List<AbstractWeapon> weapons;
@@ -42,6 +43,7 @@ namespace Module.Player.Component
         public float VerticalDeadZone => verticalDeadZone;
         public float VerticalValidAngle => verticalValidAngle;
         public float RotationSpeed => rotationSpeed;
+        public float VerticalLookSpeed => verticalLookSpeed;
         public IReadOnlyList<AbstractWeapon> Weapons => weapons;
     }
 }
