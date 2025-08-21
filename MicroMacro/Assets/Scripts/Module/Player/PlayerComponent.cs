@@ -13,11 +13,13 @@ namespace Module.Player
         [SerializeField] private PlayerCondition condition;
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
+        [SerializeField] private PlayerStatus playerStatus;
        
         public PlayerParameter Parameter => parameter;
         public PlayerCondition Condition => condition;
         public Rigidbody Rigidbody => rigidbody;
         public Transform Transform => rigidbody.transform;
+        public PlayerStatus PlayerStatus => playerStatus;
         public PlayerControllerWrapper AnimatorWrapper => playerAnimatorController;
         public PlayerMovement PlayerMovement => playerMovement ??= new PlayerMovement(parameter, condition);
         public PlayerRotation PlayerRotation => playerRotation ??= new PlayerRotation(parameter, condition);

@@ -19,6 +19,9 @@ namespace Module.Player
         [SerializeField, Header("下部のカメラ制限のしきい値"), Range(0f, 1f)]
         private float downSideDeadZone = 0.25f;
 
+        [SerializeField, Header("カメラをロックするか")]
+        private bool lockState;
+
         private float targetY;
         private Camera mainCamera;
 
@@ -30,6 +33,9 @@ namespace Module.Player
 
         private void FixedUpdate()
         {
+            if (lockState)
+                return;
+            
             Vector2 screenPoint = mainCamera.WorldToViewportPoint(target.position);
 
             if (screenPoint.y > upSideDeadZone)
@@ -49,6 +55,11 @@ namespace Module.Player
             newPosition.x = Mathf.Lerp(newPosition.x, target.position.x, followSpeed);
             // 位置を更新
             transform.position = new Vector3(newPosition.x, targetY, newPosition.z);
+        }
+
+        public void SetLockState(bool lockState)
+        {
+            this.lockState = lockState;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Module.Player
     public class PlayerBehaviour : MonoBehaviour
     {
         [SerializeField] private PlayerComponent component;
-        
+
         public PlayerComponent Component => component;
 
         private HierarchicalStateMachine stateMachine;
@@ -20,14 +20,20 @@ namespace Module.Player
             stateMachine = new HierarchicalStateMachine();
 
             // ステートの初期化
+            stateMachine.AddState(new LockState());
+
             stateMachine.AddState(new AliveState(component));
-            stateMachine.AddState(new DeathState());
+            stateMachine.AddState(new DeathState(component));
             stateMachine.AddState<GroundState, AliveState>(new GroundState(component));
             stateMachine.AddState<InAirState, AliveState>(new InAirState(component));
 
             // ステート遷移の初期化
             stateMachine.AddTransition<GroundState, InAirState>(() => component.Condition.IsGround == false);
             stateMachine.AddTransition<InAirState, GroundState>(() => component.Condition.IsGround == true);
+            stateMachine.AddTransition<AliveState, LockState>(() => component.Condition.IsPlayerLocked == true);
+            stateMachine.AddTransition<LockState, AliveState>(() => component.Condition.IsPlayerLocked == false);
+            stateMachine.AddTransition<AliveState, DeathState>(() => component.PlayerStatus.CurrentHealth == 0);
+            stateMachine.AddTransition<DeathState, AliveState>(() => component.PlayerStatus.CurrentHealth > 0);
 
             // ステートマシンはAliveStateから起動
             stateMachine.Start<AliveState>();
@@ -42,7 +48,7 @@ namespace Module.Player
         {
             stateMachine.UpdatePhysics();
         }
-        
+
         private void OnDestroy()
         {
             // ステートマシンのクリーンアップ

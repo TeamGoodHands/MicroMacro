@@ -428,10 +428,10 @@ namespace CoreModule.AI.HSM
                 }
 
                 // 子要素の状態を先に無効化する
-                Current.Group.Exit();
+                Current?.Group.Exit();
 
-                Current.OnExit();
-                Current.DisposeCanceller();
+                Current?.OnExit();
+                Current?.DisposeCanceller();
                 OnExit?.Invoke(Current);
                 Current = null;
             }
