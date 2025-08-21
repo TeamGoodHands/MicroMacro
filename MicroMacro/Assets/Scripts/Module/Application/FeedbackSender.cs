@@ -39,6 +39,8 @@ namespace Module.Application
         
         [SerializeField] private Button sendButton;
         private bool isSending = false;
+
+        public event Action OnSend;
         
         // UnitaskはOnClickじゃ呼び出せない
         public void OnClickSendButton()
@@ -145,6 +147,7 @@ namespace Module.Application
                         q.toggleGroup.SetAllTogglesOff();
                 }
                 
+                OnSend?.Invoke();
             }
             else
             {

@@ -54,6 +54,8 @@ namespace Module.UI
             const string sceneSavePath = "Assets/Scenes/Level/Main";
             const string sceneSavePathTest = "Assets/Scenes/Level/Test";
             const string rootSceneName = "Root";
+            const string mainStage = "1-1Ver2";
+            const string bossStage = "Boss";
             var sceneNames = new List<string>();
 
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
@@ -70,6 +72,10 @@ namespace Module.UI
 
                 // ルートシーンは省く
                 if (sceneName == rootSceneName)
+                    continue;
+
+                // 一旦ボスステージとメインステージ、feedback意外省く
+                if (sceneName != mainStage && sceneName != bossStage)
                     continue;
 
                 sceneNames.Add(sceneName);
