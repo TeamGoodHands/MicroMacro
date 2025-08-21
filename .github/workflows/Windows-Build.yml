@@ -1,7 +1,7 @@
 name: Windows-Build
 on:
   pull_request:        # mainにプルリクor手動で実行
-    branches: main  
+    branches: develop  
   workflow_dispatch:  {}    
 
 jobs:
@@ -60,4 +60,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.buildName }}
+
           path: build/${{ matrix.targetPlatform }}    

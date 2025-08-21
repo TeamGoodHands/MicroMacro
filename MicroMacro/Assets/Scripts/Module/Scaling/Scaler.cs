@@ -39,13 +39,13 @@ namespace Module.Scaling
     /// </summary>
     public abstract class Scaler : MonoBehaviour
     {
-        [SerializeField, Header("最小段階")]  int minStep = 0;
-        [SerializeField, Header("最大段階")]  int maxStep = 3;
+        [SerializeField, Header("最小段階")] int minStep = 0;
+        [SerializeField, Header("最大段階")] int maxStep = 3;
         [SerializeField, Header("現在の段階"), ReadOnly] protected int currentStep;
         [SerializeField, Header("前の段階"), ReadOnly] protected int previousStep;
         [SerializeField, Header("現在のステート"), ReadOnly] protected State state;
         [SerializeField, Header("スケール中か"), ReadOnly] protected bool isScaling;
-        
+
         /// <summary>
         /// 現在のスケール段階
         /// </summary>
@@ -107,13 +107,26 @@ namespace Module.Scaling
         private CancellationTokenSource scaleCanceller;
 
         /// <summary>
-        /// オブジェクトをスケールします
+        /// 指定スケールにセットします
+        /// </summary>
+        /// <param name="step">指定段階</param>
+        /// <param name="forceScale"></param>
+        public UniTaskVoid SetScale(int step, bool forceScale = false)
+        {
+            int targetStep = Mathf.Clamp(step, minStep, maxStep);
+            int scaleDiff = targetStep - currentStep;
+            return Scale(scaleDiff, forceScale);
+        }
+
+        /// <summary>
+        /// オブジェクトを追加スケールします
         /// </summary>
         /// <param name="additionalStep">追加段階</param>
-        public async UniTaskVoid Scale(int additionalStep)
+        /// <param name="forceScale"></param>
+        public async UniTaskVoid Scale(int additionalStep, bool forceScale = false)
         {
-            // スケール中であればキャンセル
-            if (isScaling)
+            // コンポーネントが無効 or スケール中であればキャンセル
+            if ((!enabled && !forceScale) || isScaling)
                 return;
 
             isScaling = true;
@@ -156,6 +169,20 @@ namespace Module.Scaling
 
             currentStep = previousStep;
             state = GetScaleState();
+        }
+
+        /// <summary>
+        /// スケールを初期ステップに戻します
+        /// </summary>
+        public void ResetScale()
+        {
+            // 現在のスケール処理をキャンセル
+            scaleCanceller?.Cancel();
+            scaleCanceller?.Dispose();
+            scaleCanceller = null;
+
+            // スケールを初期値に戻す
+            SetScale(0, true).Forget();
         }
 
         protected abstract UniTask OnScale(CancellationToken cancellationToken);

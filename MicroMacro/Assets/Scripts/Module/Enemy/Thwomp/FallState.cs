@@ -1,7 +1,9 @@
 ﻿using Constants;
 using CoreModule.AI.HSM;
 using DG.Tweening;
+using Module.Scaling;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Module.Enemy.Thwomp
 {
@@ -9,8 +11,11 @@ namespace Module.Enemy.Thwomp
     {
         private readonly ThwompParameter parameter;
         private readonly ThwompCondition condition;
+        private readonly TwoAxisScaler scaler;
         private readonly Rigidbody rigidbody;
         private readonly Collider collider;
+        private readonly VisualEffect crackEffect;
+        private readonly EnemyStatus status;
         private float startTime;
 
         public FallState(ThwompComponent component)
@@ -19,6 +24,9 @@ namespace Module.Enemy.Thwomp
             condition = component.Condition;
             rigidbody = component.Rigidbody;
             collider = component.Collider;
+            scaler = component.Scaler;
+            crackEffect = component.CrackEffect;
+            status = component.Status;
         }
 
         internal override void OnEnter()
@@ -27,6 +35,7 @@ namespace Module.Enemy.Thwomp
 
             // 落ちる前に少し揺らす
             rigidbody.transform.DOShakePosition(parameter.FallDelay, 0.1f, 30, fadeOut: false).SetDelay(0.5f);
+            scaler.enabled = true;
         }
 
         internal override void OnExit()
@@ -48,7 +57,15 @@ namespace Module.Enemy.Thwomp
             if (IsGround())
             {
                 condition.LastAttackTime = Time.time;
-                condition.CurrentState = ThwompCondition.State.Idle;
+                scaler.enabled = false;
+
+                if (scaler.CurrentStep > 0)
+                {
+                    status.Damage(scaler.CurrentStep);
+                    crackEffect.Play();
+                }
+
+                condition.CurrentState = status.CurrentHealth > 0 ? ThwompCondition.State.Idle : ThwompCondition.State.Death;
             }
         }
 

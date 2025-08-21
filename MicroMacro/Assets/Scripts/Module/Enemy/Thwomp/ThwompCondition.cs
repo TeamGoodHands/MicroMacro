@@ -12,6 +12,7 @@ namespace Module.Enemy.Thwomp
             Ascending,
             Moving,
             Falling,
+            Death
         }
 
         [SerializeField] private State currentState;
