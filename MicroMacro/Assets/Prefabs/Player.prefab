@@ -738,6 +738,7 @@ MonoBehaviour:
     rigidbody: {fileID: 2500792367917730159}
     playerAnimatorController:
       target: {fileID: 1300950404972443742}
+    playerStatus: {fileID: 4667942627592755181}
 --- !u!114 &3768903610724826711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -750,7 +751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63b4dafe18d74b288700cfa2378ce364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveAccel: 5
+  moveAccel: 10
   maxSpeed: 20
   damping: {x: 0.65, y: 1}
   externalDamping: {x: 0.9, y: 0.85}
@@ -815,6 +816,7 @@ MonoBehaviour:
   externalForce: {x: 0, y: 0}
   isJumping: 0
   isGround: 0
+  isPlayerLocked: 0
   direction: {x: 1, y: 0}
   lastSideInput: {x: 1, y: 0}
 --- !u!114 &4667942627592755181
@@ -829,7 +831,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54de8fcca5ad39648ab69b939e2704ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 0
+  maxHealth: 1
   currentHealth: 0
 --- !u!54 &2500792367917730159
 Rigidbody:

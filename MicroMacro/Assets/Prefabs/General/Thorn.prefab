@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1636166025600423920}
+  - component: {fileID: 757608709335856751}
   - component: {fileID: 4243094000274074433}
   - component: {fileID: 1930650317248962242}
   m_Layer: 0
@@ -34,6 +35,18 @@ Transform:
   - {fileID: 9054417369167344765}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &757608709335856751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5027238826607352978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 605e8327b3a98704988461e2d2866c7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!65 &4243094000274074433
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -69,12 +82,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minStep: 0
   maxStep: 5
-  step: 0
-  prevStep: 0
+  currentStep: 0
+  previousStep: 0
   state: 0
   isScaling: 0
   scaleAmount: {x: 0, y: 1}
   scaleDuration: 0.3
+  lockPosition: 0
   pivotX: 0
   pivotY: -0.5
 --- !u!1 &7292678969784660902
@@ -577,7 +591,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 11912
+  m_VersionIndex: 11915
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

@@ -10,8 +10,11 @@ namespace Module.Player.Component
 
         public event Action<int> OnDamage;
         public event Action OnDeath;
+        
+        public int CurrentHealth => currentHealth;
+        public int MaxHealth => maxHealth;
 
-        private void Start()
+        private void Awake()
         {
             currentHealth = maxHealth;
         }
@@ -27,6 +30,11 @@ namespace Module.Player.Component
                 OnDeath?.Invoke();
             }
             Debug.Log("ダメージを受けました");
+        }
+
+        public void Reset()
+        {
+            currentHealth = maxHealth;
         }
     }
 }
