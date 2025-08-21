@@ -53,7 +53,13 @@ namespace Module.UI
         {
             const string sceneSavePath = "Assets/Scenes/Level/Main";
             const string sceneSavePathTest = "Assets/Scenes/Level/Test";
+            const string sceneSavePathOutGame = "Assets/Scenes/Level/OutGame";
             const string rootSceneName = "Root";
+            const string mainStage = "1-1Ver2";
+            const string bossStage = "Boss";
+            const string feedback = "Feedback";
+            const string title = "Title";
+            
             var sceneNames = new List<string>();
 
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
@@ -62,7 +68,7 @@ namespace Module.UI
                 string scenePath = SceneUtility.GetScenePathByBuildIndex(i);
 
                 // 指定したパスに含まれていなかったらスキップ
-                if (!scenePath.Contains(sceneSavePath) && !scenePath.Contains(sceneSavePathTest))
+                if (!scenePath.Contains(sceneSavePath) && !scenePath.Contains(sceneSavePathTest) && !scenePath.Contains(sceneSavePathOutGame))
                     continue;
 
                 // 拡張子を除いたファイル名(シーン名)を取得
@@ -70,6 +76,10 @@ namespace Module.UI
 
                 // ルートシーンは省く
                 if (sceneName == rootSceneName)
+                    continue;
+
+                // 一旦ボスステージとメインステージ、feedback意外省く
+                if (sceneName != mainStage && sceneName != bossStage && sceneName != title && sceneName != feedback)
                     continue;
 
                 sceneNames.Add(sceneName);
