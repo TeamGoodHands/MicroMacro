@@ -30,7 +30,7 @@ namespace Module.Application.SceneSwitch
 
         private async UniTaskVoid SceneSwitchAsync()
         {
-            await UniTask.Delay(5);
+            await UniTask.Delay(TimeSpan.FromSeconds(3f));
 
             if (sceneManager != null && sceneManager.nextSceneName == "Feedback")
             {

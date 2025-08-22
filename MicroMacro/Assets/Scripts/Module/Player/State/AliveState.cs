@@ -71,7 +71,6 @@ namespace Module.Player.State
             {
                 condition.LastSideInput = direction;
             }
-
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)
