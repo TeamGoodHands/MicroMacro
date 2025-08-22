@@ -103,6 +103,8 @@ namespace Module.Player.State
             condition.IsGround = false;
             condition.IsJumping = true;
             condition.JumpStartTime = Time.time;
+            
+            animatorWrapper.IsJumping = true;
         }
     }
 }

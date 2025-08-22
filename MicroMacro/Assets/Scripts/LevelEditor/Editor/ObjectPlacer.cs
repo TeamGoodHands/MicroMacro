@@ -297,11 +297,16 @@ namespace LevelEditor.Editor
             Ray ray = sceneView.camera.ScreenPointToRay(screenPosition);
             if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || hit.transform.root != parentObject.transform)
                 return;
+            
+            Transform target = hit.transform;
 
-            GameObject target = hit.transform.parent.gameObject;
+            while (hit.transform.parent.name != "Level")
+            {
+                target = hit.transform.parent;
+            }
 
             // GameObjectを削除
-            DestroyLevelObject(target);
+            DestroyLevelObject(target.gameObject);
         }
 
         private void DestroyLevelObject(GameObject target)

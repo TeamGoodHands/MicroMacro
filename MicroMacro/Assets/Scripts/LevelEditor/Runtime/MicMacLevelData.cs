@@ -32,19 +32,23 @@ namespace LevelEditor.Runtime
             Dictionary<long, GameObject> mapData = GetMapData();
 
             // Y座標でグリッドデータを分割する
-            var splitedFilters = SplitByY(mapData);
+            Dictionary<int, List<(int x, MeshFilter filter)>> splitedFilters = SplitByY(mapData);
+
+            var continuousX = new List<List<MeshFilter>>();
 
             foreach (var filters in splitedFilters.Values)
             {
                 // 座標が連続しているMeshFilterをグループ化する
-                var continuousX = GroupByContinuousX(filters);
+                continuousX.AddRange(GroupByContinuousX(filters));
+            }
 
-                // 各グループをメッシュとして結合する
-                foreach (List<MeshFilter> group in continuousX)
-                {
-                    GameObject combinedObject = meshCombiner.CombineMeshes(group);
-                    combinedObject.transform.SetParent(transform, false);
-                }
+            var continuousY = GroupByContinuousY(continuousX);
+
+            // 各グループをメッシュとして結合する
+            foreach (List<MeshFilter> group in continuousY)
+            {
+                GameObject combinedObject = meshCombiner.CombineMeshes(group);
+                combinedObject.transform.SetParent(transform, false);
             }
         }
 
@@ -170,6 +174,58 @@ namespace LevelEditor.Runtime
             groups.Add(currentGroup);
 
             return groups;
+        }
+
+        private List<List<MeshFilter>> GroupByContinuousY(List<List<MeshFilter>> filters)
+        {
+            var groupedFilters = new Dictionary<Vector2, List<MeshFilter>>();
+
+            // グループ内の各ブロックのX座標の平均を求める
+            foreach (List<MeshFilter> meshFilters in filters)
+            {
+                float x = meshFilters.Average(filter => filter.transform.position.x);
+                float y = meshFilters.First().transform.position.y;
+
+                groupedFilters.Add(new Vector2(x, y), meshFilters);
+            }
+
+            // y座標でグループ化されたフィルターをソート
+            var sortedFilters = groupedFilters.OrderBy(kvp => kvp.Key.y).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            var result = new List<List<MeshFilter>>();
+
+            int checkedCount = 0;
+
+            while (checkedCount < groupedFilters.Count)
+            {
+                var (ave, meshFilters) = sortedFilters.First();
+                checkedCount++;
+
+                bool isContinuous = true;
+                Vector2 targetAve = ave;
+                int blockCount = meshFilters.Count;
+                
+                do
+                {
+                    // y座標を1ずつ増やして同じ種類のグループを探す
+                    targetAve.y += 1;
+
+                    bool isTargetAve = sortedFilters.TryGetValue(targetAve, out var targetFilters);
+                    isContinuous = isTargetAve && targetFilters.Count == blockCount;
+                    
+                    if (isContinuous)
+                    {
+                        meshFilters.AddRange(targetFilters);
+                        sortedFilters.Remove(targetAve);
+                        checkedCount++;
+                    }
+                }
+                while (isContinuous);
+
+                result.Add(meshFilters);
+                sortedFilters.Remove(ave);
+            }
+
+            return result;
         }
     }
 }
