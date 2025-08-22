@@ -154,7 +154,7 @@ namespace CoreModule.AI.HSM
         {
             // ルートグループに追加
             rootGroup.Add(state);
-            
+
             // ステートの登録
             RegisterState(state, rootGroup);
         }
@@ -218,7 +218,7 @@ namespace CoreModule.AI.HSM
             // 遷移条件を追加する
             transitions[from].Add(to, condition);
         }
-        
+
         public void Dispose()
         {
             // すべてのステートを終了する
@@ -256,10 +256,10 @@ namespace CoreModule.AI.HSM
 
             // ステートを登録する
             states.Add(stateType, state);
-            
+
             // ステートグループを登録する
             stateGroups[stateType] = stateGroup;
-            
+
             // 遷移条件の初期化
             transitions.Add(stateType, new Dictionary<Type, Func<bool>>());
         }
@@ -276,6 +276,9 @@ namespace CoreModule.AI.HSM
 
             stateGroup.OnExit += st =>
             {
+                if (st == null)
+                    return;
+                
                 // 遷移先のトランジションを削除する
                 currentTransition.Remove(st.Type);
             };
@@ -290,12 +293,12 @@ namespace CoreModule.AI.HSM
         {
             public bool IsRoot => Parent == null;
             public Type Type { get; internal set; }
-            
+
             /// <summary>
             /// 親ステート
             /// </summary>
             public State Parent { get; internal set; }
-            
+
             /// <summary>
             /// ステートが持つステートグループ
             /// </summary>
@@ -305,6 +308,7 @@ namespace CoreModule.AI.HSM
             /// ステートを抜けたときに発行するトークン
             /// </summary>
             protected CancellationToken CancellationToken => stateCanceller.Token;
+
             private CancellationTokenSource stateCanceller;
 
             internal void EnableCanceller()
@@ -333,17 +337,17 @@ namespace CoreModule.AI.HSM
         internal class StateGroup
         {
             public bool IsEmpty => Children.Count == 0;
-            
+
             /// <summary>
             /// デフォルトで有効化されるステート
             /// </summary>
             public State Default { get; private set; }
-            
+
             /// <summary>
             /// 現在有効なステート
             /// </summary>
             public State Current { get; private set; }
-            
+
             /// <summary>
             /// ステートグループに所属するステート
             /// </summary>
@@ -436,6 +440,5 @@ namespace CoreModule.AI.HSM
                 Current = null;
             }
         }
-
     }
 }

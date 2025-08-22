@@ -24,33 +24,25 @@ namespace Module.Enemy.Thwomp
             DestroyTask().Forget();
         }
 
-        internal override void OnExit()
-        {
-        }
+        internal override void OnExit() { }
 
-        internal override void Update()
-        {
-        }
+        internal override void Update() { }
 
         private async UniTaskVoid DestroyTask()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(1f));
+            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
 
             bodyObject.SetActive(false);
             crackEffect.SetInt("Count", 1000);
             crackEffect.Play();
 
-            await UniTask.Delay(TimeSpan.FromSeconds(1f));
+            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
 
             Object.Destroy(bodyObject.transform.parent.gameObject);
         }
 
-        internal override void UpdatePhysics()
-        {
-        }
+        internal override void UpdatePhysics() { }
 
-        internal override void Dispose()
-        {
-        }
+        internal override void Dispose() { }
     }
 }
