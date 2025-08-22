@@ -57,7 +57,7 @@ namespace Module.Scaling
         private async UniTaskVoid RewindAsync()
         {
             // 0ステップになったら終了
-            if (scaler.CurrentStep < 0)
+            if (scaler.CurrentStep == 0)
                 return;
 
             // 遅延させる
@@ -67,7 +67,7 @@ namespace Module.Scaling
             int rewindAmount = scaler.CurrentStep > 0 ? -1 : 1;
 
             // 巻き戻しステップ数
-            int stepCount = isPhasedRewind ? rewindAmount : -scaler.MaxStep;
+            int stepCount = isPhasedRewind ? rewindAmount : -scaler.CurrentStep;
 
             scaler.Scale(stepCount).Forget();
         }
