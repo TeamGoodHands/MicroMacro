@@ -12,6 +12,7 @@ namespace Module.Scaling
     {
         [SerializeField, Header("1ステップあたりのスケール量")] private Vector2 scaleAmount = new Vector2(1, 1);
         [SerializeField, Header("スケール時間")] private float scaleDuration = 0.5f;
+        [SerializeField, Header("オーバー演出時間")] private float overDuration = 0.5f;
         [SerializeField, Header("座標移動の無効化")] private bool lockPosition = false;
 
         [SerializeField, Header("ピボットポイント (0,0:中心 0.5,0.5:右上 -0.5,-0.5:左下)"), Range(-0.5f, 0.5f)]
@@ -36,12 +37,28 @@ namespace Module.Scaling
             Vector2 pivot = new Vector2(pivotX, pivotY);
             Vector2 scaledPosition = CalculateScaledPosition(pivot, targetScale);
             Vector3 positionOffset = (Vector3)scaledPosition - currentPosition;
-          
-            // targetScaleまで滑らかにスケールする
-            
-            float progress = 0f;
 
-            await DOTween.To(() => progress,
+            // targetScaleまで滑らかにスケールする
+            Tween tween;
+
+            if (previousStep == CurrentStep)
+            {
+                // オーバー演出
+                tween = CreateOverTween(currentPosition, currentScale, targetScale, positionOffset);
+            }
+            else
+            {
+                // 通常のスケール
+                tween = CreateScaleTween(currentPosition, currentScale, targetScale, positionOffset);
+            }
+
+            await tween.SetLink(gameObject).WithCancellation(cancellationToken);
+        }
+
+        private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, Vector3 targetScale, Vector3 positionOffset)
+        {
+            float progress = 0f;
+            return DOTween.To(() => progress,
                     value =>
                     {
                         progress = value;
@@ -52,9 +69,40 @@ namespace Module.Scaling
                             transform.localPosition = currentPosition + positionOffset * progress;
                         }
                     }, 1f, scaleDuration)
-                .SetEase(Ease.OutBack, 3f)
-                .SetLink(gameObject)
-                .WithCancellation(cancellationToken);
+                .SetEase(Ease.OutBack, 3f);
+        }
+
+        private Tween CreateOverTween(Vector3 currentPosition, Vector3 currentScale, Vector3 targetScale, Vector3 positionOffset)
+        {
+            Vector3 offsetScale = targetScale + (Vector3)(Vector2.one * 0.3f);
+
+            var seq = DOTween.Sequence();
+            float progress = 0f;
+            seq.Append(DOTween.To(() => progress,
+                value =>
+                {
+                    progress = value;
+                    Debug.Log(progress);
+                    transform.localScale = currentScale + (offsetScale - currentScale) * progress;
+
+                    if (!lockPosition)
+                    {
+                        transform.localPosition = currentPosition + positionOffset * progress;
+                    }
+                }, 1f, overDuration * 0.5f));
+            seq.Append(DOTween.To(() => progress,
+                value =>
+                {
+                    progress = value;
+                    Debug.Log(progress);
+                    transform.localScale = currentScale + (targetScale - currentScale) * progress;
+
+                    if (!lockPosition)
+                    {
+                        transform.localPosition = currentPosition + positionOffset * progress;
+                    }
+                }, 0f, overDuration * 0.5f));
+            return seq;
         }
 
         /// <summary>
