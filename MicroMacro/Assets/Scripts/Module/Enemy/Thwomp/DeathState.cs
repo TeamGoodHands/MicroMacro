@@ -31,6 +31,9 @@ namespace Module.Enemy.Thwomp
         private async UniTaskVoid DestroyTask()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
+            
+            if (bodyObject == null)
+                return;
 
             bodyObject.SetActive(false);
             crackEffect.SetInt("Count", 1000);
