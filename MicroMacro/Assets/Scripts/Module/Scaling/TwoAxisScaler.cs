@@ -21,6 +21,8 @@ namespace Module.Scaling
         [SerializeField, Range(-0.5f, 0.5f)] private float pivotY;
 
         private Vector3 defaultScale;
+        private Tween currentTween;
+
 
         private void Awake()
         {
@@ -31,78 +33,71 @@ namespace Module.Scaling
         {
             Vector3 currentScale = transform.localScale;
             Vector3 currentPosition = transform.localPosition;
-            Vector3 targetScale = defaultScale + (Vector3)scaleAmount * currentStep;
 
-            // スケール後の座標を求める
-            Vector2 pivot = new Vector2(pivotX, pivotY);
-            Vector2 scaledPosition = CalculateScaledPosition(pivot, targetScale);
-            Vector3 positionOffset = (Vector3)scaledPosition - currentPosition;
+            currentTween?.Kill();
 
             // targetScaleまで滑らかにスケールする
-            Tween tween;
-
-            if (previousStep == CurrentStep)
+            if (previousStep == CurrentStep && (CurrentStep == MaxStep || CurrentStep == MinStep))
             {
                 // オーバー演出
-                tween = CreateOverTween(currentPosition, currentScale, targetScale, positionOffset);
+                float sign = CurrentStep == MaxStep ? 1f : -1f;
+                TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, new Vector3(0.5f, 0.5f) * sign);
+                args.Duration = overDuration;
+
+                Tween scaleTween = CreateScaleTween(currentPosition, currentScale, args);
+
+                TwoAxisScaleArgs unScaleArgs = new TwoAxisScaleArgs()
+                {
+                    TargetScale = currentScale,
+                    PositionOffset = -args.PositionOffset,
+                    Duration = overDuration
+                };
+                Tween unScaleTween = CreateScaleTween(currentPosition + args.PositionOffset, args.TargetScale, unScaleArgs);
+
+                Sequence sequence = DOTween.Sequence();
+                sequence.Append(scaleTween);
+                sequence.Append(unScaleTween);
+                currentTween = sequence;
             }
             else
             {
                 // 通常のスケール
-                tween = CreateScaleTween(currentPosition, currentScale, targetScale, positionOffset);
+                TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
+                args.Duration = scaleDuration;
+                currentTween = CreateScaleTween(currentPosition, currentScale, args);
             }
 
-            await tween.SetLink(gameObject).WithCancellation(cancellationToken);
+            await currentTween.SetLink(gameObject).WithCancellation(cancellationToken);
         }
 
-        private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, Vector3 targetScale, Vector3 positionOffset)
+        private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, TwoAxisScaleArgs args)
         {
             float progress = 0f;
             return DOTween.To(() => progress,
                     value =>
                     {
                         progress = value;
-                        transform.localScale = currentScale + (targetScale - currentScale) * progress;
+                        transform.localScale = currentScale + (args.TargetScale - currentScale) * progress;
 
                         if (!lockPosition)
                         {
-                            transform.localPosition = currentPosition + positionOffset * progress;
+                            transform.localPosition = currentPosition + args.PositionOffset * progress;
                         }
-                    }, 1f, scaleDuration)
+                    }, 1f, args.Duration)
                 .SetEase(Ease.OutBack, 3f);
         }
 
-        private Tween CreateOverTween(Vector3 currentPosition, Vector3 currentScale, Vector3 targetScale, Vector3 positionOffset)
+        private TwoAxisScaleArgs CalculateScaleArgs(Vector3 currentPosition, Vector3 scaleOffset)
         {
-            Vector3 offsetScale = targetScale + (Vector3)(Vector2.one * 0.3f);
+            // 目標スケール値を求める
+            Vector3 targetScale = defaultScale + (Vector3)scaleAmount * currentStep + scaleOffset;
 
-            var seq = DOTween.Sequence();
-            float progress = 0f;
-            seq.Append(DOTween.To(() => progress,
-                value =>
-                {
-                    progress = value;
-                    Debug.Log(progress);
-                    transform.localScale = currentScale + (offsetScale - currentScale) * progress;
+            // スケール後の座標を求める
+            Vector2 pivot = new Vector2(pivotX, pivotY);
+            Vector2 scaledPosition = CalculateScaledPosition(pivot, targetScale);
+            Vector3 positionOffset = (Vector3)scaledPosition - currentPosition;
 
-                    if (!lockPosition)
-                    {
-                        transform.localPosition = currentPosition + positionOffset * progress;
-                    }
-                }, 1f, overDuration * 0.5f));
-            seq.Append(DOTween.To(() => progress,
-                value =>
-                {
-                    progress = value;
-                    Debug.Log(progress);
-                    transform.localScale = currentScale + (targetScale - currentScale) * progress;
-
-                    if (!lockPosition)
-                    {
-                        transform.localPosition = currentPosition + positionOffset * progress;
-                    }
-                }, 0f, overDuration * 0.5f));
-            return seq;
+            return new TwoAxisScaleArgs() { TargetScale = targetScale, PositionOffset = positionOffset };
         }
 
         /// <summary>
@@ -116,6 +111,14 @@ namespace Module.Scaling
 
             // ピボット分のオフセットを適用
             return localPosition - changeAmount * pivot;
+        }
+
+
+        private struct TwoAxisScaleArgs
+        {
+            public Vector3 TargetScale; // 目標スケール値
+            public Vector3 PositionOffset; // 前の地点からの座標の差分
+            public float Duration; // スケール時間
         }
     }
 }
