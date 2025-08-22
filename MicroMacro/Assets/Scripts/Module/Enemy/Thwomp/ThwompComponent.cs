@@ -15,6 +15,7 @@ namespace Module.Enemy.Thwomp
         [SerializeField] private VisualEffect crackEffect;
         [SerializeField] private TwoAxisScaler scaler;
         [SerializeField] private EnemyStatus status;
+        [SerializeField] private Renderer bodyRenderer;
         
         public ThwompParameter Parameter => parameter;
         public ThwompCondition Condition => condition;
@@ -23,5 +24,6 @@ namespace Module.Enemy.Thwomp
         public VisualEffect CrackEffect => crackEffect;
         public TwoAxisScaler Scaler => scaler;
         public EnemyStatus Status => status;
+        public Renderer Renderer => bodyRenderer;
     }
 }

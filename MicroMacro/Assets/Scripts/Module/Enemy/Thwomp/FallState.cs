@@ -9,11 +9,13 @@ namespace Module.Enemy.Thwomp
 {
     public class FallState : HierarchicalStateMachine.State
     {
+        private static readonly int baseColor = Shader.PropertyToID("_BaseColor");
         private readonly ThwompParameter parameter;
         private readonly ThwompCondition condition;
         private readonly TwoAxisScaler scaler;
         private readonly Rigidbody rigidbody;
         private readonly Collider collider;
+        private readonly Renderer bodyRenderer;
         private readonly VisualEffect crackEffect;
         private readonly EnemyStatus status;
         private float startTime;
@@ -26,6 +28,7 @@ namespace Module.Enemy.Thwomp
             collider = component.Collider;
             scaler = component.Scaler;
             crackEffect = component.CrackEffect;
+            bodyRenderer = component.Renderer;
             status = component.Status;
         }
 
@@ -36,15 +39,13 @@ namespace Module.Enemy.Thwomp
             // 落ちる前に少し揺らす
             rigidbody.transform.DOShakePosition(parameter.FallDelay, 0.1f, 30, fadeOut: false).SetDelay(0.5f);
             scaler.enabled = true;
+
+            bodyRenderer.material.SetColor(baseColor, parameter.AttackColor);
         }
 
-        internal override void OnExit()
-        {
-        }
+        internal override void OnExit() { }
 
-        internal override void Update()
-        {
-        }
+        internal override void Update() { }
 
         internal override void UpdatePhysics()
         {
@@ -58,6 +59,7 @@ namespace Module.Enemy.Thwomp
             {
                 condition.LastAttackTime = Time.time;
                 scaler.enabled = false;
+                bodyRenderer.material.SetColor(baseColor, parameter.DefaultColor);
 
                 if (scaler.CurrentStep > 0)
                 {
@@ -98,8 +100,6 @@ namespace Module.Enemy.Thwomp
             rigidbody.position = pos;
         }
 
-        internal override void Dispose()
-        {
-        }
+        internal override void Dispose() { }
     }
 }

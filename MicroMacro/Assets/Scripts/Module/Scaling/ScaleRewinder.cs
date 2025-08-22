@@ -57,7 +57,7 @@ namespace Module.Scaling
         private async UniTaskVoid RewindAsync()
         {
             // 0ステップになったら終了
-            if (scaler.CurrentStep == 0)
+            if (scaler.CurrentStep < 0)
                 return;
 
             // 遅延させる
