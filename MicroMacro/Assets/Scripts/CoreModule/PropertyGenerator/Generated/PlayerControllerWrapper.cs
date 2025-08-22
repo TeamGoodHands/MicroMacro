@@ -23,5 +23,11 @@ namespace PropertyGenerator.Generated
 			get => target.GetFloat(-1128574192);
 			set => target.SetFloat(-1128574192, value);
 		}
+		
+		public bool IsJumping
+		{
+			get => target.GetBool(1749078233);
+			set => target.SetBool(1749078233, value);
+		}
 	}
 }

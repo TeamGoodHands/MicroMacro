@@ -1,6 +1,7 @@
 ﻿using CoreModule.AI.HSM;
 using CoreModule.Input;
 using Module.Player.Component;
+using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,6 +17,7 @@ namespace Module.Player.State
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
         private readonly PlayerMovement movement;
+        private readonly PlayerControllerWrapper animatorWrapper;
 
         private readonly InputEvent jumpEvent;
         private readonly InputEvent moveEvent;
@@ -29,6 +31,7 @@ namespace Module.Player.State
             parameter = component.Parameter;
             condition = component.Condition;
             movement = component.PlayerMovement;
+            animatorWrapper = component.AnimatorWrapper;
 
             // 入力イベントを取得
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
@@ -54,6 +57,7 @@ namespace Module.Player.State
         {
             // ジャンプ入力無くなった場合はキャンセル
             condition.IsJumping = false;
+            animatorWrapper.IsJumping = false;
         }
 
         internal override void UpdatePhysics()
@@ -96,6 +100,7 @@ namespace Module.Player.State
             if (condition.IsGround)
             {
                 condition.IsJumping = false;
+                animatorWrapper.IsJumping = false;
             }
         }
 
