@@ -59,7 +59,7 @@ namespace Module.UI
             const string bossStage = "Boss";
             const string feedback = "Feedback";
             const string title = "Title";
-            
+
             var sceneNames = new List<string>();
 
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
@@ -106,8 +106,10 @@ namespace Module.UI
                 int buttonIndex = index;
 
                 // ボタンがクリックされたらシーンをロードする
-                button.onClick.AddListener(() =>
+                button.onClick.AddListener(async () =>
                 {
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
+                    
                     currentIndex = buttonIndex;
                     SceneManager.LoadScene(sceneName);
                 });
