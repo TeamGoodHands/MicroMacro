@@ -132,6 +132,7 @@ namespace Module.Player.State
             condition.JumpStartTime = Time.time;
 
             animatorWrapper.IsJumping = true;
+            SoundManager.instance.Play("ジャンプ");
         }
     }
 }
