@@ -161,7 +161,7 @@ namespace Module.Management
             }
             else if (SEDictionary.TryGetValue(name, out SEData seData))
             {
-                if(Time.realtimeSinceStartup - seData.playedTime < playableDistance)
+                if (Time.realtimeSinceStartup - seData.playedTime < playableDistance)
                     return;
                 
                 seData.playedTime = Time.realtimeSinceStartup; 　//次回用に今回の再生時間の保持 

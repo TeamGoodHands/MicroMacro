@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Module.Management;
 using UnityEngine;
 
 namespace Module.Scaling
@@ -67,7 +68,24 @@ namespace Module.Scaling
                 currentTween = CreateScaleTween(currentPosition, currentScale, args);
             }
 
+            PlaySound();
+
             await currentTween.SetLink(gameObject).WithCancellation(cancellationToken);
+        }
+
+        private void PlaySound()
+        {
+            bool isUpScaling = CurrentStep - previousStep > 0 || (previousStep == CurrentStep && CurrentStep == MaxStep);
+            bool isDownScaling = CurrentStep - previousStep < 0 || (previousStep == CurrentStep && CurrentStep == MinStep);
+
+            if (isUpScaling)
+            {
+                SoundManager.instance.Play("拡大");
+            }
+            else if (isDownScaling)
+            {
+                SoundManager.instance.Play("縮小");
+            }
         }
 
         private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, TwoAxisScaleArgs args)
