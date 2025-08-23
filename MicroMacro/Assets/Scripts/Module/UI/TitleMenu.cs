@@ -1,3 +1,4 @@
+using System;
 using CoreModule.Attribute;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -35,8 +36,9 @@ namespace Module.UI
             titleButton.Select();
         }
 
-        private void OnTitleButtonClicked()
+        private async void OnTitleButtonClicked()
         {
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
             SceneManager.LoadScene(stageSelectScene);
         }
 
