@@ -1,5 +1,6 @@
 ﻿using CoreModule.AI.HSM;
 using CoreModule.Input;
+using Module.Management;
 using Module.Player.Component;
 using PropertyGenerator.Generated;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace Module.Player.State
         private readonly InputEvent jumpEvent;
 
         private Vector2 moveInput;
+        private float footStepTimer;
 
         public GroundState(PlayerComponent component)
         {
@@ -43,6 +45,8 @@ namespace Module.Player.State
         {
             // ジャンプイベントを登録
             jumpEvent.Started += OnJump;
+
+            footStepTimer = 0f;
         }
 
         internal override void OnExit()
@@ -54,6 +58,7 @@ namespace Module.Player.State
         internal override void Update()
         {
             moveInput = moveEvent.ReadValue<Vector2>();
+            PlayFootSound();
         }
 
         internal override void UpdatePhysics()
@@ -82,6 +87,28 @@ namespace Module.Player.State
         {
         }
 
+        private void PlayFootSound()
+        {
+            float speed = Mathf.Abs(rigidbody.linearVelocity.x);
+
+            // スピードが極端に小さい場合は無視
+            if (speed <= 0.1f)
+                return;
+
+            // タイマーを減らす
+            footStepTimer -= Time.deltaTime;
+
+            if (footStepTimer <= 0f)
+            {
+                // 鳴らす間隔を計算する
+                float interval = parameter.FootstepSoundInterval * (parameter.FootstepSoundSpeed / speed);
+                interval = Mathf.Min(interval, parameter.FootstepMaxInterval);
+
+                SoundManager.instance.Play("足音");
+                footStepTimer = interval;
+            }
+        }
+
         /// <summary>
         /// 最大速度で正規化した現在の速度を返します。
         /// </summary>
@@ -103,7 +130,7 @@ namespace Module.Player.State
             condition.IsGround = false;
             condition.IsJumping = true;
             condition.JumpStartTime = Time.time;
-            
+
             animatorWrapper.IsJumping = true;
         }
     }

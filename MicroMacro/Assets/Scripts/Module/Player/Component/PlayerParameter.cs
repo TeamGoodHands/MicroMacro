@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Module.Player.Weapon;
+using UnityEngine.Serialization;
 
 namespace Module.Player.Component
 {
@@ -29,6 +30,11 @@ namespace Module.Player.Component
 
         [Header("武器")]
         [SerializeField, Header("武器リスト")] private List<AbstractWeapon> weapons;
+        
+        [Header("音")]
+        [SerializeField,Header("足音を鳴らす速度")] private float footstepSoundSpeed;
+        [SerializeField,Header("足音を鳴らす基準間隔")] private float footstepSoundInterval;
+        [SerializeField,Header("足音を鳴らす最大間隔")] private float footstepMaxInterval;
 
         public float MoveAccel => moveAccel;
         public float MaxSpeed => maxSpeed;
@@ -45,5 +51,8 @@ namespace Module.Player.Component
         public float RotationSpeed => rotationSpeed;
         public float VerticalLookSpeed => verticalLookSpeed;
         public IReadOnlyList<AbstractWeapon> Weapons => weapons;
+        public float FootstepSoundInterval => footstepSoundInterval;
+        public float FootstepSoundSpeed => footstepSoundSpeed;
+        public float FootstepMaxInterval => footstepMaxInterval;
     }
 }
