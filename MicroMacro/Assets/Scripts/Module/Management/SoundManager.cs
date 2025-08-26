@@ -144,7 +144,12 @@ namespace Module.Management
         /// <param name="name">AudioClipの名前でなく登録した別名</param>
         public void Play(string name)
         {
-            
+            if (string.IsNullOrEmpty(name))
+            {
+                Debug.LogWarning("再生名が null/空文字です。");
+                return;
+            }
+
             // それぞれの管理用Dictionaryから別名で検索、一致したら再生
             if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
             {
@@ -166,9 +171,13 @@ namespace Module.Management
 
         public void Play(string name, float volume)
         {
-            
-            if (Mathf.Clamp01(volume) == false)
+            if (string.IsNullOrEmpty(name))
+            {
+                Debug.LogWarning("再生名が null/空文字です。");
                 return;
+            }
+
+            volume = Mathf.Clamp01(volume);
             
             // それぞれの管理用Dictionaryから別名で検索、一致したら再生
             if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
