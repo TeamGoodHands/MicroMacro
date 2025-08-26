@@ -42,7 +42,7 @@ namespace Contents.ScreenSpaceHatching
             }
             else
             {
-                Debug.LogWarning("ScreenSpaceHatching shader not assigned in SSAOFeature.");
+                Debug.LogWarning("ScreenSpaceHatching shader not assigned in ScreenSpaceHatchingFeature.");
             }
 
             pass = new ScreenSpaceHatchingPass(material, settings);

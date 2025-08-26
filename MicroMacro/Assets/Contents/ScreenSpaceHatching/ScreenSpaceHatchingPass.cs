@@ -96,11 +96,9 @@ namespace Contents.ScreenSpaceHatching
 
             // SSAOを書き込むための一時テクスチャを作成
             TextureHandle ssaoTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "SSAO_TempColor", false);
-            TextureHandle upsampleTarget =
-                UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSAOUpSample", false, FilterMode.Bilinear);
 
-            desc.width /= 8;
-            desc.height /= 8;
+            desc.width = Mathf.Max(1, desc.width / 8);
+            desc.height = Mathf.Max(1, desc.height / 8);
             TextureHandle downsampleTarget =
                 UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSAODownSample", false, FilterMode.Bilinear);
             TextureHandle horizontalBlurTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_OutlineHorizontalBlur", false);
@@ -160,60 +158,42 @@ namespace Contents.ScreenSpaceHatching
                 passData.Settings = settings;
                 passData.Destination = horizontalBlurTarget;
                 passData.Source = downsampleTarget;
-            
+
                 builder.UseTexture(passData.Source, AccessFlags.Read);
-            
+
                 builder.SetRenderAttachment(passData.Destination, 0, AccessFlags.Write);
-            
+
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
                     // パラメータを設定
                     data.Material.SetFloat(blurKernelRadiusID, data.Settings.BlurKernelRadius);
                     data.Material.SetFloat(blurStandardDeviationID, data.Settings.BlurStandardDeviation);
-            
+
                     // 描画
                     Blitter.BlitTexture(ctx.cmd, passData.Source, Vector2.one, data.Material, 2);
                 });
             }
-            
-            
+
+
             using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSAO: Vertical Blur", out var passData))
             {
                 passData.Material = material;
                 passData.Settings = settings;
                 passData.Destination = verticalBlurTarget;
                 passData.Source = horizontalBlurTarget;
-            
+
                 builder.UseTexture(passData.Source, AccessFlags.Read);
-            
+
                 builder.SetRenderAttachment(passData.Destination, 0, AccessFlags.Write);
-            
+
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
                     // パラメータを設定
                     data.Material.SetFloat(blurKernelRadiusID, data.Settings.BlurKernelRadius);
                     data.Material.SetFloat(blurStandardDeviationID, data.Settings.BlurStandardDeviation);
-            
+
                     // 描画
                     Blitter.BlitTexture(ctx.cmd, passData.Source, Vector2.one, data.Material, 3);
-                });
-            }
-
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSAO: Upsampling", out var passData))
-            {
-                passData.Material = material;
-                passData.Settings = settings;
-                passData.Destination = upsampleTarget;
-                passData.Source = verticalBlurTarget;
-
-                builder.UseTexture(passData.Source, AccessFlags.Read);
-
-                builder.SetRenderAttachment(passData.Destination, 0, AccessFlags.Write);
-
-                builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
-                {
-                    // 描画
-                    Blitter.BlitTexture(ctx.cmd, passData.Source, Vector2.one, data.Material, 1);
                 });
             }
 
@@ -223,13 +203,13 @@ namespace Contents.ScreenSpaceHatching
                 passData2.Settings = settings;
                 passData2.Destination = commitTarget;
                 passData2.Source = resourceData.activeColorTexture;
-            
+
                 builder.UseTexture(passData2.Source, AccessFlags.Read);
                 builder.UseTexture(verticalBlurTarget, AccessFlags.Read);
                 builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
-            
+
                 builder.SetRenderAttachment(passData2.Destination, 0);
-            
+
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
                     data.Material.SetTexture(blurResultTextureID, verticalBlurTarget);
@@ -238,11 +218,11 @@ namespace Contents.ScreenSpaceHatching
                     data.Material.SetFloat(blendPowerID, data.Settings.BlendPower);
                     data.Material.SetFloat(hatchScaleID, data.Settings.HatchScale);
                     data.Material.SetFloat(hatchOffsetID, data.Settings.HatchOffset);
-            
+
                     Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 4);
                 });
             }
-            
+
             resourceData.cameraColor = commitTarget;
         }
     }
