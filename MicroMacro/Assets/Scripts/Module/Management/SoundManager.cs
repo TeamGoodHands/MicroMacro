@@ -56,11 +56,6 @@ namespace Module.Management
             if (instance == null)
             {
                 instance = this;
-                //  DontDestroyOnLoad(gameObject);
-            }
-            else
-            {
-                //  Destroy(gameObject);
             }
         }
         private void Awake()
@@ -149,11 +144,7 @@ namespace Module.Management
         /// <param name="name">AudioClipの名前でなく登録した別名</param>
         public void Play(string name)
         {
-            if (name == null)
-            {
-                Debug.Log("String is null !");
-                return;
-            }
+            
             // それぞれの管理用Dictionaryから別名で検索、一致したら再生
             if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
             {
@@ -173,19 +164,38 @@ namespace Module.Management
             }
         }
 
+        public void Play(string name, float volume)
+        {
+            
+            if (Mathf.Clamp01(volume) == false)
+                return;
+            
+            // それぞれの管理用Dictionaryから別名で検索、一致したら再生
+            if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
+            {
+                PlayBGM(bgmData.audioClip, volume);
+            }
+            else if (SEDictionary.TryGetValue(name, out SEData seData))
+            {
+                if (Time.realtimeSinceStartup - seData.playedTime < playableDistance)
+                    return;
+                
+                seData.playedTime = Time.realtimeSinceStartup; 　//次回用に今回の再生時間の保持 
+                PlaySE(seData.audioClip, volume);
+            }
+            else
+            {
+                Debug.LogWarning("その別名は登録されていません:{name}");
+            }
+        }
+
         /// <summary>
         /// nameのAudioClipを使っているAudioSourceの取得
         /// </summary>
         /// <param name="name"></param>
-        /// <returns></returns>
-        public AudioSource GetUsingAudioSource(string name)
+        private AudioSource GetUsingAudioSource(string name)
         {
-            if (name == null)
-            {
-                Debug.Log("param name is null");
-                return null;
-            }
-            
+        
             if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
             {
                 for (int i = 0; i < audioSourceList.Length; i++)
@@ -202,7 +212,8 @@ namespace Module.Management
                         return audioSourceList[i];
                 }
             }
-           
+            
+            Debug.LogError("オーディオソースの取得に失敗しました。");
             return null;
         }
 
@@ -224,8 +235,8 @@ namespace Module.Management
             AudioSource audioSource =  GetUsingAudioSource(name);
 
             if (audioSource == null)
-            {
-                //Debug.Log("そのクリップは再生されていません");
+            { 
+                // Debug.Log("そのクリップは再生されていません");
                 return;
             }
             if (audioSource.isPlaying)
