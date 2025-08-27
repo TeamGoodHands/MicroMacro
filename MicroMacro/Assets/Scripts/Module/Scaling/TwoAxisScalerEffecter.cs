@@ -90,7 +90,7 @@ namespace Module.Scaling
             sequence.AppendCallback(() => progress = 0f);
 
             // 拡大終了まで待機
-            sequence.AppendInterval(scaleDuration - tweenTime);
+            sequence.AppendInterval(Mathf.Max(0f, scaleDuration - tweenTime));
             
             // 拡大縮小エフェクトが消えるのを少し遅延させる
             sequence.AppendInterval(disappearWaitTime);
@@ -136,6 +136,7 @@ namespace Module.Scaling
             scalerShaderWrapper.OutlineWidth = 0f;
             scalerShaderWrapper.FresnelColor = Color.clear;
             scalerShaderWrapper.WaveSpeed = defaultWaveSpeed;
+            scalerShaderWrapper.WavePower = defaultWavePower;
         }
 
         private void PlaySound()
