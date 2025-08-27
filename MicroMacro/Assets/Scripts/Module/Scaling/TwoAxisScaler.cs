@@ -38,54 +38,11 @@ namespace Module.Scaling
             currentTween?.Kill();
 
             // targetScaleまで滑らかにスケールする
-            if (previousStep == CurrentStep && (CurrentStep == MaxStep || CurrentStep == MinStep))
-            {
-                // オーバー演出
-                float sign = CurrentStep == MaxStep ? 1f : -1f;
-                TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, new Vector3(0.5f, 0.5f) * sign);
-                args.Duration = overDuration;
-
-                Tween scaleTween = CreateScaleTween(currentPosition, currentScale, args);
-
-                TwoAxisScaleArgs unScaleArgs = new TwoAxisScaleArgs()
-                {
-                    TargetScale = currentScale,
-                    PositionOffset = -args.PositionOffset,
-                    Duration = overDuration
-                };
-                Tween unScaleTween = CreateScaleTween(currentPosition + args.PositionOffset, args.TargetScale, unScaleArgs);
-
-                Sequence sequence = DOTween.Sequence();
-                sequence.Append(scaleTween);
-                sequence.Append(unScaleTween);
-                currentTween = sequence;
-            }
-            else
-            {
-                // 通常のスケール
-                TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
-                args.Duration = scaleDuration;
-                currentTween = CreateScaleTween(currentPosition, currentScale, args);
-            }
-
-            PlaySound();
+            TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
+            args.Duration = scaleDuration;
+            currentTween = CreateScaleTween(currentPosition, currentScale, args);
 
             await currentTween.SetLink(gameObject).WithCancellation(cancellationToken);
-        }
-
-        private void PlaySound()
-        {
-            bool isUpScaling = CurrentStep - previousStep > 0 || (previousStep == CurrentStep && CurrentStep == MaxStep);
-            bool isDownScaling = CurrentStep - previousStep < 0 || (previousStep == CurrentStep && CurrentStep == MinStep);
-
-            if (isUpScaling)
-            {
-                SoundManager.instance.Play("拡大");
-            }
-            else if (isDownScaling)
-            {
-                SoundManager.instance.Play("縮小");
-            }
         }
 
         private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, TwoAxisScaleArgs args)
