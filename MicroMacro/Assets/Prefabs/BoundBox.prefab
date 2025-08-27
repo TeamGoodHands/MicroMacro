@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4158229573176141419}
   - component: {fileID: 6608283173002458378}
   - component: {fileID: 59685813942613729}
+  - component: {fileID: 627715963267943272}
   m_Layer: 0
   m_Name: BoundBox
   m_TagString: Untagged
@@ -67,7 +68,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -876546973899608171, guid: 47475e2db07f4474782941a8fbece037, type: 3}
+  - {fileID: 2100000, guid: e8a40ef543d5cf741b21d0f0ebf5121f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -151,3 +152,26 @@ MonoBehaviour:
   scaleRewinder:
     rewindDelay: 1
     isPhasedRewind: 0
+--- !u!114 &627715963267943272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 951895039274810436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64a9ea2bcb614de5be7cef29c5421bb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaler: {fileID: 6608283173002458378}
+  bodyRenderer: {fileID: 1600241380402257297}
+  outlineWidth: 0.03
+  invalidWaveSpeed: 10
+  invalidWaveTime: 0.6
+  invalidWavePower: 0.1
+  macroFresnelColor: {r: 0.90588236, g: 0, b: 0.11372549, a: 1}
+  macroOutlineColor: {r: 0.8666667, g: 0, b: 0.05882353, a: 1}
+  microFresnelColor: {r: 0.048949808, g: 0.21570356, b: 0.9433962, a: 1}
+  microOutlineColor: {r: 0.086240634, g: 0.14381862, b: 0.9622642, a: 1}
+  invalidFresnelColor: {r: 0.9245283, g: 0.5993119, b: 0.10902455, a: 1}

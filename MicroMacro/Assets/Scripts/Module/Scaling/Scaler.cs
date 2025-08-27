@@ -50,7 +50,17 @@ namespace Module.Scaling
         /// 現在のスケール段階
         /// </summary>
         public int CurrentStep => currentStep;
-
+        
+        /// <summary>
+        /// 前のスケール段階
+        /// </summary>
+        public int PreviousStep => previousStep;
+        
+        /// <summary>
+        /// 拡大縮小のステート
+        /// </summary>
+        public State State => state;
+        
         /// <summary>
         /// 最大のスケール段階
         /// </summary>
