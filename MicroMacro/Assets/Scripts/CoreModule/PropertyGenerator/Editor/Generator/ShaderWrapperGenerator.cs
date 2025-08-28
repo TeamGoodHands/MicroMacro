@@ -35,6 +35,13 @@ namespace PropertyGenerator
                 {
                     codeBuilder.NewLine($"private readonly {nameof(Material)} target;");
 
+                    for (int i = 0; i < shader.GetPropertyCount(); i++)
+                    {
+                        string propertyName = shader.GetPropertyName(i);
+                        string name = shader.GetPropertyName(i).Replace("_", String.Empty);
+                        AddProperty(name, propertyName, codeBuilder);
+                    }
+
                     //Materialのインスタンスを登録するコンストラクタを生成する
                     AddConstructor(className, codeBuilder);
 
@@ -43,10 +50,9 @@ namespace PropertyGenerator
                     {
                         //アンダーバーがついてたら省く
                         string name = shader.GetPropertyName(i).Replace("_", String.Empty);
-                        int id = shader.GetPropertyNameId(i);
                         ShaderPropertyType type = shader.GetPropertyType(i);
 
-                        AddParameter(name, id, type, codeBuilder);
+                        AddParameter(name, type, codeBuilder);
                     }
                 }
             }
@@ -66,17 +72,22 @@ namespace PropertyGenerator
         }
 
 
-        private static void AddParameter(string name, int id, ShaderPropertyType type, CodeBuilder builder)
+        private static void AddParameter(string name, ShaderPropertyType type, CodeBuilder builder)
         {
             string methodSuffix = GetMethodSuffix(type);
             string propertyType = GetPropertyType(type);
-           
+
             builder.NewLine();
             using (builder.CreateBlockScope($"public {propertyType} {name}"))
             {
-                builder.NewLine($"get => target.Get{methodSuffix}({id});");
-                builder.NewLine($"set => target.Set{methodSuffix}({id}, value);");
+                builder.NewLine($"get => target.Get{methodSuffix}({name}Property);");
+                builder.NewLine($"set => target.Set{methodSuffix}({name}Property, value);");
             }
+        }
+
+        private static void AddProperty(string name, string propertyName, CodeBuilder builder)
+        {
+            builder.NewLine($"private static readonly int {name}Property = Shader.PropertyToID(\"{propertyName}\");");
         }
 
         private static string GetMethodSuffix(ShaderPropertyType type)

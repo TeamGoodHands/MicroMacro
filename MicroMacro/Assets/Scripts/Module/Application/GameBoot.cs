@@ -46,6 +46,11 @@ namespace Module.Application
 
             string sceneName = forceStartScene ? startScene : defaultScene;
 
+            if (defaultScene == BootSceneName)
+            {
+               sceneName = startScene.SceneName;
+            }
+
             try
             {
                 await SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);

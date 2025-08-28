@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Constants;
 using CoreModule.Serialization;
 using UnityEngine;
 
@@ -63,7 +64,11 @@ namespace LevelEditor.Runtime
 
         private Dictionary<long, GameObject> GetMapData()
         {
-            List<GameObject> gridObjects = transform.Cast<Transform>().Select(obj => obj.gameObject).Where(obj => obj.isStatic).ToList();
+            List<GameObject> gridObjects = transform.Cast<Transform>()
+                .Select(obj => obj.gameObject)
+                .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid))
+                .ToList();
+            
             CheckOverlap(gridObjects);
 
             if (overlapCoords.Count > 0)
@@ -203,7 +208,7 @@ namespace LevelEditor.Runtime
                 bool isContinuous = true;
                 Vector2 targetAve = ave;
                 int blockCount = meshFilters.Count;
-                
+
                 do
                 {
                     // y座標を1ずつ増やして同じ種類のグループを探す
@@ -211,7 +216,7 @@ namespace LevelEditor.Runtime
 
                     bool isTargetAve = sortedFilters.TryGetValue(targetAve, out var targetFilters);
                     isContinuous = isTargetAve && targetFilters.Count == blockCount;
-                    
+
                     if (isContinuous)
                     {
                         meshFilters.AddRange(targetFilters);
