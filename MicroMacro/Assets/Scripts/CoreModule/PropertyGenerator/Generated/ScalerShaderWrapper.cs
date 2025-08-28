@@ -9,6 +9,13 @@ namespace PropertyGenerator.Generated
 	public readonly struct ScalerShaderWrapper
 	{
 		private readonly Material target;
+		private static readonly int BaseMapProperty = Shader.PropertyToID("_BaseMap");
+		private static readonly int OutlineWidthProperty = Shader.PropertyToID("_OutlineWidth");
+		private static readonly int OutlineColorProperty = Shader.PropertyToID("_OutlineColor");
+		private static readonly int FresnelPowerProperty = Shader.PropertyToID("_FresnelPower");
+		private static readonly int FresnelColorProperty = Shader.PropertyToID("_FresnelColor");
+		private static readonly int WavePowerProperty = Shader.PropertyToID("_WavePower");
+		private static readonly int WaveSpeedProperty = Shader.PropertyToID("_WaveSpeed");
 		
 		public ScalerShaderWrapper(Material target)
 		{
@@ -17,44 +24,44 @@ namespace PropertyGenerator.Generated
 		
 		public Texture BaseMap
 		{
-			get => target.GetTexture(73);
-			set => target.SetTexture(73, value);
+			get => target.GetTexture(BaseMapProperty);
+			set => target.SetTexture(BaseMapProperty, value);
 		}
 		
 		public float OutlineWidth
 		{
-			get => target.GetFloat(508);
-			set => target.SetFloat(508, value);
+			get => target.GetFloat(OutlineWidthProperty);
+			set => target.SetFloat(OutlineWidthProperty, value);
 		}
 		
 		public Color OutlineColor
 		{
-			get => target.GetColor(507);
-			set => target.SetColor(507, value);
+			get => target.GetColor(OutlineColorProperty);
+			set => target.SetColor(OutlineColorProperty, value);
 		}
 		
 		public float FresnelPower
 		{
-			get => target.GetFloat(846);
-			set => target.SetFloat(846, value);
+			get => target.GetFloat(FresnelPowerProperty);
+			set => target.SetFloat(FresnelPowerProperty, value);
 		}
 		
 		public Color FresnelColor
 		{
-			get => target.GetColor(885);
-			set => target.SetColor(885, value);
+			get => target.GetColor(FresnelColorProperty);
+			set => target.SetColor(FresnelColorProperty, value);
 		}
 		
 		public float WavePower
 		{
-			get => target.GetFloat(892);
-			set => target.SetFloat(892, value);
+			get => target.GetFloat(WavePowerProperty);
+			set => target.SetFloat(WavePowerProperty, value);
 		}
 		
 		public float WaveSpeed
 		{
-			get => target.GetFloat(893);
-			set => target.SetFloat(893, value);
+			get => target.GetFloat(WaveSpeedProperty);
+			set => target.SetFloat(WaveSpeedProperty, value);
 		}
 	}
 }

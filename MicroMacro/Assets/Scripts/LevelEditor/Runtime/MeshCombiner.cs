@@ -32,7 +32,7 @@ namespace LevelEditor.Runtime
                 };
 
                 // 非表示にする
-                meshFilter.gameObject.SetActive(false);
+                Object.Destroy(meshFilter.gameObject);
             }
 
             Mesh combinedMesh = new Mesh();
