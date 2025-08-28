@@ -10,6 +10,7 @@ namespace Module.Scaling
     {
         [SerializeField] private TwoAxisScaler scaler;
         [SerializeField] private Renderer bodyRenderer;
+        [SerializeField] private BoundBoxWrapper boundBoxWrapper;
         [SerializeField, Header("効果発動時のアウトライン幅")] private float outlineWidth = 0.01f;
 
         [Header("拡大縮小成功時ののフレネルとアウトラインの色")]
@@ -54,6 +55,7 @@ namespace Module.Scaling
             {
                 // 拡大縮小に成功した
                 currentTween = CreateScaleTween(isMacro, args.Duration);
+                boundBoxWrapper.SetScaleTrigger();
             }
             else
             {
