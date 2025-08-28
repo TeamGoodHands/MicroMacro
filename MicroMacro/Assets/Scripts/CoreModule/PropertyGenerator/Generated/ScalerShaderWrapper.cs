@@ -53,8 +53,8 @@ namespace PropertyGenerator.Generated
 		
 		public float WaveSpeed
 		{
-			get => target.GetFloat(2047);
-			set => target.SetFloat(2047, value);
+			get => target.GetFloat(893);
+			set => target.SetFloat(893, value);
 		}
 	}
 }
