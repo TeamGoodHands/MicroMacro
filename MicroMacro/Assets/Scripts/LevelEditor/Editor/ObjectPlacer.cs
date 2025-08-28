@@ -300,9 +300,9 @@ namespace LevelEditor.Editor
             
             Transform target = hit.transform;
 
-            while (hit.transform.parent.name != "Level")
+            while (target.parent.name != "Level")
             {
-                target = hit.transform.parent;
+                target = target.parent;
             }
 
             // GameObjectを削除
