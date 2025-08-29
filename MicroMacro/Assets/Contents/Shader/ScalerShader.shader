@@ -3,12 +3,13 @@ Shader "ScalerShader"
     Properties
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
-        _OutlineWidth("Outline Width", Float) = 1
+        [HDR]_BaseColor("Base Color", Color) = (0,0,0,1)
+        _OutlineWidth("Outline Width", Float) = 0
         [HDR]_OutlineColor("Outline Color", Color) = (0,0,0,1)
-        _FresnelPower("Fresnel Power", Float) = 1
-        [HDR]_FresnelColor("Fresnel Color", Color) = (0,0,0,1)
-        _WavePower("Wave Power", Float) = 1
-        _WaveSpeed("Wave Speed", Float) = 1
+        _FresnelPower("Fresnel Power", Float) = 0.2
+        [HDR]_FresnelColor("Fresnel Color", Color) = (0,0,0,0)
+        _WavePower("Wave Power", Float) = 0.05
+        _WaveSpeed("Wave Speed", Float) = 7
     }
 
     SubShader
@@ -57,6 +58,7 @@ Shader "ScalerShader"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
+                float4 _BaseColor;
                 float _OutlineWidth;
                 float4 _OutlineColor;
                 float _FresnelPower;
@@ -144,6 +146,8 @@ Shader "ScalerShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
+
+                color *= _BaseColor;
 
                 // フレネルエフェクトを掛ける
                 float fresnel = FresnelEffect(IN.normal, UNITY_MATRIX_V[2].xyz, _FresnelPower);
