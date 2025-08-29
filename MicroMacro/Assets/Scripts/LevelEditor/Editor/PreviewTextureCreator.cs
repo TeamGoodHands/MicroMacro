@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,6 +17,8 @@ namespace Editor.LevelEditor
         {
             if (prefabs.Length == 0)
                 return new List<RenderTexture>();
+
+            prefabs = GetNotNullPrefabs(prefabs);
 
             previewRenderUtilities = new PreviewRenderUtility[prefabs.Length];
             instances = new GameObject[prefabs.Length];
@@ -44,6 +47,11 @@ namespace Editor.LevelEditor
             }
 
             return textures;
+        }
+
+        private GameObject[] GetNotNullPrefabs(GameObject[] prefabs)
+        {
+            return prefabs.Where(prefab => prefab != null).ToArray();
         }
 
         // 複数RendererのBoundsをまとめてカメラやライトの調整を実施
