@@ -1,4 +1,5 @@
 ﻿using System;
+using Module.Management;
 using Module.Scaling;
 using UnityEngine;
 using Module.Scaling;
@@ -37,7 +38,10 @@ namespace Module.Gimmick
             lineRenderer.enabled = false;
             Destroy(joint);
             // Jointが有効な状態でfreezeすると固まるので落下時に設定
-            rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+            rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY |
+                                    RigidbodyConstraints.FreezePositionZ;
+            
+            SoundManager.instance.Play("糸切り");
             
             // TODO スケールの値によって重さを動的に変化させるクラスを作成後、置き換え
             rigidbody.mass = newMassValue;  // 落下時に重さ変更して重量感を

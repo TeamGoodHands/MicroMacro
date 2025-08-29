@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4158781998187424435}
   - component: {fileID: 1282837960839078284}
+  - component: {fileID: 5811483503015301262}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -48,18 +49,18 @@ MonoBehaviour:
     BGM: {fileID: 8958498601652735264, guid: 6ccd2b2018b27ad488776770400a771c, type: 2}
     SE: {fileID: 6839536817308147011, guid: 6ccd2b2018b27ad488776770400a771c, type: 2}
   bgmDatas:
-  - name: 
-    audioClip: {fileID: 0}
-    volume: 0
+  - name: 1-1
+    audioClip: {fileID: 8300000, guid: d6fdd24e8c4b3694fb1efc0448c7b647, type: 3}
+    volume: 0.04
   SEDatas:
-  - name: "\u30AB\u30FC\u30BD\u30EB\u9078\u629E"
+  - name: "\u30DC\u30BF\u30F3\u30BB\u30EC\u30AF\u30C8"
     audioClip: {fileID: 8300000, guid: f09ce3686d72cee4fafad50872f2f288, type: 3}
     playedTime: 0
-    volume: 0.5
-  - name: "\u6C7A\u5B9A"
+    volume: 0.25
+  - name: "\u30DC\u30BF\u30F3\u6C7A\u5B9A"
     audioClip: {fileID: 8300000, guid: 74b57a173ba2d0546b1fc9b12bef6268, type: 3}
     playedTime: 0
-    volume: 0.5
+    volume: 0.25
   - name: "\u8DB3\u97F3"
     audioClip: {fileID: 8300000, guid: 7927c02eaa9d98643a69a8e6e328c55d, type: 3}
     playedTime: 0
@@ -73,11 +74,28 @@ MonoBehaviour:
     playedTime: 0
     volume: 0.07
   - name: "\u30B8\u30E3\u30F3\u30D7"
-    audioClip: {fileID: 8300000, guid: c3b7261f49cccfc4dbdf5db155a9b6cc, type: 3}
+    audioClip: {fileID: 8300000, guid: fc1acf0b29a366f4d88b44519751f265, type: 3}
     playedTime: 0
-    volume: 0.025
-  - name: "\u30DC\u30BF\u30F3\u6C7A\u5B9A"
-    audioClip: {fileID: 8300000, guid: 74b57a173ba2d0546b1fc9b12bef6268, type: 3}
+    volume: 0.04
+  - name: "\u30B9\u30A4\u30C3\u30C1"
+    audioClip: {fileID: 8300000, guid: 1861fd19c530fd94dae67ee5c821f4eb, type: 3}
     playedTime: 0
-    volume: 0.3
+    volume: 0.7
+  - name: "\u7CF8\u5207\u308A"
+    audioClip: {fileID: 8300000, guid: 10dd52c52e1c4614284712e387234643, type: 3}
+    playedTime: 0
+    volume: 0.1
   playableDistance: 0.01
+--- !u!114 &5811483503015301262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3222653385049864835}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 336bab10e1a448e8a4bfd5352768ea3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BGM_name: 1-1
