@@ -1,6 +1,7 @@
 using System;
 using Constants;
 using Cysharp.Threading.Tasks;
+using Module.Management;
 using Module.Player;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -30,6 +31,7 @@ namespace Module.Gimmick
             {
                 OpenGate().Forget();
                 isTriggered = true;
+                SoundManager.instance.Play("スイッチ");
             }
         }
 

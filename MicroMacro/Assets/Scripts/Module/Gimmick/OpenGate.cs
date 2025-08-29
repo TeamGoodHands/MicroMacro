@@ -1,5 +1,6 @@
 ﻿using System;
 using Constants;
+using Module.Management;
 using UnityEngine;
 using Module.Scaling;
 
@@ -16,6 +17,7 @@ namespace Module.Gimmick
             if (other.gameObject.CompareTag(Tag.Handle.Untagged))
             {
                 gate.SetActive(false);
+                SoundManager.instance.Play("スイッチ");
             }
         }
     }
