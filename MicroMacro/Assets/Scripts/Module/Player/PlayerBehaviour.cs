@@ -34,6 +34,7 @@ namespace Module.Player
             stateMachine.AddTransition<LockState, AliveState>(() => component.Condition.IsPlayerLocked == false);
             stateMachine.AddTransition<AliveState, DeathState>(() => component.PlayerStatus.CurrentHealth == 0);
             stateMachine.AddTransition<DeathState, AliveState>(() => component.PlayerStatus.CurrentHealth > 0);
+            
 
             // ステートマシンはAliveStateから起動
             stateMachine.Start<AliveState>();
