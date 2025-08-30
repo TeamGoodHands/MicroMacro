@@ -1,4 +1,5 @@
 ﻿using System;
+using Module.Management;
 using Module.Scaling;
 using UnityEngine;
 
@@ -20,12 +21,8 @@ namespace Module.Enemy.Cargo
             if (scaler.CurrentStep > 0)
             {
                 target.GetComponent<EnemyStatus>().Damage(1);
+                SoundManager.instance.Play("打撃1");
             }
-        }
-
-        public void Reset()
-        {
-            
         }
     }
 }

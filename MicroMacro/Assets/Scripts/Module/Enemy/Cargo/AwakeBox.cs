@@ -1,3 +1,4 @@
+using Module.Management;
 using UnityEngine;
 
 namespace Module.Enemy.Cargo
@@ -16,6 +17,9 @@ namespace Module.Enemy.Cargo
         private void OnHit(GameObject obj)
         {
             enemyChecker.StopCheck();
+            
+            SoundManager.instance.Play("打撃1");
+            SoundManager.instance.Play("Boss2");
         }
     }
 }

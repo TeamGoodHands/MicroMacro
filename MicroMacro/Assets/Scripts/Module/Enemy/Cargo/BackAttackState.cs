@@ -3,6 +3,7 @@ using Constants;
 using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Module.Management;
 using Unity.Cinemachine;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -126,9 +127,10 @@ namespace Module.Enemy.Cargo
             perlin.AmplitudeGain = component.Parameter.AmplitudeGainOnImpact;
             perlin.FrequencyGain = component.Parameter.FrequencyGainOnImpact;
             perlin.enabled = true;
-            
+
+            SoundManager.instance.Play("打撃6");
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: CancellationToken);
-            
+
             perlin.enabled = false;
         }
 
