@@ -1,19 +1,23 @@
+using System;
+using CoreModule.AI.HSM;
+using Module.Player;
 using UnityEngine;
 
 namespace Module.Enemy.Wrench
 {
     public class WrenchBehaviour : MonoBehaviour
     {
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start()
-        {
-        
-        }
+        [SerializeField] private WrenchComponent component;
+        private HierarchicalStateMachine stateMachine;
 
-        // Update is called once per frame
-        void Update()
+        private void Start()
         {
-        
+            stateMachine = new HierarchicalStateMachine();
+
+            MoveState moveState = new MoveState(component);
+            stateMachine.AddState(moveState);
+            
+            stateMachine.Start<MoveState>();
         }
     }
 }
