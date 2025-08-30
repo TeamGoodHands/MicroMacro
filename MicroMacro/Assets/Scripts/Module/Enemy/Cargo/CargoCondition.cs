@@ -8,9 +8,10 @@ namespace Module.Enemy.Cargo
     {
         public enum State
         {
+            Sleeping,
             Move,
             BackAttack,
-            FallObjects
+            PrepareMove
         }
 
         [SerializeField] private State currentState;

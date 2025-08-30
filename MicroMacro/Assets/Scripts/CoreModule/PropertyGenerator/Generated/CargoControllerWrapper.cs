@@ -17,5 +17,10 @@ namespace PropertyGenerator.Generated
 			get => target.GetFloat(-1128574192);
 			set => target.SetFloat(-1128574192, value);
 		}
+		
+		public void SetDamageTrigger()
+		{
+			target.SetTrigger(375673178);
+		}
 	}
 }

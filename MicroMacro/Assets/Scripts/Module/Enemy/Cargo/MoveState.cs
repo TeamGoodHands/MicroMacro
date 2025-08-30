@@ -40,8 +40,8 @@ namespace Module.Enemy.Cargo
         internal override void UpdatePhysics()
         {
             bool isStart = component.Condition.IsStart;
-            float direction = isStart ? -1f : 1f;
             Transform target = isStart ? component.Goal : component.Start;
+            float direction = component.MoveParent.position.x < target.position.x ? 1f : -1f;
 
             if (IsTargetReached(target))
             {
@@ -85,7 +85,7 @@ namespace Module.Enemy.Cargo
         private bool IsTargetReached(Transform target)
         {
             Vector3 targetPosition = target.transform.position;
-            Vector3 position = component.Transform.position;
+            Vector3 position = component.MoveParent.position;
             Vector3 diff = targetPosition - position;
             float distance = Mathf.Abs(diff.x);
 

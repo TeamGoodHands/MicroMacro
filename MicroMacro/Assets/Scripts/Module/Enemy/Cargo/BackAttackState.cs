@@ -2,8 +2,10 @@
 using Constants;
 using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Unity.Cinemachine;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Module.Enemy.Cargo
 {
@@ -12,14 +14,19 @@ namespace Module.Enemy.Cargo
         private readonly CargoComponent component;
         private readonly Rigidbody player;
         private readonly CinemachineBasicMultiChannelPerlin perlin;
+        private readonly FallSequencerSwitcher sequencerSwitcher;
         private bool doMoveBack;
         private Vector3 targetPosition;
+        private Quaternion defaultRotation;
+        private Tween rotationTween;
 
         public BackAttackState(CargoComponent component)
         {
             this.component = component;
+            defaultRotation = component.BodyTransform.localRotation;
 
             player = GameObject.FindWithTag(Tag.Player).GetComponent<Rigidbody>();
+            sequencerSwitcher = Object.FindAnyObjectByType<FallSequencerSwitcher>();
             perlin = component.CinemachineCamera
                 .GetCinemachineComponent(CinemachineCore.Stage.Noise)
                 .GetComponent<CinemachineBasicMultiChannelPerlin>();
@@ -27,7 +34,9 @@ namespace Module.Enemy.Cargo
 
         internal override void OnEnter()
         {
+            sequencerSwitcher.Switch();
             BackAttack().Forget();
+            component.Status.OnDamage += OnDamage;
         }
 
         private async UniTaskVoid BackAttack()
@@ -35,19 +44,24 @@ namespace Module.Enemy.Cargo
             float attackDelay = component.Parameter.AttackDelay;
 
             await UniTask.Delay(TimeSpan.FromSeconds(attackDelay), cancellationToken: CancellationToken);
-            
-            UpdateAnimator();
+
+            UpdateDirection();
 
             doMoveBack = true;
             targetPosition = component.Transform.position + new Vector3(0, 0, component.Parameter.BackAttackDistanceZ);
-            
+
             await UniTask.WaitUntil(() => doMoveBack == false, cancellationToken: CancellationToken);
-            
-            component.Condition.CurrentState = CargoCondition.State.Move;
+
+            await PerformImpact();
+
+            await sequencerSwitcher.Current.DoSequence();
+
+            component.Condition.CurrentState = CargoCondition.State.PrepareMove;
         }
 
         internal override void OnExit()
         {
+            component.Status.OnDamage -= OnDamage;
         }
 
         internal override void Update()
@@ -58,12 +72,12 @@ namespace Module.Enemy.Cargo
         {
             if (!doMoveBack)
                 return;
-            
+
             MoveBack();
 
             if (IsTargetReached(targetPosition))
             {
-                doMoveBack = false; 
+                doMoveBack = false;
             }
         }
 
@@ -89,9 +103,33 @@ namespace Module.Enemy.Cargo
             return distance <= component.Parameter.AttackMoveSpeed * 0.5f;
         }
 
-        private void UpdateAnimator()
+        private void UpdateDirection()
         {
             component.AnimatorWrapper.Direction = 0f;
+        }
+
+        private void OnDamage(int damage)
+        {
+            component.AnimatorWrapper.SetDamageTrigger();
+
+            // 仮ダメージアニメーション
+            rotationTween?.Complete();
+            rotationTween?.Kill();
+            rotationTween = component.BodyTransform.DOShakeRotation(0.5f, new Vector3(5f, 0f, 0f), 35).OnComplete(() =>
+            {
+                component.BodyTransform.localRotation = defaultRotation;
+            });
+        }
+
+        private async UniTask PerformImpact()
+        {
+            perlin.AmplitudeGain = component.Parameter.AmplitudeGainOnImpact;
+            perlin.FrequencyGain = component.Parameter.FrequencyGainOnImpact;
+            perlin.enabled = true;
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: CancellationToken);
+            
+            perlin.enabled = false;
         }
 
         internal override void Dispose()

@@ -104,6 +104,17 @@ namespace CoreModule.AI.HSM
 
             return doTransition;
         }
+        
+        public void LateUpdate()
+        {
+            if (!Started)
+            {
+                return;
+            }
+
+            // ステートをLateUpdateで更新する
+            rootGroup.LateUpdate();
+        }
 
         public void UpdatePhysics()
         {
@@ -278,7 +289,7 @@ namespace CoreModule.AI.HSM
             {
                 if (st == null)
                     return;
-                
+
                 // 遷移先のトランジションを削除する
                 currentTransition.Remove(st.Type);
             };
@@ -327,6 +338,11 @@ namespace CoreModule.AI.HSM
             internal abstract void OnEnter();
             internal abstract void OnExit();
             internal abstract void Update();
+
+            internal virtual void LateUpdate()
+            {
+            }
+
             internal abstract void UpdatePhysics();
             internal abstract void Dispose();
         }
@@ -393,6 +409,18 @@ namespace CoreModule.AI.HSM
                 // 子要素を先に更新する
                 Current.Group.Update();
                 Current.Update();
+            }
+
+            public void LateUpdate()
+            {
+                if (Current == null)
+                {
+                    return;
+                }
+
+                // 子要素を先に更新する
+                Current.Group.LateUpdate();
+                Current.LateUpdate();
             }
 
             public void UpdatePhysics()

@@ -1,14 +1,18 @@
 using System;
+using Constants;
+using Module.Scaling;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Module.Enemy.Cargo
 {
     using UnityEngine;
 
-    public class ProjectileShooter : MonoBehaviour
+    public class ProjectileObject : MonoBehaviour
     {
         [SerializeField] private float localTimeScale = 1.0f;
 
+        private FallObjectEnemyChecker enemyChecker;
         private bool isShooting;
         private Vector3 startPos;
         private Vector3 velocity; // 初速ベクトル
@@ -22,7 +26,13 @@ namespace Module.Enemy.Cargo
             set => localTimeScale = value;
         }
 
-        public void Shoot(Vector3 targetPosition, float flightTime)
+        private void Start()
+        {
+            enemyChecker = GetComponent<FallObjectEnemyChecker>();
+            enemyChecker.OnHit += OnHit;
+        }
+
+        public void Launch(Vector3 targetPosition, float flightTime)
         {
             startPos = transform.position;
             this.flightTime = flightTime;
@@ -39,15 +49,28 @@ namespace Module.Enemy.Cargo
             float vy = (diff.y + 0.5f * g * t * t) / t;
 
             velocity = horizontal + Vector3.up * vy;
-            
+
             isShooting = true;
+            enemyChecker.StartCheck();
+        }
+
+        public void Stop()
+        {
+            isShooting = false;
+            elapsed = 0;
+            enemyChecker.StopCheck();
+        }
+
+        private void OnHit(GameObject target)
+        {
+            Stop();
         }
 
         private void Update()
         {
             if (!isShooting)
                 return;
-            
+
             elapsed += Time.deltaTime * LocalTimeScale;
 
             float t = Mathf.Min(elapsed, flightTime);
