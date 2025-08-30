@@ -55,7 +55,7 @@ namespace Module.UI
             const string sceneSavePathTest = "Assets/Scenes/Level/Test";
             const string sceneSavePathOutGame = "Assets/Scenes/Level/OutGame";
             const string rootSceneName = "Root";
-            const string mainStage = "1-1Ver2";
+            const string mainStage = "1-1,2";
             const string bossStage = "Boss";
             const string feedback = "Feedback";
             const string title = "Title";
