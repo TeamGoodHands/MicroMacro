@@ -23,12 +23,14 @@ namespace Module.Player
         private bool lockState;
 
         private float targetY;
+        private float offsetZ;
         private Camera mainCamera;
 
         private void Start()
         {
             mainCamera = Camera.main;
             targetY = transform.position.y;
+            offsetZ = target.position.z - mainCamera.transform.position.z;
         }
 
         private void FixedUpdate()
@@ -51,8 +53,9 @@ namespace Module.Player
 
             // 現在の位置を取得
             Vector3 newPosition = transform.position;
-            // X座標のみを追従
+            // X, Z座標のみを追従
             newPosition.x = Mathf.Lerp(newPosition.x, target.position.x, followSpeed);
+            newPosition.z = Mathf.Lerp(newPosition.z, target.position.z - offsetZ, followSpeed);
             // 位置を更新
             transform.position = new Vector3(newPosition.x, targetY, newPosition.z);
         }

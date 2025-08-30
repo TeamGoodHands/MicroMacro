@@ -13,7 +13,6 @@ namespace Module.Scaling
     {
         [SerializeField, Header("1ステップあたりのスケール量")] private Vector2 scaleAmount = new Vector2(1, 1);
         [SerializeField, Header("スケール時間")] private float scaleDuration = 0.5f;
-        [SerializeField, Header("オーバー演出時間")] private float overDuration = 0.5f;
         [SerializeField, Header("座標移動の無効化")] private bool lockPosition = false;
 
         [SerializeField, Header("ピボットポイント (0,0:中心 0.5,0.5:右上 -0.5,-0.5:左下)"), Range(-0.5f, 0.5f)]
