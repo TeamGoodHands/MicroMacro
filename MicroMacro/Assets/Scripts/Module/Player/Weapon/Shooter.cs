@@ -109,7 +109,7 @@ namespace Module.Player.Weapon
             };
 
             // とりあえずプレイヤーから離れた位置から発射
-            bullet.transform.position = (Vector2)transform.position + condition.Direction * shootRadius;
+            bullet.transform.position = transform.position + (Vector3)condition.Direction * shootRadius;
 
             // プレイヤーの速度を足して発射
             Vector2 dirVelocity = GetDirectedVelocity(condition.Direction, playerRigBody.linearVelocity, maxAdditionalSpeed);
