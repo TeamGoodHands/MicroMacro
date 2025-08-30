@@ -118,8 +118,7 @@ namespace Module.Application
                         Toggle activeToggle = q.radioToggleGroup.GetFirstActiveToggle();
                         if (activeToggle != null)
                         {
-                            value = activeToggle.GetComponentInChildren<Text>().text;
-                            // 項目(entryID)とその回答をフォームに追加
+                            value = GetToggleText(activeToggle);
                             if (!string.IsNullOrEmpty(value))
                                 formFields.Add(CreateField(q.entryID, value));
                         }
@@ -130,6 +129,12 @@ namespace Module.Application
                         // ONになっているトグルをループ
                         foreach (var toggle in q.checkToggles)
                         {
+                            if (toggle == q.otherToggle)
+                            {
+                                Debug.Log("「その他」トグルは下の専用箇所にアタッチしてください。");
+                                continue; 
+                            }
+                            
                             if (toggle.isOn)
                             {
                                 value = GetToggleText(toggle);
@@ -157,15 +162,13 @@ namespace Module.Application
                             {
                                 Debug.LogError("その他が選択されましたが文章が空欄です。");
                             }
-
                         }
-
                         break;
                 }
             }
 
             string postData = string.Join("&", formFields);
-            Debug.Log($"<color=cyan>送信データ: {{postData}}</color>");
+            Debug.Log($"<color=cyan>送信データ: {postData}</color>");
 
             using (UnityWebRequest www = new UnityWebRequest(formActionURL, "POST"))
             {
@@ -188,6 +191,9 @@ namespace Module.Application
             }
         }
 
+        /// <summary>
+        /// 項目(entryID)とその回答をフォームに追加
+        /// </summary>
         private string CreateField(string entryID, string value)
         {
             return $"{UnityWebRequest.EscapeURL(entryID)}={UnityWebRequest.EscapeURL(value)}";
@@ -206,6 +212,7 @@ namespace Module.Application
             if (legacyText != null)
                 return legacyText.text;
             
+            Debug.LogError("textの取得に失敗しました。");
             return "";
         }
     

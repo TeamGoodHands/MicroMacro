@@ -130,8 +130,6 @@ namespace Module.Management
                 return;
             }
 
-            Debug.Log("call");
-
             audioSource.volume = volume;
             audioSource.playOnAwake = false;
             audioSource.loop = false;
