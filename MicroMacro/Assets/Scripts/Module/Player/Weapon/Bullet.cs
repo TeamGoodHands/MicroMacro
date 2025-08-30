@@ -110,7 +110,7 @@ namespace Module.Player.Weapon
             int offsetMultiplier = isScaleChanged ? scaleStep : 1;
 
             Vector3 position = hitEffect.transform.position;
-            position.z = effectZOffset;
+            position.z += effectZOffset;
             position += velocity.normalized * (effectXOffset * offsetMultiplier);
             hitEffect.transform.position = position;
 
