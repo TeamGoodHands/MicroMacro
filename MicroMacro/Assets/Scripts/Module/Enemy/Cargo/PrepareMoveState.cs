@@ -1,18 +1,12 @@
-using CoreModule.AI.HSM;
+﻿using CoreModule.AI.HSM;
 
-namespace Module.Enemy.Wrench
+namespace Module.Enemy.Cargo
 {
-    public class MoveState :HierarchicalStateMachine.State
+    public class PrepareMoveState : HierarchicalStateMachine.State
     {
-        private readonly WrenchComponent component;
-
-        public MoveState(WrenchComponent component)
-        {
-            this.component = component;
-        }
-
         internal override void OnEnter()
         {
+            
         }
 
         internal override void OnExit()
