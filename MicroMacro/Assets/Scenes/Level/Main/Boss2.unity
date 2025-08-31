@@ -1458,6 +1458,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1844549305}
     m_Modifications:
+    - target: {fileID: 1418975899059185202, guid: e012c3cdbb2e27443bf6fe48debe733b, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4521264754793471549, guid: e012c3cdbb2e27443bf6fe48debe733b, type: 3}
       propertyPath: m_Name
       value: FadeImage
@@ -1964,10 +1968,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: System
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6771029430819555483, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5283627854420791883, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 1321923396}
   m_SourcePrefab: {fileID: 100100000, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
 --- !u!1 &982400549
 GameObject:
@@ -2690,6 +2698,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1321923392 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5283627854420791883, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+  m_PrefabInstance: {fileID: 964817646}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1321923396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1321923392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb9720c19525af04ab9943ba6b9eead1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1351045279
 PrefabInstance:
   m_ObjectHideFlags: 0
