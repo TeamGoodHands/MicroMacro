@@ -46,7 +46,7 @@ namespace Module.Enemy.Cargo
                 int targetIndex = fallPointPattern[i];
 
                 Vector3 targetPosition = fallTargets[targetIndex].position;
-                obj.Launch(targetPosition, flightTime);
+                obj.Launch(targetPosition, flightTime,  0.8f);
 
                 flightTime += fallIntervalOnStart;
             }
@@ -72,7 +72,7 @@ namespace Module.Enemy.Cargo
                 Vector3 targetPosition = fallTargets[targetIndex].position;
                 Vector3 launchPosition = launchPoints[launchIndex].position;
                 obj.transform.position = launchPosition;
-                obj.Launch(targetPosition, fallTime);
+                obj.Launch(targetPosition, fallTime,  0.4f);
 
                 await UniTask.Delay(TimeSpan.FromSeconds(fallIntervalOnFallMode));
             }
@@ -90,11 +90,13 @@ namespace Module.Enemy.Cargo
                 obj.transform.rotation = Quaternion.identity;
 
                 Rigidbody rb = obj.GetComponent<Rigidbody>();
-                
+                Collider col = obj.GetComponent<Collider>();
+
                 rb.isKinematic = true;
+                col.enabled = true;
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
-                
+
                 obj.GetComponent<FallObjectPlayerAttacker>().Reset();
                 obj.GetComponent<Scaler>().ResetScale();
             }

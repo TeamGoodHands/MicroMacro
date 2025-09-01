@@ -7,6 +7,7 @@ namespace Module.Enemy.Cargo
     {
         [SerializeField] private FallObjectEnemyChecker enemyChecker;
         [SerializeField] private Rigidbody rigidBody;
+        [SerializeField] private Collider objectCollider;
         [SerializeField] private float blowPower;
         [SerializeField] private float torquePower;
 
@@ -32,6 +33,7 @@ namespace Module.Enemy.Cargo
             await UniTask.Yield();
             
             rigidBody.isKinematic = false;
+            objectCollider.enabled = false;
             rigidBody.AddForce(Vector3.up * blowPower + Vector3.right * (blowDirection * blowPower));
             rigidBody.AddTorque(-Vector3.forward * (blowDirection * torquePower));
         }
