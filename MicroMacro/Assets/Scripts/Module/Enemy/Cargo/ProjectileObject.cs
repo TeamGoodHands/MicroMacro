@@ -32,9 +32,10 @@ namespace Module.Enemy.Cargo
             enemyChecker.OnHit += OnHit;
         }
 
-        public void Launch(Vector3 targetPosition, float flightTime)
+        public void Launch(Vector3 targetPosition, float flightTime,  float scaleTime)
         {
             startPos = transform.position;
+            localTimeScale = scaleTime;
             this.flightTime = flightTime;
 
             Vector3 diff = targetPosition - startPos;
