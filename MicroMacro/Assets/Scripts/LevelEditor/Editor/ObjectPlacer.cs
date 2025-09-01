@@ -60,7 +60,7 @@ namespace LevelEditor.Editor
             GameObject parent = GameObject.FindWithTag(Tag.Level);
             if (parent == null || !parent.TryGetComponent(out parentObject))
             {
-                Debug.LogWarning("マップオブジェクトの親オブジェクトがありません。");
+                // Debug.LogWarning("マップオブジェクトの親オブジェクトがありません。");
             }
         }
 
@@ -142,6 +142,11 @@ namespace LevelEditor.Editor
 
         private void HandleSceneGUI(SceneView sceneView)
         {
+            UpdateParentObject();
+            
+            if (parentObject ==null)
+                return;
+            
             Event e = Event.current;
 
             UpdateEraseMode(e);
@@ -330,8 +335,6 @@ namespace LevelEditor.Editor
 
         private void UpdateCurrentPosition()
         {
-            UpdateParentObject();
-
             // マウス座標からワールド座標に変換
             SceneView sceneView = SceneView.currentDrawingSceneView;
             Vector3 screenPosition = Event.current.mousePosition * EditorGUIUtility.pixelsPerPoint;

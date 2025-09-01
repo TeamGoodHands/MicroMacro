@@ -22,11 +22,13 @@ namespace Module.Scaling
 
         private Vector3 defaultScale;
         private Tween currentTween;
+        private Rigidbody rigidBody;
 
 
         private void Awake()
         {
             defaultScale = transform.localScale;
+            rigidBody = GetComponent<Rigidbody>();
         }
 
         protected override async UniTask OnScale(CancellationToken cancellationToken)
@@ -34,6 +36,11 @@ namespace Module.Scaling
             Vector3 currentScale = transform.localScale;
             Vector3 currentPosition = transform.localPosition;
 
+            if (rigidBody != null)
+            {
+                rigidBody.WakeUp();
+            }
+            
             currentTween?.Kill();
 
             // targetScaleまで滑らかにスケールする
