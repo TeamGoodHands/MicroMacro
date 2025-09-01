@@ -694,7 +694,7 @@ GameObject:
   - component: {fileID: 4667942627592755181}
   - component: {fileID: 2500792367917730159}
   - component: {fileID: 6987987735228162460}
-  - component: {fileID: 9186308433888020479}
+  - component: {fileID: 5301366276186148262}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -879,8 +879,8 @@ MonoBehaviour:
   simulateCount: 13
   startPosition: {fileID: 6273185181649389201}
   gravityScale: 5
---- !u!65 &9186308433888020479
-BoxCollider:
+--- !u!64 &5301366276186148262
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -897,9 +897,10 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1.8180779, z: 1}
-  m_Center: {x: 0, y: 0.184646, z: 0}
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -2447776121362496397, guid: 37bcb0dce9607ea42b95ac032f5206bb, type: 3}
 --- !u!1 &2980280202369510041
 GameObject:
   m_ObjectHideFlags: 0
