@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Module.Enemy.Cargo
 {
+    /// <summary>
+    /// ボスが左右に移動するステート
+    /// </summary>
     public class MoveState : HierarchicalStateMachine.State
     {
         private readonly CargoComponent component;
@@ -15,9 +18,7 @@ namespace Module.Enemy.Cargo
         {
             this.component = component;
             player = GameObject.FindWithTag(Tag.Player).GetComponent<Rigidbody>();
-            perlin = component.CinemachineCamera
-                .GetCinemachineComponent(CinemachineCore.Stage.Noise)
-                .GetComponent<CinemachineBasicMultiChannelPerlin>();
+            perlin = component.CineMachinePerlin;
         }
 
         internal override void OnEnter()
@@ -39,18 +40,23 @@ namespace Module.Enemy.Cargo
 
         internal override void UpdatePhysics()
         {
-            bool isStart = component.Condition.IsStart;
-            Transform target = isStart ? component.Goal : component.Start;
-            float direction = component.MoveParent.position.x < target.position.x ? 1f : -1f;
+            Transform target = GetMoveTarget();
 
+            // 移動先に到達したら
             if (IsTargetReached(target))
             {
+                // 移動先の座標に強制移動
                 SetPositionToTarget(target);
+                
+                // ステートを進める
                 component.Condition.CurrentState = CargoCondition.State.BackAttack;
             }
+            
+            // x軸上の移動方向を取得
+            float xDirection = component.MoveParent.position.x < target.position.x ? 1f : -1f;
 
-            UpdatePosition(direction);
-            UpdateAnimator(direction);
+            UpdatePosition(xDirection);
+            UpdateAnimator(xDirection);
         }
 
         private void UpdatePosition(float direction)
@@ -58,12 +64,19 @@ namespace Module.Enemy.Cargo
             Rigidbody moveParent = component.MoveParent;
             Vector3 velocity = new Vector3(direction * component.Parameter.MoveSpeed, 0, 0);
 
+            // 移動速度を足す
             Vector3 position = moveParent.position;
             position += velocity;
             moveParent.position = position;
 
             // プレイヤーのRigidBodyも更新する
             player.MovePosition(player.position + velocity);
+        }
+
+        private Transform GetMoveTarget()
+        {
+            bool isStart = component.Condition.IsStart;
+            return isStart ? component.Goal : component.Start;
         }
 
         private void UpdateAnimator(float direction)
@@ -84,11 +97,13 @@ namespace Module.Enemy.Cargo
 
         private bool IsTargetReached(Transform target)
         {
-            Vector3 targetPosition = target.transform.position;
-            Vector3 position = component.MoveParent.position;
-            Vector3 diff = targetPosition - position;
-            float distance = Mathf.Abs(diff.x);
+            Vector3 goal = target.transform.position;
+            Vector3 start = component.MoveParent.position;
 
+            // x座標上の距離
+            float distance = Mathf.Abs((goal - start).x);
+
+            // 現在の移動速度で1フレーム以内に到達する or 到達した距離内であれば到達したとみなす
             return distance <= component.Parameter.MoveSpeed * 0.5f;
         }
 
@@ -97,10 +112,6 @@ namespace Module.Enemy.Cargo
             Vector3 position = component.MoveParent.position;
             position.x = target.position.x;
             component.MoveParent.position = position;
-        }
-
-        private void ShakeCamera()
-        {
         }
 
         internal override void Dispose()

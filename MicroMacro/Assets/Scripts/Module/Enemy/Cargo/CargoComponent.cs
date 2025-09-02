@@ -16,7 +16,7 @@ namespace Module.Enemy.Cargo
         [SerializeField] private EnemyStatus status;
         [SerializeField] private Rigidbody moveParent;
         [SerializeField] private CargoControllerWrapper animatorWrapper;
-        [SerializeField] private CinemachineCamera cinemachineCamera;
+        [SerializeField] private CinemachineBasicMultiChannelPerlin cineMachinePerlin;
         [SerializeField] private Transform start;
         [SerializeField] private Transform goal;
         [SerializeField] private Transform[] eyes;
@@ -28,7 +28,7 @@ namespace Module.Enemy.Cargo
         public EnemyStatus Status => status;
         public Rigidbody MoveParent => moveParent;
         public CargoControllerWrapper AnimatorWrapper => animatorWrapper;
-        public CinemachineCamera CinemachineCamera => cinemachineCamera;
+        public CinemachineBasicMultiChannelPerlin CineMachinePerlin => cineMachinePerlin;
         public Transform Start => start;
         public Transform Goal => goal;
         public Transform[] Eyes => eyes;

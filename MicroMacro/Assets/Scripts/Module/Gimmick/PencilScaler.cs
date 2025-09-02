@@ -25,14 +25,14 @@ namespace Module.Scaling
             Transform target = bodyBones[index];
             // 前のステップからの差分をスケール量とする
             float amount = scaleAmount * (currentStep - previousStep);
-            headBone.DOLocalMoveY(headBone.localPosition.y + amount, scaleDuration).SetEase(Ease.OutBack);
-            DOTween.To(() => bodyCollider.center,
+            _ = headBone.DOLocalMoveY(headBone.localPosition.y + amount, scaleDuration).SetEase(Ease.OutBack);
+            _ = DOTween.To(() => bodyCollider.center,
                     value => bodyCollider.center = value,
                     new Vector3(bodyCollider.center.x, bodyCollider.center.y + amount * 50f, bodyCollider.center.z),
                     scaleDuration)
                 .SetEase(Ease.OutBack);
 
-            DOTween.To(() => bodyCollider.size,
+            _ = DOTween.To(() => bodyCollider.size,
                     value => bodyCollider.size = value,
                     new Vector3(bodyCollider.size.x, bodyCollider.size.y + amount * 100f, bodyCollider.size.z),
                     scaleDuration)

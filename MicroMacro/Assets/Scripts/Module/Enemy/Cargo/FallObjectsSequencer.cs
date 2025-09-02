@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CoreModule.Helper;
 using Cysharp.Threading.Tasks;
 using Module.Scaling;
@@ -9,127 +10,173 @@ using Random = UnityEngine.Random;
 
 namespace Module.Enemy.Cargo
 {
-    public class FallObjectsSequencer : MonoBehaviour
+    /// <summary>
+    /// 複数オブジェクトを「打ち上げ演出 → 落下攻撃」させるシーケンサ。
+    /// </summary>
+    public sealed class FallObjectsSequencer : MonoBehaviour
     {
-        [SerializeField, Header("落下させるオブジェクト")] private List<ProjectileObject> objects;
-        [SerializeField, Header("落下対象の地点")] private List<Transform> fallTargets;
-        [SerializeField, Header("落下開始の地点")] private List<Transform> launchPoints;
-        [SerializeField, Header("最初に吹き飛ばす際のばらつき")] private float fallIntervalOnStart = 2f;
-        [SerializeField, Header("実際に落とす際のばらつき")] private float fallIntervalOnFallMode = 2f;
-        [SerializeField, Header("物を何秒かけて落とすか")] private float fallTime = 2f;
-        [SerializeField, Header("吹き飛ばしてから何秒後に落下開始するか")] private float fallModeSwitchDelay = 2f;
+        [Header("落下させるオブジェクト")]
+        [SerializeField] private List<ProjectileObject> objects = new();
 
-        private List<Vector3> defaultPositions;
-        private int[] fallPointPattern;
+        [Header("落下対象の地点")]
+        [SerializeField] private List<Transform> fallTargets = new();
 
-        private void Start()
+        [Header("落下開始の地点")]
+        [SerializeField] private List<Transform> launchPoints = new();
+
+        [Header("最初に吹き飛ばす際のばらつき (秒)")]
+        [SerializeField, Min(0)] private float flightInterval = 2f;
+
+        [Header("実際に落とす際のばらつき (秒)")]
+        [SerializeField, Min(0)] private float fallInterval = 2f;
+
+        [Header("物を何秒かけて落とすか")]
+        [SerializeField, Min(0)] private float fallDuration = 2f;
+
+        [Header("吹き飛ばしてから落下開始までの待機時間 (秒)")]
+        [SerializeField, Min(0)] private float switchDelay = 2f;
+        
+        [Header("シーケンスを終了するまでの時間")]
+        [SerializeField, Min(0)] private float finishSequenceDelay = 2f;
+
+        private sealed class ProjectileObjectCache
         {
-            Assert.IsTrue(objects.Count >= fallTargets.Count, "objects.Count >= fallTargets.Count");
-            fallPointPattern = new int[objects.Count];
+            public ProjectileObject Obj { get; }
+            public Rigidbody Rb { get; }
+            public Collider Col { get; }
+            public FallObjectPlayerAttacker Attacker { get; }
+            public Scaler Scaler { get; }
+            public Vector3 DefaultPos { get; }
 
-            defaultPositions = new List<Vector3>();
-            foreach (ProjectileObject obj in objects)
+            public ProjectileObjectCache(ProjectileObject obj)
             {
-                defaultPositions.Add(obj.transform.position);
+                Obj = obj;
+                Rb = obj.GetComponent<Rigidbody>();
+                Col = obj.GetComponent<Collider>();
+                Attacker = obj.GetComponent<FallObjectPlayerAttacker>();
+                Scaler = obj.GetComponent<Scaler>();
+                DefaultPos = obj.transform.position;
             }
         }
 
-        public async UniTask DoSequence()
+        private readonly List<ProjectileObjectCache> caches = new();
+        private int[] fallPointPattern = Array.Empty<int>();
+
+        private void Awake()
+        {
+            Assert.IsTrue(objects.Count >= fallTargets.Count, "objects.Count must be >= fallTargets.Count");
+
+            // キャッシュ生成
+            caches.AddRange(objects.Select(o => new ProjectileObjectCache(o)));
+
+            // 落下地点の割り当て配列を確保
+            fallPointPattern = new int[objects.Count];
+        }
+
+        /// <summary>
+        /// 打ち上げ演出→落下攻撃の一連シーケンスを実行。
+        /// </summary>
+        public async UniTask PlayAsync()
         {
             GenerateFallPointPattern();
 
-            // 最初に物を吹き飛ばす (演出用)
-            float flightTime = fallIntervalOnStart;
-            for (int i = 0; i < objects.Count; i++)
-            {
-                ProjectileObject obj = objects[i];
-                int targetIndex = fallPointPattern[i];
+            // 打ち上げ演出
+            LaunchAll();
 
-                Vector3 targetPosition = fallTargets[targetIndex].position;
-                obj.Launch(targetPosition, flightTime,  0.8f);
+            // 一旦停止し落下攻撃へ切り替え
+            await UniTask.Delay(TimeSpan.FromSeconds(switchDelay));
+            StopAll();
 
-                flightTime += fallIntervalOnStart;
-            }
-
-            // 待機
-            await UniTask.Delay(TimeSpan.FromSeconds(fallModeSwitchDelay));
-
-            // プレイヤーから見えない地点に行ったら一旦止める
-            foreach (ProjectileObject obj in objects)
-            {
-                obj.Stop();
-            }
-
-            // 実際に決められた地点から落下させる
-            for (int i = 0; i < objects.Count; i++)
-            {
-                ProjectileObject obj = objects[i];
-
-                // 開始地点はずらす
-                int targetIndex = fallPointPattern[i];
-                int launchIndex = (targetIndex + Random.Range(0, launchPoints.Count)) % launchPoints.Count;
-
-                Vector3 targetPosition = fallTargets[targetIndex].position;
-                Vector3 launchPosition = launchPoints[launchIndex].position;
-                obj.transform.position = launchPosition;
-                obj.Launch(targetPosition, fallTime,  0.4f);
-
-                await UniTask.Delay(TimeSpan.FromSeconds(fallIntervalOnFallMode));
-            }
-
-            // 最後のオブジェクトの落下を待機
-            await UniTask.Delay(TimeSpan.FromSeconds(fallIntervalOnFallMode));
+            // 落下攻撃
+            await FallAllAsync();
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(finishSequenceDelay));
         }
 
+        /// <summary>
+        /// 全オブジェクトを初期位置に戻してリセット。
+        /// </summary>
         public void Collect()
         {
-            for (var i = 0; i < objects.Count; i++)
+            foreach (var c in caches)
             {
-                ProjectileObject obj = objects[i];
-                obj.transform.position = defaultPositions[i];
-                obj.transform.rotation = Quaternion.identity;
+                c.Obj.transform.SetPositionAndRotation(c.DefaultPos, Quaternion.identity);
 
-                Rigidbody rb = obj.GetComponent<Rigidbody>();
-                Collider col = obj.GetComponent<Collider>();
+                c.Rb.isKinematic = true;
+                c.Col.enabled = true;
+                c.Rb.linearVelocity = Vector3.zero;
+                c.Rb.angularVelocity = Vector3.zero;
 
-                rb.isKinematic = true;
-                col.enabled = true;
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
+                c.Attacker.Reset();
+                c.Scaler.ResetScale();
+            }
+        }
 
-                obj.GetComponent<FallObjectPlayerAttacker>().Reset();
-                obj.GetComponent<Scaler>().ResetScale();
+        private void LaunchAll()
+        {
+            float currentInterval = flightInterval;
+
+            for (var i = 0; i < caches.Count; i++)
+            {
+                var cache = caches[i];
+                var targetIdx = fallPointPattern[i];
+                var targetPos = fallTargets[targetIdx].position;
+
+                cache.Obj.Launch(targetPos, currentInterval, 0.8f);
+                currentInterval += flightInterval;
+            }
+        }
+
+        private async UniTask FallAllAsync()
+        {
+            for (var i = 0; i < caches.Count; i++)
+            {
+                var cache = caches[i];
+                var targetIdx = fallPointPattern[i];
+                var launchIdx = RandomLaunchIndex(targetIdx);
+
+                // 位置をリセットして落下開始
+                cache.Obj.transform.position = launchPoints[launchIdx].position;
+                cache.Obj.Launch(fallTargets[targetIdx].position, fallDuration, 0.4f);
+
+                await UniTask.Delay(TimeSpan.FromSeconds(fallInterval));
+            }
+        }
+
+        private void StopAll()
+        {
+            foreach (var c in caches)
+            {
+                c.Obj.Stop();
             }
         }
 
         private void GenerateFallPointPattern()
         {
-            int index = 0;
+            // 前半は必ずユニークに割り当てる
+            for (var i = 0; i < fallTargets.Count; i++)
+                fallPointPattern[i] = i;
 
-            // どのポイントも必ず一回は選択されるようにする
-            while (index < fallTargets.Count)
-            {
-                fallPointPattern[index] = index;
-                index++;
-            }
+            // 後半はランダムに重複可で割り当てる
+            for (var i = fallTargets.Count; i < fallPointPattern.Length; i++)
+                fallPointPattern[i] = Random.Range(0, fallTargets.Count);
 
-            // 残りはランダムで選択する
-            while (index < objects.Count)
-            {
-                fallPointPattern[index] = Random.Range(0, fallTargets.Count);
-                index++;
-            }
-
-            // シャッフル
+            // 最終的に全体をシャッフル
             Shuffle(fallPointPattern);
         }
 
-        private static void Shuffle<T>(T[] array)
+        private int RandomLaunchIndex(int targetIdx)
         {
-            int n = array.Length;
-            for (int i = n - 1; i > 0; i--)
+            // 0 〜 launchPoints.Count-1 内で循環取得
+            var offset = Random.Range(0, launchPoints.Count);
+            return (targetIdx + offset) % launchPoints.Count;
+        }
+
+        private static void Shuffle<T>(IList<T> array)
+        {
+            for (var i = array.Count - 1; i > 0; i--)
             {
-                int j = Random.Range(0, i + 1);
+                var j = Random.Range(0, i + 1);
                 (array[i], array[j]) = (array[j], array[i]);
             }
         }

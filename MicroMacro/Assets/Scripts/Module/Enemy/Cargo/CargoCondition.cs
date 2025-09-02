@@ -14,7 +14,7 @@ namespace Module.Enemy.Cargo
             PrepareMove
         }
 
-        [SerializeField] private State currentState;
+        [SerializeField] private State currentState = State.Sleeping;
         [SerializeField] private bool isStart;
 
         public State CurrentState
