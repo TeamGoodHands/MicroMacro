@@ -41,7 +41,7 @@ namespace Module.Enemy.Cargo
         {
             float delta = 0f;
 
-            DOTween.To(() => delta, x =>
+            _ = DOTween.To(() => delta, x =>
             {
                 for (int i = 0; i < 2; i++)
                 {
@@ -53,10 +53,10 @@ namespace Module.Enemy.Cargo
             }, 1f, 0.5f).SetEase(Ease.OutBack, 10f);
 
             // 仮ダメージアニメーション
-            component.BodyTransform.DOShakeRotation(0.5f, new Vector3(7f, 0f, 0f), 25);
+            _ = component.BodyTransform.DOShakeRotation(0.5f, new Vector3(7f, 0f, 0f), 25);
 
             await UniTask.Delay(TimeSpan.FromSeconds(1f));
-            
+
             component.Condition.CurrentState = CargoCondition.State.Move;
             component.AnimatorWrapper.SetDamageTrigger();
         }

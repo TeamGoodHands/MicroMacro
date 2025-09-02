@@ -32,7 +32,7 @@ namespace Module.Enemy.Cargo
             enemyChecker.OnHit += OnHit;
         }
 
-        public void Launch(Vector3 targetPosition, float flightTime,  float scaleTime)
+        public void Launch(Vector3 targetPosition, float flightTime, float scaleTime)
         {
             startPos = transform.position;
             localTimeScale = scaleTime;
@@ -76,11 +76,9 @@ namespace Module.Enemy.Cargo
 
             float t = Mathf.Min(elapsed, flightTime);
 
-            // 放物線の公式
+            // 放物線で飛ばす
             float g = Mathf.Abs(Physics.gravity.y);
-            Vector3 pos = startPos
-                          + velocity * t
-                          + Vector3.down * (0.5f * g * t * t);
+            Vector3 pos = startPos + velocity * t + Vector3.down * (0.5f * g * t * t);
 
             transform.position = pos;
         }
