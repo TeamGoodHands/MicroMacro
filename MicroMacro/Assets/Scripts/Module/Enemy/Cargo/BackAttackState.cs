@@ -22,17 +22,17 @@ namespace Module.Enemy.Cargo
 
         private bool isMovingBack;
         private Vector3 targetPosition;
-        private readonly Quaternion defaultBodyRotation;
+        private Quaternion defaultBodyRotation;
         private Tween rotationTween;
 
         public BackAttackState(CargoComponent component)
         {
-            this.component           = component;
+            this.component = component;
             defaultBodyRotation = component.BodyTransform.localRotation;
 
-            player            = GameObject.FindWithTag(Tag.Player).GetComponent<Rigidbody>();
+            player = GameObject.FindWithTag(Tag.Player).GetComponent<Rigidbody>();
             sequencerSwitcher = Object.FindAnyObjectByType<FallSequencerSwitcher>();
-            perlin            = component.CineMachinePerlin;
+            perlin = component.CineMachinePerlin;
         }
 
         internal override void OnEnter()
@@ -55,15 +55,20 @@ namespace Module.Enemy.Cargo
 
         internal override void UpdatePhysics()
         {
-            if (!isMovingBack) return;
+            if (!isMovingBack)
+                return;
 
             MoveBack();
 
             if (HasReachedTarget(targetPosition))
+            {
                 isMovingBack = false;
+            }
         }
 
-        internal override void Dispose() { }
+        internal override void Dispose()
+        {
+        }
 
         private async UniTaskVoid BackAttackAsync()
         {
@@ -72,12 +77,13 @@ namespace Module.Enemy.Cargo
             UpdateAnimatorForAttack();
 
             targetPosition = component.Transform.position + Vector3.forward * component.Parameter.BackAttackDistanceZ;
-            isMovingBack   = true;
+            isMovingBack = true;
 
             // 後退が終わるまで待機
             await UniTask.WaitUntil(() => !isMovingBack, cancellationToken: CancellationToken);
 
             await PerformImpactAsync();
+
             await sequencerSwitcher.Current.PlayAsync();
 
             component.Condition.CurrentState = CargoCondition.State.PrepareMove;
@@ -94,19 +100,22 @@ namespace Module.Enemy.Cargo
         private bool HasReachedTarget(Vector3 target)
         {
             float remainZ = Mathf.Abs(target.z - component.Transform.position.z);
-            return remainZ <= component.Parameter.MoveSpeed * 0.5f;
+            return remainZ <= component.Parameter.AttackMoveSpeed * 0.5f;
         }
 
-        private void UpdateAnimatorForAttack() => component.AnimatorWrapper.Direction = 0f;
+        private void UpdateAnimatorForAttack()
+        {
+            component.AnimatorWrapper.Direction = 0f;
+        }
 
         private async UniTask PerformImpactAsync()
         {
             perlin.AmplitudeGain = component.Parameter.AmplitudeGainOnImpact;
             perlin.FrequencyGain = component.Parameter.FrequencyGainOnImpact;
-            perlin.enabled       = true;
+            perlin.enabled = true;
 
             SoundManager.instance.Play("打撃6");
-            
+
             var cameraShakeDuration = TimeSpan.FromSeconds(0.5f);
             await UniTask.Delay(cameraShakeDuration, cancellationToken: CancellationToken);
 
