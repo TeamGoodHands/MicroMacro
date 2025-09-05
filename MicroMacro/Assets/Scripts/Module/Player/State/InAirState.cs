@@ -44,8 +44,6 @@ namespace Module.Player.State
             // 入力イベントを取得
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
             jumpEvent = InputProvider.CreateEvent(ActionGuid.Player.Jump);
-
-            drawGizmoEventProvider = Object.FindAnyObjectByType<OnDrawGizmoEventProvider>();
         }
 
         internal override void OnEnter()
@@ -56,14 +54,12 @@ namespace Module.Player.State
             topStopFrameCount = 0;
 
             jumpEvent.Canceled += CancelJump;
-            drawGizmoEventProvider.OnDrawGizmosEvent += OnDrawGizmosHandle;
         }
 
 
         internal override void OnExit()
         {
             jumpEvent.Canceled -= CancelJump;
-            drawGizmoEventProvider.OnDrawGizmosEvent -= OnDrawGizmosHandle;
         }
 
         internal override void Update()
@@ -150,7 +146,6 @@ namespace Module.Player.State
             }
         }
 
-        private float detectDistance;
 
         private bool CanGroundingAgain(float landingTime)
         {
@@ -165,20 +160,13 @@ namespace Module.Player.State
             float g = parameter.GravityOnUp;
 
             // 着地モーションが間に合う距離を算出
-            detectDistance = -yVelocity * landingTime + 0.5f * g * landingTime * landingTime;
+            float detectDistance = -yVelocity * landingTime + 0.5f * g * landingTime * landingTime;
 
             // 着地モーションが間に合う距離に入ったら着地確定とする
             bool isHit = Physics.Raycast(transform.position, Vector3.down, detectDistance, Layer.Mask.Default);
 
             return isHit;
         }
-
-        private void OnDrawGizmosHandle()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, transform.position + Vector3.down * detectDistance);
-        }
-
 
         private void PerformAdditionalJump(ref Vector2 velocity)
         {
