@@ -10,30 +10,34 @@ namespace PropertyGenerator.Generated
 	[Serializable]
 	public class PlayerControllerWrapper
 	{
+		private static readonly int SpeedProperty = Animator.StringToHash("Speed");
+		private static readonly int DirectionProperty = Animator.StringToHash("Direction");
+		private static readonly int IsJumpingProperty = Animator.StringToHash("IsJumping");
+		private static readonly int IsLandingProperty = Animator.StringToHash("IsLanding");
 		[SerializeField] private Animator target;
 		
 		public float Speed
 		{
-			get => target.GetFloat(-823668238);
-			set => target.SetFloat(-823668238, value);
+			get => target.GetFloat(SpeedProperty);
+			set => target.SetFloat(SpeedProperty, value);
 		}
 		
 		public float Direction
 		{
-			get => target.GetFloat(-1128574192);
-			set => target.SetFloat(-1128574192, value);
+			get => target.GetFloat(DirectionProperty);
+			set => target.SetFloat(DirectionProperty, value);
 		}
 		
 		public bool IsJumping
 		{
-			get => target.GetBool(1749078233);
-			set => target.SetBool(1749078233, value);
+			get => target.GetBool(IsJumpingProperty);
+			set => target.SetBool(IsJumpingProperty, value);
 		}
 		
 		public bool IsLanding
 		{
-			get => target.GetBool(185343862);
-			set => target.SetBool(185343862, value);
+			get => target.GetBool(IsLandingProperty);
+			set => target.SetBool(IsLandingProperty, value);
 		}
 	}
 }

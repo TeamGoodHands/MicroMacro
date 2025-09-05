@@ -22,6 +22,7 @@ namespace Module.Player.Component
         [SerializeField, Header("ジャンプ中移動係数")] private float airControl;
         [SerializeField, Header("着地判定距離")] private float checkGroundDistance;
         [SerializeField, Header("空中状態から着地判定を開始する時間")] private float groundInterval;
+        [SerializeField, Header("ジャンプの頂点に来た時に停止するフレーム数")] private float topStopFrameCount;
         [SerializeField] private float landingSpeed;
         [SerializeField] private float landingTimeOffset;
         
@@ -48,6 +49,7 @@ namespace Module.Player.Component
         public float JumpPower => jumpPower;
         public AnimationCurve AdditionalJumpPower => additionalJumpPower;
         public float AirControl => airControl;
+        public float TopStopFrameCount => topStopFrameCount;
         public float CheckGroundDistance => checkGroundDistance;
         public float GroundInterval => groundInterval;
         public float VerticalDeadZone => verticalDeadZone;

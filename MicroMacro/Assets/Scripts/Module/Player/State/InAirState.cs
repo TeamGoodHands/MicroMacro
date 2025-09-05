@@ -28,6 +28,8 @@ namespace Module.Player.State
         private readonly InputEvent moveEvent;
 
         private Vector2 moveInput;
+        private bool isTopStop;
+        private int topStopFrameCount;
 
         public InAirState(PlayerComponent component)
         {
@@ -48,8 +50,12 @@ namespace Module.Player.State
 
         internal override void OnEnter()
         {
-            jumpEvent.Canceled += CancelJump;
             animatorWrapper.IsLanding = false;
+            animatorWrapper.IsJumping = true;
+            isTopStop = false;
+            topStopFrameCount = 0;
+
+            jumpEvent.Canceled += CancelJump;
             drawGizmoEventProvider.OnDrawGizmosEvent += OnDrawGizmosHandle;
         }
 
@@ -77,7 +83,7 @@ namespace Module.Player.State
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
 
-            float gravity = velocity.y < 0f ? parameter.GravityOnDown : parameter.GravityOnUp;
+            float gravity = GetGravity(velocity);
             velocity.y += gravity; // 重力を加算
 
             movement.PerformMovement(moveInput.x, ref velocity); // 移動速度を適用
@@ -106,6 +112,24 @@ namespace Module.Player.State
             {
                 UpdateGroundState();
             }
+        }
+
+        private float GetGravity(Vector2 velocity)
+        {
+            // 上昇から下降状態に来た時、空中停止フラグを有効にする
+            if (!isTopStop && velocity.y < 0f)
+            {
+                isTopStop = true;
+            }
+
+            // ジャンプの頂点に来た時、数フレームだけ重力を無くす
+            if (isTopStop && topStopFrameCount < parameter.TopStopFrameCount)
+            {
+                topStopFrameCount++;
+                return 0f;
+            }
+
+            return velocity.y < 0f ? parameter.GravityOnDown : parameter.GravityOnUp;
         }
 
         internal override void Dispose()

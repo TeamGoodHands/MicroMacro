@@ -36,6 +36,11 @@ namespace PropertyGenerator
                 codeBuilder.NewLine("[Serializable]");
                 using (codeBuilder.CreateBlockScope("public class " + className))
                 {
+                    foreach (var parameter in animatorController.parameters)
+                    {
+                        AddProperty(parameter.name, codeBuilder);
+                    }
+
                     codeBuilder.NewLine($"[SerializeField] private {nameof(Animator)} target;");
 
                     //AnimatorControllerのパラメータをプロパティに変換する
@@ -45,7 +50,7 @@ namespace PropertyGenerator
                     }
                 }
             }
-            
+
             //ソースファイルとして出力する
             SourceCreator.CreateFile(className, codeBuilder);
         }
@@ -58,7 +63,7 @@ namespace PropertyGenerator
                 builder.NewLine();
                 using (builder.CreateBlockScope($"public void Set{parameter.name}Trigger()"))
                 {
-                    builder.NewLine($"target.SetTrigger({parameter.nameHash});");
+                    builder.NewLine($"target.SetTrigger({parameter.name}Property);");
                 }
 
                 return;
@@ -66,14 +71,18 @@ namespace PropertyGenerator
 
             //それ以外はプロパティとしてコード生成
             string methodSuffix = GetMethodSuffix(parameter.type);
-            
+
             builder.NewLine();
             using (builder.CreateBlockScope($"public {parameter.type.ToString().ToLower()} {parameter.name.Replace(" ", String.Empty)}"))
             {
-                int nameHash = parameter.nameHash;
-                builder.NewLine($"get => target.Get{methodSuffix}({nameHash});");
-                builder.NewLine($"set => target.Set{methodSuffix}({nameHash}, value);");
+                builder.NewLine($"get => target.Get{methodSuffix}({parameter.name}Property);");
+                builder.NewLine($"set => target.Set{methodSuffix}({parameter.name}Property, value);");
             }
+        }
+
+        private static void AddProperty(string name, CodeBuilder builder)
+        {
+            builder.NewLine($"private static readonly int {name}Property = Animator.StringToHash(\"{name}\");");
         }
 
         private static string GetMethodSuffix(AnimatorControllerParameterType type)
