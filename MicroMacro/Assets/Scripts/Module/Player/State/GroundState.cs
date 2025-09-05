@@ -66,7 +66,7 @@ namespace Module.Player.State
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
 
-            velocity.y += parameter.Gravity; // 重力を加算
+            velocity.y += parameter.GravityOnUp; // 重力を加算
 
             movement.PerformMovement(moveInput.x, ref velocity); // 移動速度を適用
             movement.PerformDamping(true, ref velocity); // 速度減衰を適用
@@ -129,7 +129,7 @@ namespace Module.Player.State
             rigidbody.AddForce(new Vector2(0f, parameter.JumpPower), ForceMode.Impulse);
             condition.IsGround = false;
             condition.IsJumping = true;
-            condition.JumpStartTime = Time.time;
+            condition.LastJumpTime = Time.time;
 
             animatorWrapper.IsJumping = true;
             SoundManager.instance.Play("ジャンプ");

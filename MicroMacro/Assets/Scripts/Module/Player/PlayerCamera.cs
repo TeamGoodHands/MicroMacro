@@ -21,9 +21,10 @@ namespace Module.Player
 
         [SerializeField, Header("カメラをロックするか")]
         private bool lockState;
+        
+        [SerializeField] private float offsetZ;
 
         private float targetY;
-        private float offsetZ;
         private Camera mainCamera;
 
         private void Start()
@@ -37,7 +38,7 @@ namespace Module.Player
         {
             if (lockState)
                 return;
-            
+
             Vector2 screenPoint = mainCamera.WorldToViewportPoint(target.position);
 
             if (screenPoint.y > upSideDeadZone)

@@ -42,7 +42,8 @@ namespace Module.Player.Component
             // 空中状態の抵抗力を適用
             float airControl = isGround ? 1f : parameter.AirControl;
 
-            velocity *= parameter.Damping * airControl;
+            velocity *= parameter.Damping ;
+            velocity.x *= airControl;
         }
 
         /// <summary>

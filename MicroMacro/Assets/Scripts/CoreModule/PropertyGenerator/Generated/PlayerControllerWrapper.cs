@@ -29,5 +29,11 @@ namespace PropertyGenerator.Generated
 			get => target.GetBool(1749078233);
 			set => target.SetBool(1749078233, value);
 		}
+		
+		public bool IsLanding
+		{
+			get => target.GetBool(185343862);
+			set => target.SetBool(185343862, value);
+		}
 	}
 }

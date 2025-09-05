@@ -1,7 +1,10 @@
-﻿using CoreModule.AI.HSM;
+﻿using Constants;
+using CoreModule.AI.HSM;
 using CoreModule.Input;
+using CoreModule.Utility;
 using Module.Player.Component;
 using PropertyGenerator.Generated;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,6 +21,8 @@ namespace Module.Player.State
         private readonly PlayerCondition condition;
         private readonly PlayerMovement movement;
         private readonly PlayerControllerWrapper animatorWrapper;
+        private readonly AnimationClip landingClip;
+        private readonly OnDrawGizmoEventProvider drawGizmoEventProvider;
 
         private readonly InputEvent jumpEvent;
         private readonly InputEvent moveEvent;
@@ -32,20 +37,27 @@ namespace Module.Player.State
             condition = component.Condition;
             movement = component.PlayerMovement;
             animatorWrapper = component.AnimatorWrapper;
+            landingClip = component.LandingClip;
 
             // 入力イベントを取得
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
             jumpEvent = InputProvider.CreateEvent(ActionGuid.Player.Jump);
+
+            drawGizmoEventProvider = Object.FindAnyObjectByType<OnDrawGizmoEventProvider>();
         }
 
         internal override void OnEnter()
         {
             jumpEvent.Canceled += CancelJump;
+            animatorWrapper.IsLanding = false;
+            drawGizmoEventProvider.OnDrawGizmosEvent += OnDrawGizmosHandle;
         }
+
 
         internal override void OnExit()
         {
             jumpEvent.Canceled -= CancelJump;
+            drawGizmoEventProvider.OnDrawGizmosEvent -= OnDrawGizmosHandle;
         }
 
         internal override void Update()
@@ -65,7 +77,8 @@ namespace Module.Player.State
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
 
-            velocity.y += parameter.Gravity; // 重力を加算
+            float gravity = velocity.y < 0f ? parameter.GravityOnDown : parameter.GravityOnUp;
+            velocity.y += gravity; // 重力を加算
 
             movement.PerformMovement(moveInput.x, ref velocity); // 移動速度を適用
             movement.PerformDamping(false, ref velocity); // 速度減衰を適用
@@ -80,8 +93,16 @@ namespace Module.Player.State
             rigidbody.linearVelocity = velocity + externalVelocity;
             condition.ExternalForce = externalVelocity;
 
+            float landingTime = landingClip.length + parameter.LandingTimeOffset;
+
+            if (CanGroundingAgain(landingTime))
+            {
+                animatorWrapper.IsLanding = true;
+            }
+
+
             // ジャンプから一定時間経過してから、着地状態を更新
-            if (condition.JumpStartTime + parameter.GroundInterval < Time.time)
+            if (condition.LastJumpTime + parameter.GroundInterval < Time.time)
             {
                 UpdateGroundState();
             }
@@ -100,14 +121,45 @@ namespace Module.Player.State
             if (condition.IsGround)
             {
                 condition.IsJumping = false;
+                animatorWrapper.IsLanding = true;
                 animatorWrapper.IsJumping = false;
             }
         }
 
+        private float detectDistance;
+
+        private bool CanGroundingAgain(float landingTime)
+        {
+            // 前のジャンプから一定時間が経過していたらチェック開始
+            bool canGrounding = condition.LastJumpTime + parameter.GroundInterval <= Time.time;
+            if (!canGrounding)
+            {
+                return false;
+            }
+
+            float yVelocity = Mathf.Min(rigidbody.linearVelocity.y, 0f);
+            float g = parameter.GravityOnUp;
+
+            // 着地モーションが間に合う距離を算出
+            detectDistance = -yVelocity * landingTime + 0.5f * g * landingTime * landingTime;
+
+            // 着地モーションが間に合う距離に入ったら着地確定とする
+            bool isHit = Physics.Raycast(transform.position, Vector3.down, detectDistance, Layer.Mask.Default);
+
+            return isHit;
+        }
+
+        private void OnDrawGizmosHandle()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, transform.position + Vector3.down * detectDistance);
+        }
+
+
         private void PerformAdditionalJump(ref Vector2 velocity)
         {
             // ジャンプ中の追加の力を加える
-            float jumpTime = Time.time - condition.JumpStartTime;
+            float jumpTime = Time.time - condition.LastJumpTime;
             float additionalPower = parameter.AdditionalJumpPower.Evaluate(jumpTime);
             velocity += new Vector2(0f, additionalPower);
         }
