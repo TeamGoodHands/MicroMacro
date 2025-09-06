@@ -22,7 +22,6 @@ namespace Module.Player.State
         private readonly PlayerMovement movement;
         private readonly PlayerControllerWrapper animatorWrapper;
         private readonly AnimationClip landingClip;
-        private readonly OnDrawGizmoEventProvider drawGizmoEventProvider;
 
         private readonly InputEvent jumpEvent;
         private readonly InputEvent moveEvent;
@@ -56,7 +55,6 @@ namespace Module.Player.State
             jumpEvent.Canceled += CancelJump;
         }
 
-
         internal override void OnExit()
         {
             jumpEvent.Canceled -= CancelJump;
@@ -79,11 +77,11 @@ namespace Module.Player.State
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
 
-            float gravity = GetGravity(velocity);
-            velocity.y += gravity; // 重力を加算
+            // 重力を適用
+            ApplyGravity(ref velocity);
 
-            movement.PerformMovement(moveInput.x, ref velocity); // 移動速度を適用
-            movement.PerformDamping(false, ref velocity); // 速度減衰を適用
+            movement.PerformMovement(moveInput.x, false, ref velocity); // 移動速度を適用
+            movement.PerformDamping(ref velocity); // 速度減衰を適用
             movement.PerformExternalDamping(ref externalVelocity); // 外部力への減衰を適用
 
             // ジャンプ中は、空中で追加ジャンプ力を適用
@@ -102,7 +100,6 @@ namespace Module.Player.State
                 animatorWrapper.IsLanding = true;
             }
 
-
             // ジャンプから一定時間経過してから、着地状態を更新
             if (condition.LastJumpTime + parameter.GroundInterval < Time.time)
             {
@@ -110,7 +107,7 @@ namespace Module.Player.State
             }
         }
 
-        private float GetGravity(Vector2 velocity)
+        private void ApplyGravity(ref Vector2 velocity)
         {
             // 上昇から下降状態に来た時、空中停止フラグを有効にする
             if (!isTopStop && velocity.y < 0f)
@@ -122,10 +119,11 @@ namespace Module.Player.State
             if (isTopStop && topStopFrameCount < parameter.TopStopFrameCount)
             {
                 topStopFrameCount++;
-                return 0f;
+                velocity.y = Mathf.Max(velocity.y, 0f); // 下向き速度をゼロ以上にクランプ
+                return;
             }
 
-            return velocity.y < 0f ? parameter.GravityOnDown : parameter.GravityOnUp;
+            velocity.y += velocity.y < 0f ? parameter.GravityOnDown : parameter.GravityOnUp;
         }
 
         internal override void Dispose()
@@ -141,11 +139,10 @@ namespace Module.Player.State
             if (condition.IsGround)
             {
                 condition.IsJumping = false;
-                animatorWrapper.IsLanding = true;
                 animatorWrapper.IsJumping = false;
+                animatorWrapper.IsLanding = true;
             }
         }
-
 
         private bool CanGroundingAgain(float landingTime)
         {
@@ -157,7 +154,7 @@ namespace Module.Player.State
             }
 
             float yVelocity = Mathf.Min(rigidbody.linearVelocity.y, 0f);
-            float g = parameter.GravityOnUp;
+            float g = parameter.GravityOnDown;
 
             // 着地モーションが間に合う距離を算出
             float detectDistance = -yVelocity * landingTime + 0.5f * g * landingTime * landingTime;

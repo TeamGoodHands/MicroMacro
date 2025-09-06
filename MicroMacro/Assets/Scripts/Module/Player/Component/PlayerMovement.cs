@@ -20,7 +20,7 @@ namespace Module.Player.Component
         /// <summary>
         /// velocityに対して移動速度を適用します
         /// </summary>
-        public void PerformMovement(float inputX, ref Vector2 velocity)
+        public void PerformMovement(float inputX, bool isGround, ref Vector2 velocity)
         {
             // 上下方向を向いている場合は移動しない
             if (condition.Direction.y != 0f)
@@ -30,6 +30,10 @@ namespace Module.Player.Component
             float vx = inputX * parameter.MoveAccel;
             velocity.x += vx;
 
+            // 空中状態の抵抗力を適用
+            float airControl = isGround ? 1f : parameter.AirControl;
+            velocity.x *= airControl;
+
             // Rigidbodyの速度を設定する
             velocity.x = Mathf.Clamp(velocity.x, -parameter.MaxSpeed, parameter.MaxSpeed);
         }
@@ -37,13 +41,9 @@ namespace Module.Player.Component
         /// <summary>
         /// velocityに対して速度減衰を適用します
         /// </summary>
-        public void PerformDamping(bool isGround, ref Vector2 velocity)
+        public void PerformDamping(ref Vector2 velocity)
         {
-            // 空中状態の抵抗力を適用
-            float airControl = isGround ? 1f : parameter.AirControl;
-
-            velocity *= parameter.Damping ;
-            velocity.x *= airControl;
+            velocity *= parameter.Damping;
         }
 
         /// <summary>

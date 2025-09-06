@@ -66,10 +66,10 @@ namespace Module.Player.State
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
 
-            velocity.y += parameter.GravityOnUp; // 重力を加算
+            velocity.y += parameter.GravityOnDown; // 重力を加算
 
-            movement.PerformMovement(moveInput.x, ref velocity); // 移動速度を適用
-            movement.PerformDamping(true, ref velocity); // 速度減衰を適用
+            movement.PerformMovement(moveInput.x, true, ref velocity); // 移動速度を適用
+            movement.PerformDamping(ref velocity); // 速度減衰を適用
             movement.PerformExternalDamping(ref externalVelocity); // 外部力への減衰を適用
 
             // RigidBodyに適用
@@ -117,7 +117,7 @@ namespace Module.Player.State
             float xVelocity = Mathf.Abs(rigidbody.linearVelocity.x);
             float maxSpeed = parameter.MaxSpeed;
 
-            return xVelocity / maxSpeed;
+            return Mathf.Clamp01(xVelocity / maxSpeed);
         }
 
         private void OnJump(InputAction.CallbackContext _)
