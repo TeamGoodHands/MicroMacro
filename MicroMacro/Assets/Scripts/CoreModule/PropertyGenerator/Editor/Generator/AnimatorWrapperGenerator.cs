@@ -36,6 +36,12 @@ namespace PropertyGenerator
                 codeBuilder.NewLine("[Serializable]");
                 using (codeBuilder.CreateBlockScope("public class " + className))
                 {
+                    foreach (var parameter in animatorController.parameters)
+                    {
+                        string paramName = parameter.name.Replace(" ", String.Empty);
+                        AddProperty(paramName, codeBuilder);
+                    }
+
                     codeBuilder.NewLine($"[SerializeField] private {nameof(Animator)} target;");
 
                     //AnimatorControllerのパラメータをプロパティに変換する
@@ -45,7 +51,7 @@ namespace PropertyGenerator
                     }
                 }
             }
-            
+
             //ソースファイルとして出力する
             SourceCreator.CreateFile(className, codeBuilder);
         }
@@ -53,12 +59,13 @@ namespace PropertyGenerator
         private static void AddParameter(AnimatorControllerParameter parameter, CodeBuilder builder)
         {
             //Triggerだったらメソッドとしてコード生成
+            var paramName = parameter.name.Replace(" ", String.Empty);
             if (parameter.type == AnimatorControllerParameterType.Trigger)
             {
                 builder.NewLine();
-                using (builder.CreateBlockScope($"public void Set{parameter.name}Trigger()"))
+                using (builder.CreateBlockScope($"public void Set{paramName}Trigger()"))
                 {
-                    builder.NewLine($"target.SetTrigger({parameter.nameHash});");
+                    builder.NewLine($"target.SetTrigger({paramName}Property);");
                 }
 
                 return;
@@ -66,14 +73,18 @@ namespace PropertyGenerator
 
             //それ以外はプロパティとしてコード生成
             string methodSuffix = GetMethodSuffix(parameter.type);
-            
+
             builder.NewLine();
-            using (builder.CreateBlockScope($"public {parameter.type.ToString().ToLower()} {parameter.name.Replace(" ", String.Empty)}"))
+            using (builder.CreateBlockScope($"public {parameter.type.ToString().ToLower()} {paramName}"))
             {
-                int nameHash = parameter.nameHash;
-                builder.NewLine($"get => target.Get{methodSuffix}({nameHash});");
-                builder.NewLine($"set => target.Set{methodSuffix}({nameHash}, value);");
+                builder.NewLine($"get => target.Get{methodSuffix}({paramName}Property);");
+                builder.NewLine($"set => target.Set{methodSuffix}({paramName}Property, value);");
             }
+        }
+
+        private static void AddProperty(string name, CodeBuilder builder)
+        {
+            builder.NewLine($"private static readonly int {name}Property = Animator.StringToHash(\"{name}\");");
         }
 
         private static string GetMethodSuffix(AnimatorControllerParameterType type)

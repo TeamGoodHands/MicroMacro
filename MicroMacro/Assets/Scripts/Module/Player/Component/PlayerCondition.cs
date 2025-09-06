@@ -8,7 +8,7 @@ namespace Module.Player.Component
     /// </summary>
     public class PlayerCondition : MonoBehaviour
     {
-        [SerializeField, ReadOnly] private float jumpStartTime;
+        [SerializeField, ReadOnly] private float lastJumpTime;
         [SerializeField, ReadOnly] private Vector2 externalForce;
         [SerializeField, ReadOnly] private bool isJumping;
         [SerializeField, ReadOnly] private bool isGround;
@@ -16,10 +16,10 @@ namespace Module.Player.Component
         [SerializeField, ReadOnly] private Vector2 direction = Vector2.right;
         [SerializeField, ReadOnly] private Vector2 lastSideInput = Vector2.right;
 
-        public float JumpStartTime
+        public float LastJumpTime
         {
-            get => jumpStartTime;
-            set => jumpStartTime = value;
+            get => lastJumpTime;
+            set => lastJumpTime = value;
         }
 
         public Vector2 ExternalForce
