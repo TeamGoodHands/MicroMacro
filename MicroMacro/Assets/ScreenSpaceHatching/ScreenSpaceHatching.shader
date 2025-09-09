@@ -257,8 +257,8 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
                 float4 hatch = SAMPLE_TEXTURE2D(_CrossHatchPatternTexture, sampler_LinearRepeat, hatchUv);
 
                 float4 stepBlur = step(blur, _BlendStep);
-                hatch.a *= stepBlur.r;
-                color -= hatch.a * pow(1 - blur.r, _BlendPower);
+                hatch.r *= stepBlur.r;
+                color -= hatch.r * pow(1 - blur.r, _BlendPower);
 
                 return color;
             }
