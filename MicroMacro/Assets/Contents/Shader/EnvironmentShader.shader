@@ -5,7 +5,7 @@ Shader "EnvironmentShader"
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
         _NoiseMap("Noise Map", 2D) = "white"{}
         _NoiseScale("Noise Scale",Float) = 1
-        _NoisePower("Noise Offset",Range(0,1)) = 0
+        _NoisePower("Noise Power",Range(0,1)) = 0
         _ShadowNoiseScale("Shadow NoiseScale",Float) = 10
         _ShadowColor("Shadow Color", Color) = (0,0,0,1)
         _Cull("__cull", Float) = 2.0
@@ -111,20 +111,38 @@ Shader "EnvironmentShader"
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 OUT.worldPos = TransformObjectToWorld(IN.positionOS);
+
                 return OUT;
             }
+
 
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
-                float noise = SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, IN.uv*_NoiseScale).r;
+
+                // ピクセルのワールド座標
+                float3 pixelWorld = IN.worldPos;
+
+                // アンカー（オブジェクト原点）
+                float3 anchorWorld = mul(UNITY_MATRIX_M, float4(0, 0, 0, 1)).xyz;
+
+                // 差分ベクトルをスクリーンに投影
+                float4 clipPixel = mul(UNITY_MATRIX_VP, float4(pixelWorld, 1.0));
+                float4 clipAnchor = mul(UNITY_MATRIX_VP, float4(anchorWorld, 1.0));
+
+                float2 screenPixel = (clipPixel.xy / clipPixel.w) * 0.5 + 0.5;
+                float2 screenAnchor = (clipAnchor.xy / clipAnchor.w) * 0.5 + 0.5;
+
+                // 差分UV
+                float2 uv = screenPixel - screenAnchor; //　ペーパーノイズをサンプリング
+                
+                float noise = SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, uv * _NoiseScale).r;
 
                 float4 shadowCoord = TransformWorldToShadowCoord(IN.worldPos);
 
                 // 影係数を計算
                 Light mainLight = GetMainLight(shadowCoord);
                 half shadowAttention = mainLight.shadowAttenuation;
-
 
                 // 基本影（中身）
                 float baseShadow = shadowAttention; // そのまま使う or 少し暗めに調整
