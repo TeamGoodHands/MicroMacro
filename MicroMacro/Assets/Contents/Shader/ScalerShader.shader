@@ -111,7 +111,6 @@ Shader "ScalerShader"
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
 
-
                 color *= _BaseColor;
 
                 // フレネルエフェクトを掛ける
