@@ -9,6 +9,9 @@ namespace Module.Player
     {
         [SerializeField, Header("追従対象(プレイヤー)")]
         private Transform target;
+        
+        [SerializeField,Header("X方向のオフセット")]
+        private float offsetX;
 
         [SerializeField, Header("目標までの到達時間"), Min(0f)]
         private float smoothTime = 1f;
@@ -67,7 +70,7 @@ namespace Module.Player
             Vector3 newPosition = transform.position;
             
             // X, Z座標のみを追従
-            newPosition.x = Mathf.SmoothDamp(newPosition.x, target.position.x, ref velocityX, smoothTime, Mathf.Infinity, Time.fixedDeltaTime);
+            newPosition.x = Mathf.SmoothDamp(newPosition.x, target.position.x + offsetX, ref velocityX, smoothTime, Mathf.Infinity, Time.fixedDeltaTime);
             newPosition.z = Mathf.SmoothDamp(newPosition.z, target.position.z - offsetZ, ref velocityZ, smoothTime, Mathf.Infinity,
                 Time.fixedDeltaTime);
             
