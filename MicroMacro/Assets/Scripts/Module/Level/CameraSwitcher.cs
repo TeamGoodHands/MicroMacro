@@ -12,23 +12,38 @@ namespace Module.Level
         [SerializeField] private int activePriority = 1;
         [SerializeField] private int inactivePriority = 0;
 
+        private CinemachineBrain cinemachineBrain;
+
+        private void Start()
+        {
+            cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
+        }
+
         private void OnTriggerStay(Collider other)
         {
             if (targetCamera.Priority == activePriority)
                 return;
 
-            if (other.CompareTag(Tag.Handle.Player))
-            {
-                targetCamera.Priority = activePriority;
-            }
+            if (!other.CompareTag(Tag.Handle.Player))
+                return;
+
+            // ゲーム起動直後の初期化では、Cinemachine側にカメラを設定する。
+            // Soloモード設定した状態で起動すると、CinemachineBrainのカメラがnullになってしまう対策
+            CinemachineInitialization.CheckInitialization(targetCamera);
+
+            targetCamera.Priority = activePriority;
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag(Tag.Handle.Player))
-            {
-                targetCamera.Priority = activePriority;
-            }
+            if (!other.CompareTag(Tag.Handle.Player))
+                return;
+
+            // ゲーム起動直後の初期化では、Cinemachine側にカメラを設定する。
+            // Soloモード設定した状態で起動すると、CinemachineBrainのカメラがnullになってしまう対策
+            CinemachineInitialization.CheckInitialization(targetCamera);
+
+            targetCamera.Priority = activePriority;
         }
 
         private void OnTriggerExit(Collider other)
