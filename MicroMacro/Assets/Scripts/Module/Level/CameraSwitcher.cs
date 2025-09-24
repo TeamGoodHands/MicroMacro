@@ -12,6 +12,17 @@ namespace Module.Level
         [SerializeField] private int activePriority = 1;
         [SerializeField] private int inactivePriority = 0;
 
+        private void OnTriggerStay(Collider other)
+        {
+            if (targetCamera.Priority == activePriority)
+                return;
+
+            if (other.CompareTag(Tag.Handle.Player))
+            {
+                targetCamera.Priority = activePriority;
+            }
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(Tag.Handle.Player))
@@ -40,7 +51,7 @@ namespace Module.Level
             Gizmos.color = new Color(0.09f, 1f, 0.14f, 0.09f);
 
             Matrix4x4 oldMatrix = Gizmos.matrix;
-            
+
             Gizmos.matrix = boxCollider.transform.localToWorldMatrix;
             Gizmos.DrawCube(boxCollider.center, boxCollider.size);
             Gizmos.matrix = oldMatrix;
