@@ -45,6 +45,7 @@ namespace Module.Scaling
         [SerializeField, Header("前の段階"), ReadOnly] protected int previousStep;
         [SerializeField, Header("現在のステート"), ReadOnly] protected State state;
         [SerializeField, Header("スケール中か"), ReadOnly] protected bool isScaling;
+        [SerializeField, Header("ポーズ中か"), ReadOnly] protected bool isPause;
 
         /// <summary>
         /// 現在のスケール段階
@@ -114,19 +115,12 @@ namespace Module.Scaling
         /// </summary>
         public event ScaledEvent OnScaleCompleted;
 
-        private CancellationTokenSource scaleCanceller;
-
         /// <summary>
-        /// 指定スケールにセットします
+        /// スケールを一時停止したときに呼ばれるイベント
         /// </summary>
-        /// <param name="step">指定段階</param>
-        /// <param name="forceScale"></param>
-        public UniTaskVoid SetScale(int step, bool forceScale = false)
-        {
-            int targetStep = Mathf.Clamp(step, minStep, maxStep);
-            int scaleDiff = targetStep - currentStep;
-            return Scale(scaleDiff, forceScale);
-        }
+        public event Action OnScalePaused;
+
+        private CancellationTokenSource scaleCanceller;
 
         /// <summary>
         /// オブジェクトを追加スケールします
@@ -139,7 +133,20 @@ namespace Module.Scaling
             if ((!enabled && !forceScale) || isScaling)
                 return;
 
+            if (isPause)
+            {
+                UnPauseScale(additionalStep);
+                return;
+            }
+
+            int nextStep = Mathf.Clamp(currentStep + additionalStep, minStep, maxStep);
+
+            // 同じスケールの場合はスケールしない
+            if (currentStep == nextStep)
+                return;
+
             isScaling = true;
+            isPause = false;
 
             // Destroy時のCancellationTokenとスケールのCancellationTokenをマージ
             scaleCanceller = new CancellationTokenSource();
@@ -147,7 +154,7 @@ namespace Module.Scaling
 
             // スケール段階を更新
             previousStep = currentStep;
-            currentStep = Mathf.Clamp(currentStep + additionalStep, minStep, maxStep);
+            currentStep = nextStep;
             state = GetScaleState();
 
             // スケール開始イベントを送信
@@ -163,6 +170,11 @@ namespace Module.Scaling
 
             // スケール完了イベントを送信
             OnScaleCompleted?.Invoke(args);
+        }
+
+        private void UnPauseScale(int additionalStep)
+        {
+            OnUnPause(additionalStep > 0);
         }
 
         /// <summary>
@@ -182,6 +194,13 @@ namespace Module.Scaling
             isScaling = false;
         }
 
+        public void Pause()
+        {
+            isPause = true;
+            OnPause();
+            OnScalePaused?.Invoke();
+        }
+
         /// <summary>
         /// スケールを初期ステップに戻します
         /// </summary>
@@ -196,7 +215,22 @@ namespace Module.Scaling
             SetScale(0, true).Forget();
         }
 
+        /// <summary>
+        /// 指定スケールにセットします
+        /// </summary>
+        /// <param name="step">指定段階</param>
+        /// <param name="forceScale"></param>
+        private UniTaskVoid SetScale(int step, bool forceScale = false)
+        {
+            int targetStep = Mathf.Clamp(step, minStep, maxStep);
+            int scaleDiff = targetStep - currentStep;
+            return Scale(scaleDiff, forceScale);
+        }
+
         protected abstract UniTask OnScale(CancellationToken cancellationToken);
+
+        protected abstract void OnPause();
+        protected abstract void OnUnPause(bool isResume);
 
         private CancellationToken MergeDestroyCancellation(CancellationToken scaleCancellationToken)
         {

@@ -36,6 +36,7 @@ namespace Module.Scaling
             Vector3 currentScale = transform.localScale;
             Vector3 currentPosition = transform.localPosition;
 
+            // 物理の影響を受けていないRigidbodyを起動する
             if (rigidBody != null)
             {
                 rigidBody.WakeUp();
@@ -49,6 +50,23 @@ namespace Module.Scaling
             currentTween = CreateScaleTween(currentPosition, currentScale, args);
 
             await currentTween.SetLink(gameObject).WithCancellation(cancellationToken);
+        }
+
+        protected override void OnPause()
+        {
+            currentTween?.Pause();
+        }
+
+        protected override void OnUnPause(bool isResume)
+        {
+            if (isResume)
+            {
+                currentTween?.Play();
+            }
+            else
+            {
+                currentTween?.PlayBackwards();
+            }
         }
 
         private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, TwoAxisScaleArgs args)
