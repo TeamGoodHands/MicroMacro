@@ -49,14 +49,18 @@ namespace Module.Scaling
             currentTween = CreateScaleTween(currentPosition, currentScale, args);
             currentTween.SetLink(gameObject);
 
-            // 完了を待つタスク
-            UniTask completeTask = currentTween.AsyncWaitForCompletion().AsUniTask();
+            // 完了を待っている間にキャンセルされたらtweenをキルする
+            await using (cancellationToken.Register(() => currentTween?.Kill()))
+            {
+                // 完了を待つタスク
+                UniTask completeTask = currentTween.AsyncWaitForCompletion().AsUniTask();
+                
+                // 巻き戻しを待つタスク
+                UniTask rewindTask = currentTween.AsyncWaitForRewind().AsUniTask();
 
-            // 巻き戻しを待つタスク
-            UniTask rewindTask = currentTween.AsyncWaitForRewind().AsUniTask();
-
-            // いずれかの完了を待つ
-            await UniTask.WhenAny(completeTask, rewindTask);
+                // いずれかの完了を待つ
+                await UniTask.WhenAny(completeTask, rewindTask);
+            }
         }
 
         protected override void OnPause()

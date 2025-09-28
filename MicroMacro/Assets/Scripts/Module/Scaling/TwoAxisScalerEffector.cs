@@ -31,8 +31,6 @@ namespace Module.Scaling
         private Tween currentTween;
         private float defaultWaveSpeed;
         private float defaultWavePower;
-        private bool isMacroEffect;
-        private float effectDuration;
 
         private void Start()
         {
@@ -67,16 +65,13 @@ namespace Module.Scaling
             }
             else
             {
-                float progressDuration = effectDuration - currentTween.Duration();
+                float progressDuration = currentTween.Duration() - currentTween.Elapsed();
                 Effect(true, isMacro, progressDuration);
             }
         }
 
         private void Effect(bool isValid, bool isMacro, float duration)
         {
-            isMacroEffect = isMacro;
-            effectDuration = duration;
-
             // 実行中のTweenとパラメータをリセット
             currentTween?.Kill();
             ResetMaterial();

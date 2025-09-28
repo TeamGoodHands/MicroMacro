@@ -150,7 +150,6 @@ namespace Module.Scaling
             // ポーズ中の場合はそれを再開する
             if (isPause)
             {
-                isPause = false;
                 bool isMacro = additionalStep > 0;
                 bool isForwards = isMacro == CurrentStep > PreviousStep;
                 ResumeScale(isForwards, isMacro);
@@ -241,6 +240,8 @@ namespace Module.Scaling
 
         private void ResumeScale(bool isForwards, bool isMacro)
         {
+            isPause = false;
+            
             // 再開する際に再開前のサイズに戻る場合は、データも元に戻す
             if (!isForwards)
             {
