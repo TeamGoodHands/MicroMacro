@@ -151,14 +151,16 @@ namespace Module.Scaling
             if (isPause)
             {
                 isPause = false;
-                ResumeScale(additionalStep);
+                bool isMacro = additionalStep > 0;
+                bool isForwards = isMacro == CurrentStep > PreviousStep;
+                ResumeScale(isForwards, isMacro);
                 return;
             }
 
             // コンポーネントが無効 or スケール中であればキャンセル
             if ((!enabled && !forceScale) || isScaling)
                 return;
-            
+
             // 過去のスケール情報を保存
             previousScaleInfo = new ScaleEventArgs(currentStep, previousStep, 0f, state);
 
@@ -207,11 +209,38 @@ namespace Module.Scaling
             return Scale(scaleDiff, forceScale);
         }
 
-        private void ResumeScale(int additionalStep)
+        /// <summary>
+        /// スケール処理を再開します
+        /// </summary>
+        /// <param name="isForwards">元の目標スケールへ再開するか</param>
+        public void Resume(bool isForwards)
         {
-            bool isMacro = additionalStep > 0;
-            bool isForwards = isMacro == CurrentStep > PreviousStep;
+            // ポーズしてない場合は再開しない
+            if (!isPause)
+                return;
 
+            int stepDiff = currentStep - previousStep;
+            bool isMacro = isForwards ? stepDiff > 0 : stepDiff < 0;
+
+            ResumeScale(isForwards, isMacro);
+        }
+
+        /// <summary>
+        /// スケール処理を一時停止します
+        /// </summary>
+        public void Pause()
+        {
+            if (!isScaling)
+                return;
+
+            isPause = true;
+            OnPause();
+            OnScalePaused?.Invoke();
+        }
+
+
+        private void ResumeScale(bool isForwards, bool isMacro)
+        {
             // 再開する際に再開前のサイズに戻る場合は、データも元に戻す
             if (!isForwards)
             {
@@ -219,7 +248,7 @@ namespace Module.Scaling
                 currentStep = previousScaleInfo.CurrentStep;
                 state = previousScaleInfo.State;
             }
-            
+
             OnResume(isForwards);
             OnScaleResumed?.Invoke(isForwards, isMacro);
         }
@@ -241,15 +270,6 @@ namespace Module.Scaling
             isScaling = false;
         }
 
-        public void Pause()
-        {
-            if (!isScaling)
-                return;
-
-            isPause = true;
-            OnPause();
-            OnScalePaused?.Invoke();
-        }
 
         /// <summary>
         /// スケールを初期ステップに戻します
