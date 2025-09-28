@@ -53,7 +53,7 @@ namespace Module.Enemy.Boomerang
                 CheckBoomerangHit();
 
                 await UniTask.Delay(TimeSpan.FromSeconds(boomerangInterval), cancellationToken: cancellationToken);
-                boomerang.SetScale(0,true);
+                boomerang.SetScale(0, true);
             }
         }
 
@@ -92,6 +92,18 @@ namespace Module.Enemy.Boomerang
                     duration
                 ).SetEase(Ease.InOutQuad)
                 .SetLoops(2, LoopType.Yoyo); // 逆再生して戻って来る
+        }
+
+        private void OnDestroy()
+        {
+            if (status != null)
+            {
+                status.OnDeath -= OnDeath;
+            }
+
+            behaviourCanceller?.Cancel();
+            behaviourCanceller?.Dispose();
+            behaviourCanceller = null;
         }
 
         private void CheckBoomerangHit()
