@@ -46,8 +46,7 @@ namespace Module.Scaling
             // targetScaleまで滑らかにスケールする
             TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
             args.Duration = scaleDuration;
-            currentTween = CreateScaleTween(currentPosition, currentScale, args);
-            currentTween.SetLink(gameObject);
+            currentTween = CreateScaleTween(currentPosition, currentScale, args).SetLink(gameObject);
 
             // 完了を待っている間にキャンセルされたらtweenをキルする
             await using (cancellationToken.Register(() => currentTween?.Kill()))
