@@ -1,5 +1,6 @@
 ﻿using CoreModule.AI.HSM;
 using Module.Player.Component;
+using PropertyGenerator.Generated;
 using UnityEngine;
 
 namespace Module.Player.State
@@ -8,11 +9,13 @@ namespace Module.Player.State
     {
         private readonly Rigidbody rigidbody;
         private readonly PlayerCondition condition;
+        private readonly PlayerControllerWrapper animatorWrapper;
 
         public DeathState(PlayerComponent component)
         {
             rigidbody = component.Rigidbody;
             condition = component.Condition;
+            animatorWrapper = component.AnimatorWrapper;
         }
 
         internal override void OnEnter()
@@ -25,6 +28,9 @@ namespace Module.Player.State
         internal override void OnExit()
         {
             rigidbody.isKinematic = false;
+            animatorWrapper.IsJumping = false;
+            animatorWrapper.IsLanding = false;
+            animatorWrapper.Speed = 0;
         }
 
         internal override void Update()
