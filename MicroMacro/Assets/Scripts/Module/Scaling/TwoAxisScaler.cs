@@ -24,7 +24,6 @@ namespace Module.Scaling
         private Tween currentTween;
         private Rigidbody rigidBody;
 
-
         private void Awake()
         {
             defaultScale = transform.localScale;
@@ -36,19 +35,48 @@ namespace Module.Scaling
             Vector3 currentScale = transform.localScale;
             Vector3 currentPosition = transform.localPosition;
 
+            // 物理の影響を受けていないRigidbodyを起動する
             if (rigidBody != null)
             {
                 rigidBody.WakeUp();
             }
-            
+
             currentTween?.Kill();
 
             // targetScaleまで滑らかにスケールする
             TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
             args.Duration = scaleDuration;
-            currentTween = CreateScaleTween(currentPosition, currentScale, args);
+            currentTween = CreateScaleTween(currentPosition, currentScale, args).SetLink(gameObject);
 
-            await currentTween.SetLink(gameObject).WithCancellation(cancellationToken);
+            // 完了を待っている間にキャンセルされたらtweenをキルする
+            await using (cancellationToken.Register(() => currentTween?.Kill()))
+            {
+                // 完了を待つタスク
+                UniTask completeTask = currentTween.AsyncWaitForCompletion().AsUniTask();
+                
+                // 巻き戻しを待つタスク
+                UniTask rewindTask = currentTween.AsyncWaitForRewind().AsUniTask();
+
+                // いずれかの完了を待つ
+                await UniTask.WhenAny(completeTask, rewindTask);
+            }
+        }
+
+        protected override void OnPause()
+        {
+            currentTween?.Pause();
+        }
+
+        protected override void OnResume(bool isForwards)
+        {
+            if (isForwards)
+            {
+                currentTween?.Play();
+            }
+            else
+            {
+                currentTween?.PlayBackwards();
+            }
         }
 
         private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, TwoAxisScaleArgs args)
@@ -93,7 +121,6 @@ namespace Module.Scaling
             // ピボット分のオフセットを適用
             return localPosition - changeAmount * pivot;
         }
-
 
         private struct TwoAxisScaleArgs
         {

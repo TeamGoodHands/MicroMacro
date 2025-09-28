@@ -13,7 +13,6 @@ namespace Module.Enemy.Boomerang
         [SerializeField, Header("ブーメランの回転速度")] private int boomerangRotateSpeed = 5;
         [SerializeField, Header("ブーメランを飛ばす距離")] private float boomerangRadius = 5f;
         [SerializeField, Header("ブーメランを投げる間隔")] private float boomerangInterval = 1f;
-        [SerializeField, Header("プレイヤーを感知する距離")] private float detectDistance = 1f;
 
         [SerializeField] private EnemyStatus status;
         [SerializeField] private Scaler boomerang;
@@ -63,7 +62,7 @@ namespace Module.Enemy.Boomerang
             float totalAngle = 0f;
             Quaternion startRotation = boomerangRig.rotation;
 
-            DOTween.To(
+            _ = DOTween.To(
                     () => 0f,
                     angle =>
                     {
