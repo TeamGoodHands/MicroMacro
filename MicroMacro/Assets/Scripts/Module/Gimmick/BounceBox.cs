@@ -38,14 +38,14 @@ namespace Gimmick
 
         private void OnCollisionStay(Collision other)
         {
-            if (!isUpScaling || other.contactCount == 0)
+            if (!isUpScaling || scaler.IsPause || other.contactCount == 0)
                 return;
 
             GameObject obj = other.gameObject;
+            bool isPlayerHit = obj.CompareTag(Tag.Handle.Player);
 
             // プレイヤーに当たった場合
-            if (obj.CompareTag(Tag.Handle.Player) &&
-                obj.TryGetComponent(out PlayerBehaviour behaviour))
+            if (isPlayerHit && obj.TryGetComponent(out PlayerBehaviour behaviour))
             {
                 // あたった面の法線の反対方向に力を加える (場合によっては変な方向になる)
                 Vector2 bounceDirection = -other.GetContact(0).normal;
@@ -61,7 +61,7 @@ namespace Gimmick
             // スケールイベントを解除
             scaler.OnScaleStarted -= OnScaleStarted;
             scaler.OnScaleCompleted -= OnScaleCompleted;
-                
+
             // 巻き戻しを破棄
             scaleRewinder.Dispose();
         }

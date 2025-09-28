@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Module.Scaling
 {
-    public class TwoAxisScalerEffecter : MonoBehaviour
+    public class TwoAxisScalerEffector : MonoBehaviour
     {
         [SerializeField] private TwoAxisScaler scaler;
         [SerializeField] private Renderer bodyRenderer;
@@ -31,12 +31,16 @@ namespace Module.Scaling
         private Tween currentTween;
         private float defaultWaveSpeed;
         private float defaultWavePower;
+        private bool isMacroEffect;
+        private float effectDuration;
 
         private void Start()
         {
             scaler.OnScaleStarted += OnScaleStarted;
+            scaler.OnScaleResumed += Resume;
+            scaler.OnScalePaused += Pause;
             scalerShaderWrapper = new ScalerShaderWrapper(bodyRenderer.material);
-            
+
             // 初期値を登録
             defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
             defaultWavePower = scalerShaderWrapper.WavePower;
@@ -46,6 +50,32 @@ namespace Module.Scaling
         {
             bool isValid = args.PreviousStep != args.CurrentStep;
             bool isMacro = isValid && args.CurrentStep - args.PreviousStep > 0;
+            
+            Effect(isValid, isMacro, args.Duration);;
+        }
+
+        private void Pause()
+        {
+            currentTween?.Pause();
+        }
+
+        private void Resume(bool isForwards, bool isMacro)
+        {
+            if (isForwards)
+            {
+                currentTween?.Play();
+            }
+            else
+            {
+                float progressDuration = effectDuration - currentTween.Duration();
+                Effect(true, isMacro, progressDuration);
+            }
+        }
+
+        private void Effect(bool isValid, bool isMacro, float duration)
+        {
+            isMacroEffect = isMacro;
+            effectDuration = duration;
 
             // 実行中のTweenとパラメータをリセット
             currentTween?.Kill();
@@ -54,7 +84,7 @@ namespace Module.Scaling
             if (isValid)
             {
                 // 拡大縮小に成功した
-                currentTween = CreateScaleTween(isMacro, args.Duration);
+                currentTween = CreateScaleTween(isMacro, duration);
                 boundBoxWrapper.SetScaleTrigger();
             }
             else
@@ -88,12 +118,12 @@ namespace Module.Scaling
                 scalerShaderWrapper.OutlineWidth = Mathf.Lerp(0f, outlineWidth, value);
                 progress = value;
             }, 1f, tweenTime));
-            
+
             sequence.AppendCallback(() => progress = 0f);
 
             // 拡大終了まで待機
             sequence.AppendInterval(Mathf.Max(0f, scaleDuration - tweenTime));
-            
+
             // 拡大縮小エフェクトが消えるのを少し遅延させる
             sequence.AppendInterval(disappearWaitTime);
 
@@ -111,7 +141,7 @@ namespace Module.Scaling
         {
             float progress = 0f;
             Sequence sequence = DOTween.Sequence();
-            
+
             // 失敗エフェクトだんだん適用する
             sequence.Append(DOTween.To(() => progress, value =>
             {
@@ -129,7 +159,7 @@ namespace Module.Scaling
                 scalerShaderWrapper.WavePower = Mathf.Lerp(invalidWavePower, defaultWavePower, value);
                 scalerShaderWrapper.FresnelColor = Color.Lerp(invalidFresnelColor, Color.clear, value);
             }, 1f, invalidWaveTime / 2));
-            
+
             return sequence;
         }
 

@@ -24,7 +24,6 @@ namespace Module.Scaling
         private Tween currentTween;
         private Rigidbody rigidBody;
 
-
         private void Awake()
         {
             defaultScale = transform.localScale;
@@ -41,15 +40,23 @@ namespace Module.Scaling
             {
                 rigidBody.WakeUp();
             }
-            
+
             currentTween?.Kill();
 
             // targetScaleまで滑らかにスケールする
             TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
             args.Duration = scaleDuration;
             currentTween = CreateScaleTween(currentPosition, currentScale, args);
+            currentTween.SetLink(gameObject);
 
-            await currentTween.SetLink(gameObject).WithCancellation(cancellationToken);
+            // 完了を待つタスク
+            UniTask completeTask = currentTween.AsyncWaitForCompletion().AsUniTask();
+
+            // 巻き戻しを待つタスク
+            UniTask rewindTask = currentTween.AsyncWaitForRewind().AsUniTask();
+
+            // いずれかの完了を待つ
+            await UniTask.WhenAny(completeTask, rewindTask);
         }
 
         protected override void OnPause()
@@ -57,9 +64,9 @@ namespace Module.Scaling
             currentTween?.Pause();
         }
 
-        protected override void OnUnPause(bool isResume)
+        protected override void OnResume(bool isForwards)
         {
-            if (isResume)
+            if (isForwards)
             {
                 currentTween?.Play();
             }
@@ -111,7 +118,6 @@ namespace Module.Scaling
             // ピボット分のオフセットを適用
             return localPosition - changeAmount * pivot;
         }
-
 
         private struct TwoAxisScaleArgs
         {
