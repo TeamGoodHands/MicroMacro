@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreModule.Utility;
 using Module.Player.Component;
 using Module.Gimmick;
 using PropertyGenerator.Generated;
@@ -13,6 +14,7 @@ namespace Module.Player
         [SerializeField] private PlayerCondition condition;
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
+        [SerializeField] private AnimationClip landingClip;
         [SerializeField] private PlayerStatus playerStatus;
        
         public PlayerParameter Parameter => parameter;
@@ -21,6 +23,7 @@ namespace Module.Player
         public Transform Transform => rigidbody.transform;
         public PlayerStatus PlayerStatus => playerStatus;
         public PlayerControllerWrapper AnimatorWrapper => playerAnimatorController;
+        public AnimationClip LandingClip => landingClip;
         public PlayerMovement PlayerMovement => playerMovement ??= new PlayerMovement(parameter, condition);
         public PlayerRotation PlayerRotation => playerRotation ??= new PlayerRotation(parameter, condition);
         public WeaponSwitcher WeaponSwitcher => weaponSwitcher ??= new WeaponSwitcher(this);

@@ -25,7 +25,13 @@ namespace Module.Gimmick
         
         [Header("一方通行にするか")]
         [SerializeField] private bool isOneWay = false;
-        private Vector2 direction;
+        
+        [Header("すり抜けるための入力時間")]
+        [Tooltip("ここで設定した秒数だけ指定方向に入力し続けると、床を貫通してすり抜けます。")]
+        [SerializeField] private float requiredInputTime = 0.25f;
+        
+        private float inputTimer;
+        private Vector2 requiredDirection;
         private PlayerCondition condition;
 
         private void Start() => Initialize();
@@ -41,7 +47,7 @@ namespace Module.Gimmick
                 objectTrigger.OnTriggerChanged += StatusCheck;
             
             // switch文を簡略化したswitch式
-            direction = inputDirection switch
+            requiredDirection = inputDirection switch
             {
                 Direction.Up => Vector2.up,
                 Direction.Down => Vector2.down,
@@ -75,7 +81,7 @@ namespace Module.Gimmick
             
             // WARNING: Triggerを大きくしすぎると、下入力しながら落下->Triggerに入ってから離す、ですり抜けが出来てしまう可能性あり。
             // 引っ掛からずにすり抜けも可能に
-            if (condition.Direction == direction && isCompleteThrough)
+            if (condition.Direction == requiredDirection && isCompleteThrough)
                 return;
             
             if (aroundTrigger.IsTriggered && !objectTrigger.IsTriggered) 
@@ -90,11 +96,32 @@ namespace Module.Gimmick
             if (isOneWay || condition == null)
                 return;
             
-            // 下入力で降りる
             if (collision.gameObject.CompareTag(Tag.Handle.Player))
             {
-                if (condition.Direction == direction) 
-                    SwitchPlatformLayer(false);
+                // 指定方向の入力がある場合
+                if (condition.Direction == requiredDirection)
+                {
+                    inputTimer += Time.deltaTime;
+
+                    if (inputTimer >= requiredInputTime)
+                    {
+                        SwitchPlatformLayer(false);
+                        inputTimer = 0f;
+                    }
+                }
+                else
+                {
+                    inputTimer = 0f;
+                }
+            }
+        }
+        
+        private void OnCollisionExit(Collision collision)
+        {
+            // 離れたらリセット
+            if (collision.gameObject.CompareTag(Tag.Handle.Player))
+            {
+                inputTimer = 0f;
             }
         }
     }

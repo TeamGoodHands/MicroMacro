@@ -18,6 +18,13 @@ namespace Module.Scaling
     /// </summary>
     public delegate void ScaledEvent(ScaleEventArgs args);
 
+    /// <summary>
+    /// 再開イベントのデリゲート
+    /// <param name="isForwards">再開する際に目標のスケール先に拡大するか(ポーズ後に元のサイズに戻る場合はfalse)</param>
+    /// <param name="isMacro">再開する際に大きくなるか</param>>
+    /// </summary>
+    public delegate void ResumedEvent(bool isForwards, bool isMacro);
+
     public readonly struct ScaleEventArgs
     {
         public readonly int CurrentStep;
@@ -45,6 +52,7 @@ namespace Module.Scaling
         [SerializeField, Header("前の段階"), ReadOnly] protected int previousStep;
         [SerializeField, Header("現在のステート"), ReadOnly] protected State state;
         [SerializeField, Header("スケール中か"), ReadOnly] protected bool isScaling;
+        [SerializeField, Header("ポーズ中か"), ReadOnly] protected bool isPause;
 
         /// <summary>
         /// 現在のスケール段階
@@ -105,6 +113,11 @@ namespace Module.Scaling
         public bool IsScaling => isScaling;
 
         /// <summary>
+        /// ポーズ中か
+        /// </summary>
+        public bool IsPause => isPause;
+
+        /// <summary>
         /// スケール開始したときに呼ばれるイベント
         /// </summary>
         public event ScaledEvent OnScaleStarted;
@@ -114,7 +127,74 @@ namespace Module.Scaling
         /// </summary>
         public event ScaledEvent OnScaleCompleted;
 
+        /// <summary>
+        /// スケールを一時停止したときに呼ばれるイベント
+        /// </summary>
+        public event Action OnScalePaused;
+
+        /// <summary>
+        /// スケールを再開したときに呼ばれるイベント
+        /// </summary>
+        public event ResumedEvent OnScaleResumed;
+
         private CancellationTokenSource scaleCanceller;
+        private ScaleEventArgs previousScaleInfo;
+
+        /// <summary>
+        /// オブジェクトを追加スケールします
+        /// </summary>
+        /// <param name="additionalStep">追加段階</param>
+        /// <param name="forceScale"></param>
+        public async UniTaskVoid Scale(int additionalStep, bool forceScale = false)
+        {
+            // ポーズ中の場合はそれを再開する
+            if (isPause)
+            {
+                bool isMacro = additionalStep > 0;
+                bool isForwards = isMacro == CurrentStep > PreviousStep;
+                ResumeScale(isForwards, isMacro);
+                return;
+            }
+
+            // コンポーネントが無効 or スケール中であればキャンセル
+            if ((!enabled && !forceScale) || isScaling)
+                return;
+
+            // 過去のスケール情報を保存
+            previousScaleInfo = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+
+            int nextStep = Mathf.Clamp(currentStep + additionalStep, minStep, maxStep);
+
+            // スケール段階を更新
+            previousStep = currentStep;
+            currentStep = nextStep;
+            state = GetScaleState();
+
+            ScaleEventArgs args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            OnScaleStarted?.Invoke(args);
+
+            // 同じスケールになる場合はスケールしない
+            if (previousStep == nextStep)
+                return;
+
+            isScaling = true;
+
+            // Destroy時のCancellationTokenとスケールのCancellationTokenをマージ
+            scaleCanceller = new CancellationTokenSource();
+            CancellationToken cancellationToken = MergeDestroyCancellation(scaleCanceller.Token);
+
+            // スケール処理を待つ
+            await OnScale(cancellationToken);
+
+            isScaling = false;
+            isPause = false;
+            scaleCanceller?.Dispose();
+            scaleCanceller = null;
+
+            // スケール完了イベントを送信
+            args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            OnScaleCompleted?.Invoke(args);
+        }
 
         /// <summary>
         /// 指定スケールにセットします
@@ -124,45 +204,54 @@ namespace Module.Scaling
         public UniTaskVoid SetScale(int step, bool forceScale = false)
         {
             int targetStep = Mathf.Clamp(step, minStep, maxStep);
-            int scaleDiff = targetStep - currentStep;
+            int scaleDiff = targetStep - CurrentStep;
             return Scale(scaleDiff, forceScale);
         }
 
         /// <summary>
-        /// オブジェクトを追加スケールします
+        /// スケール処理を再開します
         /// </summary>
-        /// <param name="additionalStep">追加段階</param>
-        /// <param name="forceScale"></param>
-        public async UniTaskVoid Scale(int additionalStep, bool forceScale = false)
+        /// <param name="isForwards">元の目標スケールへ再開するか</param>
+        public void Resume(bool isForwards)
         {
-            // コンポーネントが無効 or スケール中であればキャンセル
-            if ((!enabled && !forceScale) || isScaling)
+            // ポーズしてない場合は再開しない
+            if (!isPause)
                 return;
 
-            isScaling = true;
+            int stepDiff = currentStep - previousStep;
+            bool isMacro = isForwards ? stepDiff > 0 : stepDiff < 0;
 
-            // Destroy時のCancellationTokenとスケールのCancellationTokenをマージ
-            scaleCanceller = new CancellationTokenSource();
-            CancellationToken cancellationToken = MergeDestroyCancellation(scaleCanceller.Token);
+            ResumeScale(isForwards, isMacro);
+        }
 
-            // スケール段階を更新
-            previousStep = currentStep;
-            currentStep = Mathf.Clamp(currentStep + additionalStep, minStep, maxStep);
-            state = GetScaleState();
+        /// <summary>
+        /// スケール処理を一時停止します
+        /// </summary>
+        public void Pause()
+        {
+            if (!isScaling)
+                return;
 
-            // スケール開始イベントを送信
-            var args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
-            OnScaleStarted?.Invoke(args);
+            isPause = true;
+            OnPause();
+            OnScalePaused?.Invoke();
+        }
 
-            // スケール処理を待つ
-            await OnScale(cancellationToken);
 
-            isScaling = false;
-            scaleCanceller?.Dispose();
-            scaleCanceller = null;
+        private void ResumeScale(bool isForwards, bool isMacro)
+        {
+            isPause = false;
+            
+            // 再開する際に再開前のサイズに戻る場合は、データも元に戻す
+            if (!isForwards)
+            {
+                previousStep = previousScaleInfo.PreviousStep;
+                currentStep = previousScaleInfo.CurrentStep;
+                state = previousScaleInfo.State;
+            }
 
-            // スケール完了イベントを送信
-            OnScaleCompleted?.Invoke(args);
+            OnResume(isForwards);
+            OnScaleResumed?.Invoke(isForwards, isMacro);
         }
 
         /// <summary>
@@ -182,6 +271,7 @@ namespace Module.Scaling
             isScaling = false;
         }
 
+
         /// <summary>
         /// スケールを初期ステップに戻します
         /// </summary>
@@ -196,7 +286,11 @@ namespace Module.Scaling
             SetScale(0, true).Forget();
         }
 
+
         protected abstract UniTask OnScale(CancellationToken cancellationToken);
+
+        protected abstract void OnPause();
+        protected abstract void OnResume(bool isForwards);
 
         private CancellationToken MergeDestroyCancellation(CancellationToken scaleCancellationToken)
         {
