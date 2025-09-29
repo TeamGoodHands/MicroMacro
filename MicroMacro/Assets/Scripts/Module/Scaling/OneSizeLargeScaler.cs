@@ -17,7 +17,7 @@ namespace Module.Scaling
         {
             if (refScaler != null)
             {
-                refScaler.OnScaleCompleted += OnScaleCompleted;
+                refScaler.OnScaleStarted += OnScaleStarted;
             }
         }
 
@@ -49,7 +49,7 @@ namespace Module.Scaling
         {
             if (refScaler != null)
             {
-                refScaler.OnScaleCompleted -= OnScaleCompleted;
+                refScaler.OnScaleStarted -= OnScaleStarted;
             }
         }
 
@@ -57,7 +57,7 @@ namespace Module.Scaling
         /// 基準オブジェクトの拡大縮小に合わせてトリガーもスケール
         /// </summary>
         /// <param name="args">refScalerの情報</param>
-        private void OnScaleCompleted(ScaleEventArgs args)
+        private void OnScaleStarted(ScaleEventArgs args)
         {
             if (trigScaler == null)
             {
