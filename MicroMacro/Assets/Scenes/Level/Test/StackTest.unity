@@ -289,7 +289,7 @@ PrefabInstance:
       objectReference: {fileID: 171926575}
     - target: {fileID: 8466042845032845891, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 11
+      value: 11.928
       objectReference: {fileID: 0}
     - target: {fileID: 8466042845032845891, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1309,7 +1309,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3154371221442737224, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.451
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4118197326537947399, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalScale.x
@@ -1325,7 +1325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4118197326537947399, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.223
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6486551063019039286, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: pivotY
@@ -1353,11 +1353,11 @@ PrefabInstance:
       objectReference: {fileID: 1438800556}
     - target: {fileID: 8466042845032845891, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.667
+      value: 5.519
       objectReference: {fileID: 0}
     - target: {fileID: 8466042845032845891, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.95
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 8466042845032845891, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1830,10 +1830,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 2114235804}
-  followSpeed: 5
+  offsetX: 0
+  smoothTime: 1
   upSideDeadZone: 0.75
   downSideDeadZone: 0.25
   lockState: 0
+  offsetZ: 0
 --- !u!1001 &1237205856
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3428,7 +3430,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4289285521358666090, guid: 715df9bb7885452419cf1b25e4913162, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.01
+      value: 9.52
       objectReference: {fileID: 0}
     - target: {fileID: 4289285521358666090, guid: 715df9bb7885452419cf1b25e4913162, type: 3}
       propertyPath: m_LocalPosition.y

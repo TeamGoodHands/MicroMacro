@@ -15,9 +15,18 @@ namespace Module.Scaling
 
         private void Awake()
         {
-            if (refScaler != null)
+            if (refScaler != null || trigScaler != null)
             {
                 refScaler.OnScaleStarted += OnScaleStarted;
+                refScaler.OnScalePaused += OnScalePaused;
+            }
+        }
+        private void OnDestroy()
+        {
+            if (refScaler != null || trigScaler != null)
+            {
+                refScaler.OnScaleStarted -= OnScaleStarted;
+                refScaler.OnScalePaused -= OnScalePaused;
             }
         }
 
@@ -45,12 +54,10 @@ namespace Module.Scaling
             int additionalStep = (refScaler.CurrentStep + 1) - trigScaler.CurrentStep;
             trigScaler.Scale(additionalStep);
         }
-        private void OnDestroy()
+       
+        private void OnScalePaused()
         {
-            if (refScaler != null)
-            {
-                refScaler.OnScaleStarted -= OnScaleStarted;
-            }
+            trigScaler.Pause();
         }
 
         /// <summary>

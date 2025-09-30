@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Constants;
 using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
@@ -53,6 +54,7 @@ namespace Module.Scaling
         [SerializeField, Header("現在のステート"), ReadOnly] protected State state;
         [SerializeField, Header("スケール中か"), ReadOnly] protected bool isScaling;
         [SerializeField, Header("ポーズ中か"), ReadOnly] protected bool isPause;
+        [SerializeField, Header("スケール中にプレイヤーとHitしているか"), ReadOnly] protected bool isScalingHit;
 
         /// <summary>
         /// 現在のスケール段階
@@ -117,6 +119,8 @@ namespace Module.Scaling
         /// </summary>
         public bool IsPause => isPause;
 
+        public bool IsScalingHit => isScalingHit;
+
         /// <summary>
         /// スケール開始したときに呼ばれるイベント
         /// </summary>
@@ -136,6 +140,7 @@ namespace Module.Scaling
         /// スケールを再開したときに呼ばれるイベント
         /// </summary>
         public event ResumedEvent OnScaleResumed;
+        
 
         private CancellationTokenSource scaleCanceller;
         private ScaleEventArgs previousScaleInfo;
@@ -284,6 +289,28 @@ namespace Module.Scaling
 
             // スケールを初期値に戻す
             SetScale(0, true).Forget();
+        }
+
+        private void OnCollisionEnter(Collision other)
+        {
+            if (!isScaling)
+                return;
+           
+            if (other.gameObject.CompareTag(Tag.Handle.Player))
+            {
+                isScalingHit = true;
+            }
+        }
+
+        private void OnCollisionExit(Collision other)
+        {
+            if (!isScaling)
+                return;
+           
+            if (other.gameObject.CompareTag(Tag.Handle.Player))
+            {
+                isScalingHit = false;
+            }
         }
 
 

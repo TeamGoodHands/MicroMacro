@@ -37,11 +37,17 @@ namespace Module.Scaling
 
         private Vector2 baseTriggerRadius;
         private bool isStack = false;
+       
 
         private void Awake()
         {
             refScaler.OnScaleStarted += OnScaleStarted;
-            scaler.OnScaleCompleted  += OnScaleCompleted;
+            scaler.OnScaleCompleted += OnScaleCompleted;
+        }
+        private void OnDestroy()
+        {
+            refScaler.OnScaleStarted -= OnScaleStarted;
+            scaler.OnScaleCompleted  -= OnScaleCompleted;
         }
 
         private void Start()
@@ -70,11 +76,6 @@ namespace Module.Scaling
             // スケール前の基準サイズ保持しておく
             // Scale考慮された半径 / Scale でコライダーのサイズの半径を計算
             baseTriggerRadius = Vector2Util.Divide(trigger.bounds.extents, transform.lossyScale);
-        }
-        private void OnDestroy()
-        {
-            refScaler.OnScaleStarted -= OnScaleStarted;
-            scaler.OnScaleCompleted -= OnScaleCompleted;
         }
       
         private void OnScaleStarted(ScaleEventArgs args)
@@ -111,6 +112,13 @@ namespace Module.Scaling
         }
         private void Update()
         {
+            if (!isStack)
+                return;
+
+            if (refScaler.IsScalingHit)
+            { 
+                refScaler.Pause();
+            }
             // rayの長さ検証用
             /*
             Debug.DrawRay(transform.position, Vector2.up * rayLength.y, Color.red);
@@ -118,7 +126,6 @@ namespace Module.Scaling
             Debug.DrawRay(transform.position, Vector2.right * rayLength.x, Color.red);
             Debug.DrawRay(transform.position, Vector2.left * rayLength.x, Color.red);
             */
-            
         }
         
         /// <summary>
