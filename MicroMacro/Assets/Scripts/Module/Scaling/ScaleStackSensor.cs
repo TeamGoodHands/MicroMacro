@@ -109,6 +109,17 @@ namespace Module.Scaling
             rayLength.x = worldSize.x + playerSize.x;
             rayLength.y = worldSize.y + playerSize.y;
         }
+        private void Update()
+        {
+            // rayの長さ検証用
+            /*
+            Debug.DrawRay(transform.position, Vector2.up * rayLength.y, Color.red);
+            Debug.DrawRay(transform.position, Vector2.down * rayLength.y, Color.red);
+            Debug.DrawRay(transform.position, Vector2.right * rayLength.x, Color.red);
+            Debug.DrawRay(transform.position, Vector2.left * rayLength.x, Color.red);
+            */
+            
+        }
         
         /// <summary>
         /// プレイヤーの方向を4方向で求める->Ray飛ばす->stack判断
@@ -147,7 +158,7 @@ namespace Module.Scaling
         /// ベクトルを絶対値で比較し上下左右で一番近いdirectionを返す
         /// 例: (0.5, 1) -> (0, 1)    
         /// </summary>
-        const float HorizontalThreshold = 0.3f; // 閾値調整(小さいほど上下の判定エリアが狭くなるイメージ), プレイヤーサイズから計算してもいい。 
+        const float HorizontalThreshold = 0.68f; // 閾値調整(小さいほど上下の判定エリアが狭くなるイメージ), プレイヤーサイズから計算してもいい。 
         private Vector2 Normalize4Direction(Vector2 direction)
         {
             if (direction == Vector2.zero)
@@ -177,19 +188,25 @@ namespace Module.Scaling
         int layerMask  = 1 << 0; // RaycastはDefaultLayerのみを対象に 
         private int ShootRay(Vector2 direction)
         {
+            // Rayを飛ばす原点をプレイヤーの位置に応じてずらすように
+            Vector2 origin = new Vector2();
             float _rayLength = 0f;
+            
             if (direction == Vector2.up || direction == Vector2.down)
             {
-                _rayLength = rayLength.y; 
+                _rayLength = rayLength.y;
+                origin = new Vector2(playerCol.transform.position.x, transform.position.y);
             }
             else if (direction == Vector2.left || direction == Vector2.right)
             {
                 _rayLength = rayLength.x;
+                origin = new Vector2(transform.position.x, playerCol.transform.position.y);
             }
             
             // RayCastNonAlloc: ヒット結果を既存配列に格納する。
             // 毎回配列生成する必要ないからGC回避ができるが、配列サイズを超えないよう注意。
-            ray = new Ray(transform.position, direction);
+            ray = new Ray(origin, direction);
+            Debug.DrawRay(origin, direction * _rayLength, Color.red);
             return Physics.RaycastNonAlloc(ray, hitInfo, _rayLength, layerMask);
         }
 

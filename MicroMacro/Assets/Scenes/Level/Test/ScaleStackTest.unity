@@ -861,6 +861,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BounceBox
       objectReference: {fileID: 0}
+    - target: {fileID: 2684970760160395799, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2698703529100038120, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.6
@@ -1049,6 +1053,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+--- !u!114 &981796462 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8506695735185614780, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
+  m_PrefabInstance: {fileID: 1720809166}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 623f6a1fabfc4e47854f71718084ea07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &984340654
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1420,6 +1435,7 @@ MonoBehaviour:
   followSpeed: 5
   upSideDeadZone: 0.75
   downSideDeadZone: 0.25
+  lockState: 0
 --- !u!4 &1098629794 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8889239416410981456, guid: 07da1f787c2e7a44fbf9e5f9360cf189, type: 3}
@@ -2729,6 +2745,18 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 2684970760160395799, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7545050206805801011, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7545050206805801011, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
+      propertyPath: refScaler
+      value: 
+      objectReference: {fileID: 981796462}
     - target: {fileID: 8466042845032845891, guid: 19df9bac23c95fd48bf9f5372f5e53ec, type: 3}
       propertyPath: m_LocalPosition.x
       value: 11

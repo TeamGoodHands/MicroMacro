@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: "\u30DE\u30C6\u30EA\u30A2\u30EB.001"
-  m_Shader: {fileID: 4800000, guid: 209f4c3496c1b46a3a2f9f0f27be788f, type: 3}
+  m_Shader: {fileID: 4800000, guid: 917f1e10769acdd4ba1d9da2e8a4c6ee, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -66,6 +66,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseMap:
+        m_Texture: {fileID: 2800000, guid: e48699b9269f85944a97e4afcbc6f19f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NoiseTexture:
@@ -124,13 +128,15 @@ Material:
     - _HatchingScale: 1
     - _Metallic: 0
     - _Mode: 0
-    - _NoisePower: 4
+    - _NoisePower: 0.368
     - _NoiseRange: 0.25
+    - _NoiseScale: 1.38
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _ShadowNoiseScale: 10
     - _ShadowThreshold: 0.23
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
@@ -147,7 +153,7 @@ Material:
     - _Color: {r: 0.9063317, g: 0.9063317, b: 0.9063317, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _HatchingColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadowColor: {r: 0.41823888, g: 0.8556364, b: 1, a: 1}
+    - _ShadowColor: {r: 0.20754719, g: 0.09881186, b: 0.03034888, a: 0.5882353}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

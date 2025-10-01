@@ -3,6 +3,7 @@ Shader "ScalerShader"
     Properties
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
+        _NoiseMap("NoiseMap Map", 2D) = "white"{}
         [HDR]_BaseColor("Base Color", Color) = (0,0,0,1)
         _OutlineWidth("Outline Width", Float) = 0
         [HDR]_OutlineColor("Outline Color", Color) = (0,0,0,1)
@@ -36,12 +37,20 @@ Shader "ScalerShader"
             #pragma vertex vert
             #pragma fragment frag
 
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile _ _SHADOWS_SOFT
+
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+            #include  "SimpleNoise.hlsl"
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                float3 normal:NORMAL;
+                float3 normal : NORMAL;
                 float2 uv : TEXCOORD0;
             };
 
@@ -51,13 +60,18 @@ Shader "ScalerShader"
                 float3 normal : NORMAL;
                 float2 uv : TEXCOORD0;
                 float2 screenPos : TEXCOORD1;
+                float3 worldPos : TEXCOORD2;
             };
 
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
 
+            TEXTURE2D(_NoiseMap);
+            SAMPLER(sampler_NoiseMap);
+
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
+                float4 _NoiseMap_ST;
                 float4 _BaseColor;
                 float _OutlineWidth;
                 float4 _OutlineColor;
@@ -71,57 +85,6 @@ Shader "ScalerShader"
             float FresnelEffect(float3 normal, float3 viewDir, float power)
             {
                 return pow(1.0 - saturate(dot(normalize(normal), normalize(viewDir))), power);
-            }
-
-            inline float unity_noise_randomValue(float2 uv)
-            {
-                return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
-            }
-
-            inline float unity_noise_interpolate(float a, float b, float t)
-            {
-                return (1.0 - t) * a + (t * b);
-            }
-
-            inline float unity_valueNoise(float2 uv)
-            {
-                float2 i = floor(uv);
-                float2 f = frac(uv);
-                f = f * f * (3.0 - 2.0 * f);
-
-                uv = abs(frac(uv) - 0.5);
-                float2 c0 = i + float2(0.0, 0.0);
-                float2 c1 = i + float2(1.0, 0.0);
-                float2 c2 = i + float2(0.0, 1.0);
-                float2 c3 = i + float2(1.0, 1.0);
-                float r0 = unity_noise_randomValue(c0);
-                float r1 = unity_noise_randomValue(c1);
-                float r2 = unity_noise_randomValue(c2);
-                float r3 = unity_noise_randomValue(c3);
-
-                float bottomOfGrid = unity_noise_interpolate(r0, r1, f.x);
-                float topOfGrid = unity_noise_interpolate(r2, r3, f.x);
-                float t = unity_noise_interpolate(bottomOfGrid, topOfGrid, f.y);
-                return t;
-            }
-
-            float SimpleNoise(float2 UV, float Scale)
-            {
-                float t = 0.0;
-
-                float freq = pow(2.0, float(0));
-                float amp = pow(0.5, float(3 - 0));
-                t += unity_valueNoise(float2(UV.x * Scale / freq, UV.y * Scale / freq)) * amp;
-
-                freq = pow(2.0, float(1));
-                amp = pow(0.5, float(3 - 1));
-                t += unity_valueNoise(float2(UV.x * Scale / freq, UV.y * Scale / freq)) * amp;
-
-                freq = pow(2.0, float(2));
-                amp = pow(0.5, float(3 - 2));
-                t += unity_valueNoise(float2(UV.x * Scale / freq, UV.y * Scale / freq)) * amp;
-
-                return t;
             }
 
             Varyings vert(Attributes IN)
@@ -139,6 +102,7 @@ Shader "ScalerShader"
 
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS + vertexOffset);
                 OUT.screenPos = ComputeScreenPos(OUT.positionHCS);
+                OUT.worldPos = TransformObjectToWorld(IN.positionOS);
 
                 return OUT;
             }
@@ -157,12 +121,19 @@ Shader "ScalerShader"
 
                 fresnel *= _FresnelColor.a;
 
-                return lerp(color, _FresnelColor, fresnel);
+                color = lerp(color, _FresnelColor, fresnel);
+
+                // // 影係数を計算
+                // float4 shadowCoord = TransformWorldToShadowCoord(IN.worldPos);
+                // Light mainLight = GetMainLight(shadowCoord);
+                // half shadowAttention = mainLight.shadowAttenuation;
+                //
+                // color *= shadowAttention;
+
+                return color;
             }
             ENDHLSL
         }
-
-
 
         Pass
         {
@@ -231,9 +202,5 @@ Shader "ScalerShader"
             }
             ENDHLSL
         }
-
-
-
-
     }
 }

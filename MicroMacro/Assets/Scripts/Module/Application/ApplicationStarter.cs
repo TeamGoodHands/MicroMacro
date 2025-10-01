@@ -14,6 +14,9 @@ namespace Module.Application
             // DOTweenのCapacityを設定
             DOTween.SetTweensCapacity(500, 50);
 
+            UnityEngine.Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 1;
+
             // TODO: セーブデータの読み込みや初期化処理をここに追加する
             try
             {
