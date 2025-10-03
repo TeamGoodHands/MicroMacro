@@ -19,7 +19,6 @@ namespace Module.Gimmick
 
         private void Break()
         {
-            Destroy(triggerObj);
             Destroy(gameObject);
         }
     }
