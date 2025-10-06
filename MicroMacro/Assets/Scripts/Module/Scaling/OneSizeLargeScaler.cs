@@ -18,7 +18,8 @@ namespace Module.Scaling
             if (refScaler != null || trigScaler != null)
             {
                 refScaler.OnScaleStarted += OnScaleStarted;
-                refScaler.OnScalePaused += OnScalePaused;
+                refScaler.OnScalePaused  += OnScalePaused;
+                refScaler.OnScaleResumed += OnScaleResumed;
             }
         }
         private void OnDestroy()
@@ -26,7 +27,8 @@ namespace Module.Scaling
             if (refScaler != null || trigScaler != null)
             {
                 refScaler.OnScaleStarted -= OnScaleStarted;
-                refScaler.OnScalePaused -= OnScalePaused;
+                refScaler.OnScalePaused  -= OnScalePaused;
+                refScaler.OnScaleResumed -= OnScaleResumed;
             }
         }
 
@@ -58,6 +60,11 @@ namespace Module.Scaling
         private void OnScalePaused()
         {
             trigScaler.Pause();
+        }
+
+        private void OnScaleResumed(bool isForward, bool isMacro)
+        {
+            trigScaler.Resume(isForward);
         }
 
         /// <summary>

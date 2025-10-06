@@ -4,6 +4,7 @@ using Constants;
 using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Module.Scaling
 {
@@ -54,7 +55,7 @@ namespace Module.Scaling
         [SerializeField, Header("現在のステート"), ReadOnly] protected State state;
         [SerializeField, Header("スケール中か"), ReadOnly] protected bool isScaling;
         [SerializeField, Header("ポーズ中か"), ReadOnly] protected bool isPause;
-        [SerializeField, Header("スケール中にプレイヤーとHitしているか"), ReadOnly] protected bool isScalingHit;
+        [FormerlySerializedAs("isScalingHit")] [SerializeField, Header("スケール中にプレイヤーとHitしているか"), ReadOnly] protected bool isMacroScalingHit;
 
         /// <summary>
         /// 現在のスケール段階
@@ -119,7 +120,7 @@ namespace Module.Scaling
         /// </summary>
         public bool IsPause => isPause;
 
-        public bool IsScalingHit => isScalingHit;
+        public bool IsMacroScalingHit => isMacroScalingHit;
 
         /// <summary>
         /// スケール開始したときに呼ばれるイベント
@@ -193,6 +194,7 @@ namespace Module.Scaling
 
             isScaling = false;
             isPause = false;
+            isMacroScalingHit = false;
             scaleCanceller?.Dispose();
             scaleCanceller = null;
 
@@ -274,6 +276,7 @@ namespace Module.Scaling
             currentStep = previousStep;
             state = GetScaleState();
             isScaling = false;
+            isMacroScalingHit = false;
         }
 
 
@@ -291,25 +294,34 @@ namespace Module.Scaling
             SetScale(0, true).Forget();
         }
 
-        private void OnCollisionEnter(Collision other)
+        private void OnCollisionStay(Collision other)
         {
-            if (!isScaling)
-                return;
-           
-            if (other.gameObject.CompareTag(Tag.Handle.Player))
+            if (!isScaling || !isScaling && isMacroScalingHit)
             {
-                isScalingHit = true;
+                isMacroScalingHit = false;
+                return;
+            }
+               
+
+            bool isMacro = CurrentStep > PreviousStep;
+            if (isMacro)
+            {
+                if (other.gameObject.CompareTag(Tag.Handle.Player))
+                {
+                    isMacroScalingHit = true;
+                }
             }
         }
 
         private void OnCollisionExit(Collision other)
         {
-            if (!isScaling)
-                return;
-           
             if (other.gameObject.CompareTag(Tag.Handle.Player))
             {
-                isScalingHit = false;
+                isMacroScalingHit = false;
+                if (isPause)
+                {
+                    
+                }
             }
         }
 

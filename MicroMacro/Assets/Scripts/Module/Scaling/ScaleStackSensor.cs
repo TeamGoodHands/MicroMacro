@@ -41,12 +41,12 @@ namespace Module.Scaling
 
         private void Awake()
         {
-            refScaler.OnScaleStarted += OnScaleStarted;
+            refScaler.OnScaleResumed += OnScaleResumed;
             scaler.OnScaleCompleted += OnScaleCompleted;
         }
         private void OnDestroy()
         {
-            refScaler.OnScaleStarted -= OnScaleStarted;
+            refScaler.OnScaleResumed -= OnScaleResumed;
             scaler.OnScaleCompleted  -= OnScaleCompleted;
         }
 
@@ -78,17 +78,13 @@ namespace Module.Scaling
             baseTriggerRadius = Vector2Util.Divide(trigger.bounds.extents, transform.lossyScale);
         }
       
-        private void OnScaleStarted(ScaleEventArgs args)
+        private void OnScaleResumed(bool isForward, bool isMacro)
         {
-            if (isStack)
+            if (isMacro)
             { 
-                // 拡大の時のみスケール中止
-                int def = args.CurrentStep - args.PreviousStep;
-                if (def > 0)
-                {
-                    Debug.Log("スケールがキャンセルされました。");
-                    refScaler.CancelScale();
-                }
+                Debug.Log("スケールがキャンセルされました。"); 
+                refScaler.CancelScale();
+                scaler.CancelScale();
             }
         }
         
@@ -112,11 +108,13 @@ namespace Module.Scaling
         }
         private void Update()
         {
-            if (!isStack)
+            // TODO IsScalingHitだとスタック後ミクロ弾を当てた時もPauseされてしまう
+            if (!isStack || refScaler.IsPause)
                 return;
 
-            if (refScaler.IsScalingHit)
+            if (refScaler.IsMacroScalingHit)
             { 
+                Debug.Log("paused");
                 refScaler.Pause();
             }
             // rayの長さ検証用
