@@ -89,7 +89,7 @@ namespace Module.Player.State
         private void UpdateAnimatorParameter()
         {
             // Animatorに適用
-            float paramDir = animatorWrapper.Direction;
+            float paramDir = animatorWrapper.DirectionY;
             
             if (condition.Direction == Vector2.up)
             {
@@ -104,7 +104,7 @@ namespace Module.Player.State
                 paramDir = Mathf.Lerp(paramDir, 0, Time.deltaTime * parameter.VerticalLookSpeed);
             }
             
-            animatorWrapper.Direction = paramDir;
+            animatorWrapper.DirectionY = paramDir;
         }
 
         internal override void UpdatePhysics()

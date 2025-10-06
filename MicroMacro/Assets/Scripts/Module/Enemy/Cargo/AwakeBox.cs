@@ -26,7 +26,6 @@ namespace Module.Enemy.Cargo
             enemyChecker.StopCheck();
 
             SoundManager.instance.Play("打撃1");
-            SoundManager.instance.Play("Boss2");
         }
     }
 }

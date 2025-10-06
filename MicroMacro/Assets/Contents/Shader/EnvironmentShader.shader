@@ -138,6 +138,7 @@ Shader "EnvironmentShader"
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
 
+
                 // ピクセルのワールド座標
                 float3 pixelWorld = IN.worldPos;
                 float noise = SamplePaperNoise(pixelWorld);

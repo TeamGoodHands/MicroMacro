@@ -11,6 +11,7 @@ Shader "ScalerShader"
         [HDR]_FresnelColor("Fresnel Color", Color) = (0,0,0,0)
         _WavePower("Wave Power", Float) = 0.05
         _WaveSpeed("Wave Speed", Float) = 7
+        [Toggle(_RECEIVE_DECALS)] _ReceiveDecals("Receive Decals", Float) = 1
     }
 
     SubShader
@@ -20,6 +21,52 @@ Shader "ScalerShader"
         {
             "RenderType"="Opaque"
             "RenderPipeline" = "UniversalPipeline"
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode"="DepthNormals"
+            }
+            ZWrite On Cull Back
+
+            HLSLPROGRAM
+            #pragma vertex   dn_vert
+            #pragma fragment dn_frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct A
+            {
+                float4 positionOS: POSITION;
+                float3 normalOS: NORMAL;
+                float4 tangentOS: TANGENT;
+            };
+
+            struct V
+            {
+                float4 positionHCS: SV_POSITION;
+                float3 normalWS: TEXCOORD0;
+            };
+
+            V dn_vert(A v)
+            {
+                V o;
+                VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
+                VertexNormalInputs n = GetVertexNormalInputs(v.normalOS, v.tangentOS);
+                o.positionHCS = p.positionCS;
+                o.normalWS = n.normalWS;
+                return o;
+            }
+
+            half4 dn_frag(V i) : SV_Target
+            {
+                float3 n = normalize(i.normalWS);
+                return half4(n * 0.5 + 0.5, 1);
+            }
+            ENDHLSL
         }
 
         Pass
@@ -41,6 +88,10 @@ Shader "ScalerShader"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
+            
+            #pragma shader_feature_local _RECEIVE_DECALS
+            #pragma multi_compile _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
+            #pragma multi_compile _ _DECAL_LAYERS
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -110,6 +161,16 @@ Shader "ScalerShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
+
+
+                #if defined(_RECEIVE_DECALS) && (defined(_DBUFFER_MRT1) || defined(_DBUFFER_MRT2) || defined(_DBUFFER_MRT3))
+                half3 decal = half3(color.r, color.g, color.b);
+                ApplyDecalToBaseColor(IN.positionHCS, decal);
+                color.r = decal.r;
+                color.g = decal.g;
+                color.b = decal.b;
+                #endif
+
 
                 color *= _BaseColor;
 

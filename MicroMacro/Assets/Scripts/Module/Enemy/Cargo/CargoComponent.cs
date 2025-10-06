@@ -3,6 +3,7 @@ using Module.Scaling;
 using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Module.Enemy.Cargo
 {
@@ -17,6 +18,9 @@ namespace Module.Enemy.Cargo
         [SerializeField] private Rigidbody moveParent;
         [SerializeField] private CargoControllerWrapper animatorWrapper;
         [SerializeField] private CinemachineBasicMultiChannelPerlin cineMachinePerlin;
+        [SerializeField] private CinemachineCamera nearInEnemyCamera;
+        [SerializeField] private CinemachineCamera bossCamera;
+        [SerializeField] private CanvasGroup hpBarCanvasGroup;
         [SerializeField] private Transform start;
         [SerializeField] private Transform goal;
         [SerializeField] private Transform[] eyes;
@@ -29,6 +33,9 @@ namespace Module.Enemy.Cargo
         public Rigidbody MoveParent => moveParent;
         public CargoControllerWrapper AnimatorWrapper => animatorWrapper;
         public CinemachineBasicMultiChannelPerlin CineMachinePerlin => cineMachinePerlin;
+        public CinemachineCamera NearInEnemyCamera => nearInEnemyCamera;
+        public CinemachineCamera BossCamera => bossCamera;
+        public CanvasGroup HpBarCanvasGroup => hpBarCanvasGroup;
         public Transform Start => start;
         public Transform Goal => goal;
         public Transform[] Eyes => eyes;

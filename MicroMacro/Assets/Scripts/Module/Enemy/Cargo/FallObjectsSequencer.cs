@@ -35,7 +35,7 @@ namespace Module.Enemy.Cargo
 
         [Header("吹き飛ばしてから落下開始までの待機時間 (秒)")]
         [SerializeField, Min(0)] private float switchDelay = 2f;
-        
+
         [Header("シーケンスを終了するまでの時間")]
         [SerializeField, Min(0)] private float finishSequenceDelay = 2f;
 
@@ -89,7 +89,7 @@ namespace Module.Enemy.Cargo
 
             // 落下攻撃
             await FallAllAsync();
-            
+
             await UniTask.Delay(TimeSpan.FromSeconds(finishSequenceDelay));
         }
 
@@ -139,7 +139,7 @@ namespace Module.Enemy.Cargo
                 cache.Obj.transform.position = launchPoints[launchIdx].position;
                 cache.Obj.Launch(fallTargets[targetIdx].position, fallDuration, 0.4f);
 
-                await UniTask.Delay(TimeSpan.FromSeconds(fallInterval));
+                await UniTask.Delay(TimeSpan.FromSeconds(fallInterval), cancellationToken: destroyCancellationToken);
             }
         }
 
