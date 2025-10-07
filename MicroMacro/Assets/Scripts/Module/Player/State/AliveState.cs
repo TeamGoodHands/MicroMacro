@@ -44,6 +44,7 @@ namespace Module.Player.State
             // はじめは右を向いているとする
             condition.Direction = Vector2.right;
             condition.LastSideInput = Vector2.right;
+            animatorWrapper.DirectionX = 1;
 
             moveEvent.Started += UpdateDirection;
             moveEvent.Performed += UpdateDirection;
@@ -70,6 +71,7 @@ namespace Module.Player.State
             if (direction.x != 0)
             {
                 condition.LastSideInput = direction;
+                animatorWrapper.DirectionX = direction.x > 0 ? 1 : -1;
             }
         }
 
@@ -90,7 +92,7 @@ namespace Module.Player.State
         {
             // Animatorに適用
             float paramDir = animatorWrapper.DirectionY;
-            
+
             if (condition.Direction == Vector2.up)
             {
                 paramDir = Mathf.Lerp(paramDir, 1, Time.deltaTime * parameter.VerticalLookSpeed);
@@ -103,13 +105,11 @@ namespace Module.Player.State
             {
                 paramDir = Mathf.Lerp(paramDir, 0, Time.deltaTime * parameter.VerticalLookSpeed);
             }
-            
+
             animatorWrapper.DirectionY = paramDir;
         }
 
-        internal override void UpdatePhysics()
-        {
-        }
+        internal override void UpdatePhysics() { }
 
         internal override void Dispose()
         {
