@@ -166,7 +166,7 @@ Shader "EnvironmentShader"
                 shadowAttention = darkenedRim;
 
                 float3 shadowColor = lerp(color.xyz, _ShadowColor.xyz, _ShadowColor.a);
-                color.xyz = lerp(color.xyz, shadowColor, 1 - shadowAttention) * saturate(noise + _NoisePower);
+                color.xyz = lerp(color.xyz, shadowColor, 1 - shadowAttention) ;
 
                 return color;
             }

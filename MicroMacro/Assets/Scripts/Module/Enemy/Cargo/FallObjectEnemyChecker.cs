@@ -7,17 +7,21 @@ namespace Module.Enemy.Cargo
     public class FallObjectEnemyChecker : MonoBehaviour
     {
         public event Action<GameObject> OnHit;
+        public event Action OnCheckStart;
+        public event Action OnCheckStop;
 
         private bool isCheck;
 
         public void StartCheck()
         {
             isCheck = true;
+            OnCheckStart?.Invoke();
         }
 
         public void StopCheck()
         {
             isCheck = false;
+            OnCheckStop?.Invoke();
         }
 
         private void Update()

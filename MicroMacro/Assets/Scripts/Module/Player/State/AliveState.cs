@@ -48,34 +48,14 @@ namespace Module.Player.State
             condition.LastSideInput = Vector2.right;
             UpdateAnimatorDirection(condition.Direction.x);
 
-            moveEvent.Started += UpdateDirection;
-            moveEvent.Performed += UpdateDirection;
-            moveEvent.Canceled += UpdateDirection;
             switchEvent.Started += OnSwitchWeapon;
         }
 
         internal override void OnExit()
         {
-            moveEvent.Started -= UpdateDirection;
-            moveEvent.Performed -= UpdateDirection;
-            moveEvent.Canceled -= UpdateDirection;
             switchEvent.Started -= OnSwitchWeapon;
         }
 
-        private void UpdateDirection(InputAction.CallbackContext ctx)
-        {
-            Vector2 moveInput = ctx.ReadValue<Vector2>();
-            Vector2 direction = rotation.GetDirection(moveInput);
-
-            condition.Direction = direction;
-
-            // 左右の入力の場合は更新
-            if (direction.x != 0)
-            {
-                condition.LastSideInput = direction;
-                UpdateAnimatorDirection(direction.x);
-            }
-        }
 
         private void UpdateAnimatorDirection(float directionX)
         {
@@ -91,9 +71,32 @@ namespace Module.Player.State
         internal override void Update()
         {
             // プレイヤーの向きを更新
+            UpdateDirectionInput();
+
+            UpdateRotation();
+
+            UpdateAnimatorParameter();
+        }
+
+        private void UpdateDirectionInput()
+        {
+            Vector2 moveInput = moveEvent.ReadValue<Vector2>();
+            Vector2 direction = rotation.GetDirection(moveInput);
+
+            condition.Direction = direction;
+
+            // 左右の入力の場合は更新
+            if (direction.x != 0)
+            {
+                condition.LastSideInput = direction;
+                UpdateAnimatorDirection(direction.x);
+            }
+        }
+
+        private void UpdateRotation()
+        {
             float angle = condition.LastSideInput.x > 0f ? 0f : -180f;
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.deltaTime);
-            UpdateAnimatorParameter();
         }
 
         private void UpdateAnimatorParameter()
@@ -117,7 +120,9 @@ namespace Module.Player.State
             animatorWrapper.DirectionY = paramDir;
         }
 
-        internal override void UpdatePhysics() { }
+        internal override void UpdatePhysics()
+        {
+        }
 
         internal override void Dispose()
         {

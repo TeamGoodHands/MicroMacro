@@ -1,3 +1,4 @@
+using Module.Gimmick;
 using Module.Management;
 using UnityEngine;
 
@@ -7,11 +8,15 @@ namespace Module.Enemy.Cargo
     {
         [SerializeField] private FallObjectEnemyChecker enemyChecker;
         [SerializeField] private Rigidbody rigidBody;
+        [SerializeField] private ScaleFall scaleFall;
         [SerializeField] private float customGravity;
 
         private void Start()
         {
-            enemyChecker.StartCheck();
+            scaleFall.OnFall += () =>
+            {
+                enemyChecker.StartCheck();
+            };
 
             enemyChecker.OnHit += OnHit;
         }

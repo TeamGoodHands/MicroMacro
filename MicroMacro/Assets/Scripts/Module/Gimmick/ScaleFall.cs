@@ -16,6 +16,8 @@ namespace Module.Gimmick
         
         [Header("落下時の重量")]
         [SerializeField] private float newMassValue = 10f;
+        
+        public event Action OnFall;
 
         private void Start()
         {
@@ -30,6 +32,7 @@ namespace Module.Gimmick
             if (args.CurrentStep == scaler.MaxStep)
             {
                 FallObject();
+                OnFall?.Invoke();
             }
         }
 
