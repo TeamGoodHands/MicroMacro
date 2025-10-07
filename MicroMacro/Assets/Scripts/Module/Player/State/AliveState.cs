@@ -13,6 +13,7 @@ namespace Module.Player.State
     public class AliveState : HierarchicalStateMachine.State
     {
         private readonly Transform transform;
+        private readonly Transform bodyTransform;
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
         private readonly PlayerRotation rotation;
@@ -26,6 +27,7 @@ namespace Module.Player.State
         {
             parameter = component.Parameter;
             transform = component.Transform;
+            bodyTransform = component.BodyTransform;
             condition = component.Condition;
             rotation = component.PlayerRotation;
             weaponSwitcher = component.WeaponSwitcher;
@@ -44,7 +46,7 @@ namespace Module.Player.State
             // はじめは右を向いているとする
             condition.Direction = Vector2.right;
             condition.LastSideInput = Vector2.right;
-            animatorWrapper.DirectionX = 1;
+            UpdateAnimatorDirection(condition.Direction.x);
 
             moveEvent.Started += UpdateDirection;
             moveEvent.Performed += UpdateDirection;
@@ -71,8 +73,13 @@ namespace Module.Player.State
             if (direction.x != 0)
             {
                 condition.LastSideInput = direction;
-                animatorWrapper.DirectionX = direction.x > 0 ? 1 : -1;
+                UpdateAnimatorDirection(direction.x);
             }
+        }
+
+        private void UpdateAnimatorDirection(float directionX)
+        {
+            bodyTransform.localScale = new Vector3(1, 1, directionX > 0 ? 1 : -1);
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)

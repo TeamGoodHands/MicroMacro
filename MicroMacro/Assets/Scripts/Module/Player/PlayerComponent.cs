@@ -13,6 +13,7 @@ namespace Module.Player
         [SerializeField] private PlayerParameter parameter;
         [SerializeField] private PlayerCondition condition;
         [SerializeField] private Rigidbody rigidbody;
+        [SerializeField] private Transform bodyTransform;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
         [SerializeField] private PlayerStatus playerStatus;
        
@@ -20,6 +21,7 @@ namespace Module.Player
         public PlayerCondition Condition => condition;
         public Rigidbody Rigidbody => rigidbody;
         public Transform Transform => rigidbody.transform;
+        public Transform BodyTransform => bodyTransform;
         public PlayerStatus PlayerStatus => playerStatus;
         public PlayerControllerWrapper AnimatorWrapper => playerAnimatorController;
         public PlayerMovement PlayerMovement => playerMovement ??= new PlayerMovement(parameter, condition);
