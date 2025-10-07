@@ -38,6 +38,9 @@ namespace Module.Enemy.Cargo
 
         private void OnDamage(int damage)
         {
+            if (damage == component.Status.MaxHealth)
+                return;
+            
             AnimateAsync().Forget();
         }
 
@@ -69,6 +72,7 @@ namespace Module.Enemy.Cargo
 
             await UniTask.Delay(TimeSpan.FromSeconds(2f));
 
+            component.Status.SetHealth(component.Status.MaxHealth);
             component.NearInEnemyCamera.Priority = 100;
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f));

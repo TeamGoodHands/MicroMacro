@@ -2,8 +2,8 @@ Shader "WaterCircleShader"
 {
     Properties
     {
-        _BaseColor ("Base Color (RGBA)", Color) = (0.2, 0.6, 1.0, 0.8)
-        _EdgeColor ("Edge Color (RGB)", Color) = (0.05, 0.12, 0.20, 1)
+        [HDR]_BaseColor ("Base Color (RGBA)", Color) = (0.2, 0.6, 1.0, 0.8)
+        [HDR]_EdgeColor ("Edge Color (RGB)", Color) = (0.05, 0.12, 0.20, 1)
 
         _Radius ("Radius (0..0.5)", Range(0.0, 0.6)) = 0.35
         _EdgeWidth ("Edge Width", Range(0.001, 0.3)) = 0.08
@@ -14,6 +14,8 @@ Shader "WaterCircleShader"
         _WarpScale ("Warp Scale", Range(0.5, 10)) = 3.0
         _WarpAmp ("Warp Amp (UV)", Range(0, 0.25)) = 0.06
         _WarpSpeed ("Warp Speed", Range(0, 6)) = 1.5
+
+        _UpdateInterval ("Noise Update Interval (sec)", Range(0.05, 2.0)) = 0.5
 
         _FillAlpha ("Fill Alpha", Range(0,1)) = 1
         _EdgeAlpha ("Edge Alpha", Range(0,1)) = 1
@@ -29,7 +31,6 @@ Shader "WaterCircleShader"
         Pass
         {
             ZWrite Off
-            ZTest Always
             Blend SrcAlpha OneMinusSrcAlpha
             Cull Off
 
@@ -65,6 +66,8 @@ Shader "WaterCircleShader"
                 float _WarpScale;
                 float _WarpAmp;
                 float _WarpSpeed;
+
+                float _UpdateInterval;
 
                 float _FillAlpha;
                 float _EdgeAlpha;
@@ -125,10 +128,11 @@ Shader "WaterCircleShader"
                 float2 uv = IN.uv * 2.0 - 1.0;
 
                 // --- ドメインワープ（UVを時間で揺らす） ---
-                float t = _Time.y * _WarpSpeed;
+                float t = floor(_Time.y / _UpdateInterval) * _UpdateInterval;
+
                 float2 warp;
-                warp.x = fbm4(uv * _WarpScale + float2(1.7, 9.2) + t);
-                warp.y = fbm4(uv * _WarpScale + float2(-4.3, 2.6) + t);
+                warp.x = fbm4(uv * _WarpScale + float2(1.7, 9.2) + t * _WarpSpeed);
+                warp.y = fbm4(uv * _WarpScale + float2(-4.3, 2.6) + t * _WarpSpeed);
                 warp = (warp - 0.5) * 2.0 * _WarpAmp;
                 uv += warp;
 

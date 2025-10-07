@@ -9,6 +9,7 @@ Shader "ScalerShader"
         [HDR]_OutlineColor("Outline Color", Color) = (0,0,0,1)
         _FresnelPower("Fresnel Power", Float) = 0.2
         [HDR]_FresnelColor("Fresnel Color", Color) = (0,0,0,0)
+        [HDR]_AdditionalColor("Additional Color", Color) = (0,0,0,0)
         _WavePower("Wave Power", Float) = 0.05
         _WaveSpeed("Wave Speed", Float) = 7
         [Toggle(_RECEIVE_DECALS)] _ReceiveDecals("Receive Decals", Float) = 1
@@ -128,6 +129,7 @@ Shader "ScalerShader"
                 float4 _OutlineColor;
                 float _FresnelPower;
                 float4 _FresnelColor;
+                float4 _AdditionalColor;
                 float _WavePower;
                 float _WaveSpeed;
             CBUFFER_END
@@ -190,6 +192,8 @@ Shader "ScalerShader"
                 // half shadowAttention = mainLight.shadowAttenuation;
                 //
                 // color *= shadowAttention;
+
+                color += _AdditionalColor;
 
                 return color;
             }

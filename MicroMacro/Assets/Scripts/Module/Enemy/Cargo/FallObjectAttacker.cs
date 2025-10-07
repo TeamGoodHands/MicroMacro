@@ -4,6 +4,7 @@ using Module.Management;
 using Module.Scaling;
 using PropertyGenerator.Generated;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Module.Enemy.Cargo
 {
@@ -12,6 +13,7 @@ namespace Module.Enemy.Cargo
         [SerializeField] private Scaler scaler;
         [SerializeField] private FallObjectEnemyChecker enemyChecker;
         [SerializeField] private Renderer fallEffectRenderer;
+        [SerializeField] private VisualEffect fallParticleEffect;
 
         private WaterCircleShaderWrapper waterCircleShaderWrapper;
         private float currentEffectRadius;
@@ -61,6 +63,8 @@ namespace Module.Enemy.Cargo
                 .SetEase(Ease.OutSine)
                 .OnStart(() => fallEffectRenderer.enabled = true)
                 .OnUpdate(() => waterCircleShaderWrapper.Radius = currentEffectRadius);
+            
+            fallParticleEffect.Play();
         }
 
         private void StopAttackEffect()
@@ -70,6 +74,8 @@ namespace Module.Enemy.Cargo
                 .SetEase(Ease.OutSine)
                 .OnUpdate(() => waterCircleShaderWrapper.Radius = currentEffectRadius)
                 .OnComplete(() => fallEffectRenderer.enabled = false);
+            
+            fallParticleEffect.Stop();
         }
 
         private void Damage(GameObject target)
