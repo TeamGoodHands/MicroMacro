@@ -11,21 +11,18 @@ namespace PropertyGenerator.Generated
 	public class PlayerControllerWrapper
 	{
 		private static readonly int SpeedProperty = Animator.StringToHash("Speed");
-		private static readonly int DirectionProperty = Animator.StringToHash("Direction");
 		private static readonly int IsJumpingProperty = Animator.StringToHash("IsJumping");
-		private static readonly int IsLandingProperty = Animator.StringToHash("IsLanding");
+		private static readonly int DirectionYProperty = Animator.StringToHash("DirectionY");
+		private static readonly int ShotSideProperty = Animator.StringToHash("ShotSide");
+		private static readonly int ShotUpProperty = Animator.StringToHash("ShotUp");
+		private static readonly int ShotDownProperty = Animator.StringToHash("ShotDown");
 		[SerializeField] private Animator target;
+		public Animator Animator => target;
 		
 		public float Speed
 		{
 			get => target.GetFloat(SpeedProperty);
 			set => target.SetFloat(SpeedProperty, value);
-		}
-		
-		public float Direction
-		{
-			get => target.GetFloat(DirectionProperty);
-			set => target.SetFloat(DirectionProperty, value);
 		}
 		
 		public bool IsJumping
@@ -34,10 +31,25 @@ namespace PropertyGenerator.Generated
 			set => target.SetBool(IsJumpingProperty, value);
 		}
 		
-		public bool IsLanding
+		public float DirectionY
 		{
-			get => target.GetBool(IsLandingProperty);
-			set => target.SetBool(IsLandingProperty, value);
+			get => target.GetFloat(DirectionYProperty);
+			set => target.SetFloat(DirectionYProperty, value);
+		}
+		
+		public void SetShotSideTrigger()
+		{
+			target.SetTrigger(ShotSideProperty);
+		}
+		
+		public void SetShotUpTrigger()
+		{
+			target.SetTrigger(ShotUpProperty);
+		}
+		
+		public void SetShotDownTrigger()
+		{
+			target.SetTrigger(ShotDownProperty);
 		}
 	}
 }

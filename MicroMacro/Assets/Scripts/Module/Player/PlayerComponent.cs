@@ -13,24 +13,23 @@ namespace Module.Player
         [SerializeField] private PlayerParameter parameter;
         [SerializeField] private PlayerCondition condition;
         [SerializeField] private Rigidbody rigidbody;
+        [SerializeField] private Transform bodyTransform;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
-        [SerializeField] private AnimationClip landingClip;
         [SerializeField] private PlayerStatus playerStatus;
        
         public PlayerParameter Parameter => parameter;
         public PlayerCondition Condition => condition;
         public Rigidbody Rigidbody => rigidbody;
         public Transform Transform => rigidbody.transform;
+        public Transform BodyTransform => bodyTransform;
         public PlayerStatus PlayerStatus => playerStatus;
         public PlayerControllerWrapper AnimatorWrapper => playerAnimatorController;
-        public AnimationClip LandingClip => landingClip;
         public PlayerMovement PlayerMovement => playerMovement ??= new PlayerMovement(parameter, condition);
         public PlayerRotation PlayerRotation => playerRotation ??= new PlayerRotation(parameter, condition);
         public WeaponSwitcher WeaponSwitcher => weaponSwitcher ??= new WeaponSwitcher(this);
 
         private PlayerMovement playerMovement;
         private PlayerRotation playerRotation;
-        private PlayerAnimator playerAnimator;
         private WeaponSwitcher weaponSwitcher;
     }
 }

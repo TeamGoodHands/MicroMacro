@@ -138,6 +138,7 @@ Shader "EnvironmentShader"
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
 
+
                 // ピクセルのワールド座標
                 float3 pixelWorld = IN.worldPos;
                 float noise = SamplePaperNoise(pixelWorld);
@@ -165,7 +166,7 @@ Shader "EnvironmentShader"
                 shadowAttention = darkenedRim;
 
                 float3 shadowColor = lerp(color.xyz, _ShadowColor.xyz, _ShadowColor.a);
-                color.xyz = lerp(color.xyz, shadowColor, 1 - shadowAttention) * saturate(noise + _NoisePower);
+                color.xyz = lerp(color.xyz, shadowColor, 1 - shadowAttention) ;
 
                 return color;
             }

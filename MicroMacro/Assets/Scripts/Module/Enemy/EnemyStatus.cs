@@ -19,10 +19,22 @@ namespace Module.Enemy
             currentHealth = maxHealth;
         }
 
+        public void SetHealth(int health)
+        {
+            currentHealth = health;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            SendEvent();
+        }
+
         public void Damage(int damage)
         {
             currentHealth -= damage;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            SendEvent();
+        }
+
+        public void SendEvent()
+        {
             OnDamage?.Invoke(currentHealth);
 
             if (currentHealth == 0)

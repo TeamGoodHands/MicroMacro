@@ -29,7 +29,6 @@ namespace Module.Player.State
         {
             rigidbody.isKinematic = false;
             animatorWrapper.IsJumping = false;
-            animatorWrapper.IsLanding = false;
             animatorWrapper.Speed = 0;
         }
 

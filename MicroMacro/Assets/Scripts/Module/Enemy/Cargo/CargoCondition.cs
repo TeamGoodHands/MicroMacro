@@ -10,6 +10,7 @@ namespace Module.Enemy.Cargo
         {
             Sleeping,
             Move,
+            BlowAway,
             BackAttack,
             PrepareMove
         }

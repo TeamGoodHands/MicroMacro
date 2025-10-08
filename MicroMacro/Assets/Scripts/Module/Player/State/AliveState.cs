@@ -13,6 +13,7 @@ namespace Module.Player.State
     public class AliveState : HierarchicalStateMachine.State
     {
         private readonly Transform transform;
+        private readonly Transform bodyTransform;
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
         private readonly PlayerRotation rotation;
@@ -26,6 +27,7 @@ namespace Module.Player.State
         {
             parameter = component.Parameter;
             transform = component.Transform;
+            bodyTransform = component.BodyTransform;
             condition = component.Condition;
             rotation = component.PlayerRotation;
             weaponSwitcher = component.WeaponSwitcher;
@@ -44,33 +46,21 @@ namespace Module.Player.State
             // はじめは右を向いているとする
             condition.Direction = Vector2.right;
             condition.LastSideInput = Vector2.right;
+            UpdateAnimatorDirection(condition.Direction.x);
 
-            moveEvent.Started += UpdateDirection;
-            moveEvent.Performed += UpdateDirection;
-            moveEvent.Canceled += UpdateDirection;
             switchEvent.Started += OnSwitchWeapon;
         }
 
         internal override void OnExit()
         {
-            moveEvent.Started -= UpdateDirection;
-            moveEvent.Performed -= UpdateDirection;
-            moveEvent.Canceled -= UpdateDirection;
             switchEvent.Started -= OnSwitchWeapon;
         }
 
-        private void UpdateDirection(InputAction.CallbackContext ctx)
+
+        private void UpdateAnimatorDirection(float directionX)
         {
-            Vector2 moveInput = ctx.ReadValue<Vector2>();
-            Vector2 direction = rotation.GetDirection(moveInput);
-
-            condition.Direction = direction;
-
-            // 左右の入力の場合は更新
-            if (direction.x != 0)
-            {
-                condition.LastSideInput = direction;
-            }
+            float zScale = Mathf.Abs(bodyTransform.localScale.z);
+            bodyTransform.localScale = new Vector3(1, 1, directionX > 0 ? zScale : -zScale);
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)
@@ -81,16 +71,39 @@ namespace Module.Player.State
         internal override void Update()
         {
             // プレイヤーの向きを更新
+            UpdateDirectionInput();
+
+            UpdateRotation();
+
+            UpdateAnimatorParameter();
+        }
+
+        private void UpdateDirectionInput()
+        {
+            Vector2 moveInput = moveEvent.ReadValue<Vector2>();
+            Vector2 direction = rotation.GetDirection(moveInput);
+
+            condition.Direction = direction;
+
+            // 左右の入力の場合は更新
+            if (direction.x != 0)
+            {
+                condition.LastSideInput = direction;
+                UpdateAnimatorDirection(direction.x);
+            }
+        }
+
+        private void UpdateRotation()
+        {
             float angle = condition.LastSideInput.x > 0f ? 0f : -180f;
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.deltaTime);
-            UpdateAnimatorParameter();
         }
 
         private void UpdateAnimatorParameter()
         {
             // Animatorに適用
-            float paramDir = animatorWrapper.Direction;
-            
+            float paramDir = animatorWrapper.DirectionY;
+
             if (condition.Direction == Vector2.up)
             {
                 paramDir = Mathf.Lerp(paramDir, 1, Time.deltaTime * parameter.VerticalLookSpeed);
@@ -103,8 +116,8 @@ namespace Module.Player.State
             {
                 paramDir = Mathf.Lerp(paramDir, 0, Time.deltaTime * parameter.VerticalLookSpeed);
             }
-            
-            animatorWrapper.Direction = paramDir;
+
+            animatorWrapper.DirectionY = paramDir;
         }
 
         internal override void UpdatePhysics()

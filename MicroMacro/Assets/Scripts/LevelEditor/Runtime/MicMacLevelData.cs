@@ -49,7 +49,7 @@ namespace LevelEditor.Runtime
             foreach (List<MeshFilter> group in continuousY)
             {
                 GameObject combinedObject = meshCombiner.CombineMeshes(group);
-                combinedObject.transform.SetParent(transform, false);
+                combinedObject.transform.SetParent(transform);
             }
         }
 

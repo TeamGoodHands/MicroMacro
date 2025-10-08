@@ -21,7 +21,6 @@ namespace Module.Player.State
         private readonly PlayerCondition condition;
         private readonly PlayerMovement movement;
         private readonly PlayerControllerWrapper animatorWrapper;
-        private readonly AnimationClip landingClip;
 
         private readonly InputEvent jumpEvent;
         private readonly InputEvent moveEvent;
@@ -38,7 +37,6 @@ namespace Module.Player.State
             condition = component.Condition;
             movement = component.PlayerMovement;
             animatorWrapper = component.AnimatorWrapper;
-            landingClip = component.LandingClip;
 
             // 入力イベントを取得
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
@@ -47,7 +45,6 @@ namespace Module.Player.State
 
         internal override void OnEnter()
         {
-            animatorWrapper.IsLanding = false;
             animatorWrapper.IsJumping = true;
             isTopStop = false;
             topStopFrameCount = 0;
@@ -69,7 +66,6 @@ namespace Module.Player.State
         {
             // ジャンプ入力無くなった場合はキャンセル
             condition.IsJumping = false;
-            animatorWrapper.IsJumping = false;
         }
 
         internal override void UpdatePhysics()
@@ -93,16 +89,9 @@ namespace Module.Player.State
             rigidbody.linearVelocity = velocity + externalVelocity;
             condition.ExternalForce = externalVelocity;
 
-            float landingTime = landingClip.length + parameter.LandingTimeOffset;
-
-            if (CanGroundingAgain(landingTime))
-            {
-                animatorWrapper.IsLanding = true;
-            }
-
             // ジャンプから一定時間経過してから、着地状態を更新
             if (condition.LastJumpTime + parameter.GroundInterval < Time.time)
-            {
+                         {
                 UpdateGroundState();
             }
         }
@@ -140,29 +129,7 @@ namespace Module.Player.State
             {
                 condition.IsJumping = false;
                 animatorWrapper.IsJumping = false;
-                animatorWrapper.IsLanding = true;
             }
-        }
-
-        private bool CanGroundingAgain(float landingTime)
-        {
-            // 前のジャンプから一定時間が経過していたらチェック開始
-            bool canGrounding = condition.LastJumpTime + parameter.GroundInterval <= Time.time;
-            if (!canGrounding)
-            {
-                return false;
-            }
-
-            float yVelocity = Mathf.Min(rigidbody.linearVelocity.y, 0f);
-            float g = parameter.GravityOnDown;
-
-            // 着地モーションが間に合う距離を算出
-            float detectDistance = -yVelocity * landingTime + 0.5f * g * landingTime * landingTime;
-
-            // 着地モーションが間に合う距離に入ったら着地確定とする
-            bool isHit = Physics.Raycast(transform.position, Vector3.down, detectDistance, Layer.Mask.Default);
-
-            return isHit;
         }
 
         private void PerformAdditionalJump(ref Vector2 velocity)
