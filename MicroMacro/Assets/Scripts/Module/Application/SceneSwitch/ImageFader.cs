@@ -1,42 +1,32 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Module.Application.SceneSwitch
 {
     public class ImageFader : MonoBehaviour, IFadeHandler
     {
-        [Header("フェードインなし(デバッグ用)")]
-        public bool firstFadeInComp;
-
+      
         private Image img = null;
         private float timer = 0.0f;
         private FadeState fadeState = FadeState.None;
         
         private enum FadeState { None, FadingIn, FadingOut }
         [Header("フェード処理にかかる時間")]
-        [SerializeField] private  float FadeDuration = 1.0f; 
+        [SerializeField] private float fadeDuration = 1.0f; 
 
         private void Start()
         {
             img = GetComponent<Image>();
             if (img == null)
             {
-                Debug.LogError("Image Component is null");
+                Debug.LogError("ImageComponentがnullです");
                 return;
             }
             
             if (img.IsActive() == false)
                 img.enabled = true;
-
-            if (firstFadeInComp)
-            {
-                OnFadeInComplete();
-            }
-            else
-            {
-                StartCoroutine(WaitForFadeStart(0.5f));
-            }
         }
 
         private void Update()
@@ -77,12 +67,10 @@ namespace Module.Application.SceneSwitch
             {
                 // フェードイン中にフェードアウトが呼ばれた場合、
                 // 進行度を引き継いでスムーズに移行
-                timer = FadeDuration - timer;
-                Debug.Log("time = " + timer);
+                timer = fadeDuration - timer;
             }
             else
             {
-                Debug.Log("call reset Timer");
                 ResetTimer();
                 SetImageProperties(0,true);
             }
@@ -100,7 +88,7 @@ namespace Module.Application.SceneSwitch
         /// <summary>
         /// フェード中の進行率を計算する(0～1)
         /// </summary>
-        private float GetFadeProgress() => Mathf.Clamp01(timer / FadeDuration);
+        private float GetFadeProgress() => Mathf.Clamp01(timer / fadeDuration);
         private void ResetTimer() => timer = 0.0f;
 
         /// <summary>
@@ -118,13 +106,11 @@ namespace Module.Application.SceneSwitch
         /// <param name="alpha">進捗</param>
         private void UpdateFade(float alpha, System.Action onComplete)
         {
-            Debug.Log(timer);
             // α値を更新
             img.color = new Color(img.color.r, img.color.g, img.color.b, alpha);
 
-            if (timer >= FadeDuration)
+            if (timer >= fadeDuration)
             {
-                Debug.Log($"OnComplete {timer} : " + FadeDuration);
                 onComplete?.Invoke();
             }
 
@@ -141,15 +127,6 @@ namespace Module.Application.SceneSwitch
         {
             SetImageProperties(1,  false);
             fadeState = FadeState.None;
-        }
-
-        /// <summary>
-        /// フェード処理開始前に一定フレーム待機
-        /// </summary>
-        private IEnumerator WaitForFadeStart(float waitTime)
-        {
-            yield return new WaitForSeconds(waitTime);
-            StartFadeIn();
         }
     }
 }
