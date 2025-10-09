@@ -31,7 +31,7 @@ namespace Module.Application.SceneSwitch
 
             if (firstFadeInComp)
             {
-                FadeInComplete();
+                OnFadeInComplete();
             }
             else
             {
@@ -44,12 +44,12 @@ namespace Module.Application.SceneSwitch
             if (fadeState == FadeState.FadingIn)
             {
                 // タイマーが進むにつれα値が1から0に(透明に)
-                UpdateFade(1 - GetFadeProgress(), FadeInComplete);
+                UpdateFade(1 - GetFadeProgress(), OnFadeInComplete);
             }
             else if (fadeState == FadeState.FadingOut)
             {
                 // タイマーが進むにつれα値が0から1に(暗く)
-                UpdateFade(GetFadeProgress(), FadeOutComplete);
+                UpdateFade(GetFadeProgress(), OnFadeOutComplete);
             }
         }
        
@@ -78,9 +78,11 @@ namespace Module.Application.SceneSwitch
                 // フェードイン中にフェードアウトが呼ばれた場合、
                 // 進行度を引き継いでスムーズに移行
                 timer = FadeDuration - timer;
+                Debug.Log("time = " + timer);
             }
             else
             {
+                Debug.Log("call reset Timer");
                 ResetTimer();
                 SetImageProperties(0,true);
             }
@@ -116,24 +118,26 @@ namespace Module.Application.SceneSwitch
         /// <param name="alpha">進捗</param>
         private void UpdateFade(float alpha, System.Action onComplete)
         {
+            Debug.Log(timer);
             // α値を更新
             img.color = new Color(img.color.r, img.color.g, img.color.b, alpha);
 
             if (timer >= FadeDuration)
             {
+                Debug.Log($"OnComplete {timer} : " + FadeDuration);
                 onComplete?.Invoke();
             }
 
             timer += Time.deltaTime;
         }
    
-        private void FadeInComplete()
+        private void OnFadeInComplete()
         {
             SetImageProperties(0,  false);
             fadeState = FadeState.None;
         }
         
-        private void FadeOutComplete()
+        private void OnFadeOutComplete()
         {
             SetImageProperties(1,  false);
             fadeState = FadeState.None;

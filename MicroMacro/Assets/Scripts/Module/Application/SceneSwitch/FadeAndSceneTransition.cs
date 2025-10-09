@@ -59,7 +59,7 @@ namespace Module.Application.SceneSwitch
 
         private IEnumerator LoadNextSceneAsync()
         {
-            while (fader.IsFadeOutComplete())
+            while (fader.IsFadeOutComplete() == false)
             {
                 yield return null;
             }
