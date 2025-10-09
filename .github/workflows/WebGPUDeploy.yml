@@ -17,7 +17,7 @@ jobs:
     steps:
       # Checkout  データ取得
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           lfs: true
       
@@ -27,7 +27,7 @@ jobs:
         with:
           path: MicroMacro/Library
           key:  Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: Library-MicroMacro-
+          restore-keys: Library-
       
       # WindowsBuild
       - name: Run the WebGPU Build
@@ -40,13 +40,12 @@ jobs:
           targetPlatform: WebGL
           projectPath:    MicroMacro
           unityVersion:   6000.1.2f1
-          customParameters: -graphicalInternetProfile WebGPU
-          allowDirtyBuild: true    
             
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: build/WebGL
+          name: webGPU-build
       
   deploy:
     name: Deploy to GitHub Pages
@@ -54,7 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
