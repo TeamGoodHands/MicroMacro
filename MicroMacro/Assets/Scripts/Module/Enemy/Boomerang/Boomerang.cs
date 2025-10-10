@@ -1,96 +1,141 @@
 using System;
 using System.Threading;
+using CoreModule.Utility;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Scaling;
+using PropertyGenerator.Generated;
 using UnityEngine;
 
 namespace Module.Enemy.Boomerang
 {
     public class Boomerang : MonoBehaviour
     {
-        [SerializeField, Header("ブーメランの移動速度")] private float boomerangSpeed;
-        [SerializeField, Header("ブーメランの回転速度")] private int boomerangRotateSpeed = 5;
-        [SerializeField, Header("ブーメランを飛ばす距離")] private float boomerangRadius = 5f;
-        [SerializeField, Header("ブーメランを投げる間隔")] private float boomerangInterval = 1f;
+        [Min(0.001f)] [SerializeField] private float oneWayDistance = 10f; // 片道距離 D
+        [Min(0.001f)] [SerializeField] private float oneWayTime = 1.0f; // 片道時間 T
+        [SerializeField] private float spinDegPerSec = 720f; // 見た目の回転
+        [SerializeField, Header("ブーメランを投げる間隔")] private float throwInterval = 1f;
+        [SerializeField, Header("発射位置の調整")] private float shootHeightOffset = -0.1f;
 
         [SerializeField] private EnemyStatus status;
         [SerializeField] private Scaler boomerang;
         [SerializeField] private Rigidbody boomerangRig;
-
-        private CancellationTokenSource behaviourCanceller;
+        [SerializeField] private TransformSyncer capTransformSyncer;
+        [SerializeField] private Transform headBoneTransform;
+        [SerializeField] private BoomerangWrapper animatorWrapper;
 
         private void Start()
         {
             // 死亡イベントを登録
             status.OnDeath += OnDeath;
 
-            behaviourCanceller = new CancellationTokenSource();
-            DoBoomerang(behaviourCanceller.Token).Forget();
+            LoopThrow().Forget();
+        }
+
+        private async UniTaskVoid LoopThrow()
+        {
+            while (!destroyCancellationToken.IsCancellationRequested)
+            {
+                animatorWrapper.IsAttacking = true;
+
+                await UniTask.Delay(TimeSpan.FromSeconds(oneWayTime * 2f), cancellationToken: destroyCancellationToken);
+
+                animatorWrapper.IsAttacking = false;
+
+                await UniTask.Delay(TimeSpan.FromSeconds(throwInterval), cancellationToken: destroyCancellationToken);
+            }
         }
 
         private async void OnDeath()
         {
-            behaviourCanceller.Cancel();
-
             // ちょっと揺らす
             await transform.DOShakePosition(0.5f, 0.5f, 10, 90f, false, true);
 
             Destroy(gameObject);
         }
 
-        private async UniTaskVoid DoBoomerang(CancellationToken cancellationToken)
+        public void Catch()
         {
-            float duration = boomerangRadius / boomerangSpeed;
-            Vector3 targetPosition = boomerang.transform.position + transform.right * boomerangRadius;
+            SetCapLockState(true);
+        }
 
-            // 自身が破棄されるまでループする
-            while (!cancellationToken.IsCancellationRequested)
+        private void SetCapLockState(bool isLock)
+        {
+            capTransformSyncer.gameObject.SetActive(!isLock);
+            capTransformSyncer.syncPosition = isLock;
+            capTransformSyncer.syncRotation = isLock;
+        }
+
+
+        private bool isActive = false;
+        private float t = 0f;
+        private float v0; // 初速 = 2D/T
+        private float a; // 加速度 = 2D/T^2（向きは -uForward）
+        private Vector3 uForward; // 投げ方向の単位ベクトル
+        private Vector3 originPos; // 投擲時の基準位置
+
+        private void FixedUpdate()
+        {
+            if (!isActive)
+                return;
+
+            float T = oneWayTime;
+            t += Time.fixedDeltaTime;
+
+            // 見た目の回転
+            var spin = Quaternion.AngleAxis(spinDegPerSec * Time.fixedDeltaTime, Vector3.up);
+            boomerangRig.MoveRotation(boomerangRig.rotation * spin);
+
+            // 常に逆向き加速度を加え続ける
+            Vector3 aVec = -a * uForward;
+            Vector3 v = uForward * v0 + aVec * t;
+            boomerangRig.linearVelocity = v;
+
+            // 2T 経過で戻りきり → 停止
+            if (t >= 2f * T)
             {
-                await ThrowBoomerang(targetPosition, duration);
-
-                CheckBoomerangHit();
-
-                await UniTask.Delay(TimeSpan.FromSeconds(boomerangInterval), cancellationToken: cancellationToken);
-                boomerang.SetScale(0, true);
+                Finish();
             }
         }
 
-        private async UniTask ThrowBoomerang(Vector3 targetPosition, float duration)
+        /// <summary>
+        /// 外部から呼び出す：ブーメラン投擲開始
+        /// </summary>
+        public void Throw()
         {
-            // 累積回転角度を保持
-            float totalAngle = 0f;
-            Quaternion startRotation = boomerangRig.rotation;
+            SetCapLockState(false);
 
-            _ = DOTween.To(
-                    () => 0f,
-                    angle =>
-                    {
-                        // 回転量を取得
-                        float delta = angle - totalAngle;
-                        totalAngle = angle;
+            float D = Mathf.Max(0.0001f, oneWayDistance);
+            float T = Mathf.Max(0.0001f, oneWayTime);
 
-                        // Rigidbodyをz軸で回転
-                        boomerangRig.MoveRotation(boomerangRig.rotation * Quaternion.AngleAxis(delta, Vector3.forward));
-                    },
-                    360f * boomerangRotateSpeed, // 行き帰りで n 回転
-                    duration * 2f // 往復分の時間
-                )
-                .SetEase(Ease.Linear)
-                .OnComplete(() =>
-                {
-                    // 終了時にスタート回転へ戻す（ズレ防止）
-                    boomerangRig.MoveRotation(startRotation);
-                });
+            v0 = 2f * D / T;
+            a = 2f * D / (T * T);
 
-            // 指定した位置まで移動する
-            await DOTween.To(
-                    () => boomerangRig.position,
-                    x => boomerangRig.MovePosition(x),
-                    targetPosition,
-                    duration
-                ).SetEase(Ease.InOutQuad)
-                .SetLoops(2, LoopType.Yoyo); // 逆再生して戻って来る
+            uForward = (transform.right + Vector3.up * shootHeightOffset).normalized;
+            originPos = headBoneTransform.position;
+
+            t = 0f;
+            isActive = true;
+
+            boomerangRig.isKinematic = false;
+            boomerangRig.position = originPos;
+            boomerangRig.rotation = headBoneTransform.rotation;
+            boomerangRig.linearVelocity = uForward * v0;
+            boomerangRig.angularVelocity = Vector3.zero;
+        }
+
+        private void Finish()
+        {
+            isActive = false;
+
+            Vector3 catchPos = headBoneTransform.position;
+            Quaternion catchRot = headBoneTransform.rotation;
+
+            boomerangRig.linearVelocity = Vector3.zero;
+            boomerangRig.angularVelocity = Vector3.zero;
+            boomerangRig.isKinematic = true;
+            boomerangRig.position = catchPos;
+            boomerangRig.rotation = catchRot;
         }
 
         private void OnDestroy()
@@ -99,10 +144,6 @@ namespace Module.Enemy.Boomerang
             {
                 status.OnDeath -= OnDeath;
             }
-
-            behaviourCanceller?.Cancel();
-            behaviourCanceller?.Dispose();
-            behaviourCanceller = null;
         }
 
         private void CheckBoomerangHit()
