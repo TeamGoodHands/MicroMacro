@@ -51,6 +51,12 @@ namespace LevelEditor.Runtime
                 GameObject combinedObject = meshCombiner.CombineMeshes(group);
                 combinedObject.transform.SetParent(transform);
             }
+            
+            // ゲーム開始時に見た目オブジェクトを削除する
+            foreach (GameObject obj in mapData.Select(pair => pair.Value))
+            {
+                Destroy(obj);
+            }
         }
 
         private void OnDrawGizmos()
