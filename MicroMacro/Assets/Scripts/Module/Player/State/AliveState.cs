@@ -59,8 +59,8 @@ namespace Module.Player.State
 
         private void UpdateAnimatorDirection(float directionX)
         {
-            float zScale = Mathf.Abs(bodyTransform.localScale.z);
-            bodyTransform.localScale = new Vector3(1, 1, directionX > 0 ? zScale : -zScale);
+            float zScale = Mathf.Abs(bodyTransform.localScale.y);
+            bodyTransform.localScale = new Vector3(100, directionX > 0 ? zScale : -zScale, 100);
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)
