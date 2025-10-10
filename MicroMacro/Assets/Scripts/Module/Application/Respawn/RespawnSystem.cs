@@ -16,6 +16,9 @@ namespace Module.Application.Respawn
         [SerializeField, Header("ステージ上のチェックポイント(ゲーム開始時に自動で取得)")]
         private CheckPoint[] checkPoints;
 
+        public event Action<Vector3> OnPlayerDespawn;
+        public event Action<Vector3> OnPlayerRespawn;
+
         private Vector3 spawnPosition;
         private PlayerBehaviour playerBehaviour;
         private PlayerStatus playerStatus;
@@ -42,12 +45,18 @@ namespace Module.Application.Respawn
 
         private async void Respawn()
         {
+            OnPlayerDespawn?.Invoke(playerBehaviour.transform.position);
+
             // リスポーンまで少し待機
             await UniTask.Delay(TimeSpan.FromSeconds(respawnTime), cancellationToken: destroyCancellationToken);
 
             // 座標とHPをリセット
             playerBehaviour.transform.position = spawnPosition;
             playerStatus.Reset();
+
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: destroyCancellationToken);
+
+            OnPlayerRespawn?.Invoke(playerBehaviour.transform.position);
         }
     }
 }

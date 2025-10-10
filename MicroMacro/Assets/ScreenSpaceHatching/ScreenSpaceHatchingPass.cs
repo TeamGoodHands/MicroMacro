@@ -32,6 +32,10 @@ namespace Contents.ScreenSpaceHatching
         private static readonly int hatchOffsetID = Shader.PropertyToID("_HatchOffset");
         private static readonly int crossPatternTextureID = Shader.PropertyToID("_CrossHatchPatternTexture");
 
+        private const int SamplingCount = 12;
+        private readonly float[] samplingRotations = new float[SamplingCount];
+        private readonly float[] samplingLength = new float[SamplingCount];
+
         public ScreenSpaceHatchingPass(Material mat, ScreenSpaceHatchingFeature.ScreenSpaceHatchingSettings settings)
         {
             this.material = mat;
@@ -51,31 +55,30 @@ namespace Contents.ScreenSpaceHatching
 
         private void SetUpSamplingPoints(Material material)
         {
-            var rotList = new List<float>();
-            var lenList = new List<float>();
-            var sampleCount = 12;
-
-            for (int i = 0; i < sampleCount; i++)
+            for (int i = 0; i < SamplingCount; i++)
             {
                 // 任意の角度. できるだけ均等にバラけていた方がよい
-                var pieceRad = (Mathf.PI * 2) / sampleCount;
-                var rad = UnityEngine.Random.Range(
+                float pieceRad = (Mathf.PI * 2) / SamplingCount;
+                float rad = UnityEngine.Random.Range(
                     pieceRad * i,
                     pieceRad * (i + 1)
                 );
-                rotList.Add(rad);
+                
+                samplingRotations[i] = rad;
+                
                 // 任意の長さの範囲. できるだけ均等にバラけていた方がよい
-                var baseLen = 0.1f;
-                var pieceLen = (1f - baseLen) / sampleCount;
-                var len = UnityEngine.Random.Range(
+                float baseLen = 0.1f;
+                float pieceLen = (1f - baseLen) / SamplingCount;
+                float len = UnityEngine.Random.Range(
                     baseLen + pieceLen * i,
                     baseLen + pieceLen * (i + 1)
                 );
-                lenList.Add(len);
+                
+                samplingLength[i] = len;
             }
 
-            material.SetFloatArray(samplingRotationsID, rotList.ToArray());
-            material.SetFloatArray(samplingDistancesID, lenList.ToArray());
+            material.SetFloatArray(samplingRotationsID, samplingRotations);
+            material.SetFloatArray(samplingDistancesID, samplingLength);
         }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)

@@ -23,6 +23,8 @@ namespace Module.Player.State
             rigidbody.linearVelocity = Vector2.zero;
             rigidbody.isKinematic = true;
             condition.ExternalForce = Vector2.zero;
+
+            animatorWrapper.IsDeath = true;
         }
 
         internal override void OnExit()
@@ -30,6 +32,8 @@ namespace Module.Player.State
             rigidbody.isKinematic = false;
             animatorWrapper.IsJumping = false;
             animatorWrapper.Speed = 0;
+            
+            animatorWrapper.IsDeath = false;
         }
 
         internal override void Update()
