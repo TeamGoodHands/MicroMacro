@@ -40,12 +40,7 @@ namespace Module.Application.SceneSwitch
         {
             if (fadeCanvasPrefab == null)
             {
-                fadeCanvasPrefab = Resources.Load<GameObject>("FadeCanvas");
-            }
-            
-            if (fadeCanvasPrefab == null)
-            {
-                Debug.LogError("FadeCanvasが見つかりません"); 
+                Debug.LogError("FadeCanvasがアタッチされていません"); 
                 return;
             }
 

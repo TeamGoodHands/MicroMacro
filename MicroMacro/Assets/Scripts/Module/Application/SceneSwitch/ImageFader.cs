@@ -25,7 +25,7 @@ namespace Module.Application.SceneSwitch
                 return;
             }
             
-            if (img.IsActive() == false)
+            if (!img.enabled)
                 img.enabled = true;
         }
 
@@ -81,14 +81,21 @@ namespace Module.Application.SceneSwitch
         /// <summary>
         /// フェード終了時にα値が 0 = フェードイン終了 
         /// </summary>
-        public bool IsFadeInComplete() => fadeState == FadeState.None && img.color.a == 0;
+        public bool IsFadeInComplete() => fadeState == FadeState.None && img.color.a < 0.01;
         public bool IsFadeOutComplete() => fadeState == FadeState.None && img.color.a >= 1;
         public bool IsFading() => fadeState != FadeState.None;
-        
+
         /// <summary>
         /// フェード中の進行率を計算する(0～1)
         /// </summary>
-        private float GetFadeProgress() => Mathf.Clamp01(timer / fadeDuration);
+        private float GetFadeProgress()
+        {
+            if (fadeDuration <= 0f) // NaN対策 0秒の時はフェードなし
+                return 1f;
+            
+            return Mathf.Clamp01(timer / fadeDuration);
+        }
+
         private void ResetTimer() => timer = 0.0f;
 
         /// <summary>
@@ -125,7 +132,7 @@ namespace Module.Application.SceneSwitch
         
         private void OnFadeOutComplete()
         {
-            SetImageProperties(1,  false);
+            SetImageProperties(1,  true);
             fadeState = FadeState.None;
         }
     }
