@@ -143,17 +143,27 @@ namespace LevelEditor.Editor
         private void HandleSceneGUI(SceneView sceneView)
         {
             UpdateParentObject();
-            
-            if (parentObject ==null)
+
+            if (parentObject == null)
                 return;
-            
+
             Event e = Event.current;
 
-            UpdateEraseMode(e);
+            // alt + dragでマウス移動
+            bool isMouseMove = e.type == EventType.MouseDrag && e.alt;
 
-            if (e.type == EventType.MouseDown || (isSnapping && e.type == EventType.MouseDrag && isMousePositionChanged))
+            if (isMouseMove)
             {
-                TryPlaceOrErase(e);
+                Pan(sceneView, e.delta);
+            }
+            else if (!e.alt)
+            {
+                UpdateEraseMode(e);
+
+                if (e.type == EventType.MouseDown || (isSnapping && e.type == EventType.MouseDrag && isMousePositionChanged))
+                {
+                    TryPlaceOrErase(e);
+                }
             }
 
             if (e.type == EventType.MouseMove || e.type == EventType.MouseDrag)
@@ -219,6 +229,31 @@ namespace LevelEditor.Editor
             {
                 SetEraseMode(false);
             }
+        }
+
+
+        private static void Pan(SceneView sceneView, Vector2 mouseDelta)
+        {
+            Camera cam = sceneView.camera;
+
+            if (cam == null)
+                return;
+
+            // 1ピクセルあたりのワールド距離（SceneView.size はビューの半縦幅）
+            float worldPerPixel = sceneView.camera.orthographicSize * 0.03f / sceneView.camera.pixelHeight;
+
+            Vector3 right = cam.transform.right;
+            Vector3 up = cam.transform.up;
+
+            // 画面のドラッグ方向に合わせてピボットを移動
+            Vector3 move =
+                (-mouseDelta.x * right + // マウス右ドラッグで右へ
+                 mouseDelta.y * up) // マウス上ドラッグで上へ
+                * worldPerPixel;
+
+
+            sceneView.pivot += move;
+            sceneView.Repaint();
         }
 
         private void MoveSelectedObject()
@@ -302,7 +337,7 @@ namespace LevelEditor.Editor
             Ray ray = sceneView.camera.ScreenPointToRay(screenPosition);
             if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || hit.transform.root != parentObject.transform)
                 return;
-            
+
             Transform target = hit.transform;
 
             while (target.parent.name != "Level")
