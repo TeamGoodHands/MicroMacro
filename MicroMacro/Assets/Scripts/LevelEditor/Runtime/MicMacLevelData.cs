@@ -10,6 +10,7 @@ namespace LevelEditor.Runtime
     public class MicMacLevelData : MonoBehaviour
     {
         private const int MapSize = 8192;
+        [SerializeField] private bool showBlocks;
         [SerializeField, HideInInspector] private List<Vector2Int> overlapCoords = new List<Vector2Int>();
 
         public long CoordToIndex(Vector2Int coord)
@@ -51,11 +52,14 @@ namespace LevelEditor.Runtime
                 GameObject combinedObject = meshCombiner.CombineMeshes(group);
                 combinedObject.transform.SetParent(transform);
             }
-            
-            // ゲーム開始時に見た目オブジェクトを削除する
-            foreach (GameObject obj in mapData.Select(pair => pair.Value))
+
+            if (!showBlocks)
             {
-                Destroy(obj);
+                // ゲーム開始時に見た目オブジェクトを削除する
+                foreach (GameObject obj in mapData.Select(pair => pair.Value))
+                {
+                    Destroy(obj);
+                }
             }
         }
 
@@ -74,7 +78,7 @@ namespace LevelEditor.Runtime
                 .Select(obj => obj.gameObject)
                 .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid))
                 .ToList();
-            
+
             CheckOverlap(gridObjects);
 
             if (overlapCoords.Count > 0)
