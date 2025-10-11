@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,67 +6,112 @@ namespace Module.Application.SceneSwitch
 {
     public class FadeAndSceneTransition : MonoBehaviour
     {
-        [Header("フェード処理")] public GameObject fadeHandler;
-        [Header("移動するシーンの名前")] public string nextSceneName;
+        [Header("フェードCanvasのPrefab")]
+        [SerializeField] GameObject fadeCanvasPrefab;
+        [Header("移動するシーンの名前")]
+        public string nextSceneName;
 
-        private IFadeHandler m_fade;
-        private bool isSceneTransitioning = false;
+        private static GameObject faderObj;
+        private static IFadeHandler fadeHandler;
+        private bool isSceneTransitioning;
 
-        private void Start()
+        private void Awake()
         {
-            // fadeHandlerがIFadeHandlerを実装していればIFadeHandler型に変換して代入
-            m_fade = fadeHandler.GetComponent<IFadeHandler>();
-
-            if (m_fade == null)
+            if (faderObj == null)
             {
-                Debug.LogError("No IFadeHandler attached to fadeHandler");
+                CreateAndRegisterFader();
             }
-            
+        }
+
+        private void OnEnable()
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
         /// <summary>
-        /// 遷移の開始 余計な音を止める->フェードアウト->シーン遷移
+        /// FadeCanvasの生成、永続化
+        /// </summary>
+        private void CreateAndRegisterFader()
+        {
+            if (fadeCanvasPrefab == null)
+            {
+                Debug.LogError("FadeCanvasがアタッチされていません"); 
+                return;
+            }
+
+            faderObj = Instantiate(fadeCanvasPrefab);
+            DontDestroyOnLoad(faderObj);
+
+            // faderがIFadeHandlerを実装していればIFadeHandler型に変換して代入
+            fadeHandler = faderObj.GetComponentInChildren<IFadeHandler>();
+            if (fadeHandler == null)
+            {
+                Debug.LogError("FadeCanvasにIFadeHandler実装がありません");
+            }
+        }
+
+        /// <summary>
+        /// シーン切り替え開始（フェードアウト → ロード → フェードイン）
         /// </summary>
         public void StartTransition()
         {
-            if (isSceneTransitioning || m_fade == null)
+            if (isSceneTransitioning || fadeHandler == null)
                 return;
 
-            if (nextSceneName == SceneManager.GetActiveScene().name)
+            if (string.IsNullOrEmpty(nextSceneName) || nextSceneName == SceneManager.GetActiveScene().name)
             {
-                Debug.LogError("nextSceneNameと現在アクティブなシーンが同じです");
+                Debug.LogError("次のシーン名が設定されていないか、現在のシーンと同じです");
                 return;
             }
 
             isSceneTransitioning = true;
 
-            //余計なサウンド停止 
+            // サウンド停止等あれば
             // SoundManager.instance.StopAllSound();
 
-            m_fade.StartFadeOut();
+            fadeHandler.StartFadeOut();
             StartCoroutine(LoadNextSceneAsync());
         }
 
         /// <summary>
-        /// 名前指定してシーン移動
+        /// 名前指定してシーン移動したい場合
         /// </summary>
-        /// <param name="nextSceneName"></param>
-        public void StartTransition(string nextSceneName)
+        public void StartTransition(string SceneName)
         {
-            this.nextSceneName = nextSceneName;
+            nextSceneName = SceneName;
             StartTransition();
         }
 
+        /// <summary>
+        /// フェードアウト完了を待ってシーンを非同期ロード
+        /// </summary>
         private IEnumerator LoadNextSceneAsync()
         {
-            while (m_fade.IsFadeOutComplete() == false)
+            // 同時に呼ばれたUpdateを反映させるため1フレ待機 (多分)
+            yield return null;
+
+            while (fadeHandler.IsFadeOutComplete() == false)
             {
                 yield return null;
             }
 
-            SceneManager.LoadSceneAsync(nextSceneName, LoadSceneMode.Single);
+            // LoadSceneMode.Singleは現在のシーンを自動アンロードしてくれる
+            yield return SceneManager.LoadSceneAsync(nextSceneName, LoadSceneMode.Single);
+        }
 
-            yield return SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (fadeHandler != null)
+            {
+                fadeHandler.StartFadeIn();
+            }
+
+            isSceneTransitioning = false;
         }
     }
 }

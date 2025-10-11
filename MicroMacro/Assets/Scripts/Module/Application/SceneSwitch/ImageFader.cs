@@ -1,140 +1,139 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Module.Application.SceneSwitch
 {
     public class ImageFader : MonoBehaviour, IFadeHandler
     {
-        [Header("フェードインなし(デバッグ用)")]
-        public bool firstFadeInComp;
-
+      
         private Image img = null;
         private float timer = 0.0f;
-        private FadeState m_fadeState = FadeState.None;
+        private FadeState fadeState = FadeState.None;
         
         private enum FadeState { None, FadingIn, FadingOut }
         [Header("フェード処理にかかる時間")]
-        [SerializeField] private  float FadeDuration = 1.0f; 
+        [SerializeField] private float fadeDuration = 1.0f; 
 
         private void Start()
         {
             img = GetComponent<Image>();
             if (img == null)
             {
-                Debug.LogError("Image Component is null");
+                Debug.LogError("ImageComponentがnullです");
                 return;
             }
-
-            if (firstFadeInComp)
-            {
-                FadeInComplete();
-            }
-            else
-            {
-                StartCoroutine(WaitForFadeStart(0.5f));
-            }
+            
+            if (!img.enabled)
+                img.enabled = true;
         }
 
         private void Update()
         {
-            if (m_fadeState == FadeState.FadingIn)
+            if (fadeState == FadeState.FadingIn)
             {
-                UpdateFade(1 - GetFadeProgress(), FadeInComplete);
+                // タイマーが進むにつれα値が1から0に(透明に)
+                UpdateFade(1 - GetFadeProgress(), OnFadeInComplete);
             }
-            else if (m_fadeState == FadeState.FadingOut)
+            else if (fadeState == FadeState.FadingOut)
             {
-                UpdateFade(GetFadeProgress(), FadeOutComplete);
+                // タイマーが進むにつれα値が0から1に(暗く)
+                UpdateFade(GetFadeProgress(), OnFadeOutComplete);
             }
         }
        
         public void StartFadeIn()
         {
-            if (m_fadeState != FadeState.None)
+            if (fadeState != FadeState.None)
                 return;
 
-            m_fadeState = FadeState.FadingIn;
+            fadeState = FadeState.FadingIn;
             ResetTimer();
-            SetImageProperties(1, 1, true);
+            SetImageProperties(1, true);  // 開始時は真っ黒
         }
 
         public void StartFadeOut()
         {
-            if (m_fadeState != FadeState.None)
+            // フェードアウト中or完了している場合
+            if (fadeState == FadeState.FadingOut)
                 return;
             
     #if UNITY_EDITOR
             Debug.Log("フェードアウト開始");
     #endif
 
-            m_fadeState = FadeState.FadingOut;
-            ResetTimer();
-            SetImageProperties(0,0, true);
-            
+            if (fadeState == FadeState.FadingIn)
+            {
+                // フェードイン中にフェードアウトが呼ばれた場合、
+                // 進行度を引き継いでスムーズに移行
+                timer = fadeDuration - timer;
+            }
+            else
+            {
+                ResetTimer();
+                SetImageProperties(0,true);
+            }
+
+            fadeState = FadeState.FadingOut;
         }
 
         /// <summary>
         /// フェード終了時にα値が 0 = フェードイン終了 
         /// </summary>
-        public bool IsFadeInComplete() => m_fadeState == FadeState.None && img.color.a == 0;
-
-        public bool IsFadeOutComplete() => m_fadeState == FadeState.None && img.color.a >= 1;
+        public bool IsFadeInComplete() => fadeState == FadeState.None && img.color.a < 0.01;
+        public bool IsFadeOutComplete() => fadeState == FadeState.None && img.color.a >= 1;
+        public bool IsFading() => fadeState != FadeState.None;
 
         /// <summary>
         /// フェード中の進行率を計算する(0～1)
         /// </summary>
-        private float GetFadeProgress() => Mathf.Clamp01(timer / FadeDuration);
+        private float GetFadeProgress()
+        {
+            if (fadeDuration <= 0f) // NaN対策 0秒の時はフェードなし
+                return 1f;
+            
+            return Mathf.Clamp01(timer / fadeDuration);
+        }
 
         private void ResetTimer() => timer = 0.0f;
 
         /// <summary>
         /// Imageのプロパティ一括設定 徐々にalpha値変化させる
         /// </summary>
-        /// <param name="fillAmount"></param>
-        /// <param name="raycastTarget"></param>
-        private void SetImageProperties(float alpha, float fillAmount, bool raycastTarget)
+        private void SetImageProperties(float alpha, bool raycastTarget)
         {
             img.color = new Color(0, 0, 0, alpha);
-            img.fillAmount = fillAmount;
             img.raycastTarget = raycastTarget;
         }
 
         /// <summary>
         /// フェードの更新 完了したらイベント呼ぶ
         /// </summary>
-        /// <param name="progress">進捗</param>
-        /// <param name="onComplete"></param>
-        private void UpdateFade(float progress, System.Action onComplete)
+        /// <param name="alpha">進捗</param>
+        private void UpdateFade(float alpha, System.Action onComplete)
         {
-            SetImageProperties(progress, progress, true);
+            // α値を更新
+            img.color = new Color(img.color.r, img.color.g, img.color.b, alpha);
 
-            if (timer >= FadeDuration)
+            if (timer >= fadeDuration)
             {
-                onComplete.Invoke();
+                onComplete?.Invoke();
             }
 
             timer += Time.deltaTime;
         }
    
-        private void FadeInComplete()
+        private void OnFadeInComplete()
         {
-            SetImageProperties(0, 0, false);
-            m_fadeState = FadeState.None;
+            SetImageProperties(0,  false);
+            fadeState = FadeState.None;
         }
         
-        private void FadeOutComplete()
+        private void OnFadeOutComplete()
         {
-            SetImageProperties(1, 1, false);
-            m_fadeState = FadeState.None;
-        }
-
-        /// <summary>
-        /// フェード処理開始前に一定フレーム待機
-        /// </summary>
-        private IEnumerator WaitForFadeStart(float waitTime)
-        {
-            yield return new WaitForSeconds(waitTime);
-            StartFadeIn();
+            SetImageProperties(1,  true);
+            fadeState = FadeState.None;
         }
     }
 }
