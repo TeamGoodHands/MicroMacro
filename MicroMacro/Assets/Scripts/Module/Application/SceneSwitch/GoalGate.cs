@@ -1,11 +1,12 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Module.Application.SceneSwitch
 {
     public class GoalGate : MonoBehaviour
     {
-        [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
+        [SerializeField] private FadeAndSceneTransition sceneManager;
 
         private void Start()
         {
@@ -14,8 +15,8 @@ namespace Module.Application.SceneSwitch
 
         private void OnTriggerEnter(Collider other)
         {
-            if (fadeAndSceneTransition != null)
-                fadeAndSceneTransition.StartTransition();
+            if (sceneManager != null)
+                sceneManager.StartTransition();
         }
     }
 }
