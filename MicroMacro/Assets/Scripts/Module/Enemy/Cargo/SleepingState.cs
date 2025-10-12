@@ -34,8 +34,6 @@ namespace Module.Enemy.Cargo
             CloseEyes();
 
             component.HpBarCanvasGroup.alpha = 0f;
-
-            DoAwake();
         }
 
         private void OnDamage(int damage)
