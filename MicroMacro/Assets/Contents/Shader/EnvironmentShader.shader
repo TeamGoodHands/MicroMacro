@@ -18,6 +18,56 @@ Shader "EnvironmentShader"
             "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline"
         }
 
+
+        // ====== DepthNormals（Angle Fade/法線影響を使う時は推奨）======
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode"="DepthNormals"
+            }
+            ZWrite On Cull Back
+
+            HLSLPROGRAM
+            #pragma vertex   dn_vert
+            #pragma fragment dn_frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct A
+            {
+                float4 positionOS: POSITION;
+                float3 normalOS: NORMAL;
+                float4 tangentOS: TANGENT;
+            };
+
+            struct V
+            {
+                float4 positionHCS: SV_POSITION;
+                float3 normalWS: TEXCOORD0;
+            };
+
+            V dn_vert(A v)
+            {
+                V o;
+                VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
+                VertexNormalInputs n = GetVertexNormalInputs(v.normalOS, v.tangentOS);
+                o.positionHCS = p.positionCS;
+                o.normalWS = n.normalWS;
+                return o;
+            }
+
+            // URPのDepthNormalsはWS法線をそのまま書き出す実装に依存するため、
+            // ここでは簡易的に0..1へエンコード（URP内部の実装差があっても「何かは出る」）
+            half4 dn_frag(V i) : SV_Target
+            {
+                float3 n = normalize(i.normalWS);
+                return half4(n * 0.5 + 0.5, 1);
+            }
+            ENDHLSL
+        }
+
         // LitシェーダーのShaderCasterPass
         Pass
         {
@@ -110,7 +160,7 @@ Shader "EnvironmentShader"
                 Varyings OUT;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
-                OUT.noiseUv = TRANSFORM_TEX(IN.uv,_NoiseMap);
+                OUT.noiseUv = TRANSFORM_TEX(IN.uv, _NoiseMap);
                 OUT.worldPos = TransformObjectToWorld(IN.positionOS);
 
                 return OUT;
@@ -139,7 +189,7 @@ Shader "EnvironmentShader"
                 // return float4(innerMask, innerMask, innerMask, 1);
 
                 float edgeMask = saturate((shadowAttention - 0.45) * 5) * (1 - saturate((shadowAttention - 0.6) * 5));
-                shadowAttention -= edgeMask*0.5;
+                shadowAttention -= edgeMask * 0.5;
 
                 float noise = SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, IN.noiseUv);
                 noise -= _NoisePower;

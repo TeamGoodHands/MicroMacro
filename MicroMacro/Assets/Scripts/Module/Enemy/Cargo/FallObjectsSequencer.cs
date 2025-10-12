@@ -39,6 +39,8 @@ namespace Module.Enemy.Cargo
         [Header("シーケンスを終了するまでの時間")]
         [SerializeField, Min(0)] private float finishSequenceDelay = 2f;
 
+        private FallPattern fallPattern;
+
         private sealed class ProjectileObjectCache
         {
             public ProjectileObject Obj { get; }
@@ -126,18 +128,32 @@ namespace Module.Enemy.Cargo
                 currentInterval += flightInterval;
             }
         }
+        
+        public void SetPattern(FallPattern fallPattern)
+        {
+            this.fallPattern = fallPattern;
+        }
 
         private async UniTask FallAllAsync()
         {
-            for (var i = 0; i < caches.Count; i++)
-            {
-                var cache = caches[i];
-                var targetIdx = fallPointPattern[i];
-                var launchIdx = RandomLaunchIndex(targetIdx);
+            List<FallPatternPair[]> pattern = fallPattern.GetPattern();
 
-                // 位置をリセットして落下開始
-                cache.Obj.transform.position = launchPoints[launchIdx].position;
-                cache.Obj.Launch(fallTargets[targetIdx].position, fallDuration, 0.4f);
+            int objSelector = 0;
+            for (var i = 0; i < pattern.Count; i++)
+            {
+                FallPatternPair[] waves = pattern[i];
+                for (int j = 0; j < waves.Length; j++)
+                {
+                    var cache = caches[objSelector];
+                    var targetIdx = waves[j].To;
+                    var launchIdx = waves[j].From;
+
+                    // 位置をリセットして落下開始
+                    cache.Obj.transform.position = launchPoints[launchIdx].position;
+                    cache.Obj.Launch(fallTargets[targetIdx].position, fallDuration, 0.4f);
+
+                    objSelector++;
+                }
 
                 await UniTask.Delay(TimeSpan.FromSeconds(fallInterval), cancellationToken: destroyCancellationToken);
             }
@@ -180,5 +196,6 @@ namespace Module.Enemy.Cargo
                 (array[i], array[j]) = (array[j], array[i]);
             }
         }
+
     }
 }
