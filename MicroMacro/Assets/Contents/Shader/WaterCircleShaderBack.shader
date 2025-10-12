@@ -1,4 +1,4 @@
-Shader "WaterCircleShader"
+Shader "WaterCircleShaderBack"
 {
     Properties
     {
@@ -32,19 +32,13 @@ Shader "WaterCircleShader"
 
         Pass
         {
-            ZWrite On
-            ColorMask 0
-        }
-
-        Pass
-        {
             Tags
             {
                 "LightMode" = "UniversalForward"
             }
 
             ZWrite Off
-            Cull Off
+            Cull Front
 
             HLSLPROGRAM
             #pragma vertex vert
