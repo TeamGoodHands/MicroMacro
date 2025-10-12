@@ -32,15 +32,17 @@ namespace Module.Enemy.Cargo
             defaultPositions = new Vector3[component.Eyes.Length];
 
             CloseEyes();
-            
+
             component.HpBarCanvasGroup.alpha = 0f;
+
+            DoAwake();
         }
 
         private void OnDamage(int damage)
         {
             if (damage == component.Status.MaxHealth)
                 return;
-            
+
             AnimateAsync().Forget();
         }
 
@@ -60,8 +62,6 @@ namespace Module.Enemy.Cargo
 
         private async UniTaskVoid AnimateAsync()
         {
-            float delta = 0f;
-
             // 仮ダメージアニメーション
             _ = component.BodyTransform.DOShakeRotation(0.5f, new Vector3(7f, 0f, 0f), 25);
 
@@ -69,7 +69,12 @@ namespace Module.Enemy.Cargo
 
             if (damageCount < 3)
                 return;
+            
+            await DoAwake();
+        }
 
+        private async UniTask DoAwake()
+        {
             await UniTask.Delay(TimeSpan.FromSeconds(2f));
 
             component.Status.SetHealth(component.Status.MaxHealth);
@@ -85,6 +90,9 @@ namespace Module.Enemy.Cargo
 
             // 目を開いた瞬間にラディアルブラー
             _ = DOTween.To(() => parameter.Intensity, x => parameter.Intensity = x, 0f, 0.3f);
+
+
+            float delta = 0f;
 
             // 目を前に飛び出す
             _ = DOTween.To(() => delta, x =>
