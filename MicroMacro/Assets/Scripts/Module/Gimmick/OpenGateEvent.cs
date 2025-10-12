@@ -26,7 +26,7 @@ namespace Module.Gimmick
         {
             if (!gate.activeSelf || isTriggered)
                 return;
-
+            
             if (other.gameObject.CompareTag(Tag.Handle.Untagged))
             {
                 OpenGate().Forget();

@@ -83,6 +83,9 @@ namespace Module.UI
                 if (sceneName != stage1_1 && sceneName != stage1_2 && sceneName != bossStage && sceneName != title && sceneName != feedback)
                     continue;
 
+                if (sceneName == "Feedback")
+                    continue;
+
                 sceneNames.Add(sceneName);
             }
 

@@ -12,7 +12,7 @@ namespace Contents.ScreenSpaceHatching
             [Range(0f, 1f)] public float Blend = 0.5f;
             [Range(0.01f, 5f)] public float OcclusionSampleLength = 1f;
             [Range(0f, 5f)] public float OcclusionMinDistance = 0f;
-            [Range(0f, 100f)] public float OcclusionMaxDistance = 5f;
+            [Range(0f, 150f)] public float OcclusionMaxDistance = 5f;
             [Range(0f, 1f)] public float OcclusionBias = 0.001f;
             [Range(0f, 4f)] public float OcclusionStrength = 1f;
             [Range(0.1f, 4f)] public float OcclusionPower = 1f;
