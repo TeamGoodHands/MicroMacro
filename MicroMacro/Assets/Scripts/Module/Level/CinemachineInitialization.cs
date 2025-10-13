@@ -1,5 +1,8 @@
 ﻿using Unity.Cinemachine;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace Module.Level
 {
@@ -7,11 +10,13 @@ namespace Module.Level
     {
         private static bool isEnabled;
 
+#if UNITY_EDITOR
         [InitializeOnLoadMethod]
         private static void Initialize()
         {
             isEnabled = false;
         }
+#endif
 
         public static void CheckInitialization(CinemachineCamera targetCamera)
         {

@@ -2,8 +2,7 @@ using UnityEngine;
 
 namespace Module.Level
 {
-#if UNITY_EDITOR
-    [ExecuteAlways]
+    [ExecuteInEditMode]
     public class CameraIcon : MonoBehaviour
     {
         [SerializeField] private BoxCollider boxCollider;
@@ -15,5 +14,4 @@ namespace Module.Level
             transform.position = pos;
         }
     }
-#endif
 }

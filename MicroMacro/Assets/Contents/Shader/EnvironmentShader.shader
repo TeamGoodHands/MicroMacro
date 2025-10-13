@@ -115,17 +115,25 @@ Shader "EnvironmentShader"
 
         Pass
         {
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
-            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile_fragment _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHTS
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
             struct Attributes
             {
@@ -161,7 +169,7 @@ Shader "EnvironmentShader"
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 OUT.noiseUv = TRANSFORM_TEX(IN.uv, _NoiseMap);
-                OUT.worldPos = TransformObjectToWorld(IN.positionOS);
+                OUT.worldPos = TransformObjectToWorld(IN.positionOS.xyz);
 
                 return OUT;
             }
@@ -191,7 +199,7 @@ Shader "EnvironmentShader"
                 float edgeMask = saturate((shadowAttention - 0.45) * 5) * (1 - saturate((shadowAttention - 0.6) * 5));
                 shadowAttention -= edgeMask * 0.5;
 
-                float noise = SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, IN.noiseUv);
+                float noise = SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, IN.noiseUv).r;
                 noise -= _NoisePower;
                 noise = saturate(noise);
 
