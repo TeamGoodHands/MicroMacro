@@ -28,7 +28,8 @@ namespace Module.UI
         private void OnDamage(int damage)
         {
             Time.timeScale = 0f;
-            healthImage[playerStatus.CurrentHealth].DOFade(0f, 0.2f).SetLoops(4, LoopType.Yoyo).OnComplete(() =>
+            var rectTransform = healthImage[playerStatus.CurrentHealth].rectTransform;
+            healthImage[playerStatus.CurrentHealth].DOFade(0f, 0.1f).SetLoops(5, LoopType.Yoyo).OnComplete(() =>
             {
                 healthImage[playerStatus.CurrentHealth].color = Color.clear;
                 Time.timeScale = 1f;
