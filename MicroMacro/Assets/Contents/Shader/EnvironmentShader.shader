@@ -120,6 +120,8 @@ Shader "EnvironmentShader"
 
         Pass
         {
+            Name "ForwardLit"
+            
             Tags
             {
                 "LightMode" = "UniversalForward"
@@ -129,8 +131,7 @@ Shader "EnvironmentShader"
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
@@ -198,14 +199,6 @@ Shader "EnvironmentShader"
                 Light mainLight = GetMainLight(shadowCoord);
                 half shadowAttention = mainLight.shadowAttenuation;
 
-                half r = shadowAttention;
-                half g = 0;
-
-                #if _MAIN_LIGHT_SHADOWS_CASCADE
-                g = 1.0;
-                #endif
-
-
                 // 影の特定のグラデーション部分を抽出
 
                 float innerMask = 1.0 - saturate((shadowAttention - 0.45) / 1e-5);
@@ -225,7 +218,6 @@ Shader "EnvironmentShader"
                 float3 shadowColor = lerp(color.xyz, _ShadowColor.xyz, _ShadowColor.a);
                 color.xyz = lerp(shadowColor, color.xyz, shadowAttention);
 
-                return float4(r, g, 0, 1);
                 return color;
             }
             ENDHLSL
