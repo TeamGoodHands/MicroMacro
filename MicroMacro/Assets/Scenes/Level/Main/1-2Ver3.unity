@@ -6864,7 +6864,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c7fce67172f627e4b827151296f09cb8, type: 2}
+  - {fileID: 4884843874189452947, guid: 1086ada910095e641984c6ad9fd7c5be, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -50754,7 +50754,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 3
+  m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -50842,7 +50842,7 @@ Transform:
   m_GameObject: {fileID: 1462041724}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -259.67688, y: 23.127087, z: -12.5}
+  m_LocalPosition: {x: -230.12689, y: 28.447086, z: -12.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56442,6 +56442,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: IrisOut
       objectReference: {fileID: 0}
+    - target: {fileID: 4629654745508740362, guid: b707aebce2b2a7447af0fc574d80f3d3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -61333,7 +61337,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 678ecc268eaadf34d83b6207b7bbdcaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  respawnTime: 2
+  despawnTime: 2
+  spawnTime: 2
   checkPoints: []
 --- !u!4 &1756634949
 Transform:
@@ -67340,7 +67345,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c7fce67172f627e4b827151296f09cb8, type: 2}
+  - {fileID: 4884843874189452947, guid: 1086ada910095e641984c6ad9fd7c5be, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
