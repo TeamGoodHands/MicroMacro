@@ -36,6 +36,9 @@ namespace Module.UI
             {
                 throw new Exception("IrisOutEffector: Image is not found");
             }
+
+            irisOverlay.Radius = openCompleteRadius;
+            irisOverlay.Center01 = new Vector2(0.5f, 0.5f);
         }
 
         public void DoIrisOut(Vector3 playerPosition)
@@ -73,6 +76,8 @@ namespace Module.UI
         private void SetIrisPosition(Vector3 playerPosition)
         {
             Vector2 screenPos = Camera.main.WorldToViewportPoint(playerPosition);
+            screenPos.x = Mathf.Clamp01(screenPos.x);
+            screenPos.y = Mathf.Clamp01(screenPos.y);
             irisOverlay.Center01 = screenPos;
         }
     }
