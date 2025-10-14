@@ -97,6 +97,11 @@ Shader "EnvironmentShader"
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
             // -------------------------------------
             // Universal Pipeline keywords
 
@@ -124,11 +129,12 @@ Shader "EnvironmentShader"
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile_fragment _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile_fragment _ _MAIN_LIGHT_SHADOWS_CASCADE
-            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHTS
-            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
 
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -191,6 +197,15 @@ Shader "EnvironmentShader"
                 // 影係数を計算
                 Light mainLight = GetMainLight(shadowCoord);
                 half shadowAttention = mainLight.shadowAttenuation;
+
+                half r = shadowAttention;
+                half g = 0;
+
+                #if _MAIN_LIGHT_SHADOWS_CASCADE
+                g = 1.0;
+                #endif
+
+
                 // 影の特定のグラデーション部分を抽出
 
                 float innerMask = 1.0 - saturate((shadowAttention - 0.45) / 1e-5);
@@ -210,6 +225,7 @@ Shader "EnvironmentShader"
                 float3 shadowColor = lerp(color.xyz, _ShadowColor.xyz, _ShadowColor.a);
                 color.xyz = lerp(shadowColor, color.xyz, shadowAttention);
 
+                return float4(r, g, 0, 1);
                 return color;
             }
             ENDHLSL
