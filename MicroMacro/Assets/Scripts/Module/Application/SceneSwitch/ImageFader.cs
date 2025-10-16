@@ -16,7 +16,7 @@ namespace Module.Application.SceneSwitch
         [Header("フェード処理にかかる時間")]
         [SerializeField] private float fadeDuration = 1.0f; 
 
-        private void Start()
+        private void Awake()
         {
             img = GetComponent<Image>();
             if (img == null)

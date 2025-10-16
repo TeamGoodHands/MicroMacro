@@ -13,9 +13,11 @@ namespace Module.Enemy.Cargo
         [SerializeField] private Scaler scaler;
         [SerializeField] private FallObjectEnemyChecker enemyChecker;
         [SerializeField] private Renderer fallEffectRenderer;
+        [SerializeField] private Renderer fallEffectRendererBack;
         [SerializeField] private VisualEffect fallParticleEffect;
 
         private WaterCircleShaderWrapper waterCircleShaderWrapper;
+        private WaterCircleShaderWrapper waterCircleShaderBackWrapper;
         private float currentEffectRadius;
         private Tween currentFallTween;
 
@@ -25,6 +27,7 @@ namespace Module.Enemy.Cargo
             enemyChecker.OnCheckStart += AddListenerFallEffect;
             enemyChecker.OnCheckStop += RemoveListenerFallEffect;
             waterCircleShaderWrapper = new WaterCircleShaderWrapper(fallEffectRenderer.material);
+            waterCircleShaderBackWrapper = new WaterCircleShaderWrapper(fallEffectRendererBack.material);
         }
 
         private void AddListenerFallEffect()
@@ -61,8 +64,16 @@ namespace Module.Enemy.Cargo
             currentFallTween?.Kill();
             currentFallTween = DOTween.To(() => currentEffectRadius, value => currentEffectRadius = value, 0.3f, 0.3f)
                 .SetEase(Ease.OutSine)
-                .OnStart(() => fallEffectRenderer.enabled = true)
-                .OnUpdate(() => waterCircleShaderWrapper.Radius = currentEffectRadius);
+                .OnStart(() =>
+                {
+                    fallEffectRenderer.enabled = true;
+                    fallEffectRendererBack.enabled = true;
+                })
+                .OnUpdate(() =>
+                {
+                    waterCircleShaderWrapper.Radius = currentEffectRadius;
+                    waterCircleShaderBackWrapper.Radius = currentEffectRadius;
+                });
             
             fallParticleEffect.Play();
         }
@@ -70,10 +81,18 @@ namespace Module.Enemy.Cargo
         private void StopAttackEffect()
         {
             currentFallTween?.Kill();
-            currentFallTween = DOTween.To(() => currentEffectRadius, value => currentEffectRadius = value, 0f, 0.2f)
+            currentFallTween = DOTween.To(() => currentEffectRadius, value => currentEffectRadius = value, 0f, 0.3f)
                 .SetEase(Ease.OutSine)
-                .OnUpdate(() => waterCircleShaderWrapper.Radius = currentEffectRadius)
-                .OnComplete(() => fallEffectRenderer.enabled = false);
+                .OnUpdate(() =>
+                {
+                    waterCircleShaderWrapper.Radius = currentEffectRadius;
+                    waterCircleShaderBackWrapper.Radius = currentEffectRadius;
+                })
+                .OnComplete(() =>
+                {
+                    fallEffectRenderer.enabled = false;
+                    fallEffectRendererBack.enabled = false;
+                });
             
             fallParticleEffect.Stop();
         }
@@ -83,7 +102,8 @@ namespace Module.Enemy.Cargo
             // スケールを大きくされていればダメージを与える
             if (scaler.CurrentStep > 0)
             {
-                target.GetComponent<EnemyStatus>().Damage(1);
+                int damage = scaler.CurrentStep;
+                target.GetComponent<EnemyStatus>().Damage(damage);
                 SoundManager.instance.Play("打撃1");
             }
         }

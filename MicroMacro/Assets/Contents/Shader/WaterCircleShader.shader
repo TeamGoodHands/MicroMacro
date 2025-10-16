@@ -28,10 +28,22 @@ Shader "WaterCircleShader"
             "Queue"="Transparent" "RenderType"="Transparent" "RenderPipeline"="UniversalPipeline"
         }
 
+        Blend SrcAlpha OneMinusSrcAlpha
+
         Pass
         {
+            ZWrite On
+            ColorMask 0
+        }
+
+        Pass
+        {
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
+
             ZWrite Off
-            Blend SrcAlpha OneMinusSrcAlpha
             Cull Off
 
             HLSLPROGRAM

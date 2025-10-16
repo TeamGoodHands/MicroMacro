@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Module.Level
 {
-#if UNITY_EDITOR
     [ExecuteInEditMode]
     public class PlayerComponentSearcher : MonoBehaviour
     {
@@ -24,5 +23,4 @@ namespace Module.Level
             cinemachineCamera.Target.TrackingTarget = player.transform;
         }
     }
-#endif
 }

@@ -35,7 +35,7 @@ namespace Module.UI
         {
             buttonBackground.enabled = true;
             OnSelectStateChanged?.Invoke(true);
-            SoundManager.instance.Play("ボタンセレクト");
+          //  SoundManager.instance.Play("ボタンセレクト");
         }
 
         public void OnDeselect(BaseEventData eventData)
