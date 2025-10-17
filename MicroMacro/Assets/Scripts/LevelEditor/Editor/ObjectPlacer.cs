@@ -5,6 +5,7 @@ using Constants;
 using LevelEditor.Runtime;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 namespace LevelEditor.Editor
@@ -32,11 +33,15 @@ namespace LevelEditor.Editor
         {
             isWindowEnter = true;
             SceneView.duringSceneGui += HandleSceneGUI;
+            SceneView.lastActiveSceneView.in2DMode = true;
+            SceneView.lastActiveSceneView.Repaint();
         }
 
         public void Disable()
         {
             SceneView.duringSceneGui -= HandleSceneGUI;
+            SceneView.lastActiveSceneView.in2DMode = false;
+            SceneView.lastActiveSceneView.Repaint();
         }
 
         public void CheckOverlap()
@@ -130,7 +135,8 @@ namespace LevelEditor.Editor
         {
             if (!isWindowEnter)
                 return;
-
+            
+            Handles.zTest = CompareFunction.Always;
             Handles.color = isErasing ? new Color(1f, 0.11f, 0f) : new Color(0f, 0.91f, 1f);
             Handles.DrawAAPolyLine(5f,
                 new Vector3(mousePosition.x - 0.5f, mousePosition.y - 0.5f, 0f),
