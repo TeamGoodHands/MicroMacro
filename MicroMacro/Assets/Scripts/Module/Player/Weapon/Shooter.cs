@@ -2,6 +2,7 @@
 using CoreModule.Input;
 using CoreModule.ObjectPool;
 using Module.Player.Component;
+using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,6 +20,7 @@ namespace Module.Player.Weapon
         [SerializeField] private GameObject microBulletPrefab;
 
         private PlayerCondition condition;
+        private PlayerControllerWrapper animatorWrapper;
         private Rigidbody playerRigBody;
         private ObjectPool<GameObject> macroBulletPool;
         private ObjectPool<GameObject> microBulletPool;
@@ -31,6 +33,7 @@ namespace Module.Player.Weapon
         {
             condition = component.Condition;
             playerRigBody = component.Rigidbody;
+            animatorWrapper = component.AnimatorWrapper;
 
             // 弾のObjectPoolの初期化
             macroBulletPool = new ObjectPool<GameObject>(() => OnBulletCreate(macroBulletPrefab), null, poolAmount);
@@ -115,6 +118,24 @@ namespace Module.Player.Weapon
             Vector2 dirVelocity = GetDirectedVelocity(condition.Direction, playerRigBody.linearVelocity, maxAdditionalSpeed);
             bullet.AddForce(condition.Direction * shootPower + dirVelocity);
             lastShootTime = Time.time;
+            
+            PlayShotAnimation();
+        }
+
+        private void PlayShotAnimation()
+        {
+            if (condition.Direction.y == 0f)
+            {
+                animatorWrapper.SetShotSideTrigger();
+            }
+            else if (condition.Direction.y > 0f)
+            {
+                animatorWrapper.SetShotUpTrigger();
+            }
+            else if (condition.Direction.y < 0f)
+            {
+                animatorWrapper.SetShotDownTrigger();
+            }
         }
 
         /// <summary>

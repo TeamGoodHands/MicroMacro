@@ -18,6 +18,56 @@ Shader "EnvironmentShader"
             "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline"
         }
 
+
+        // ====== DepthNormals（Angle Fade/法線影響を使う時は推奨）======
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode"="DepthNormals"
+            }
+            ZWrite On Cull Back
+
+            HLSLPROGRAM
+            #pragma vertex   dn_vert
+            #pragma fragment dn_frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct A
+            {
+                float4 positionOS: POSITION;
+                float3 normalOS: NORMAL;
+                float4 tangentOS: TANGENT;
+            };
+
+            struct V
+            {
+                float4 positionHCS: SV_POSITION;
+                float3 normalWS: TEXCOORD0;
+            };
+
+            V dn_vert(A v)
+            {
+                V o;
+                VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
+                VertexNormalInputs n = GetVertexNormalInputs(v.normalOS, v.tangentOS);
+                o.positionHCS = p.positionCS;
+                o.normalWS = n.normalWS;
+                return o;
+            }
+
+            // URPのDepthNormalsはWS法線をそのまま書き出す実装に依存するため、
+            // ここでは簡易的に0..1へエンコード（URP内部の実装差があっても「何かは出る」）
+            half4 dn_frag(V i) : SV_Target
+            {
+                float3 n = normalize(i.normalWS);
+                return half4(n * 0.5 + 0.5, 1);
+            }
+            ENDHLSL
+        }
+
         // LitシェーダーのShaderCasterPass
         Pass
         {
@@ -47,6 +97,11 @@ Shader "EnvironmentShader"
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
             // -------------------------------------
             // Universal Pipeline keywords
 
@@ -65,18 +120,27 @@ Shader "EnvironmentShader"
 
         Pass
         {
+            Name "ForwardLit"
+            
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ SHADOWS_SHADOWMASK
+
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "SimpleNoise.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
             struct Attributes
             {
@@ -89,6 +153,7 @@ Shader "EnvironmentShader"
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 worldPos : TEXCOORD1;
+                float2 noiseUv : TEXCOORD2;
             };
 
             TEXTURE2D(_BaseMap);
@@ -110,37 +175,23 @@ Shader "EnvironmentShader"
                 Varyings OUT;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
-                OUT.worldPos = TransformObjectToWorld(IN.positionOS);
+                OUT.noiseUv = TRANSFORM_TEX(IN.uv, _NoiseMap);
+                OUT.worldPos = TransformObjectToWorld(IN.positionOS.xyz);
 
                 return OUT;
             }
 
-            float SamplePaperNoise(float3 worldPos)
+            float RangeMask(float value, float minThreshold, float maxThreshold, float smoothness)
             {
-                // アンカー（オブジェクト原点）
-                float3 anchorWorld = mul(UNITY_MATRIX_M, float4(0, 0, 0, 1)).xyz;
+                float start = saturate((value - minThreshold) / max(smoothness, 1e-5));
+                float end = 1.0 - saturate((value - maxThreshold) / max(smoothness, 1e-5));
 
-                // 差分ベクトルをスクリーンに投影
-                float4 clipPixel = mul(UNITY_MATRIX_VP, float4(worldPos, 1.0));
-                float4 clipAnchor = mul(UNITY_MATRIX_VP, float4(anchorWorld, 1.0));
-
-                float2 screenPixel = (clipPixel.xy / clipPixel.w) * 0.5 + 0.5;
-                float2 screenAnchor = (clipAnchor.xy / clipAnchor.w) * 0.5 + 0.5;
-
-                // 差分UV
-                float2 uv = screenPixel - screenAnchor; //　ペーパーノイズをサンプリング
-
-                return SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, uv * _NoiseScale).r;
+                return saturate(start * end);
             }
-
 
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
-
-                // ピクセルのワールド座標
-                float3 pixelWorld = IN.worldPos;
-                float noise = SamplePaperNoise(pixelWorld);
 
                 float4 shadowCoord = TransformWorldToShadowCoord(IN.worldPos);
 
@@ -148,24 +199,24 @@ Shader "EnvironmentShader"
                 Light mainLight = GetMainLight(shadowCoord);
                 half shadowAttention = mainLight.shadowAttenuation;
 
-                // 基本影（中身）
-                float baseShadow = shadowAttention; // そのまま使う or 少し暗めに調整
+                // 影の特定のグラデーション部分を抽出
 
-                baseShadow += SimpleNoise(IN.uv, _ShadowNoiseScale) * 0.1;
-                baseShadow = saturate(baseShadow);
+                float innerMask = 1.0 - saturate((shadowAttention - 0.45) / 1e-5);
+                // return float4(innerMask, innerMask, innerMask, 1);
 
-                // 影の「縁マスク」: attenが0.3～0.7あたりのグラデーション部分を抽出
-                // float edgeMask = smoothstep(0.2, 0.5, shadowAttention) * (1.0 - smoothstep(0.5, 0.8, shadowAttention));
                 float edgeMask = saturate((shadowAttention - 0.45) * 5) * (1 - saturate((shadowAttention - 0.6) * 5));
+                shadowAttention -= edgeMask * 0.5;
 
-                // 縁を白くする → 内側から外に向けて少し明るく
-                float lightenedEdge = lerp(baseShadow, -0.1, edgeMask);
+                float noise = SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, IN.noiseUv).r;
+                noise -= _NoisePower;
+                noise = saturate(noise);
 
-                float darkenedRim = lerp(lightenedEdge, 0.0, shadowAttention * 0.5);
-                shadowAttention = darkenedRim;
+                // return float4(noise, noise, noise, 1);
+
+                shadowAttention += innerMask * noise;
 
                 float3 shadowColor = lerp(color.xyz, _ShadowColor.xyz, _ShadowColor.a);
-                color.xyz = lerp(color.xyz, shadowColor, 1 - shadowAttention) * saturate(noise + _NoisePower);
+                color.xyz = lerp(shadowColor, color.xyz, shadowAttention);
 
                 return color;
             }

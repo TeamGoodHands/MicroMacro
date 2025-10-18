@@ -55,8 +55,9 @@ namespace Module.UI
             const string sceneSavePathTest = "Assets/Scenes/Level/Test";
             const string sceneSavePathOutGame = "Assets/Scenes/Level/OutGame";
             const string rootSceneName = "Root";
-            const string mainStage = "1-1,2";
-            const string bossStage = "Boss";
+            const string stage1_1 = "1-1Ver3";
+            const string stage1_2 = "1-2Ver3";
+            const string bossStage = "Boss2";
             const string feedback = "Feedback";
             const string title = "Title";
 
@@ -79,7 +80,10 @@ namespace Module.UI
                     continue;
 
                 // 一旦ボスステージとメインステージ、feedback意外省く
-                if (sceneName != mainStage && sceneName != bossStage && sceneName != title && sceneName != feedback)
+                if (sceneName != stage1_1 && sceneName != stage1_2 && sceneName != bossStage && sceneName != title && sceneName != feedback)
+                    continue;
+
+                if (sceneName == "Feedback")
                     continue;
 
                 sceneNames.Add(sceneName);

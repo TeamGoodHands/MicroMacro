@@ -7,17 +7,21 @@ namespace Module.Enemy.Cargo
     public class FallObjectEnemyChecker : MonoBehaviour
     {
         public event Action<GameObject> OnHit;
+        public event Action OnCheckStart;
+        public event Action OnCheckStop;
 
         private bool isCheck;
 
         public void StartCheck()
         {
             isCheck = true;
+            OnCheckStart?.Invoke();
         }
 
         public void StopCheck()
         {
             isCheck = false;
+            OnCheckStop?.Invoke();
         }
 
         private void Update()
@@ -38,7 +42,7 @@ namespace Module.Enemy.Cargo
             const float startOffset = 0.01f;
 
             // BoxCast の距離
-            const float castDistance = 0.1f;
+            const float castDistance = 0.2f;
 
             // 半径（Half-Extents）を取得
             Vector3 halfExtents = transform.localScale * 0.5f;
@@ -56,6 +60,12 @@ namespace Module.Enemy.Cargo
                 QueryTriggerInteraction.Ignore);
 
             return (hit, hitInfo.collider?.gameObject);
+        }
+
+        void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(transform.position + Vector3.down * 0.1f, transform.localScale);
         }
     }
 }

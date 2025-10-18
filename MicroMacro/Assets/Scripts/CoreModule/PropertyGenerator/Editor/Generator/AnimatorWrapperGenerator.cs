@@ -43,6 +43,7 @@ namespace PropertyGenerator
                     }
 
                     codeBuilder.NewLine($"[SerializeField] private {nameof(Animator)} target;");
+                    codeBuilder.NewLine($"public {nameof(Animator)} Animator => target;");
 
                     //AnimatorControllerのパラメータをプロパティに変換する
                     foreach (var parameter in animatorController.parameters)

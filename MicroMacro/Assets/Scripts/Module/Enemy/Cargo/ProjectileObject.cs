@@ -19,6 +19,8 @@ namespace Module.Enemy.Cargo
         private float timeScale;
         private float elapsed;
         private float flightTime;
+        
+        public event Action OnArrived;
 
         public float LocalTimeScale
         {
@@ -81,6 +83,13 @@ namespace Module.Enemy.Cargo
             Vector3 pos = startPos + velocity * t + Vector3.down * (0.5f * g * t * t);
 
             transform.position = pos;
+
+            // 到着時間ギリギリになったら到着したとみなす
+            if (flightTime - elapsed < 0.01f)
+            {
+                Stop();
+                OnArrived?.Invoke();
+            }
         }
     }
 }

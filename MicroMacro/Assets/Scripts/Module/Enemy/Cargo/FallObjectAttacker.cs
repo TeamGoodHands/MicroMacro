@@ -1,7 +1,10 @@
 ﻿using System;
+using DG.Tweening;
 using Module.Management;
 using Module.Scaling;
+using PropertyGenerator.Generated;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Module.Enemy.Cargo
 {
@@ -9,10 +12,89 @@ namespace Module.Enemy.Cargo
     {
         [SerializeField] private Scaler scaler;
         [SerializeField] private FallObjectEnemyChecker enemyChecker;
+        [SerializeField] private Renderer fallEffectRenderer;
+        [SerializeField] private Renderer fallEffectRendererBack;
+        [SerializeField] private VisualEffect fallParticleEffect;
+
+        private WaterCircleShaderWrapper waterCircleShaderWrapper;
+        private WaterCircleShaderWrapper waterCircleShaderBackWrapper;
+        private float currentEffectRadius;
+        private Tween currentFallTween;
 
         private void Start()
         {
             enemyChecker.OnHit += Damage;
+            enemyChecker.OnCheckStart += AddListenerFallEffect;
+            enemyChecker.OnCheckStop += RemoveListenerFallEffect;
+            waterCircleShaderWrapper = new WaterCircleShaderWrapper(fallEffectRenderer.material);
+            waterCircleShaderBackWrapper = new WaterCircleShaderWrapper(fallEffectRendererBack.material);
+        }
+
+        private void AddListenerFallEffect()
+        {
+            if (scaler.CurrentStep > 0)
+            {
+                PlayAttackEffect();
+            }
+            
+            scaler.OnScaleStarted += CheckFallEffect;
+        }
+
+        private void RemoveListenerFallEffect()
+        {
+            StopAttackEffect();
+            
+            scaler.OnScaleStarted -= CheckFallEffect;
+        }
+
+        private void CheckFallEffect(ScaleEventArgs args)
+        {
+            if (args.CurrentStep > 0)
+            {
+                PlayAttackEffect();
+            }
+            else
+            {
+                StopAttackEffect();
+            }
+        }
+
+        private void PlayAttackEffect()
+        {
+            currentFallTween?.Kill();
+            currentFallTween = DOTween.To(() => currentEffectRadius, value => currentEffectRadius = value, 0.3f, 0.3f)
+                .SetEase(Ease.OutSine)
+                .OnStart(() =>
+                {
+                    fallEffectRenderer.enabled = true;
+                    fallEffectRendererBack.enabled = true;
+                })
+                .OnUpdate(() =>
+                {
+                    waterCircleShaderWrapper.Radius = currentEffectRadius;
+                    waterCircleShaderBackWrapper.Radius = currentEffectRadius;
+                });
+            
+            fallParticleEffect.Play();
+        }
+
+        private void StopAttackEffect()
+        {
+            currentFallTween?.Kill();
+            currentFallTween = DOTween.To(() => currentEffectRadius, value => currentEffectRadius = value, 0f, 0.3f)
+                .SetEase(Ease.OutSine)
+                .OnUpdate(() =>
+                {
+                    waterCircleShaderWrapper.Radius = currentEffectRadius;
+                    waterCircleShaderBackWrapper.Radius = currentEffectRadius;
+                })
+                .OnComplete(() =>
+                {
+                    fallEffectRenderer.enabled = false;
+                    fallEffectRendererBack.enabled = false;
+                });
+            
+            fallParticleEffect.Stop();
         }
 
         private void Damage(GameObject target)
@@ -20,7 +102,8 @@ namespace Module.Enemy.Cargo
             // スケールを大きくされていればダメージを与える
             if (scaler.CurrentStep > 0)
             {
-                target.GetComponent<EnemyStatus>().Damage(1);
+                int damage = scaler.CurrentStep;
+                target.GetComponent<EnemyStatus>().Damage(damage);
                 SoundManager.instance.Play("打撃1");
             }
         }
