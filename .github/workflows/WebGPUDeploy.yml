@@ -43,6 +43,7 @@ jobs:
           targetPlatform: WebGL
           projectPath:    MicroMacro
           unityVersion:   6000.1.2f1
+          allowDirtyBuild: true
             
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
