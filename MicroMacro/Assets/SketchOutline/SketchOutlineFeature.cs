@@ -66,8 +66,9 @@ namespace SketchOutline
 
                 // 出力（同サイズの一時テクスチャ）
                 desc.depthBufferBits = (int)DepthBits.None;
+                desc.colorFormat = RenderTextureFormat.RFloat;
                 TextureHandle destination = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", false);
-
+                
                 using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlinePass: Edge Detection", out var passData))
                 {
                     passData.Material = material;
@@ -90,7 +91,7 @@ namespace SketchOutline
                     });
                 }
                 
-                using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlinePass: Edge Detection", out var passData))
+                using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlinePass: Composite", out var passData))
                 {
                     passData.Material = material;
                     passData.Source = destination;

@@ -59,7 +59,7 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
                 return saturate(edge);
             }
 
-            float4 Frag(Varyings i) : SV_Target
+            float Frag(Varyings i) : SV_Target
             {
                 float edge = EdgeFromDepthSobel(i.texcoord);
                 return edge * _Blend;
