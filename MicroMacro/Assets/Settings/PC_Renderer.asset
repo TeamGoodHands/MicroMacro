@@ -1,3 +1,191 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7556e25c02711a253cde99193797de98fb475bc23ca09de6a206d21d0a7e5949
-size 6326
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8253487787215220038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0597bc3e869cd3a4aaf616f570820b9f, type: 3}
+  m_Name: SketchOutlineFeature
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  outlineShader: {fileID: 4800000, guid: 4856a36404e2efc40898b281d4efaf7f, type: 3}
+  settings:
+    EdgeColor: {r: 0, g: 0, b: 0, a: 1}
+    EdgeWidth: 1
+    EdgeThreshold: 0.5
+    WobbleAmplitude: 0.6
+    WobbleFrequency: 3
+    NoiseScale: 3
+    QuantizeStepSeconds: 0.25
+    PaperTexture: {fileID: 0}
+--- !u!114 &-4740895762259731709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e372f27cd8211b447be4556529f9b566, type: 3}
+  m_Name: ScreenSpaceHatchingFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    Blend: 0.703
+    OcclusionSampleLength: 4
+    OcclusionMinDistance: 0
+    OcclusionMaxDistance: 100
+    OcclusionBias: 0
+    OcclusionStrength: 2.67
+    OcclusionPower: 1
+    OcclusionDifferenceThreshold: 20
+    BlendStep: 0.87
+    BlendPower: 2.54
+    HatchScale: 4.51
+    HatchOffset: -0.12
+    BlurKernelRadius: 6
+    CrossPatternTexture: {fileID: 2800000, guid: 171cea23cfdea7d4bb041284a3c8ff5f, type: 3}
+    OcclusionColor: {r: 0, g: 0, b: 0, a: 1}
+    ssaoShader: {fileID: 4800000, guid: aa54c93f5f2b0e145bc0b9cec9bf5edc, type: 3}
+--- !u!114 &-3803944856254396364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc9d3be4b0063a04db651417c87cf04c, type: 3}
+  m_Name: RadialBlurFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  parameters:
+    Intensity: 0
+    SampleCount: 3
+    RadialCenter: {x: 0.5, y: 0.5}
+    UseDither: 1
+    Shader: {fileID: 4800000, guid: d3be601d4530a5b41b59a0fa54e090fd, type: 3}
+  renderPassEvent: 550
+--- !u!114 &-702103982027134681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aea48f048e0076b49b714a0d368eee1b, type: 3}
+  m_Name: CounterMotionFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    planeDistance: 5
+    strength: 0.3
+    injectionPoint: 450
+    globalParamName: _UVOffset
+--- !u!114 &-535502895991043015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b00045f12942b46c698459096c89274e, type: 3}
+  m_Name: FullScreenPassRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  injectionPoint: 450
+  fetchColorBuffer: 1
+  requirements: 4
+  passMaterial: {fileID: 2100000, guid: b41c83c4d0a9c684690b43d61f3e5422, type: 2}
+  passIndex: 0
+  bindDepthStencilAttachment: 0
+  m_Version: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de640fe3d0db1804a85f9fc8f5cadab6, type: 3}
+  m_Name: PC_Renderer
+  m_EditorClassIdentifier: 
+  debugShaders:
+    debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
+    hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
+    probeVolumeSamplingDebugComputeShader: {fileID: 7200000, guid: 53626a513ea68ce47b59dc1299fe3959, type: 3}
+  probeVolumeResources:
+    probeVolumeDebugShader: {fileID: 4800000, guid: e5c6678ed2aaa91408dd3df699057aae, type: 3}
+    probeVolumeFragmentationDebugShader: {fileID: 4800000, guid: 03cfc4915c15d504a9ed85ecc404e607, type: 3}
+    probeVolumeOffsetDebugShader: {fileID: 4800000, guid: 53a11f4ebaebf4049b3638ef78dc9664, type: 3}
+    probeVolumeSamplingDebugShader: {fileID: 4800000, guid: 8f96cd657dc40064aa21efcc7e50a2e7, type: 3}
+    probeSamplingDebugMesh: {fileID: -3555484719484374845, guid: 57d7c4c16e2765b47a4d2069b311bffe, type: 3}
+    probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
+    probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
+  m_RendererFeatures:
+  - {fileID: -4740895762259731709}
+  - {fileID: -3803944856254396364}
+  - {fileID: 4195672206843570496}
+  - {fileID: -535502895991043015}
+  - {fileID: -702103982027134681}
+  - {fileID: -8253487787215220038}
+  m_RendererFeatureMap: 039b5a2d6cf434be3448c8b14eac35cb40e9e37aa4053a3a39cc420cf48291f827a9e2f325a041f6ba12031d96b8758d
+  m_UseNativeRenderPass: 1
+  xrSystemData: {fileID: 0}
+  postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
+  m_AssetVersion: 2
+  m_OpaqueLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_TransparentLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_DefaultStencilState:
+    overrideStencilState: 0
+    stencilReference: 1
+    stencilCompareFunction: 3
+    passOperation: 2
+    failOperation: 0
+    zFailOperation: 0
+  m_ShadowTransparentReceive: 1
+  m_RenderingMode: 2
+  m_DepthPrimingMode: 0
+  m_CopyDepthMode: 0
+  m_DepthAttachmentFormat: 0
+  m_DepthTextureFormat: 0
+  m_AccurateGbufferNormals: 0
+  m_IntermediateTextureMode: 0
+--- !u!114 &4195672206843570496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1614fc811f8f184697d9bee70ab9fe5, type: 3}
+  m_Name: DecalRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  m_Settings:
+    technique: 2
+    maxDrawDistance: 100
+    decalLayers: 0
+    dBufferSettings:
+      surfaceData: 2
+    screenSpaceSettings:
+      normalBlend: 0
