@@ -15,6 +15,7 @@ namespace Editor.LevelEditor
     /// </summary>
     public class MicMacMaker : EditorWindow
     {
+        private static readonly int backAlpha = Shader.PropertyToID("_BackAlpha");
         private const string dictionaryPath = "Assets/Settings/LevelObjectDictionary.asset";
         private Dictionary<Tab, Category> categoryGroups = new Dictionary<Tab, Category>();
         private float createdTime;
@@ -22,6 +23,9 @@ namespace Editor.LevelEditor
         private ObjectPlacer objectPlacer;
         private GameObject lastSelectedObject;
         private Button eraseButton;
+        private Material groundMaterial;
+
+        public event Action<bool> OnEnableStateChanged;
 
         [MenuItem("Tools/MicMacMaker")]
         private static void CreateWindow()
@@ -32,11 +36,22 @@ namespace Editor.LevelEditor
 
         public void OnSceneGUI()
         {
-            objectPlacer.DrawMousePosition();
+            objectPlacer?.DrawMousePosition();
+        }
+
+        private void LoadGroundMaterial()
+        {
+            if (groundMaterial != null)
+                return;
+
+            var settings = AssetDatabase.LoadAssetAtPath<MicMacMakerSettings>(dictionaryPath);
+            groundMaterial = settings.GroundMaterial;
         }
 
         public void CreateGUI()
         {
+            LoadGroundMaterial();
+
             // EditorToolがアクティブでない場合は、Windowを無効化する
             if (!IsToolActive())
             {
@@ -57,9 +72,9 @@ namespace Editor.LevelEditor
 
             // タブビューの作成
             var tabView = new TabView();
-            var categories = AssetDatabase.LoadAssetAtPath<MicMacMakerSettings>(dictionaryPath);
+            var settings = AssetDatabase.LoadAssetAtPath<MicMacMakerSettings>(dictionaryPath);
 
-            foreach (MicMacMakerSettings.ObjectCategory category in categories.ObjectCategories)
+            foreach (MicMacMakerSettings.ObjectCategory category in settings.ObjectCategories)
             {
                 // カテゴリタブの作成
                 var group = new Category(category.Name);
@@ -91,13 +106,19 @@ namespace Editor.LevelEditor
             {
                 rootVisualElement.SetEnabled(true);
                 rootVisualElement.style.opacity = 1f;
+                groundMaterial.SetFloat(backAlpha, 0.7f);
                 objectPlacer?.Enable();
+
+                OnEnableStateChanged?.Invoke(true);
             }
             else
             {
                 rootVisualElement.SetEnabled(false);
                 rootVisualElement.style.opacity = 0.5f;
+                groundMaterial.SetFloat(backAlpha, 0f);
                 objectPlacer?.Disable();
+
+                OnEnableStateChanged?.Invoke(false);
             }
         }
 
@@ -116,11 +137,43 @@ namespace Editor.LevelEditor
 
             // 全て破壊ボタン作成
             buttonElements.Add(CreateDestroyButton());
-            
+
             // 重複確認ボタン作成
             buttonElements.Add(CreateCheckOverlapButton());
 
+            // 再生時に地面を表示するチェックボックス作成
+            buttonElements.Add(CreateShowGroundToggle());
+
             return buttonElements;
+        }
+
+        private Toggle CreateShowGroundToggle()
+        {
+            Toggle toggle = new Toggle()
+            {
+                text = " <b>再生時に地面を表示する</b>",
+                style =
+                {
+                    overflow = Overflow.Visible,
+                    width = 150f,
+                    marginLeft = 10f
+                },
+                value = objectPlacer.GetShowGround()
+            };
+
+            OnEnableStateChanged += isEnable =>
+            {
+                if (isEnable)
+                {
+                    toggle.value = objectPlacer.GetShowGround();
+                }
+                else
+                {
+                    objectPlacer.UpdateShowGround(toggle.value);
+                }
+            };
+
+            return toggle;
         }
 
 

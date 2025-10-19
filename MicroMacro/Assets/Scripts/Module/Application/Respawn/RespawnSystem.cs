@@ -12,8 +12,6 @@ namespace Module.Application.Respawn
     public class RespawnSystem : MonoBehaviour
     {
         [SerializeField, Header("リスポーン時間")] private float despawnTime = 2f;
-        [SerializeField] private float spawnTime = 1f;
-
         [SerializeField, Header("ステージ上のチェックポイント(ゲーム開始時に自動で取得)")] private CheckPoint[] checkPoints;
 
         public event Action<Vector3> OnPlayerDespawn;

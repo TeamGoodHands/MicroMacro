@@ -11,8 +11,14 @@ namespace LevelEditor.Runtime
     public class MicMacLevelData : MonoBehaviour
     {
         private const int MapSize = 8192;
-        [SerializeField] private bool showBlocks;
+        [SerializeField, HideInInspector] private bool showBlocks;
         [SerializeField, HideInInspector] private List<Vector2Int> overlapCoords = new List<Vector2Int>();
+
+        public bool ShowBlocks
+        {
+            get => showBlocks;
+            set => showBlocks = value;
+        }
 
         public long CoordToIndex(Vector2Int coord)
         {

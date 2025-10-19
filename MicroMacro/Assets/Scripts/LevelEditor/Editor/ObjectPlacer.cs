@@ -34,14 +34,13 @@ namespace LevelEditor.Editor
             isWindowEnter = true;
             SceneView.duringSceneGui += HandleSceneGUI;
             SceneView.lastActiveSceneView.in2DMode = true;
+            SceneView.lastActiveSceneView.camera.orthographic = true;
             SceneView.lastActiveSceneView.Repaint();
         }
 
         public void Disable()
         {
             SceneView.duringSceneGui -= HandleSceneGUI;
-            SceneView.lastActiveSceneView.in2DMode = false;
-            SceneView.lastActiveSceneView.Repaint();
         }
 
         public void CheckOverlap()
@@ -67,6 +66,18 @@ namespace LevelEditor.Editor
             {
                 // Debug.LogWarning("マップオブジェクトの親オブジェクトがありません。");
             }
+        }
+
+        public void UpdateShowGround(bool isShow)
+        {
+            UpdateParentObject();
+            parentObject.ShowBlocks = isShow;
+        }
+
+        public bool GetShowGround()
+        {
+            UpdateParentObject();
+            return parentObject.ShowBlocks;
         }
 
         public void StartPlaceSequence(GameObject prefab)
@@ -135,7 +146,7 @@ namespace LevelEditor.Editor
         {
             if (!isWindowEnter)
                 return;
-            
+
             Handles.zTest = CompareFunction.Always;
             Handles.color = isErasing ? new Color(1f, 0.11f, 0f) : new Color(0f, 0.91f, 1f);
             Handles.DrawAAPolyLine(5f,
@@ -267,7 +278,7 @@ namespace LevelEditor.Editor
             if (targetObject == null)
                 return;
 
-            targetObject.transform.localPosition = new Vector3(mousePosition.x, mousePosition.y, 0f);
+            targetObject.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0f);
         }
 
         private void RotateSelectedObject(Vector2 delta)
@@ -381,7 +392,7 @@ namespace LevelEditor.Editor
             Vector3 screenPosition = Event.current.mousePosition * EditorGUIUtility.pixelsPerPoint;
             screenPosition.y = sceneView.camera.pixelHeight - screenPosition.y;
             Vector3 worldPosition = sceneView.camera.ScreenToWorldPoint(screenPosition);
-            worldPosition -= parentObject.transform.position;
+            // worldPosition -= parentObject.transform.position;
 
             // スナッピングする
             Vector2 snappedPosition = Snapping.Snap(worldPosition, EditorSnapSettings.move);
