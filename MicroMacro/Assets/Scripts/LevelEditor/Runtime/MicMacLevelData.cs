@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Constants;
 using CoreModule.Serialization;
+using UnityEditor;
 using UnityEngine;
 
 namespace LevelEditor.Runtime
@@ -10,8 +11,14 @@ namespace LevelEditor.Runtime
     public class MicMacLevelData : MonoBehaviour
     {
         private const int MapSize = 8192;
-        [SerializeField] private bool showBlocks;
+        [SerializeField, HideInInspector] private bool showBlocks;
         [SerializeField, HideInInspector] private List<Vector2Int> overlapCoords = new List<Vector2Int>();
+
+        public bool ShowBlocks
+        {
+            get => showBlocks;
+            set => showBlocks = value;
+        }
 
         public long CoordToIndex(Vector2Int coord)
         {
@@ -65,11 +72,21 @@ namespace LevelEditor.Runtime
 
         private void OnDrawGizmos()
         {
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+
             foreach (Vector2Int coord in overlapCoords)
             {
-                Gizmos.color = Color.red;
-                Gizmos.DrawCube(new Vector3(coord.x, coord.y, -5), Vector3.one * 0.4f);
+                Handles.color = Color.red;
+                Handles.CubeHandleCap(
+                    0, // controlID（通常0でOK）
+                    new Vector3(coord.x, coord.y, transform.position.z), // 中心位置
+                    transform.rotation, // 回転
+                    0.4f, // 一辺の長さ
+                    EventType.Repaint // 描画タイプ
+                );
             }
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
         }
 
         private Dictionary<long, GameObject> GetMapData()

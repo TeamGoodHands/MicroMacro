@@ -5,6 +5,7 @@ using Constants;
 using LevelEditor.Runtime;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 namespace LevelEditor.Editor
@@ -32,6 +33,9 @@ namespace LevelEditor.Editor
         {
             isWindowEnter = true;
             SceneView.duringSceneGui += HandleSceneGUI;
+            SceneView.lastActiveSceneView.in2DMode = true;
+            SceneView.lastActiveSceneView.camera.orthographic = true;
+            SceneView.lastActiveSceneView.Repaint();
         }
 
         public void Disable()
@@ -62,6 +66,18 @@ namespace LevelEditor.Editor
             {
                 // Debug.LogWarning("マップオブジェクトの親オブジェクトがありません。");
             }
+        }
+
+        public void UpdateShowGround(bool isShow)
+        {
+            UpdateParentObject();
+            parentObject.ShowBlocks = isShow;
+        }
+
+        public bool GetShowGround()
+        {
+            UpdateParentObject();
+            return parentObject.ShowBlocks;
         }
 
         public void StartPlaceSequence(GameObject prefab)
@@ -131,6 +147,7 @@ namespace LevelEditor.Editor
             if (!isWindowEnter)
                 return;
 
+            Handles.zTest = CompareFunction.Always;
             Handles.color = isErasing ? new Color(1f, 0.11f, 0f) : new Color(0f, 0.91f, 1f);
             Handles.DrawAAPolyLine(5f,
                 new Vector3(mousePosition.x - 0.5f, mousePosition.y - 0.5f, 0f),
@@ -143,17 +160,27 @@ namespace LevelEditor.Editor
         private void HandleSceneGUI(SceneView sceneView)
         {
             UpdateParentObject();
-            
-            if (parentObject ==null)
+
+            if (parentObject == null)
                 return;
-            
+
             Event e = Event.current;
 
-            UpdateEraseMode(e);
+            // alt + dragでマウス移動
+            bool isMouseMove = e.type == EventType.MouseDrag && e.alt;
 
-            if (e.type == EventType.MouseDown || (isSnapping && e.type == EventType.MouseDrag && isMousePositionChanged))
+            if (isMouseMove)
             {
-                TryPlaceOrErase(e);
+                Pan(sceneView, e.delta);
+            }
+            else if (!e.alt)
+            {
+                UpdateEraseMode(e);
+
+                if (e.type == EventType.MouseDown || (isSnapping && e.type == EventType.MouseDrag && isMousePositionChanged))
+                {
+                    TryPlaceOrErase(e);
+                }
             }
 
             if (e.type == EventType.MouseMove || e.type == EventType.MouseDrag)
@@ -221,12 +248,37 @@ namespace LevelEditor.Editor
             }
         }
 
+
+        private static void Pan(SceneView sceneView, Vector2 mouseDelta)
+        {
+            Camera cam = sceneView.camera;
+
+            if (cam == null)
+                return;
+
+            // 1ピクセルあたりのワールド距離（SceneView.size はビューの半縦幅）
+            float worldPerPixel = sceneView.camera.orthographicSize * 0.03f / sceneView.camera.pixelHeight;
+
+            Vector3 right = cam.transform.right;
+            Vector3 up = cam.transform.up;
+
+            // 画面のドラッグ方向に合わせてピボットを移動
+            Vector3 move =
+                (-mouseDelta.x * right + // マウス右ドラッグで右へ
+                 mouseDelta.y * up) // マウス上ドラッグで上へ
+                * worldPerPixel;
+
+
+            sceneView.pivot += move;
+            sceneView.Repaint();
+        }
+
         private void MoveSelectedObject()
         {
             if (targetObject == null)
                 return;
 
-            targetObject.transform.localPosition = new Vector3(mousePosition.x, mousePosition.y, 0f);
+            targetObject.transform.position = new Vector3(mousePosition.x, mousePosition.y, 0f);
         }
 
         private void RotateSelectedObject(Vector2 delta)
@@ -302,7 +354,7 @@ namespace LevelEditor.Editor
             Ray ray = sceneView.camera.ScreenPointToRay(screenPosition);
             if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity) || hit.transform.root != parentObject.transform)
                 return;
-            
+
             Transform target = hit.transform;
 
             while (target.parent.name != "Level")
@@ -340,7 +392,7 @@ namespace LevelEditor.Editor
             Vector3 screenPosition = Event.current.mousePosition * EditorGUIUtility.pixelsPerPoint;
             screenPosition.y = sceneView.camera.pixelHeight - screenPosition.y;
             Vector3 worldPosition = sceneView.camera.ScreenToWorldPoint(screenPosition);
-            worldPosition -= parentObject.transform.position;
+            // worldPosition -= parentObject.transform.position;
 
             // スナッピングする
             Vector2 snappedPosition = Snapping.Snap(worldPosition, EditorSnapSettings.move);
