@@ -21,19 +21,32 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
 
             float4 _OutlineColor;
             float _Thickness;
+            float _DepthLo;
+            float _DepthHi;
+            float _NormalLo;
+            float _NormalHi;
 
-            float RobertsCross(float3 samples[4])
+            float SobelFloat(
+                float s00, float s10, float s20,
+                float s01, float s21,
+                float s02, float s12, float s22)
             {
-                const float3 d1 = samples[1] - samples[2];
-                const float3 d2 = samples[0] - samples[3];
-                return sqrt(dot(d1, d1) + dot(d2, d2));
+                float gx = (s20 + 2.0 * s21 + s22) - (s00 + 2.0 * s01 + s02);
+                float gy = (s02 + 2.0 * s12 + s22) - (s00 + 2.0 * s10 + s20);
+                
+                return sqrt(gx * gx + gy * gy);
             }
 
-            float RobertsCross(float samples[4])
+            float SobelFloat3(
+                float3 s00, float3 s10, float3 s20,
+                float3 s01,  float3 s21,
+                float3 s02, float3 s12, float3 s22)
             {
-                const float d1 = samples[1] - samples[2];
-                const float d2 = samples[0] - samples[3];
-                return sqrt(d1 * d1 + d2 * d2);
+                float3 gx = (s20 + 2.0 * s21 + s22) - (s00 + 2.0 * s01 + s02);
+                float3 gy = (s02 + 2.0 * s12 + s22) - (s00 + 2.0 * s10 + s20);
+                
+                // ベクトル勾配の大きさ
+                return length(float2(length(gx), length(gy)));
             }
 
             float3 SampleSceneNormalsRemapped(float2 uv)
@@ -41,40 +54,62 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
                 return SampleSceneNormals(uv) * 0.5 + 0.5;
             }
 
+            // しきい値の幅を持たせてスムース化
+            float SmoothStep01(float x, float lo, float hi)
+            {
+                float t = saturate((x - lo) / max(1e-6, (hi - lo)));
+                return t; // 0..1
+            }
+
             half4 Frag(Varyings IN) : SV_TARGET
             {
                 float2 uv = IN.texcoord;
-                float2 texel_size = float2(1.0 / _ScreenParams.x, 1.0 / _ScreenParams.y);
+                float2 texel = float2(1.0 / _ScreenParams.x, 1.0 / _ScreenParams.y);
 
-                const float half_width_f = floor(_Thickness * 0.5);
-                const float half_width_c = ceil(_Thickness * 0.5);
+                // _Thickness をピクセル単位ステップに丸める（1以上）
+                int stepPx = max(1, (int)round(_Thickness));
+                float2 o = texel * stepPx;
 
-                float2 uvs[4];
-                uvs[0] = uv + texel_size * float2(half_width_f, half_width_c) * float2(-1, 1);
-                uvs[1] = uv + texel_size * float2(half_width_c, half_width_c) * float2(1, 1);
-                uvs[2] = uv + texel_size * float2(half_width_f, half_width_f) * float2(-1, -1);
-                uvs[3] = uv + texel_size * float2(half_width_c, half_width_f) * float2(1, -1);
+                // 3×3 の 8 方向 （8サンプル）
+                float2 uv00 = uv + float2(-o.x, -o.y);
+                float2 uv10 = uv + float2(0.0, -o.y);
+                float2 uv20 = uv + float2(o.x, -o.y);
 
-                float3 normal_samples[4];
-                float depth_samples[4];
+                float2 uv01 = uv + float2(-o.x, 0.0);
+                float2 uv21 = uv + float2(o.x, 0.0);
 
-                UNITY_UNROLL
-                for (int i = 0; i < 4; i++)
-                {
-                    depth_samples[i] = SampleSceneDepth(uvs[i]);
-                    normal_samples[i] = SampleSceneNormalsRemapped(uvs[i]);
-                }
+                float2 uv02 = uv + float2(-o.x, o.y);
+                float2 uv12 = uv + float2(0.0, o.y);
+                float2 uv22 = uv + float2(o.x, o.y);
 
-                float edge_depth = RobertsCross(depth_samples);
-                float edge_normal = RobertsCross(normal_samples);
+                // 深度サンプル
+                float d00 = SampleSceneDepth(uv00);
+                float d10 = SampleSceneDepth(uv10);
+                float d20 = SampleSceneDepth(uv20);
+                float d01 = SampleSceneDepth(uv01);
+                float d21 = SampleSceneDepth(uv21);
+                float d02 = SampleSceneDepth(uv02);
+                float d12 = SampleSceneDepth(uv12);
+                float d22 = SampleSceneDepth(uv22);
 
-                const float depth_threshold = 1.0 / 200.0;
-                const float normal_threshold = 1.0 / 4.0;
+                // 法線サンプル（0..1 に再マップ）
+                float3 n00 = SampleSceneNormalsRemapped(uv00);
+                float3 n10 = SampleSceneNormalsRemapped(uv10);
+                float3 n20 = SampleSceneNormalsRemapped(uv20);
+                float3 n01 = SampleSceneNormalsRemapped(uv01);
+                float3 n21 = SampleSceneNormalsRemapped(uv21);
+                float3 n02 = SampleSceneNormalsRemapped(uv02);
+                float3 n12 = SampleSceneNormalsRemapped(uv12);
+                float3 n22 = SampleSceneNormalsRemapped(uv22);
 
-                edge_depth = edge_depth > depth_threshold ? 1 : 0;
-                edge_normal = edge_normal > normal_threshold ? 1 : 0;
+                // Sobel（8方向勾配）でエッジ強度算出
+                float edge_depth = SobelFloat(d00, d10, d20, d01, d21, d02, d12, d22);
+                float edge_normal = SobelFloat3(n00, n10, n20, n01, n21, n02, n12, n22);
 
-                float edge = max(edge_depth, edge_normal);
+                float d = SmoothStep01(edge_depth, _DepthLo, _DepthHi);
+                float n = SmoothStep01(edge_normal, _NormalLo, _NormalHi);
+
+                float edge = saturate(max(d, n));
                 return edge;
             }
             ENDHLSL
@@ -96,12 +131,12 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
             float _JitterAmpPixels; // ピクセル単位の振幅
             float _JitterScale; // ノイズ空間スケール
             float _JitterSpeed; // 時間スケール
+            float _TimeStepSize; // ノイズを更新する感覚
             float _Blend; // 輪郭の合成量 0..1
 
             TEXTURE2D_X(_EdgeTexture);
             SAMPLER(sampler_BlitTexture);
 
-            // --- 追加：軽量ノイズ & fBM（4オクターブ） ---
             float hash21(float2 p)
             {
                 p = frac(p * float2(123.34, 456.21));
@@ -149,8 +184,8 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
                 // ピクセルサイズ（解像度非依存の揺れ幅にする）
                 float2 px = float2(_ScreenParams.z, _ScreenParams.w);
 
-                // 時間
-                float t = _TimeParameters.x * _JitterSpeed;
+                // 離散更新の周期（秒単位）
+                float t = floor(_TimeParameters.x / _TimeStepSize) * _TimeStepSize * _JitterSpeed;
 
                 // fBM で角度場を生成 → 方向ベクトル
                 float2 p = i.texcoord * _JitterScale + float2(0.7, -1.1) * t;
@@ -160,7 +195,7 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
                 // UVをピクセル単位でワープ（0なら無効）
                 float2 uvJitter = i.texcoord + dir * (_JitterAmpPixels * px);
 
-                // エッジを“揺らいだUV”で読む
+                // エッジを揺らいだUVで読む
                 float edgeA = SAMPLE_TEXTURE2D_X(_EdgeTexture, sampler_BlitTexture, uvJitter).x;
 
                 float2 p2 = p + float2(40, 40);

@@ -11,6 +11,7 @@ namespace SketchOutline
     {
         [SerializeField] private Shader outlineShader;
         [SerializeField] private SketchOutlineSettings settings = new SketchOutlineSettings();
+        
         private Material material;
 
         private static readonly int outlineColorID = Shader.PropertyToID("_OutlineColor");
@@ -20,23 +21,33 @@ namespace SketchOutline
         private static readonly int jitterAmpPixelsID = Shader.PropertyToID("_JitterAmpPixels");
         private static readonly int jitterScaleID = Shader.PropertyToID("_JitterScale");
         private static readonly int jitterSpeedID = Shader.PropertyToID("_JitterSpeed");
-        
+        private static readonly int depthLoId = Shader.PropertyToID("_DepthLo");
+        private static readonly int depthHiId = Shader.PropertyToID("_DepthHi");
+        private static readonly int normalLoId = Shader.PropertyToID("_NormalLo");
+        private static readonly int normalHiId = Shader.PropertyToID("_NormalHi");
+        private static readonly int timeStepSizeId = Shader.PropertyToID("_TimeStepSize");
+
         [Serializable]
         private class SketchOutlineSettings
         {
-            public Color OutlineColor = Color.black;
-            [Range(0.5f, 6f)] public float Thickness = 1.0f;
+            public Color outlineColor = Color.black;
+            [Range(0.5f, 6f)] public float thickness = 1.0f;
 
             [Header("Jitter (Sketchy Outline)")]
             public bool enableJitter = true;
 
             [Range(0f, 1f)] public float blend = 1.0f;
-            [Range(0f, 0.01f)] public float jitterAmpPixels = 0.75f; // 0で無効
+            [Range(0f, 0.01f)] public float jitterAmpPixels = 0.75f; 
             [Range(8f, 512f)] public float jitterScale = 160f;
             [Range(0f, 2f)] public float jitterSpeed = 1.0f;
+            [Range(0.01f, 1f)] public float timeStepSize = 1f;
 
-            // 不透明物の後（透過も描かれた後）に走らせるのが扱いやすい
-            public RenderPassEvent Event = RenderPassEvent.AfterRenderingTransparents;
+            [Range(0f, 0.01f)] public float depthLow = 1f / 220f;
+            [Range(0f, 0.01f)] public float depthHigh = 1f / 180f;
+            [Range(0f, 1f)] public float normalLow = 1f / 4.5f;
+            [Range(0f, 1f)] public float normalHigh = 1f / 3.5f;
+
+            public RenderPassEvent injectEvent = RenderPassEvent.AfterRenderingTransparents;
         }
 
         private class SketchOutlinePass : ScriptableRenderPass
@@ -44,13 +55,11 @@ namespace SketchOutline
             private readonly Material material;
             private readonly SketchOutlineSettings settings;
 
-            // RenderGraph に渡すデータ入れ物
             private class PassData
             {
                 public Material Material;
                 public TextureHandle Source;
                 public TextureHandle Destination;
-                public TextureHandle Motion;
             }
 
             public SketchOutlinePass(Material material, SketchOutlineSettings settings)
@@ -58,8 +67,7 @@ namespace SketchOutline
                 this.material = material;
                 this.settings = settings;
 
-                // 他PPと干渉しにくい位置（線をハッキリ残したいならこのまま）
-                renderPassEvent = settings.Event;
+                renderPassEvent = settings.injectEvent;
             }
 
             public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
@@ -75,7 +83,6 @@ namespace SketchOutline
 
                 TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchedTarget", false);
 
-                // 出力（同サイズの一時テクスチャ）
                 desc.graphicsFormat = GraphicsFormat.R16_SFloat;
                 TextureHandle destination = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", false);
 
@@ -91,10 +98,9 @@ namespace SketchOutline
 
                     builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                     {
-                        data.Material.SetColor(outlineColorID, settings.OutlineColor);
-                        data.Material.SetFloat(thicknessID, settings.Thickness);
+                        data.Material.SetColor(outlineColorID, settings.outlineColor);
+                        data.Material.SetFloat(thicknessID, settings.thickness);
 
-                        // src -> dst へ 1パス描画（マテリアルのPass 0を使用）
                         Blitter.BlitTexture(ctx.cmd, Texture2D.blackTexture, Vector2.one, data.Material, 0);
                     });
                 }
@@ -103,7 +109,6 @@ namespace SketchOutline
                 {
                     passData.Material = material;
                     passData.Source = resourceData.activeColorTexture;
-                    passData.Motion = resourceData.motionVectorColor;
                     passData.Destination = commitTarget;
 
                     builder.UseTexture(passData.Source, AccessFlags.Read);
@@ -117,9 +122,13 @@ namespace SketchOutline
                         data.Material.SetFloat(jitterAmpPixelsID, settings.enableJitter ? settings.jitterAmpPixels : 0f);
                         data.Material.SetFloat(jitterScaleID, settings.jitterScale);
                         data.Material.SetFloat(jitterSpeedID, settings.jitterSpeed);
+                        data.Material.SetFloat(depthLoId, settings.depthLow);
+                        data.Material.SetFloat(depthHiId, settings.depthHigh);
+                        data.Material.SetFloat(normalLoId, settings.normalLow);
+                        data.Material.SetFloat(normalHiId, settings.normalHigh);
+                        data.Material.SetFloat(timeStepSizeId, settings.timeStepSize);
                         data.Material.SetFloat(blendID, settings.blend);
 
-                        // src -> dst へ 1パス描画（マテリアルのPass 0を使用）
                         Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 1);
                     });
                 }
@@ -142,11 +151,6 @@ namespace SketchOutline
             }
 
             pass = new SketchOutlinePass(material, settings);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            PersistentHistory.ReleaseAll();
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
