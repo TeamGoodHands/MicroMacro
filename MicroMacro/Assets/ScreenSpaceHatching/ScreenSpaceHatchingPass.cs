@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
@@ -63,9 +64,9 @@ namespace Contents.ScreenSpaceHatching
                     pieceRad * i,
                     pieceRad * (i + 1)
                 );
-                
+
                 samplingRotations[i] = rad;
-                
+
                 // 任意の長さの範囲. できるだけ均等にバラけていた方がよい
                 float baseLen = 0.1f;
                 float pieceLen = (1f - baseLen) / SamplingCount;
@@ -73,7 +74,7 @@ namespace Contents.ScreenSpaceHatching
                     baseLen + pieceLen * i,
                     baseLen + pieceLen * (i + 1)
                 );
-                
+
                 samplingLength[i] = len;
             }
 
@@ -95,7 +96,7 @@ namespace Contents.ScreenSpaceHatching
             desc.depthBufferBits = (int)DepthBits.None;
             TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSAOResult", false);
 
-            desc.colorFormat = RenderTextureFormat.RFloat;
+            desc.graphicsFormat = GraphicsFormat.R16_SFloat;
 
             // SSAOを書き込むための一時テクスチャを作成
             TextureHandle ssaoTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "SSAO_TempColor", false);

@@ -52,6 +52,7 @@ namespace Contents.ScreenSpaceHatching
         {
             if (pass != null)
             {
+                pass.ConfigureInput(ScriptableRenderPassInput.Depth);
                 renderer.EnqueuePass(pass);
             }
         }

@@ -12,17 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0597bc3e869cd3a4aaf616f570820b9f, type: 3}
   m_Name: SketchOutlineFeature
   m_EditorClassIdentifier: 
-  m_Active: 0
+  m_Active: 1
   outlineShader: {fileID: 4800000, guid: 4856a36404e2efc40898b281d4efaf7f, type: 3}
   settings:
-    EdgeColor: {r: 0, g: 0, b: 0, a: 1}
-    EdgeWidth: 1
-    EdgeThreshold: 0.5
-    WobbleAmplitude: 0.6
-    WobbleFrequency: 3
-    NoiseScale: 3
-    QuantizeStepSeconds: 0.25
-    PaperTexture: {fileID: 0}
+    OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    Thickness: 6
+    enableJitter: 1
+    blend: 0.73
+    jitterAmpPixels: 0.0015
+    jitterScale: 15
+    jitterSpeed: 0.000001
+    crayonGrainStrength: 0.51
+    crayonGrainScale: 677
+    crayonGrainThreshold: 0.5
+    Event: 500
 --- !u!114 &-4740895762259731709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,7 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b00045f12942b46c698459096c89274e, type: 3}
   m_Name: FullScreenPassRendererFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   injectionPoint: 450
   fetchColorBuffer: 1
   requirements: 4
