@@ -20,12 +20,7 @@ namespace SketchOutline
         private static readonly int jitterAmpPixelsID = Shader.PropertyToID("_JitterAmpPixels");
         private static readonly int jitterScaleID = Shader.PropertyToID("_JitterScale");
         private static readonly int jitterSpeedID = Shader.PropertyToID("_JitterSpeed");
-        private static readonly int crayonGrainStrengthID = Shader.PropertyToID("_CrayonGrainStrength");
-        private static readonly int crayonGrainScaleID = Shader.PropertyToID("_CrayonGrainScale");
-        private static readonly int crayonGrainThresholdID = Shader.PropertyToID("_CrayonGrainThreshold");
-        private static readonly int sketchHistory = Shader.PropertyToID("_SketchHistory");
-        private static readonly int motionVectorTexture = Shader.PropertyToID("_MotionVectorTexture");
-
+        
         [Serializable]
         private class SketchOutlineSettings
         {
@@ -36,16 +31,9 @@ namespace SketchOutline
             public bool enableJitter = true;
 
             [Range(0f, 1f)] public float blend = 1.0f;
-            [Range(0f, 4f)] public float jitterAmpPixels = 0.75f; // 0で無効
+            [Range(0f, 0.01f)] public float jitterAmpPixels = 0.75f; // 0で無効
             [Range(8f, 512f)] public float jitterScale = 160f;
-            [Range(0f, 8f)] public float jitterSpeed = 1.0f;
-
-            [Header("Crayon Grain")]
-            [Range(0f, 1f)] public float crayonGrainStrength = 0.75f;
-
-            [Range(40f, 800f)] public float crayonGrainScale = 220f;
-            [Range(0f, 1f)] public float crayonGrainThreshold = 0.55f;
-
+            [Range(0f, 2f)] public float jitterSpeed = 1.0f;
 
             // 不透明物の後（透過も描かれた後）に走らせるのが扱いやすい
             public RenderPassEvent Event = RenderPassEvent.AfterRenderingTransparents;
@@ -82,13 +70,6 @@ namespace SketchOutline
                 UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
                 UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
                 RenderTextureDescriptor desc = cameraData.cameraTargetDescriptor;
-
-                Camera camera = cameraData.camera;
-                PersistentHistory history = PersistentHistory.GetOrCreate(camera, "Sketch"); // カメラ×"Sketch"で一意
-                history.EnsureAllocated(cameraData.cameraTargetDescriptor);
-
-                TextureHandle historyReadHandle = history.ImportRead(renderGraph);
-                TextureHandle historyWriteHandle = history.ImportWrite(renderGraph);
 
                 desc.depthBufferBits = (int)DepthBits.None;
 
@@ -127,23 +108,15 @@ namespace SketchOutline
 
                     builder.UseTexture(passData.Source, AccessFlags.Read);
                     builder.UseTexture(destination, AccessFlags.Read);
-                    builder.UseTexture(resourceData.motionVectorColor, AccessFlags.Read); // ← 追加（1行
-                    builder.UseTexture(historyReadHandle, AccessFlags.Read);
 
                     builder.SetRenderAttachment(passData.Destination, 0, AccessFlags.Write);
-                    builder.SetRenderAttachment(historyWriteHandle, 1, AccessFlags.Write);
 
                     builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                     {
                         data.Material.SetTexture(edgeTextureID, destination);
-                        data.Material.SetTexture(sketchHistory, historyReadHandle);
-                        data.Material.SetTexture(motionVectorTexture, data.Motion);
                         data.Material.SetFloat(jitterAmpPixelsID, settings.enableJitter ? settings.jitterAmpPixels : 0f);
                         data.Material.SetFloat(jitterScaleID, settings.jitterScale);
                         data.Material.SetFloat(jitterSpeedID, settings.jitterSpeed);
-                        material.SetFloat(crayonGrainStrengthID, settings.enableJitter ? settings.crayonGrainStrength : 0f);
-                        material.SetFloat(crayonGrainScaleID, settings.crayonGrainScale);
-                        material.SetFloat(crayonGrainThresholdID, settings.crayonGrainThreshold);
                         data.Material.SetFloat(blendID, settings.blend);
 
                         // src -> dst へ 1パス描画（マテリアルのPass 0を使用）
@@ -152,7 +125,6 @@ namespace SketchOutline
                 }
 
                 resourceData.cameraColor = commitTarget;
-                history.Swap();
             }
         }
 

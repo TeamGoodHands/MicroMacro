@@ -92,28 +92,16 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
             #pragma vertex Vert
             #pragma fragment Frag
 
-            // ★ 追加: _RcpScreenSize を自前定義（URP 17 は自動で来ない事がある）
-            #define _RcpScreenSize float2(1.0 / _ScreenParams.x, 1.0 / _ScreenParams.y)
-
             float4 _OutlineColor;
             float _JitterAmpPixels; // ピクセル単位の振幅
             float _JitterScale; // ノイズ空間スケール
             float _JitterSpeed; // 時間スケール
-            float _CrayonGrainStrength; // 粒子の乗算強度 0..1
-            float _CrayonGrainScale; // 粒子サイズ（大きいほど細かい）
-            float _CrayonGrainThreshold; // 粒子のしきい値 0..1
             float _Blend; // 輪郭の合成量 0..1
 
             TEXTURE2D_X(_EdgeTexture);
             SAMPLER(sampler_BlitTexture);
 
-            TEXTURE2D_X(_MotionVectorTexture);
-            SAMPLER(sampler_MotionVectorTexture);
-
-            TEXTURE2D_X(_SketchHistory);
-            SAMPLER(sampler_SketchHistory);
-
-            // --- 低コストノイズたち ---
+            // --- 追加：軽量ノイズ & fBM（4オクターブ） ---
             float hash21(float2 p)
             {
                 p = frac(p * float2(123.34, 456.21));
@@ -125,11 +113,14 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
             {
                 float2 i = floor(p);
                 float2 f = frac(p);
-                float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+
+                float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0); // quintic
+
                 float a = hash21(i + float2(0, 0));
                 float b = hash21(i + float2(1, 0));
                 float c = hash21(i + float2(0, 1));
                 float d = hash21(i + float2(1, 1));
+
                 float x1 = lerp(a, b, u.x);
                 float x2 = lerp(c, d, u.x);
                 return lerp(x1, x2, u.y);
@@ -137,87 +128,52 @@ Shader "Hidden/Custom/EdgeDetectionOutline"
 
             float fbm2D(float2 p)
             {
-                float sum = 0.0, amp = 0.5, freq = 1.0;
+                float sum = 0.0;
+                float amp = 0.5;
+                float freq = 1.0;
+
                 [unroll] for (int o = 0; o < 4; o++)
                 {
                     sum += amp * noise2D(p * freq);
                     freq *= 2.0;
                     amp *= 0.5;
                 }
-                return sum;
+                return sum; // ≈0..1
             }
 
-            float grain2D(float2 p)
+            float4 Frag(Varyings i) : SV_Target
             {
-                const float2x2 R = float2x2(0.8660254, -0.5, 0.5, 0.8660254);
-                p = mul(R, p);
-                float2 i = floor(p);
-                float2 f = frac(p);
-                float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
-                float h00 = frac(sin(dot(i + float2(0, 0), float2(127.1, 311.7))) * 43758.5453);
-                float h10 = frac(sin(dot(i + float2(1, 0), float2(127.1, 311.7))) * 43758.5453);
-                float h01 = frac(sin(dot(i + float2(0, 1), float2(127.1, 311.7))) * 43758.5453);
-                float h11 = frac(sin(dot(i + float2(1, 1), float2(127.1, 311.7))) * 43758.5453);
-                float x1 = lerp(h00, h10, u.x);
-                float x2 = lerp(h01, h11, u.x);
-                return lerp(x1, x2, u.y);
-            }
+                // 元画像
+                float4 src = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_BlitTexture, i.texcoord);
 
-            struct FragOut
-            {
-                float4 color : SV_Target0;
-                float4 hist : SV_Target1;
-            };
-
-            FragOut Frag(Varyings i)
-            {
-                FragOut o;
-
-                // === Motion Vector を UV に換算して逆流し ===
-                float2 motionPix = SAMPLE_TEXTURE2D_X(_MotionVectorTexture, sampler_MotionVectorTexture, i.texcoord).xy;
-                float2 motionUV = motionPix * _RcpScreenSize; // ★ ピクセル → UV(0..1)
-                float2 uvPrev = i.texcoord - motionUV; // ★ 逆投影
-
-                // 前フレーム履歴（R: 粒, G: 揺らぎ）を“貼り付け座標”で読む
-                float2 historyRG = SAMPLE_TEXTURE2D_X(_SketchHistory, sampler_SketchHistory, uvPrev).rg;
-                float grainPrev = historyRG.r;
-                float jitterPrev = historyRG.g;
-
-                // 元フレーム色
-                float4 src = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, i.texcoord);
+                // ピクセルサイズ（解像度非依存の揺れ幅にする）
+                float2 px = float2(_ScreenParams.z, _ScreenParams.w);
 
                 // 時間
                 float t = _TimeParameters.x * _JitterSpeed;
 
-                // 現フレームの新規ノイズ
-                float2 p = i.texcoord * _JitterScale + float2(t * 0.7, -t * 1.1);
+                // fBM で角度場を生成 → 方向ベクトル
+                float2 p = i.texcoord * _JitterScale + float2(0.7, -1.1) * t;
                 float angle = fbm2D(p) * 6.2831853; // 2π
                 float2 dir = float2(cos(angle), sin(angle));
-                float grainC = grain2D(i.texcoord * _CrayonGrainScale);
-                float jitterC = noise2D(i.texcoord * _JitterScale + t);
 
-                // 履歴ブレンド（貼り付き安定化）
-                const float historyWeight = 0.85;
-                float grain = lerp(grainC, grainPrev, historyWeight);
-                float jitter = lerp(jitterC, jitterPrev, historyWeight);
+                // UVをピクセル単位でワープ（0なら無効）
+                float2 uvJitter = i.texcoord + dir * (_JitterAmpPixels * px);
 
-                // ピクセル基準のオフセットを UV に変換してサンプル座標を揺らす
-                float2 jitterUV = dir * ((jitter - 0.5) * _JitterAmpPixels) * _RcpScreenSize;
-                // ★ 修正: _RcpScreenSize.xy を使用
+                // エッジを“揺らいだUV”で読む
+                float edgeA = SAMPLE_TEXTURE2D_X(_EdgeTexture, sampler_BlitTexture, uvJitter).x;
 
-                // エッジを“貼り付いたまま”揺らぎUVで読む
-                float edge = SAMPLE_TEXTURE2D_X(_EdgeTexture, sampler_LinearClamp, i.texcoord + jitterUV).x;
+                float2 p2 = p + float2(40, 40);
+                float angle2 = fbm2D(p2) * 6.2831853;
+                float2 dir2 = float2(cos(angle2), sin(angle2));
+                float2 uvJitter2 = i.texcoord + dir2 * (_JitterAmpPixels * px);
+                float edgeB = SAMPLE_TEXTURE2D(_EdgeTexture, sampler_LinearClamp, uvJitter2).x;
 
-                // 粒マスクを乗算
-                float mask = step(_CrayonGrainThreshold, grain);
-                edge *= lerp(1.0, mask, _CrayonGrainStrength);
-                edge *= _Blend;
+                float edge = max(edgeA, edgeB);
 
-                o.color = lerp(src, _OutlineColor, edge);
-
-                // ★ SV_Target1 に次フレーム用履歴を書き出し（R=粒, G=揺らぎ）
-                o.hist = float4(grain, jitter, 0, 1);
-                return o;
+                // 合成
+                float alpha = saturate(_Blend);
+                return lerp(src, _OutlineColor, edge * alpha);
             }
             ENDHLSL
         }
