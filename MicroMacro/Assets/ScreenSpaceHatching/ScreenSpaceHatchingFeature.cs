@@ -20,7 +20,9 @@ namespace Contents.ScreenSpaceHatching
             [Range(0.1f, 1f)] public float BlendStep = 0.5f;
             [Range(0.1f, 5f)] public float BlendPower = 1f;
             [Range(0.1f, 10f)] public float HatchScale = 1f;
-            [Range(-10f, 10f)] public float HatchOffset = 1f;
+            [Range(-1f, 1f)] public float FrontHatchOffset = 1f;
+            [Range(-1f, 1f)] public float BackHatchOffset = 1f;
+            [Range(0f, 0.1f)] public float HatchOffsetBorder = 0.5f;
             [Range(2, 32)] public int BlurKernelRadius = 6;
             public Texture2D CrossPatternTexture;
 

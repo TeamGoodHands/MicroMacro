@@ -1,4 +1,4 @@
-Shader "Hidden/Custom/EdgeDetectionOutline"
+Shader "Hidden/Custom/SketchOutline"
 {
     Properties {}
 

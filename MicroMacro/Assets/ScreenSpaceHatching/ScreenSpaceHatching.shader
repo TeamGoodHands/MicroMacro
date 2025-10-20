@@ -232,6 +232,7 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
             HLSLPROGRAM
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
 
             #pragma vertex Vert
             #pragma fragment Frag
@@ -239,7 +240,9 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
             float _BlendStep;
             float _BlendPower;
             float _HatchScale;
-            float _HatchOffset;
+            float _FrontHatchOffset;
+            float _BackHatchOffset;
+            float _HatchOffsetBorder;
 
             TEXTURE2D_X(_CrossHatchPatternTexture);
             TEXTURE2D_X(_BlurResultTexture);
@@ -248,8 +251,11 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
 
             float4 Frag(Varyings i) : SV_Target
             {
+                float depth = SampleSceneDepth(i.texcoord);
+                float offset = depth > _HatchOffsetBorder ? _FrontHatchOffset : _BackHatchOffset;
+
                 float aspect = _ScreenParams.x / _ScreenParams.y;
-                float2 hatchUv = i.texcoord * _HatchScale - _WorldSpaceCameraPos.xy * _HatchOffset;
+                float2 hatchUv = (i.texcoord - _WorldSpaceCameraPos.xy * offset) * _HatchScale;
                 hatchUv.x = (hatchUv.x - 0.5) * aspect + 0.5;
 
                 float4 color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, i.texcoord);

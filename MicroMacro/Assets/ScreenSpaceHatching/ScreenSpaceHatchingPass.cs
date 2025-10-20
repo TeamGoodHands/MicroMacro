@@ -30,7 +30,9 @@ namespace Contents.ScreenSpaceHatching
         private static readonly int blendStepID = Shader.PropertyToID("_BlendStep");
         private static readonly int blendPowerID = Shader.PropertyToID("_BlendPower");
         private static readonly int hatchScaleID = Shader.PropertyToID("_HatchScale");
-        private static readonly int hatchOffsetID = Shader.PropertyToID("_HatchOffset");
+        private static readonly int frontHatchOffsetID = Shader.PropertyToID("_FrontHatchOffset");
+        private static readonly int backHatchOffsetID = Shader.PropertyToID("_BackHatchOffset");
+        private static readonly int hatchOffsetBorderID = Shader.PropertyToID("_HatchOffsetBorder");
         private static readonly int crossPatternTextureID = Shader.PropertyToID("_CrossHatchPatternTexture");
 
         private const int SamplingCount = 12;
@@ -221,7 +223,9 @@ namespace Contents.ScreenSpaceHatching
                     data.Material.SetFloat(blendStepID, data.Settings.BlendStep);
                     data.Material.SetFloat(blendPowerID, data.Settings.BlendPower);
                     data.Material.SetFloat(hatchScaleID, data.Settings.HatchScale);
-                    data.Material.SetFloat(hatchOffsetID, data.Settings.HatchOffset);
+                    data.Material.SetFloat(frontHatchOffsetID, data.Settings.FrontHatchOffset);
+                    data.Material.SetFloat(backHatchOffsetID, data.Settings.BackHatchOffset);;
+                    data.Material.SetFloat(hatchOffsetBorderID, data.Settings.HatchOffsetBorder);;
 
                     Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 4);
                 });
