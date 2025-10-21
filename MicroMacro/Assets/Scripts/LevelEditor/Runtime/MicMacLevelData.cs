@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Constants;
 using CoreModule.Serialization;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace LevelEditor.Runtime
 {
@@ -70,6 +73,7 @@ namespace LevelEditor.Runtime
             }
         }
 
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
@@ -88,6 +92,7 @@ namespace LevelEditor.Runtime
 
             Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
         }
+#endif
 
         private Dictionary<long, GameObject> GetMapData()
         {
