@@ -1,3 +1,4 @@
+using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -30,6 +31,43 @@ namespace Contents.ScreenSpaceHatching
 
             public Color OcclusionColor = Color.black;
             public Shader ssaoShader;
+            public bool generateSamplingPoint = true;
+
+            private const int SamplingCount = 12;
+
+            [SerializeField, HideInInspector] private float[] samplingRotations = new float[SamplingCount];
+
+            [SerializeField, HideInInspector] private float[] samplingLength = new float[SamplingCount];
+
+            public (float[] rotations, float[] length) GetSamplingData()
+            {
+                if (generateSamplingPoint)
+                {
+                    for (int i = 0; i < SamplingCount; i++)
+                    {
+                        // 任意の角度. できるだけ均等にバラけていた方がよい
+                        float pieceRad = (Mathf.PI * 2) / SamplingCount;
+                        float rad = UnityEngine.Random.Range(
+                            pieceRad * i,
+                            pieceRad * (i + 1)
+                        );
+
+                        samplingRotations[i] = rad;
+
+                        // 任意の長さの範囲. できるだけ均等にバラけていた方がよい
+                        float baseLen = 0.1f;
+                        float pieceLen = (1f - baseLen) / SamplingCount;
+                        float len = UnityEngine.Random.Range(
+                            baseLen + pieceLen * i,
+                            baseLen + pieceLen * (i + 1)
+                        );
+
+                        samplingLength[i] = len;
+                    }
+                }
+
+                return (samplingRotations, samplingLength);
+            }
         }
 
         public ScreenSpaceHatchingSettings settings = new ScreenSpaceHatchingSettings();

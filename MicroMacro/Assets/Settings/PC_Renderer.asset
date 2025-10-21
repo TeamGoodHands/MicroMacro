@@ -42,24 +42,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    Blend: 0.577
+    Blend: 0.65
     OcclusionSampleLength: 4
     OcclusionMinDistance: 0
     OcclusionMaxDistance: 89.2
-    OcclusionBias: 0.031
+    OcclusionBias: 0.35
     OcclusionStrength: 2.67
-    OcclusionPower: 1
+    OcclusionPower: 0.26
     OcclusionDifferenceThreshold: 20
     BlendStep: 0.87
     BlendPower: 2.54
     HatchScale: 4.51
-    FrontHatchOffset: -0.025
-    BackHatchOffset: -0.005
+    FrontHatchOffset: -0.035
+    BackHatchOffset: -0.004
     HatchOffsetBorder: 0.0056
-    BlurKernelRadius: 6
+    BlurKernelRadius: 5
     CrossPatternTexture: {fileID: 2800000, guid: 171cea23cfdea7d4bb041284a3c8ff5f, type: 3}
     OcclusionColor: {r: 0, g: 0, b: 0, a: 1}
     ssaoShader: {fileID: 4800000, guid: aa54c93f5f2b0e145bc0b9cec9bf5edc, type: 3}
+    generateSamplingPoint: 0
+    samplingRotations:
+    - 0.44863215
+    - 0.7880028
+    - 1.3636658
+    - 1.5895679
+    - 2.5003145
+    - 2.7306647
+    - 3.6461077
+    - 4.085023
+    - 4.2969294
+    - 5.1759677
+    - 5.3832164
+    - 6.25248
+    samplingLength:
+    - 0.15176778
+    - 0.22315453
+    - 0.32348752
+    - 0.39603037
+    - 0.4551406
+    - 0.5324319
+    - 0.5780827
+    - 0.65080273
+    - 0.74473387
+    - 0.7924064
+    - 0.9011187
+    - 0.98992014
 --- !u!114 &-3803944856254396364
 MonoBehaviour:
   m_ObjectHideFlags: 0
