@@ -32,7 +32,7 @@ namespace Module.Enemy.Cargo
             stateMachine.AddTransition<BackAttackState, PrepareMoveState>(() => component.Condition.CurrentState == CargoCondition.State.PrepareMove);
             stateMachine.AddTransition<PrepareMoveState, MoveState>(() => component.Condition.CurrentState == CargoCondition.State.Move);
 
-            stateMachine.Start<SleepingState>();
+            stateMachine.Start<BackAttackState>();
         }
 
         private void CheckComponentReference()

@@ -2349,7 +2349,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
+  NoiseProfile: {fileID: 11400000, guid: 320d7f34e41ef144397a1980d6931a66, type: 2}
   PivotOffset: {x: 0, y: 0, z: 0}
   AmplitudeGain: 0
   FrequencyGain: 0
@@ -5355,7 +5355,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  CustomBlends: {fileID: 11400000, guid: aa11227bd1788b746836f4f16edd9bda, type: 2}
+  CustomBlends: {fileID: 11400000, guid: c61b7aa94bd4fbf4da97614a860bbce5, type: 2}
 --- !u!1 &1089657106
 GameObject:
   m_ObjectHideFlags: 0
@@ -8121,8 +8121,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u30DF\u30B9\u30BF\u30FC\u30FB\u30AB\u30FC\u30B4"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: bd972d3b32a74914c98d63a881b1cabd, type: 2}
-  m_sharedMaterial: {fileID: -3583214974368216897, guid: bd972d3b32a74914c98d63a881b1cabd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 175be2f16498b5a4cb7f9bc8bc092f41, type: 2}
+  m_sharedMaterial: {fileID: -4139053190311734572, guid: 175be2f16498b5a4cb7f9bc8bc092f41, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8686,7 +8686,7 @@ MonoBehaviour:
   - {fileID: 1264081741}
   flightInterval: 6
   fallInterval: 3
-  fallDuration: 2
+  fallDuration: 1
   switchDelay: 0.7
   finishSequenceDelay: 3
 --- !u!1 &1748857510
@@ -9991,6 +9991,18 @@ PrefabInstance:
       propertyPath: component.nearInEnemyCamera
       value: 
       objectReference: {fileID: 1548920912}
+    - target: {fileID: 2067291466071235750, guid: 2e6bc06a945542c4b9611e167605ae14, type: 3}
+      propertyPath: component.parameter.moveSpeed
+      value: 0.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 2067291466071235750, guid: 2e6bc06a945542c4b9611e167605ae14, type: 3}
+      propertyPath: component.parameter.amplitudeGainOnImpact
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 2067291466071235750, guid: 2e6bc06a945542c4b9611e167605ae14, type: 3}
+      propertyPath: component.parameter.frequencyGainOnImpact
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7077017210532538602, guid: 2e6bc06a945542c4b9611e167605ae14, type: 3}
       propertyPath: m_Name
       value: CargoBoss
