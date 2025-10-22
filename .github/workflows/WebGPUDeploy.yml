@@ -44,11 +44,14 @@ jobs:
           projectPath:    MicroMacro
           unityVersion:   6000.1.2f1
           allowDirtyBuild: true
+
+      - name: Check file list
+        run: ls -R
             
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: MicroMacro/Build/WebGL
+          path: build/WebGL
       
   deploy:
     name: Deploy to GitHub Pages
