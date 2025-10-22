@@ -45,9 +45,9 @@ jobs:
           unityVersion:   6000.1.2f1
           allowDirtyBuild: true
 
-     # index.htmlのパスを絶対から相対に
+     # index.htmlを絶対パスから相対パスに
       - name: Modify index.html for GitHub Pages
-        run: sed -i 's/src="\//src="./g; s/href="\//href="./g' build/WebGL/index.html
+        run: sed -i 's|"/Build/|"/MicroMacro/Build/|g; s|"/TemplateData/|"/MicroMacro/TemplateData/|g' build/WebGL/index.html
             
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
