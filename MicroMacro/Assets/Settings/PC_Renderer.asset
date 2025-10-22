@@ -12,17 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0597bc3e869cd3a4aaf616f570820b9f, type: 3}
   m_Name: SketchOutlineFeature
   m_EditorClassIdentifier: 
-  m_Active: 0
+  m_Active: 1
   outlineShader: {fileID: 4800000, guid: 4856a36404e2efc40898b281d4efaf7f, type: 3}
   settings:
-    EdgeColor: {r: 0, g: 0, b: 0, a: 1}
-    EdgeWidth: 1
-    EdgeThreshold: 0.5
-    WobbleAmplitude: 0.6
-    WobbleFrequency: 3
-    NoiseScale: 3
-    QuantizeStepSeconds: 0.25
-    PaperTexture: {fileID: 0}
+    outlineColor: {r: 0, g: 0, b: 0, a: 1}
+    thickness: 1
+    enableJitter: 1
+    blend: 0.66
+    jitterAmpPixels: 0.0018
+    jitterScale: 12
+    jitterSpeed: 0.7
+    timeStepSize: 0.5
+    depthLow: 0.0045454544
+    depthHigh: 0.0055555557
+    normalLow: 0.24
+    normalHigh: 0.37
+    injectEvent: 500
 --- !u!114 &-4740895762259731709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37,22 +42,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    Blend: 0.703
+    Blend: 0.65
     OcclusionSampleLength: 4
     OcclusionMinDistance: 0
-    OcclusionMaxDistance: 100
-    OcclusionBias: 0
+    OcclusionMaxDistance: 89.2
+    OcclusionBias: 0.35
     OcclusionStrength: 2.67
-    OcclusionPower: 1
+    OcclusionPower: 0.26
     OcclusionDifferenceThreshold: 20
     BlendStep: 0.87
     BlendPower: 2.54
     HatchScale: 4.51
-    HatchOffset: -0.12
-    BlurKernelRadius: 6
+    FrontHatchOffset: -0.035
+    BackHatchOffset: -0.004
+    HatchOffsetBorder: 0.0056
+    BlurKernelRadius: 5
     CrossPatternTexture: {fileID: 2800000, guid: 171cea23cfdea7d4bb041284a3c8ff5f, type: 3}
     OcclusionColor: {r: 0, g: 0, b: 0, a: 1}
     ssaoShader: {fileID: 4800000, guid: aa54c93f5f2b0e145bc0b9cec9bf5edc, type: 3}
+    generateSamplingPoint: 0
+    samplingRotations:
+    - 0.44863215
+    - 0.7880028
+    - 1.3636658
+    - 1.5895679
+    - 2.5003145
+    - 2.7306647
+    - 3.6461077
+    - 4.085023
+    - 4.2969294
+    - 5.1759677
+    - 5.3832164
+    - 6.25248
+    samplingLength:
+    - 0.15176778
+    - 0.22315453
+    - 0.32348752
+    - 0.39603037
+    - 0.4551406
+    - 0.5324319
+    - 0.5780827
+    - 0.65080273
+    - 0.74473387
+    - 0.7924064
+    - 0.9011187
+    - 0.98992014
 --- !u!114 &-3803944856254396364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b00045f12942b46c698459096c89274e, type: 3}
   m_Name: FullScreenPassRendererFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   injectionPoint: 450
   fetchColorBuffer: 1
   requirements: 4

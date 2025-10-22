@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
@@ -29,17 +30,17 @@ namespace Contents.ScreenSpaceHatching
         private static readonly int blendStepID = Shader.PropertyToID("_BlendStep");
         private static readonly int blendPowerID = Shader.PropertyToID("_BlendPower");
         private static readonly int hatchScaleID = Shader.PropertyToID("_HatchScale");
-        private static readonly int hatchOffsetID = Shader.PropertyToID("_HatchOffset");
+        private static readonly int frontHatchOffsetID = Shader.PropertyToID("_FrontHatchOffset");
+        private static readonly int backHatchOffsetID = Shader.PropertyToID("_BackHatchOffset");
+        private static readonly int hatchOffsetBorderID = Shader.PropertyToID("_HatchOffsetBorder");
         private static readonly int crossPatternTextureID = Shader.PropertyToID("_CrossHatchPatternTexture");
-
-        private const int SamplingCount = 12;
-        private readonly float[] samplingRotations = new float[SamplingCount];
-        private readonly float[] samplingLength = new float[SamplingCount];
 
         public ScreenSpaceHatchingPass(Material mat, ScreenSpaceHatchingFeature.ScreenSpaceHatchingSettings settings)
         {
             this.material = mat;
-            SetUpSamplingPoints(material);
+            (float[] rotations, float[] length) samplingData = settings.GetSamplingData();
+            material.SetFloatArray(samplingRotationsID, samplingData.rotations);
+            material.SetFloatArray(samplingDistancesID, samplingData.length);
 
             this.settings = settings;
             this.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
@@ -53,33 +54,6 @@ namespace Contents.ScreenSpaceHatching
             public TextureHandle Destination; // 書き込み先 (temp)
         }
 
-        private void SetUpSamplingPoints(Material material)
-        {
-            for (int i = 0; i < SamplingCount; i++)
-            {
-                // 任意の角度. できるだけ均等にバラけていた方がよい
-                float pieceRad = (Mathf.PI * 2) / SamplingCount;
-                float rad = UnityEngine.Random.Range(
-                    pieceRad * i,
-                    pieceRad * (i + 1)
-                );
-                
-                samplingRotations[i] = rad;
-                
-                // 任意の長さの範囲. できるだけ均等にバラけていた方がよい
-                float baseLen = 0.1f;
-                float pieceLen = (1f - baseLen) / SamplingCount;
-                float len = UnityEngine.Random.Range(
-                    baseLen + pieceLen * i,
-                    baseLen + pieceLen * (i + 1)
-                );
-                
-                samplingLength[i] = len;
-            }
-
-            material.SetFloatArray(samplingRotationsID, samplingRotations);
-            material.SetFloatArray(samplingDistancesID, samplingLength);
-        }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
@@ -95,7 +69,7 @@ namespace Contents.ScreenSpaceHatching
             desc.depthBufferBits = (int)DepthBits.None;
             TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSAOResult", false);
 
-            desc.colorFormat = RenderTextureFormat.RFloat;
+            desc.graphicsFormat = GraphicsFormat.R16_SFloat;
 
             // SSAOを書き込むための一時テクスチャを作成
             TextureHandle ssaoTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "SSAO_TempColor", false);
@@ -220,7 +194,11 @@ namespace Contents.ScreenSpaceHatching
                     data.Material.SetFloat(blendStepID, data.Settings.BlendStep);
                     data.Material.SetFloat(blendPowerID, data.Settings.BlendPower);
                     data.Material.SetFloat(hatchScaleID, data.Settings.HatchScale);
-                    data.Material.SetFloat(hatchOffsetID, data.Settings.HatchOffset);
+                    data.Material.SetFloat(frontHatchOffsetID, data.Settings.FrontHatchOffset);
+                    data.Material.SetFloat(backHatchOffsetID, data.Settings.BackHatchOffset);
+                    ;
+                    data.Material.SetFloat(hatchOffsetBorderID, data.Settings.HatchOffsetBorder);
+                    ;
 
                     Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 4);
                 });
