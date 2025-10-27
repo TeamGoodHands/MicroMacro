@@ -17,6 +17,8 @@ namespace Module.Enemy.Cargo
         [SerializeField] private float backAttackDistanceZ;
         [SerializeField] private float attackDelay;
         [SerializeField] private float attackMoveSpeed;
+        
+        [SerializeField] private Color damageAdditionalColor;
 
         public float MoveSpeed => moveSpeed;
         public float AmplitudeGainOnMove => amplitudeGainOnMove;
@@ -26,5 +28,6 @@ namespace Module.Enemy.Cargo
         public float BackAttackDistanceZ => backAttackDistanceZ;
         public float AttackDelay => attackDelay;
         public float AttackMoveSpeed => attackMoveSpeed;
+        public Color DamageAdditionalColor => damageAdditionalColor;
     }
 }

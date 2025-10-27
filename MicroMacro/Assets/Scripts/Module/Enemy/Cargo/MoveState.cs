@@ -23,6 +23,7 @@ namespace Module.Enemy.Cargo
 
         internal override void OnEnter()
         {
+            perlin.NoiseProfile = component.MoveNoise;
             perlin.AmplitudeGain = component.Parameter.AmplitudeGainOnMove;
             perlin.FrequencyGain = component.Parameter.FrequencyGainOnMove;
             perlin.enabled = true;
@@ -31,7 +32,6 @@ namespace Module.Enemy.Cargo
         internal override void OnExit()
         {
             perlin.enabled = false;
-            component.Condition.IsStart = !component.Condition.IsStart;
         }
 
         internal override void Update()
@@ -49,7 +49,7 @@ namespace Module.Enemy.Cargo
                 SetPositionToTarget(target);
                 
                 // ステートを進める
-                component.Condition.CurrentState = CargoCondition.State.BackAttack;
+                component.Condition.SwitchState(CargoCondition.State.BackAttack);
             }
             
             // x軸上の移動方向を取得
@@ -83,15 +83,15 @@ namespace Module.Enemy.Cargo
         {
             if (direction > 0)
             {
-                component.AnimatorWrapper.Direction = -1f;
+                component.AnimatorWrapper.DirectionX = -1;
             }
             else if (direction < 0)
             {
-                component.AnimatorWrapper.Direction = 1f;
+                component.AnimatorWrapper.DirectionX = 1;
             }
             else
             {
-                component.AnimatorWrapper.Direction = 0f;
+                component.AnimatorWrapper.DirectionX = 0;
             }
         }
 

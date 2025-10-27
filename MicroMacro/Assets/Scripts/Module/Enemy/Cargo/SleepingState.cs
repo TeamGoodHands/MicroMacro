@@ -4,6 +4,7 @@ using CoreModule.Utility;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Management;
+using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -13,11 +14,11 @@ namespace Module.Enemy.Cargo
     public class SleepingState : HierarchicalStateMachine.State
     {
         private readonly CargoComponent component;
-        private readonly Vector3[] localPositions;
-        private readonly Vector3[] defaultPositions;
         private readonly RadialBlurFeature blurFeature;
 
         private int damageCount;
+        private CargoShaderWrapper cargoShaderWrapper;
+        private Sequence damageColorSequence;
 
         public SleepingState(CargoComponent component)
         {
@@ -28,12 +29,8 @@ namespace Module.Enemy.Cargo
                 Debug.LogError("RadialBlurFeatureが存在しません!");
             }
 
-            localPositions = new Vector3[component.Eyes.Length];
-            defaultPositions = new Vector3[component.Eyes.Length];
-
-            CloseEyes();
-
             component.HpBarCanvasGroup.alpha = 0f;
+            cargoShaderWrapper = new CargoShaderWrapper(component.Renderer.sharedMaterial);
         }
 
         private void OnDamage(int damage)
@@ -44,30 +41,22 @@ namespace Module.Enemy.Cargo
             AnimateAsync().Forget();
         }
 
-        private void CloseEyes()
-        {
-            for (var i = 0; i < component.Eyes.Length; i++)
-            {
-                Transform transform = component.Eyes[i];
-                Vector3 position = transform.localPosition;
-                defaultPositions[i] = position;
-
-                position.y -= 0.01f;
-                position.z -= 0.01f;
-                localPositions[i] = position;
-            }
-        }
-
         private async UniTaskVoid AnimateAsync()
         {
-            // 仮ダメージアニメーション
-            _ = component.BodyTransform.DOShakeRotation(0.5f, new Vector3(7f, 0f, 0f), 25);
+            component.AnimatorWrapper.SetDamageTrigger();
+
+            Color color = component.Parameter.DamageAdditionalColor;
+            damageColorSequence?.Kill();
+            damageColorSequence = DOTween.Sequence();
+            damageColorSequence.Append(DOTween.To(() => Color.black, c => cargoShaderWrapper.AdditionalColor = c, color, 0.1f));
+            damageColorSequence.Append(DOTween.To(() => color, c => cargoShaderWrapper.AdditionalColor = c, Color.black, 0.1f));
+            damageColorSequence.Play();
 
             damageCount++;
 
             if (damageCount < 3)
                 return;
-            
+
             await DoAwake();
         }
 
@@ -75,7 +64,10 @@ namespace Module.Enemy.Cargo
         {
             await UniTask.Delay(TimeSpan.FromSeconds(2f));
 
+            component.AnimatorWrapper.SetAngryTrigger();
+
             component.Status.SetHealth(component.Status.MaxHealth);
+            component.BossCamera.Priority = -1;
             component.NearInEnemyCamera.Priority = 100;
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
@@ -89,33 +81,17 @@ namespace Module.Enemy.Cargo
             // 目を開いた瞬間にラディアルブラー
             _ = DOTween.To(() => parameter.Intensity, x => parameter.Intensity = x, 0f, 0.3f);
 
-
-            float delta = 0f;
-
-            // 目を前に飛び出す
-            _ = DOTween.To(() => delta, x =>
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    float d = Mathf.Lerp(0f, 0.004f, x);
-                    localPositions[i] = defaultPositions[i] + new Vector3(0f, d, d);
-                }
-
-                delta = x;
-            }, 1f, 0.5f).SetEase(Ease.OutBack, 10f);
-
             await UniTask.Delay(TimeSpan.FromSeconds(1.2f));
 
             component.NearInEnemyCamera.Priority = -1;
-            component.BossCamera.Priority = 1000;
+            component.BossCamera.Priority = 100;
             _ = component.HpBarCanvasGroup.DOFade(1f, 2f);
 
             SoundManager.instance.Play("Boss2");
 
             await UniTask.Delay(TimeSpan.FromSeconds(1.4f));
 
-            component.Condition.CurrentState = CargoCondition.State.Move;
-            component.AnimatorWrapper.SetDamageTrigger();
+            component.Condition.SwitchState(CargoCondition.State.BackAttack);
         }
 
         internal override void OnEnter()
@@ -134,10 +110,6 @@ namespace Module.Enemy.Cargo
 
         internal override void LateUpdate()
         {
-            for (int i = 0; i < component.Eyes.Length; i++)
-            {
-                component.Eyes[i].localPosition = localPositions[i];
-            }
         }
 
         internal override void UpdatePhysics()

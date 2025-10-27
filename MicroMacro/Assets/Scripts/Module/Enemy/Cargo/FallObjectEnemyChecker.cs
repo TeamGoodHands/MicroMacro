@@ -6,6 +6,7 @@ namespace Module.Enemy.Cargo
 {
     public class FallObjectEnemyChecker : MonoBehaviour
     {
+        [SerializeField] private float  castDistanceMultiplier = 0.3f;
         public event Action<GameObject> OnHit;
         public event Action OnCheckStart;
         public event Action OnCheckStop;
@@ -42,7 +43,7 @@ namespace Module.Enemy.Cargo
             const float startOffset = 0.01f;
 
             // BoxCast の距離
-            const float castDistance = 0.2f;
+            float castDistance = transform.localScale.y * castDistanceMultiplier;
 
             // 半径（Half-Extents）を取得
             Vector3 halfExtents = transform.localScale * 0.5f;
@@ -65,7 +66,7 @@ namespace Module.Enemy.Cargo
         void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(transform.position + Vector3.down * 0.1f, transform.localScale);
+            Gizmos.DrawWireCube(transform.position + Vector3.down * transform.localScale.y * castDistanceMultiplier, transform.localScale);
         }
     }
 }

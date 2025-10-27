@@ -25,8 +25,9 @@ namespace CoreModule.ObjectPool
         private readonly Stack<T> objects;
         private readonly Func<T> createFunc;
         private readonly Action<T> onReset;
+        private readonly Action<T> onGet;
 
-        public ObjectPool(Func<T> createFunc, Action<T> onReset = null, int initialCapacity = 16)
+        public ObjectPool(Func<T> createFunc, Action<T> onReset = null, Action<T> onGet = null, int initialCapacity = 16)
         {
             if (createFunc == null)
                 throw new ArgumentNullException(nameof(createFunc));
@@ -34,6 +35,7 @@ namespace CoreModule.ObjectPool
             this.objects = new Stack<T>(initialCapacity);
             this.createFunc = createFunc;
             this.onReset = onReset;
+            this.onGet = onGet;
 
             // プールの事前確保
             for (int i = 0; i < initialCapacity; i++)
@@ -48,7 +50,9 @@ namespace CoreModule.ObjectPool
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetOrCreate()
         {
-            return objects.Count > 0 ? objects.Pop() : createFunc();
+            T item = objects.Count > 0 ? objects.Pop() : createFunc();
+            onGet?.Invoke(item);
+            return item;
         }
 
         /// <summary>
@@ -59,6 +63,7 @@ namespace CoreModule.ObjectPool
             if (objects.Count > 0)
             {
                 item = objects.Pop();
+                onGet?.Invoke(item);
                 return true;
             }
 

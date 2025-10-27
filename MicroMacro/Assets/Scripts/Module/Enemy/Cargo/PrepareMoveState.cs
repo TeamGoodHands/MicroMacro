@@ -27,6 +27,7 @@ namespace Module.Enemy.Cargo
 
         internal override void OnEnter()
         {
+            perlin.NoiseProfile = component.MoveNoise;
             perlin.AmplitudeGain = component.Parameter.AmplitudeGainOnMove;
             perlin.FrequencyGain = component.Parameter.FrequencyGainOnMove;
             perlin.enabled = true;
@@ -79,7 +80,7 @@ namespace Module.Enemy.Cargo
 
         private void UpdateAnimator()
         {
-            component.AnimatorWrapper.Direction = 0f;
+            component.AnimatorWrapper.DirectionX = 0;
         }
 
         private bool IsTargetReached(Transform target)
@@ -115,7 +116,7 @@ namespace Module.Enemy.Cargo
             // MoveStateに行くまで少し待つ
             await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
 
-            component.Condition.CurrentState = CargoCondition.State.Move;
+            component.Condition.SwitchState(CargoCondition.State.Move); 
         }
 
         internal override void Dispose()

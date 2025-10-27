@@ -4,6 +4,7 @@ using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Management;
+using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -19,34 +20,40 @@ namespace Module.Enemy.Cargo
         private readonly Rigidbody player;
         private readonly CinemachineBasicMultiChannelPerlin perlin;
         private readonly FallSequencerSwitcher sequencerSwitcher;
+        private readonly CargoShaderWrapper cargoShaderWrapper;
 
         private bool isMovingBack;
         private Vector3 targetPosition;
-        private Quaternion defaultBodyRotation;
         private Tween rotationTween;
+        private Sequence damageColorSequence;
 
         public BackAttackState(CargoComponent component)
         {
             this.component = component;
-            defaultBodyRotation = component.BodyTransform.localRotation;
 
             player = GameObject.FindWithTag(Tag.Player).GetComponent<Rigidbody>();
             sequencerSwitcher = Object.FindAnyObjectByType<FallSequencerSwitcher>();
+            cargoShaderWrapper = new CargoShaderWrapper(component.Renderer.sharedMaterial);
             perlin = component.CineMachinePerlin;
         }
 
         internal override void OnEnter()
         {
+            component.Condition.IsStart = !component.Condition.IsStart;
+
             sequencerSwitcher.Switch();
             BackAttackAsync().Forget();
 
             component.Status.OnDamage += HandleDamage;
+            component.Status.OnDeath += HandleDeath;
         }
+
 
         internal override void OnExit()
         {
             rotationTween?.Kill();
             component.Status.OnDamage -= HandleDamage;
+            component.Status.OnDeath -= HandleDeath;
         }
 
         internal override void Update()
@@ -72,9 +79,9 @@ namespace Module.Enemy.Cargo
 
         private async UniTaskVoid BackAttackAsync()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(component.Parameter.AttackDelay), cancellationToken: CancellationToken);
-
             UpdateAnimatorForAttack();
+
+            await UniTask.Delay(TimeSpan.FromSeconds(component.Parameter.AttackDelay), cancellationToken: CancellationToken);
 
             targetPosition = component.Transform.position + Vector3.forward * component.Parameter.BackAttackDistanceZ;
             isMovingBack = true;
@@ -84,9 +91,11 @@ namespace Module.Enemy.Cargo
 
             await PerformImpactAsync();
 
+            UpdateAnimatorForIdle();
+
             await sequencerSwitcher.Current.PlayAsync();
 
-            component.Condition.CurrentState = CargoCondition.State.PrepareMove;
+            component.Condition.SwitchState(CargoCondition.State.PrepareMove);
         }
 
         private void MoveBack()
@@ -105,35 +114,52 @@ namespace Module.Enemy.Cargo
 
         private void UpdateAnimatorForAttack()
         {
-            component.AnimatorWrapper.Direction = 0f;
+            component.AnimatorWrapper.DirectionX = 0;
+            component.AnimatorWrapper.DirectionY = -1;
+        }
+
+        private void UpdateAnimatorForIdle()
+        {
+            component.AnimatorWrapper.DirectionX = 0;
+            component.AnimatorWrapper.DirectionY = 0;
         }
 
         private async UniTask PerformImpactAsync()
         {
+            perlin.NoiseProfile = component.BackAttackNoise;
             perlin.AmplitudeGain = component.Parameter.AmplitudeGainOnImpact;
             perlin.FrequencyGain = component.Parameter.FrequencyGainOnImpact;
             perlin.enabled = true;
 
             SoundManager.instance.Play("打撃6");
 
-            var cameraShakeDuration = TimeSpan.FromSeconds(0.5f);
-            await UniTask.Delay(cameraShakeDuration, cancellationToken: CancellationToken);
+            await DOVirtual.Float(1f, 0f, 0.5f, t =>
+            {
+                perlin.AmplitudeGain = component.Parameter.AmplitudeGainOnImpact * t;
+                perlin.FrequencyGain = component.Parameter.FrequencyGainOnImpact * t;
+            }).SetEase(Ease.InCirc, 3f);
 
             perlin.enabled = false;
         }
 
-        private void HandleDamage(int _)
+        private void HandleDeath()
         {
-            component.AnimatorWrapper.SetDamageTrigger();
-            PlayDamageTween();
+            component.Condition.SwitchState(CargoCondition.State.Death);
         }
 
-        private void PlayDamageTween()
+        private void HandleDamage(int _)
         {
-            rotationTween?.Kill();
-            rotationTween = component.BodyTransform
-                .DOShakeRotation(0.5f, new Vector3(5f, 0f, 0f), 35)
-                .OnComplete(() => component.BodyTransform.localRotation = defaultBodyRotation);
+            if (component.Status.CurrentHealth > 0)
+            {
+                component.AnimatorWrapper.SetDamageTrigger();
+            }
+
+            Color color = component.Parameter.DamageAdditionalColor;
+            damageColorSequence?.Kill();
+            damageColorSequence = DOTween.Sequence();
+            damageColorSequence.Append(DOTween.To(() => Color.black, c => cargoShaderWrapper.AdditionalColor = c, color, 0.1f));
+            damageColorSequence.Append(DOTween.To(() => color, c => cargoShaderWrapper.AdditionalColor = c, Color.black, 0.1f));
+            damageColorSequence.Play();
         }
     }
 }

@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CoreModule.Helper;
+using CoreModule.ObjectPool;
+using CoreModule.Utility;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Module.Scaling;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -15,23 +18,23 @@ namespace Module.Enemy.Cargo
     /// </summary>
     public sealed class FallObjectsSequencer : MonoBehaviour
     {
-        [Header("落下させるオブジェクト")]
-        [SerializeField] private List<ProjectileObject> objects = new();
-
         [Header("落下対象の地点")]
         [SerializeField] private List<Transform> fallTargets = new();
 
         [Header("落下開始の地点")]
         [SerializeField] private List<Transform> launchPoints = new();
 
-        [Header("最初に吹き飛ばす際のばらつき (秒)")]
-        [SerializeField, Min(0)] private float flightInterval = 2f;
+        [Header("落下開始地点まで移動する時間")]
+        [SerializeField, Min(0)] private float setUpDuration = 1f;
 
-        [Header("実際に落とす際のばらつき (秒)")]
-        [SerializeField, Min(0)] private float fallInterval = 2f;
+        [Header("オブジェクトを揺らす時間")]
+        [SerializeField, Min(0)] private float shakeDuration = 1.5f;
 
         [Header("物を何秒かけて落とすか")]
         [SerializeField, Min(0)] private float fallDuration = 2f;
+
+        [Header("落下物が消えるまでの時間")]
+        [SerializeField, Min(0)] private float disappearDuration = 3f;
 
         [Header("吹き飛ばしてから落下開始までの待機時間 (秒)")]
         [SerializeField, Min(0)] private float switchDelay = 2f;
@@ -39,40 +42,20 @@ namespace Module.Enemy.Cargo
         [Header("シーケンスを終了するまでの時間")]
         [SerializeField, Min(0)] private float finishSequenceDelay = 2f;
 
+        [SerializeField] private FirstBlowEffector firstBlowEffector;
+
         private FallPattern fallPattern;
+        private ObjectPool<ProjectileObjectCache> fallObjectPool;
+        private bool isPlaying;
 
-        private sealed class ProjectileObjectCache
+        public void SetPattern(FallPattern fallPattern)
         {
-            public ProjectileObject Obj { get; }
-            public Rigidbody Rb { get; }
-            public Collider Col { get; }
-            public FallObjectPlayerAttacker Attacker { get; }
-            public Scaler Scaler { get; }
-            public Vector3 DefaultPos { get; }
-
-            public ProjectileObjectCache(ProjectileObject obj)
-            {
-                Obj = obj;
-                Rb = obj.GetComponent<Rigidbody>();
-                Col = obj.GetComponent<Collider>();
-                Attacker = obj.GetComponent<FallObjectPlayerAttacker>();
-                Scaler = obj.GetComponent<Scaler>();
-                DefaultPos = obj.transform.position;
-            }
+            this.fallPattern = fallPattern;
         }
 
-        private readonly List<ProjectileObjectCache> caches = new();
-        private int[] fallPointPattern = Array.Empty<int>();
-
-        private void Awake()
+        public void SetPool(ObjectPool<ProjectileObjectCache> pool)
         {
-            Assert.IsTrue(objects.Count >= fallTargets.Count, "objects.Count must be >= fallTargets.Count");
-
-            // キャッシュ生成
-            caches.AddRange(objects.Select(o => new ProjectileObjectCache(o)));
-
-            // 落下地点の割り当て配列を確保
-            fallPointPattern = new int[objects.Count];
+            fallObjectPool = pool;
         }
 
         /// <summary>
@@ -80,122 +63,114 @@ namespace Module.Enemy.Cargo
         /// </summary>
         public async UniTask PlayAsync()
         {
-            GenerateFallPointPattern();
-
-            // 打ち上げ演出
-            LaunchAll();
+            firstBlowEffector.Blow();
 
             // 一旦停止し落下攻撃へ切り替え
-            await UniTask.Delay(TimeSpan.FromSeconds(switchDelay));
-            StopAll();
+            await UniTask.Delay(TimeSpan.FromSeconds(switchDelay), cancellationToken: destroyCancellationToken);
+
+            // 吹き飛ばしたオブジェクトを一旦停止
+            firstBlowEffector.StopBlow();
 
             // 落下攻撃
-            await FallAllAsync();
+            isPlaying = true;
+            await StartFallSequence();
+            isPlaying = false;
 
-            await UniTask.Delay(TimeSpan.FromSeconds(finishSequenceDelay));
+            await UniTask.Delay(TimeSpan.FromSeconds(finishSequenceDelay), cancellationToken: destroyCancellationToken);
         }
 
-        /// <summary>
-        /// 全オブジェクトを初期位置に戻してリセット。
-        /// </summary>
         public void Collect()
         {
-            foreach (var c in caches)
-            {
-                c.Obj.transform.SetPositionAndRotation(c.DefaultPos, Quaternion.identity);
-
-                c.Rb.isKinematic = true;
-                c.Col.enabled = true;
-                c.Rb.linearVelocity = Vector3.zero;
-                c.Rb.angularVelocity = Vector3.zero;
-
-                c.Attacker.Reset();
-                c.Scaler.ResetScale();
-            }
+            firstBlowEffector.ResetObjects();
         }
 
-        private void LaunchAll()
+        public void Cancel()
         {
-            float currentInterval = flightInterval;
-
-            for (var i = 0; i < caches.Count; i++)
-            {
-                var cache = caches[i];
-                var targetIdx = fallPointPattern[i];
-                var targetPos = fallTargets[targetIdx].position;
-
-                cache.Obj.Launch(targetPos, currentInterval, 0.8f);
-                currentInterval += flightInterval;
-            }
-        }
-        
-        public void SetPattern(FallPattern fallPattern)
-        {
-            this.fallPattern = fallPattern;
+            isPlaying = false;
         }
 
-        private async UniTask FallAllAsync()
+        private async UniTask StartFallSequence()
         {
-            List<FallPatternPair[]> pattern = fallPattern.GetPattern();
+            List<Wave> waves = fallPattern.GetWaves();
 
-            int objSelector = 0;
-            for (var i = 0; i < pattern.Count; i++)
+            // 時間順でソート
+            waves.Sort((a, b) => a.Time.CompareTo(b.Time));
+
+            float prevLaunchTime = 0f;
+
+            foreach (Wave wave in waves)
             {
-                FallPatternPair[] waves = pattern[i];
-                for (int j = 0; j < waves.Length; j++)
+                // 1フレームのズレも起こさないように同じ予約時間ではDelayしない
+                if (!Mathf.Approximately(prevLaunchTime, wave.Time))
                 {
-                    var cache = caches[objSelector];
-                    var targetIdx = waves[j].To;
-                    var launchIdx = waves[j].From;
+                    // 次の発射時間まで待機
+                    TimeSpan delay = TimeSpan.FromSeconds(wave.Time - prevLaunchTime);
 
-                    // 位置をリセットして落下開始
-                    cache.Obj.transform.position = launchPoints[launchIdx].position;
-                    cache.Obj.Launch(fallTargets[targetIdx].position, fallDuration, 0.4f);
-
-                    objSelector++;
+                    await UniTask.Delay(delay, cancellationToken: destroyCancellationToken);
                 }
 
-                await UniTask.Delay(TimeSpan.FromSeconds(fallInterval), cancellationToken: destroyCancellationToken);
+                // 再生を中止されていたら辞める
+                if (!isPlaying)
+                    return;
+
+                prevLaunchTime = wave.Time;
+
+                DoLaunch(wave).Forget();
             }
         }
 
-        private void StopAll()
+        private async UniTaskVoid DoLaunch(Wave wave)
         {
-            foreach (var c in caches)
-            {
-                c.Obj.Stop();
-            }
+            ProjectileObjectCache cache = fallObjectPool.GetOrCreate();
+            cache.Obj.gameObject.SetActive(true);
+
+            // 落下開始地点まで移動
+            await MoveToLaunchPoint(wave, cache, launchPoints, setUpDuration);
+
+            // 振動
+            await DoShake(cache, shakeDuration);
+
+            // 実際に落とす
+            LaunchDown(wave, cache, fallTargets, fallDuration);
+
+            await UniTask.Delay(TimeSpan.FromSeconds(disappearDuration), cancellationToken: destroyCancellationToken);
+
+            fallObjectPool.Return(cache);
         }
 
-        private void GenerateFallPointPattern()
+        private async UniTask MoveToLaunchPoint(
+            Wave wave,
+            ProjectileObjectCache cache,
+            List<Transform> launchPoints,
+            float duration)
         {
-            // 前半は必ずユニークに割り当てる
-            for (var i = 0; i < fallTargets.Count; i++)
-                fallPointPattern[i] = i;
+            int launchIdx = wave.From;
+            Vector3 launchPosition = launchPoints[launchIdx].position;
 
-            // 後半はランダムに重複可で割り当てる
-            for (var i = fallTargets.Count; i < fallPointPattern.Length; i++)
-                fallPointPattern[i] = Random.Range(0, fallTargets.Count);
+            // 落下開始位置のちょっと上にセット
+            cache.Obj.transform.position = launchPosition + Vector3.up * 2f;
 
-            // 最終的に全体をシャッフル
-            Shuffle(fallPointPattern);
+            // 落下開始位置まで動く
+            cache.Obj.transform.DOMove(launchPosition, duration);
+
+            await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: destroyCancellationToken);
         }
 
-        private int RandomLaunchIndex(int targetIdx)
+        private async UniTask DoShake(ProjectileObjectCache cache, float duration)
         {
-            // 0 〜 launchPoints.Count-1 内で循環取得
-            var offset = Random.Range(0, launchPoints.Count);
-            return (targetIdx + offset) % launchPoints.Count;
+            cache.Obj.transform.DOShakePosition(duration, 0.1f, 30, 90, false, false);
+
+            await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: destroyCancellationToken);
         }
 
-        private static void Shuffle<T>(IList<T> array)
+        private void LaunchDown(
+            Wave wave,
+            ProjectileObjectCache cache,
+            List<Transform> fallTargets,
+            float duration)
         {
-            for (var i = array.Count - 1; i > 0; i--)
-            {
-                var j = Random.Range(0, i + 1);
-                (array[i], array[j]) = (array[j], array[i]);
-            }
+            int targetIdx = wave.To;
+            cache.Obj.Launch(fallTargets[targetIdx].position, duration, 0.4f);
         }
-
     }
 }

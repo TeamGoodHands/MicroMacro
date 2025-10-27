@@ -20,7 +20,7 @@ namespace Module.Enemy.Cargo
             doAttack = false;
         }
 
-        private void OnCollisionEnter(Collision other)
+        private void OnTriggerEnter(Collider other)
         {
             if (!doAttack)
                 return;
@@ -30,12 +30,14 @@ namespace Module.Enemy.Cargo
             {
                 playerStatus.Damage(1);
                 doAttack = false;
+                gameObject.layer = Layer.IgnorePlayer;
             }
         }
 
         public void Reset()
         {
             doAttack = true;
+            gameObject.layer = Layer.Default;
         }
     }
 }

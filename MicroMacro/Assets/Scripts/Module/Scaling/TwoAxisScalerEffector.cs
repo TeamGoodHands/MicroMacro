@@ -48,8 +48,9 @@ namespace Module.Scaling
         {
             bool isValid = args.PreviousStep != args.CurrentStep;
             bool isMacro = isValid && args.CurrentStep - args.PreviousStep > 0;
-            
-            Effect(isValid, isMacro, args.Duration);;
+
+            Effect(isValid, isMacro, args.Duration);
+            ;
         }
 
         private void Pause()
@@ -88,8 +89,11 @@ namespace Module.Scaling
                 currentTween = CreateInvalidScaleTween();
             }
 
-            // SEの再生
-            PlaySound();
+            if (enabled)
+            {
+                // SEの再生
+                PlaySound();
+            }
         }
 
         private Tween CreateScaleTween(bool isMacro, float scaleDuration)

@@ -1,5 +1,7 @@
+using System;
 using Constants;
 using Cysharp.Threading.Tasks;
+using Module.Scaling;
 using UnityEngine;
 
 namespace Module.Enemy.Cargo
@@ -10,6 +12,7 @@ namespace Module.Enemy.Cargo
         [SerializeField] private ProjectileObject projectileObject;
         [SerializeField] private Rigidbody rigidBody;
         [SerializeField] private Collider objectCollider;
+        [SerializeField] private Scaler scaler;
         [SerializeField] private float blowPower;
         [SerializeField] private float torquePower;
 
@@ -60,8 +63,16 @@ namespace Module.Enemy.Cargo
         {
             await UniTask.Yield();
 
-            rigidBody.isKinematic = false;
+            rigidBody.isKinematic = true;
             objectCollider.enabled = false;
+
+            if (scaler.CurrentStep > 0)
+            {
+                // ヒットストップ
+                await UniTask.Delay(TimeSpan.FromSeconds(0.25f), cancellationToken: destroyCancellationToken);
+            }
+
+            rigidBody.isKinematic = false;
             rigidBody.AddForce(Vector3.up * blowPower + Vector3.right * (blowDirection * blowPower * 0.5f));
             rigidBody.AddTorque(-Vector3.forward * (blowDirection * torquePower));
         }

@@ -20,19 +20,24 @@ namespace Module.Enemy.Cargo
             BackAttackState backAttackState = new BackAttackState(component);
             SleepingState sleepingState = new SleepingState(component);
             PrepareMoveState prepareMoveState = new PrepareMoveState(component);
+            DeathState deathState = new DeathState(component);
 
             stateMachine.AddState(moveState);
             stateMachine.AddState(backAttackState);
             stateMachine.AddState(sleepingState);
             stateMachine.AddState(prepareMoveState);
+            stateMachine.AddState(deathState);
 
             // 遷移の登録
-            stateMachine.AddTransition<SleepingState, MoveState>(() => component.Condition.CurrentState == CargoCondition.State.Move);
+            stateMachine.AddTransition<SleepingState, BackAttackState>(() =>
+                component.Condition.PreviousState == CargoCondition.State.Sleeping &&
+                component.Condition.CurrentState == CargoCondition.State.BackAttack);
             stateMachine.AddTransition<MoveState, BackAttackState>(() => component.Condition.CurrentState == CargoCondition.State.BackAttack);
             stateMachine.AddTransition<BackAttackState, PrepareMoveState>(() => component.Condition.CurrentState == CargoCondition.State.PrepareMove);
             stateMachine.AddTransition<PrepareMoveState, MoveState>(() => component.Condition.CurrentState == CargoCondition.State.Move);
+            stateMachine.AddTransition<BackAttackState, DeathState>(() => component.Condition.CurrentState == CargoCondition.State.Death);
 
-            stateMachine.Start<BackAttackState>();
+            stateMachine.Start<MoveState>();
         }
 
         private void CheckComponentReference()

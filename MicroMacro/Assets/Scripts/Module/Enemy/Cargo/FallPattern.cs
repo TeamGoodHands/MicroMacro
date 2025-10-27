@@ -6,27 +6,21 @@ using UnityEngine;
 namespace Module.Enemy.Cargo
 {
     [Serializable]
-    public struct FallPatternPair
+    public struct Wave
     {
+        public float Time;
         public int From;
         public int To;
-    }
-
-    [Serializable]
-    public class FallPatternPairList
-    {
-        public FallPatternPair[] pattern;
     }
 
     [CreateAssetMenu(fileName = "FallPattern", menuName = "ScriptableObjects/FallPattern", order = 1)]
     public class FallPattern : ScriptableObject
     {
-        [SerializeField] private List<FallPatternPairList> pattern;
+        [SerializeField] private List<Wave> waves;
 
-        public List<FallPatternPair[]> GetPattern()
+        public List<Wave> GetWaves()
         {
-            return pattern.Select(list => list.pattern).ToList();
+            return waves;
         }
-        
     }
 }

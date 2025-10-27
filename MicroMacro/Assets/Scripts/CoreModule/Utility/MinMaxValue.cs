@@ -21,6 +21,11 @@ namespace CoreModule.Helper
             return Random.Range(min, max);
         }
 
+        public int GetRandomInt()
+        {
+            return Random.Range((int)min, (int)max + 1);
+        }
+
         public float Remap01(float value)
         {
             return Mathf.InverseLerp(min, max, value);
