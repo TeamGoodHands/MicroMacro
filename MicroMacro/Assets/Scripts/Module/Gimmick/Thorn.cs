@@ -7,12 +7,16 @@ namespace Module.Gimmick
 {
     public class Thorn : MonoBehaviour
     {
-        private const int maxDamage = 99999999;
+        [SerializeField] private int damage = 1;
+        
+        public event Action OnThornDamaged;
+
         private void OnCollisionEnter(Collision other)
         {
             if (other.gameObject.CompareTag(Tag.Handle.Player))
             {
-                other.gameObject.GetComponent<PlayerStatus>().Damage(maxDamage);
+                other.gameObject.GetComponent<PlayerStatus>().Damage(damage);
+                OnThornDamaged?.Invoke();
             }
         }
     }

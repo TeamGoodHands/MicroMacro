@@ -71,6 +71,7 @@ namespace Module.Enemy.Cargo
 
             // プレイヤーのRigidBodyも更新する
             player.MovePosition(player.position + velocity);
+            component.Condition.MoveDelta = velocity;
         }
 
         private Transform GetMoveTarget()

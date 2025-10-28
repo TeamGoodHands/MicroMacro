@@ -153,8 +153,7 @@ namespace Module.Enemy.Cargo
             // スケールを大きくされていればダメージを与える
             if (scaler.CurrentStep > 0)
             {
-                // int damage = scaler.CurrentStep;
-                int damage = 99;
+                int damage = scaler.CurrentStep;
                 target.GetComponent<EnemyStatus>().Damage(damage);
                 SoundManager.instance.Play("打撃1");
             }

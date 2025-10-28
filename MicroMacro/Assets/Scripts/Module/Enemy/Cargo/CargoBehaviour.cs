@@ -8,6 +8,8 @@ namespace Module.Enemy.Cargo
     {
         [SerializeField] private CargoComponent component;
         private HierarchicalStateMachine stateMachine;
+        
+        public CargoCondition Condition => component.Condition;
 
         private void Start()
         {
@@ -36,8 +38,8 @@ namespace Module.Enemy.Cargo
             stateMachine.AddTransition<BackAttackState, PrepareMoveState>(() => component.Condition.CurrentState == CargoCondition.State.PrepareMove);
             stateMachine.AddTransition<PrepareMoveState, MoveState>(() => component.Condition.CurrentState == CargoCondition.State.Move);
             stateMachine.AddTransition<BackAttackState, DeathState>(() => component.Condition.CurrentState == CargoCondition.State.Death);
-
-            stateMachine.Start<MoveState>();
+            
+            stateMachine.Start<SleepingState>();
         }
 
         private void CheckComponentReference()

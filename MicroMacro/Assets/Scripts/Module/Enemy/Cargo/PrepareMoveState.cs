@@ -67,7 +67,7 @@ namespace Module.Enemy.Cargo
         private void UpdatePosition()
         {
             Rigidbody moveParent = component.MoveParent;
-            Vector3 velocity = new Vector3(0, 0, -component.Parameter.MoveSpeed);
+            Vector3 velocity = new Vector3(0, 0, -component.Parameter.PrepareMoveSpeed);
 
             // 移動速度を足す
             Vector3 position = moveParent.position;
@@ -76,6 +76,7 @@ namespace Module.Enemy.Cargo
 
             // プレイヤーのRigidBodyも更新する
             player.MovePosition(player.position + velocity);
+            component.Condition.MoveDelta = velocity;
         }
 
         private void UpdateAnimator()
@@ -92,7 +93,7 @@ namespace Module.Enemy.Cargo
             float distance = Mathf.Abs((goal - start).z);
 
             // 現在の移動速度で1フレーム以内に到達する or 到達した距離内であれば到達したとみなす
-            return distance <= component.Parameter.MoveSpeed * 0.5f;
+            return distance <= component.Parameter.PrepareMoveSpeed * 0.5f;
         }
 
         private void SetPositionToTarget(Transform target)

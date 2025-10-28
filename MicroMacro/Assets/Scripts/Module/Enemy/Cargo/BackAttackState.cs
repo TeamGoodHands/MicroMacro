@@ -104,6 +104,8 @@ namespace Module.Enemy.Cargo
 
             component.MoveParent.position += velocity;
             player.MovePosition(player.position + velocity);
+            
+            component.Condition.MoveDelta = velocity;
         }
 
         private bool HasReachedTarget(Vector3 target)

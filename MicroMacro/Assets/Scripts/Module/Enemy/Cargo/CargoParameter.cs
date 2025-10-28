@@ -8,6 +8,7 @@ namespace Module.Enemy.Cargo
     {
         [Header("左右に動く状態")]
         [SerializeField] private float moveSpeed;
+        [SerializeField] private float prepareMoveSpeed;
         [SerializeField] private float amplitudeGainOnMove;
         [SerializeField] private float frequencyGainOnMove;
         
@@ -21,6 +22,7 @@ namespace Module.Enemy.Cargo
         [SerializeField] private Color damageAdditionalColor;
 
         public float MoveSpeed => moveSpeed;
+        public float PrepareMoveSpeed => prepareMoveSpeed;
         public float AmplitudeGainOnMove => amplitudeGainOnMove;
         public float FrequencyGainOnMove => frequencyGainOnMove;
         public float AmplitudeGainOnImpact => amplitudeGainOnImpact;
