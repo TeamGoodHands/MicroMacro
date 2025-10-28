@@ -7,14 +7,14 @@ namespace Module.Application.Dialogue
     [Serializable]
     public class DialogueItem
     {
-        public string EntryName;          // 登録名
+        public string EntryName;     // 登録名
         public string Text;          // セリフ
         public float  DisplayTime;   // 表示時間
         public Sprite characterIcon;  
     }
     
     // 右クリックから作成できるように
-    [CreateAssetMenu(fileName = "DialogueData", menuName = "ScriptableObjects/DialogueData")]
+    [CreateAssetMenu(fileName = "DialogueCollection", menuName = "ScriptableObjects/DialogueCollection")]
     public class DialogueCollection : ScriptableObject
     {
        public DialogueItem[] items; // ScriptableObjectの配列
