@@ -18,6 +18,7 @@ namespace Module.Application.Dialogue
         
         public void Enqueue(string itemName)
         {
+            Debug.Log("Enqueue Dialogue Item: " + itemName);
             DialogueItem item = DialogueDatabase.Instance.GetItem(itemName);
             if (item != null)
             {
