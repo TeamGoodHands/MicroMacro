@@ -44,7 +44,7 @@ namespace Module.Enemy.Spanner
                     return obj.GetComponent<ThornBall>();
                 },
                 item => item.Reset());
-            
+
             thornBalls = new HashSet<ThornBall>();
 
             cargoBehaviour.Condition.OnStateChanged += HandleStateChanged;
@@ -91,6 +91,8 @@ namespace Module.Enemy.Spanner
 
                 DoAttack(pattern, direction, position);
             }
+
+            attackCount++;
         }
 
         private Vector3 CalculateStartPosition(bool isLeft)
@@ -105,7 +107,7 @@ namespace Module.Enemy.Spanner
         {
             float positionUnit = spawnArea.localScale.x / pattern.GetAreaDivide();
             positionUnit *= isLeft ? -1f : 1f;
-            
+
             return new Vector3(positionUnit, 0f, 0f);
         }
 
@@ -127,9 +129,9 @@ namespace Module.Enemy.Spanner
         {
             thornBall.OnDeath -= HandleOnDeath;
             thornBalls.Remove(thornBall);
-            
+
             await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: destroyCancellationToken);
-            
+
             thornBall.gameObject.SetActive(false);
 
             if (thornBall.IsBig)
@@ -147,6 +149,14 @@ namespace Module.Enemy.Spanner
             foreach (ThornBall thornBall in thornBalls)
             {
                 thornBall.SetMoveDelta(cargoBehaviour.Condition.MoveDelta);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (cargoBehaviour != null && cargoBehaviour.Condition != null)
+            {
+                cargoBehaviour.Condition.OnStateChanged -= HandleStateChanged;
             }
         }
     }

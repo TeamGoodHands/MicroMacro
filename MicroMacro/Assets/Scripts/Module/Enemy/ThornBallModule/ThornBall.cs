@@ -71,14 +71,16 @@ namespace Module.Enemy.ThornBallModule
             rigidBody.isKinematic = false;
             enemyChecker.StopCheck();
 
-            rotateDirection = Mathf.Sign(transform.position.x - playerTransform.position.x);
+            rotateDirection = playerTransform != null
+                ? Mathf.Sign(transform.position.x - playerTransform.position.x)
+                : Mathf.Sign(moveDirection.x == 0 ? 1f : moveDirection.x);
         }
 
         private void FixedUpdate()
         {
             if (isLinearMoving)
             {
-                rigidBody.position += moveDirection * linearSpeed;
+                rigidBody.MovePosition(rigidBody.position + moveDirection * linearSpeed);
             }
             else if (!rigidBody.isKinematic)
             {

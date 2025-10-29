@@ -50,7 +50,6 @@ namespace Module.Scaling
             bool isMacro = isValid && args.CurrentStep - args.PreviousStep > 0;
 
             Effect(isValid, isMacro, args.Duration);
-            ;
         }
 
         private void Pause()

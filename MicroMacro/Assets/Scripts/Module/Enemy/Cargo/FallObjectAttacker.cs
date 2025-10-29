@@ -81,6 +81,9 @@ namespace Module.Enemy.Cargo
 
         private void PlayAttackEffect()
         {
+            if (isPlaying)
+                return;
+            
             PlayFallEffect().Forget();
             fallParticleEffect.Play();
         }
@@ -133,7 +136,7 @@ namespace Module.Enemy.Cargo
 
         private void PlayImpactEffect()
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, Layer.Mask.Enemy))
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f, Layer.Mask.Enemy))
             {
                 if (scaler.CurrentStep > 0)
                 {

@@ -8,14 +8,11 @@ namespace Module.Enemy.Cargo
 {
     public class FirstBlowEffector : MonoBehaviour
     {
-        [Header("吹き飛ばすオブジェクト")]
-        [SerializeField] private List<ProjectileObject> objects = new();
+        [Header("吹き飛ばすオブジェクト")] [SerializeField] private List<ProjectileObject> objects = new();
 
-        [Header("落下対象の地点")]
-        [SerializeField] private List<Transform> fallTargets = new();
+        [Header("落下対象の地点")] [SerializeField] private List<Transform> fallTargets = new();
 
-        [Header("最初に吹き飛ばす際のばらつき (秒)")]
-        [SerializeField, Min(0)] private float flightInterval = 2f;
+        [Header("最初に吹き飛ばす際のばらつき (秒)")] [SerializeField, Min(0)] private float flightInterval = 2f;
 
         private int[] fallPointPattern;
         private List<ProjectileObjectCache> caches;
@@ -75,13 +72,19 @@ namespace Module.Enemy.Cargo
 
         private void GenerateFallPointPattern(int fallTargetsCount)
         {
+            int uniqueCount = Mathf.Min(fallTargetsCount, fallPointPattern.Length);
+
             // 前半は必ずユニークに割り当てる
-            for (var i = 0; i < fallTargetsCount; i++)
+            for (var i = 0; i < uniqueCount; i++)
+            {
                 fallPointPattern[i] = i;
+            }
 
             // 後半はランダムに重複可で割り当てる
-            for (var i = fallTargetsCount; i < fallPointPattern.Length; i++)
+            for (var i = uniqueCount; i < fallPointPattern.Length; i++)
+            {
                 fallPointPattern[i] = Random.Range(0, fallTargetsCount);
+            }
 
             // 最終的に全体をシャッフル
             Shuffle(fallPointPattern);

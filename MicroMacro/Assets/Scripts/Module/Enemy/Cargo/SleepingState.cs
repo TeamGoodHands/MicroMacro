@@ -30,7 +30,7 @@ namespace Module.Enemy.Cargo
             }
 
             component.HpBarCanvasGroup.alpha = 0f;
-            cargoShaderWrapper = new CargoShaderWrapper(component.Renderer.sharedMaterial);
+            cargoShaderWrapper = new CargoShaderWrapper(component.Renderer.material);
         }
 
         private void OnDamage(int damage)
@@ -44,13 +44,7 @@ namespace Module.Enemy.Cargo
         private async UniTaskVoid AnimateAsync()
         {
             component.AnimatorWrapper.SetDamageTrigger();
-
-            Color color = component.Parameter.DamageAdditionalColor;
-            damageColorSequence?.Kill();
-            damageColorSequence = DOTween.Sequence();
-            damageColorSequence.Append(DOTween.To(() => Color.black, c => cargoShaderWrapper.AdditionalColor = c, color, 0.1f));
-            damageColorSequence.Append(DOTween.To(() => color, c => cargoShaderWrapper.AdditionalColor = c, Color.black, 0.1f));
-            damageColorSequence.Play();
+            PlayDamageColor();
 
             damageCount++;
 
@@ -58,6 +52,16 @@ namespace Module.Enemy.Cargo
                 return;
 
             await DoAwake();
+        }
+
+        private void PlayDamageColor()
+        {
+            Color color = component.Parameter.DamageAdditionalColor;
+            damageColorSequence?.Kill();
+            damageColorSequence = DOTween.Sequence();
+            damageColorSequence.Append(DOTween.To(() => Color.black, c => cargoShaderWrapper.AdditionalColor = c, color, 0.1f));
+            damageColorSequence.Append(DOTween.To(() => color, c => cargoShaderWrapper.AdditionalColor = c, Color.black, 0.1f));
+            damageColorSequence.Play();
         }
 
         private async UniTask DoAwake()
@@ -104,17 +108,11 @@ namespace Module.Enemy.Cargo
             component.Status.OnDamage -= OnDamage;
         }
 
-        internal override void Update()
-        {
-        }
+        internal override void Update() { }
 
-        internal override void LateUpdate()
-        {
-        }
+        internal override void LateUpdate() { }
 
-        internal override void UpdatePhysics()
-        {
-        }
+        internal override void UpdatePhysics() { }
 
         internal override void Dispose()
         {

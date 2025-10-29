@@ -18,29 +18,21 @@ namespace Module.Enemy.Cargo
     /// </summary>
     public sealed class FallObjectsSequencer : MonoBehaviour
     {
-        [Header("落下対象の地点")]
-        [SerializeField] private List<Transform> fallTargets = new();
+        [Header("落下対象の地点")] [SerializeField] private List<Transform> fallTargets = new();
 
-        [Header("落下開始の地点")]
-        [SerializeField] private List<Transform> launchPoints = new();
+        [Header("落下開始の地点")] [SerializeField] private List<Transform> launchPoints = new();
 
-        [Header("落下開始地点まで移動する時間")]
-        [SerializeField, Min(0)] private float setUpDuration = 1f;
+        [Header("落下開始地点まで移動する時間")] [SerializeField, Min(0)] private float setUpDuration = 1f;
 
-        [Header("オブジェクトを揺らす時間")]
-        [SerializeField, Min(0)] private float shakeDuration = 1.5f;
+        [Header("オブジェクトを揺らす時間")] [SerializeField, Min(0)] private float shakeDuration = 1.5f;
 
-        [Header("物を何秒かけて落とすか")]
-        [SerializeField, Min(0)] private float fallDuration = 2f;
+        [Header("物を何秒かけて落とすか")] [SerializeField, Min(0)] private float fallDuration = 2f;
 
-        [Header("落下物が消えるまでの時間")]
-        [SerializeField, Min(0)] private float disappearDuration = 3f;
+        [Header("落下物が消えるまでの時間")] [SerializeField, Min(0)] private float disappearDuration = 3f;
 
-        [Header("吹き飛ばしてから落下開始までの待機時間 (秒)")]
-        [SerializeField, Min(0)] private float switchDelay = 2f;
+        [Header("吹き飛ばしてから落下開始までの待機時間 (秒)")] [SerializeField, Min(0)] private float switchDelay = 2f;
 
-        [Header("シーケンスを終了するまでの時間")]
-        [SerializeField, Min(0)] private float finishSequenceDelay = 2f;
+        [Header("シーケンスを終了するまでの時間")] [SerializeField, Min(0)] private float finishSequenceDelay = 2f;
 
         [SerializeField] private FirstBlowEffector firstBlowEffector;
 
@@ -142,7 +134,8 @@ namespace Module.Enemy.Cargo
             Wave wave,
             ProjectileObjectCache cache,
             List<Transform> launchPoints,
-            float duration)
+            float duration
+        )
         {
             int launchIdx = wave.From;
             Vector3 launchPosition = launchPoints[launchIdx].position;
@@ -151,14 +144,14 @@ namespace Module.Enemy.Cargo
             cache.Obj.transform.position = launchPosition + Vector3.up * 2f;
 
             // 落下開始位置まで動く
-            cache.Obj.transform.DOMove(launchPosition, duration);
+            _ = cache.Obj.transform.DOMove(launchPosition, duration);
 
             await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: destroyCancellationToken);
         }
 
         private async UniTask DoShake(ProjectileObjectCache cache, float duration)
         {
-            cache.Obj.transform.DOShakePosition(duration, 0.1f, 30, 90, false, false);
+            _ = cache.Obj.transform.DOShakePosition(duration, 0.1f, 30, 90, false, false);
 
             await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: destroyCancellationToken);
         }
@@ -167,9 +160,11 @@ namespace Module.Enemy.Cargo
             Wave wave,
             ProjectileObjectCache cache,
             List<Transform> fallTargets,
-            float duration)
+            float duration
+        )
         {
             int targetIdx = wave.To;
+            Assert.IsTrue(0 <= targetIdx && targetIdx < fallTargets.Count, "Invalid target index.");
             cache.Obj.Launch(fallTargets[targetIdx].position, duration, 0.4f);
         }
     }

@@ -21,7 +21,7 @@ namespace Module.Enemy.Cargo
         private void Awake()
         {
             bossStatus.OnDeath += HandleDeath;
-            
+
             fallObjectPool = new ObjectPool<ProjectileObjectCache>(() =>
             {
                 GameObject obj = Instantiate(projectileObjectPrefab, ObjectPool.Root, true);
@@ -73,6 +73,14 @@ namespace Module.Enemy.Cargo
         private void Repeat()
         {
             currentFallPointPatternIndex %= fallPatterns.Count;
+        }
+
+        private void OnDestroy()
+        {
+            if (bossStatus != null)
+            {
+                bossStatus.OnDeath -= HandleDeath;
+            }
         }
     }
 }
