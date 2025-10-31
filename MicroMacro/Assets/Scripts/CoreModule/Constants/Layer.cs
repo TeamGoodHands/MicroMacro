@@ -19,6 +19,8 @@ namespace Constants
 		public const int PlayerOnly = 9;
 		public const int Enemy = 10;
 		public const int EditorOnly = 11;
+		public const int IgnorePlayer = 12;
+		public const int BulletOnly = 13;
 		
 		public sealed class Mask
 		{
@@ -34,6 +36,8 @@ namespace Constants
 			public const int PlayerOnly = 512;
 			public const int Enemy = 1024;
 			public const int EditorOnly = 2048;
+			public const int IgnorePlayer = 4096;
+			public const int BulletOnly = 8192;
 		}
 	}
 }

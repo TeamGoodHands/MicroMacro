@@ -18,6 +18,7 @@ namespace Constants
 		public static readonly string Level = "Level";
 		public static readonly string Ball = "Ball";
 		public static readonly string LevelGrid = "LevelGrid";
+		public static readonly string DeathArea = "DeathArea";
 		
 		public sealed class Handle
 		{
@@ -31,6 +32,7 @@ namespace Constants
 			public static readonly TagHandle Level = TagHandle.GetExistingTag("Level");
 			public static readonly TagHandle Ball = TagHandle.GetExistingTag("Ball");
 			public static readonly TagHandle LevelGrid = TagHandle.GetExistingTag("LevelGrid");
+			public static readonly TagHandle DeathArea = TagHandle.GetExistingTag("DeathArea");
 		}
 	}
 }
