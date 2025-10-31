@@ -17,6 +17,7 @@ namespace Module.Enemy.Cargo
         private readonly RadialBlurFeature blurFeature;
 
         private int damageCount;
+        private bool isAwaking;
         private CargoShaderWrapper cargoShaderWrapper;
         private Sequence damageColorSequence;
 
@@ -48,8 +49,10 @@ namespace Module.Enemy.Cargo
 
             damageCount++;
 
-            if (damageCount < 3)
+            if (damageCount < 3 || isAwaking)
                 return;
+
+            isAwaking = true;
 
             await DoAwake();
         }

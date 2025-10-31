@@ -15,10 +15,15 @@ namespace Module.Gimmick
         {
             if (other.gameObject.CompareTag(Tag.Handle.Player) && other.transform.root.TryGetComponent<PlayerStatus>(out var playerStatus))
             {
+                int hpBefore = playerStatus.CurrentHealth;
                 playerStatus.Damage(damage);
-                OnThornDamaged?.Invoke();
+
+                // 実際にHPが減った場合のみイベント発火
+                if (playerStatus.CurrentHealth < hpBefore)
+                {
+                    OnThornDamaged?.Invoke();
+                }
             }
         }
     }
 }
-
