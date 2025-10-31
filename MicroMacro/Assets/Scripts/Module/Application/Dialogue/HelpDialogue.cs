@@ -1,14 +1,12 @@
 ﻿using UnityEngine;
 using System;
-using Cysharp.Threading.Tasks;
-using Constants;
 using UnityEngine.Serialization;
 
 namespace Module.Application.Dialogue
 {
     public class HelpDialogue : MonoBehaviour
     {
-        [Header("呼び出すセリフたち")] [SerializeField] private String[] queueTexts;
+        [Header("呼び出すセリフたち")] [SerializeField] private String[] dialogues;
         [Header("〇秒経過でお助けUIを表示")] [SerializeField] private float helpTriggerTime;
         [Header("ゲート(入口)のPivot")] [SerializeField] private GameObject entrancePivot;
         [Header("ゲート(出口)のPivot")] [SerializeField] private GameObject exitPivot;
@@ -45,27 +43,24 @@ namespace Module.Application.Dialogue
         }
 
         /// <summary>
-        /// プレイヤーが指定された二点間のエリア内にいるか
+        /// プレイヤーが指定された二点間のエリア内にいるか。
         /// </summary>
         private bool CheckPlayerIsInArea(Vector2 playerPos, Vector2 point1, Vector2 point2)
         {
-            
             // 矩形の角となる座標を計算
             float minX = Mathf.Min(point1.x, point2.x);
             float maxX = Mathf.Max(point1.x, point2.x);
             float minY = Mathf.Min(point1.y, point2.y); 
             float maxY = Mathf.Max(point1.y, point2.y);
-
            
             // XとYそれぞれでエリアに収まっているか比較
             bool isInHorizontal = minX < playerPos.x && playerPos.x < maxX;
             bool isInVertical   = minY < playerPos.y && playerPos.y < maxY;
-            // Debug.Log($"minY:{minY} maxY:{maxY} PlayerPos:{playerPos}");
-            // Debug.Log($"x:{isInHorizontal} y:{isInVertical}");
+            
             return isInHorizontal && isInVertical;
         }
-
     
+        // TODO: 常にUpdate呼ぶ必要ないから今後Unitask等に改善したい。
         private void Update()
         {
             if (isPlayerInside)
@@ -75,10 +70,7 @@ namespace Module.Application.Dialogue
                 if (elapsedTime >= helpTriggerTime)
                 {
                     // セリフキューに追加
-                    foreach (var text in queueTexts)
-                    {
-                        dialogueManager.Enqueue(text);
-                    }
+                    dialogueManager.EnqueueDialogues(dialogues);
                     
                     // 経過時間リセット 再表示しないなら必要なし。
                     isPlayerInside = false;
@@ -117,7 +109,6 @@ namespace Module.Application.Dialogue
         
             // ギズモの色を設定 (黄色、半透明)
             Gizmos.color = new Color(1, 0.92f, 0.016f, 0.25f);
-            
             Gizmos.DrawCube(center, size);
         }
 #endif

@@ -16,9 +16,9 @@ namespace Module.Application.Dialogue
         private bool isDisplaying;
         private bool isClearRequested = false;
         
+        // 念のためセリフ単体のEnqueueも外部から呼び出し可能に。
         public void Enqueue(string itemName)
         {
-            Debug.Log("Enqueue Dialogue Item: " + itemName);
             DialogueItem item = DialogueDatabase.Instance.GetItem(itemName);
             if (item != null)
             {
@@ -29,12 +29,24 @@ namespace Module.Application.Dialogue
                 }
             }
         }
+        
+        /// <summary>
+        /// まとめて複数のセリフをキューに入れたい場合の関数。
+        /// </summary>
+        public void EnqueueDialogues(String[] dialogues)
+        {
+            foreach (var dialogue in dialogues)
+            {
+                Enqueue(dialogue);
+            }
+        }
 
         public void ClearQueue()
         {
             if (dialogueQueue.Count > 0)
             {
                 dialogueQueue.Clear();
+                Debug.Log("Queueがクリアされました。");
             }
 
             // 表示中のセリフがあったら中断フラグ立てる

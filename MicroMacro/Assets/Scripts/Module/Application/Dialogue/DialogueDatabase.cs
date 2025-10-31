@@ -47,8 +47,6 @@ namespace Module.Application.Dialogue
                    database[item.EntryName] = item;
                }
            }
-           Debug.Log($"[DialogueDatabase] {database.Count} アイテムが初期化されました。");
-          
        }
 
        /// <summary>

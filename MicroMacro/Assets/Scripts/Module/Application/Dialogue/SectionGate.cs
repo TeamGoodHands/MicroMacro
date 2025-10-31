@@ -7,10 +7,10 @@ namespace Module.Application.Dialogue
     public class SectionGate : MonoBehaviour
     {
         public event Action OnPlayerExit;
-
+        
         private void Awake()
         {
-            this.GetComponent<Renderer>().enabled = false;
+            GetComponent<Renderer>().enabled = false;
         }
 
         private void OnTriggerExit(Collider other)
