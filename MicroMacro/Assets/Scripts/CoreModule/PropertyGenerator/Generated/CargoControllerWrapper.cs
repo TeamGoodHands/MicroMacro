@@ -10,17 +10,39 @@ namespace PropertyGenerator.Generated
 	[Serializable]
 	public class CargoControllerWrapper
 	{
+		private static readonly int DirectionXProperty = Animator.StringToHash("DirectionX");
+		private static readonly int DirectionYProperty = Animator.StringToHash("DirectionY");
+		private static readonly int DamageProperty = Animator.StringToHash("Damage");
+		private static readonly int AngryProperty = Animator.StringToHash("Angry");
+		private static readonly int DeathProperty = Animator.StringToHash("Death");
 		[SerializeField] private Animator target;
+		public Animator Animator => target;
 		
-		public float Direction
+		public int DirectionX
 		{
-			get => target.GetFloat(-1128574192);
-			set => target.SetFloat(-1128574192, value);
+			get => target.GetInteger(DirectionXProperty);
+			set => target.SetInteger(DirectionXProperty, value);
+		}
+		
+		public int DirectionY
+		{
+			get => target.GetInteger(DirectionYProperty);
+			set => target.SetInteger(DirectionYProperty, value);
 		}
 		
 		public void SetDamageTrigger()
 		{
-			target.SetTrigger(375673178);
+			target.SetTrigger(DamageProperty);
+		}
+		
+		public void SetAngryTrigger()
+		{
+			target.SetTrigger(AngryProperty);
+		}
+		
+		public void SetDeathTrigger()
+		{
+			target.SetTrigger(DeathProperty);
 		}
 	}
 }

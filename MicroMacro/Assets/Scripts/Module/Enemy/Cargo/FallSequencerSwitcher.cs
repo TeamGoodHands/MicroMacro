@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CoreModule.ObjectPool;
 using UnityEngine;
 
 namespace Module.Enemy.Cargo
@@ -8,11 +9,49 @@ namespace Module.Enemy.Cargo
     {
         [SerializeField] private FallObjectsSequencer sequencer1;
         [SerializeField] private FallObjectsSequencer sequencer2;
+        [SerializeField] private EnemyStatus bossStatus;
 
         [SerializeField] private List<FallPattern> fallPatterns;
+        [SerializeField] private GameObject projectileObjectPrefab;
 
         public FallObjectsSequencer Current;
+        private ObjectPool<ProjectileObjectCache> fallObjectPool;
         private int currentFallPointPatternIndex = 0;
+
+        private void Awake()
+        {
+            bossStatus.OnDeath += HandleDeath;
+
+            fallObjectPool = new ObjectPool<ProjectileObjectCache>(() =>
+            {
+                GameObject obj = Instantiate(projectileObjectPrefab, ObjectPool.Root, true);
+                obj.SetActive(false);
+                return new ProjectileObjectCache(obj.GetComponent<ProjectileObject>());
+            }, item =>
+            {
+                item.Obj.transform.SetPositionAndRotation(item.DefaultPos, Quaternion.identity);
+
+                item.Rb.isKinematic = true;
+                item.Col.enabled = true;
+
+                item.Attacker.Reset();
+                item.Effector.enabled = false;
+                item.Scaler.ResetScale();
+
+                item.Obj.gameObject.SetActive(false);
+            }, item =>
+            {
+                item.Effector.enabled = true;
+            }, 16);
+
+            sequencer1.SetPool(fallObjectPool);
+            sequencer2.SetPool(fallObjectPool);
+        }
+
+        private void HandleDeath()
+        {
+            Current?.Cancel();
+        }
 
         public void Switch()
         {
@@ -34,6 +73,14 @@ namespace Module.Enemy.Cargo
         private void Repeat()
         {
             currentFallPointPatternIndex %= fallPatterns.Count;
+        }
+
+        private void OnDestroy()
+        {
+            if (bossStatus != null)
+            {
+                bossStatus.OnDeath -= HandleDeath;
+            }
         }
     }
 }
