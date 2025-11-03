@@ -12,9 +12,15 @@ namespace Module.Application.Dialogue
         private bool hasBeenTriggered = false;
         private void Awake()
         {
-            if (arrivalDialogues == null)
+            if (arrivalDialogues == null || arrivalDialogues.Length == 0)
             {
-                Debug.LogAssertion("到着時セリフが未設定です。");
+                Debug.LogWarning("到着時セリフが未設定または空です。");
+                hasBeenTriggered = true;
+            }
+
+            if (dialogueManager == null)
+            {
+                Debug.LogWarning("DialogueManagerが未設定です。");
                 hasBeenTriggered = true;
             }
         }

@@ -15,14 +15,21 @@ namespace Module.Application.Dialogue
         private readonly Queue<DialogueItem> dialogueQueue = new Queue<DialogueItem>();
         private bool isDisplaying;
         private bool isClearRequested = false;
-        
+
         // 念のためセリフ単体のEnqueueも外部から呼び出し可能に。
         public void Enqueue(string itemName)
         {
+            if (DialogueDatabase.Instance == null)
+            {
+                Debug.LogError("[DialogueManager] DialogueDatabaseが初期化されていません。");
+                return;
+            }
+            
             DialogueItem item = DialogueDatabase.Instance.GetItem(itemName);
             if (item != null)
             {
                 dialogueQueue.Enqueue(item);
+                Debug.Log("Enqueue: " + item.EntryName);
                 if (!isDisplaying)
                 {
                     ProcessQueueAsync().Forget();

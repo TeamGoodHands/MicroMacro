@@ -130,7 +130,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 928587707984241217}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63fa4bfa70c6440f8745aa5bd56e4f97, type: 3}
   m_Name: 
@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 4096264885467195845}
   - component: {fileID: 2017917987823840668}
   m_Layer: 0
-  m_Name: HelpDialogue
+  m_Name: HelpDialogueArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -305,8 +305,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d7b73017200470e99ad68afbde53156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogues: []
-  helpTriggerTime: 15
+  dialogues:
+  - test_1
+  - test_2
+  - test_3
+  helpTriggerTime: 5
   entrancePivot: {fileID: 8153867991853547394}
   exitPivot: {fileID: 5686168340242517578}
   entrance: {fileID: 1301574078458521653}

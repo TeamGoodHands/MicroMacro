@@ -27,18 +27,24 @@ namespace Module.Application.Dialogue
 
         public void Display(DialogueItem item)
         {
+            if (item == null)
+            {
+                Debug.LogError("itemの取得及びセリフ表示に失敗しました。");
+                return;
+            }
+            
             dialogueText.text = item.Text; 
             characterIcon.sprite = item.characterIcon;
             if (!dialogueWindow.activeSelf)
             {
                 dialogueWindow.SetActive(true);
-                transform.DOScale(Vector3.one, playBackTime);
+                dialogueWindow.transform.DOScale(Vector3.one, playBackTime);
             }
         }
 
         public async UniTask HideAsync(CancellationToken cancellationToken)
         {
-            transform.DOScale(Vector3.zero, playBackTime);
+            dialogueWindow.transform.DOScale(Vector3.zero, playBackTime);
                     
             // アニメーション終了まで待機
             await UniTask.Delay(TimeSpan.FromSeconds(playBackTime), cancellationToken: cancellationToken);

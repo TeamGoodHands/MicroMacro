@@ -10,7 +10,10 @@ namespace Module.Application.Dialogue
         
         private void Awake()
         {
-            GetComponent<Renderer>().enabled = false;
+            if (TryGetComponent<Renderer>(out var renderer))
+            {
+                renderer.enabled = false;
+            }
         }
 
         private void OnTriggerExit(Collider other)

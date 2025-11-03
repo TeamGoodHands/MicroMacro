@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine.PlayerLoop;
 
 namespace Module.Application.Dialogue
@@ -38,6 +39,9 @@ namespace Module.Application.Dialogue
                
                foreach (var item in collection.items)
                {
+                   if (CheckBlank(item) == false)   // 設定ミスがないか各アイテムチェック
+                       continue;
+                   
                    // 同じ名前のセリフが登録されていたら警告
                    if (database.ContainsKey(item.EntryName))
                    {
@@ -47,6 +51,34 @@ namespace Module.Application.Dialogue
                    database[item.EntryName] = item;
                }
            }
+       }
+
+       private bool CheckBlank(DialogueItem item)
+       {
+           if (string.IsNullOrWhiteSpace(item.EntryName))
+           {
+               Debug.LogError("名前が空欄です。");
+               return false;
+           }
+
+           if (string.IsNullOrWhiteSpace(item.Text))
+           {
+               Debug.LogError("セリフが空欄です。");
+               return false;
+           }
+
+           if (item.characterIcon == null)
+           {
+               Debug.LogError("キャラクターアイコンが設定されていません");
+               return false;
+           }
+
+           if (item.DisplayTime <= 1f)
+           {
+               Debug.LogWarning("表示時間が一秒以下です。Name: " + item.EntryName); 
+           }
+
+           return true;
        }
 
        /// <summary>
