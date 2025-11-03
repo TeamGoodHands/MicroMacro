@@ -196,6 +196,48 @@ namespace Module.Scaling
             OnScaleCompleted?.Invoke(args);
         }
 
+        public void ScaleImmediate(int additionalStep, bool forceScale)
+        {
+            // ポーズ中の場合はそれを再開する
+            if (isPause)
+            {
+                bool isMacro = additionalStep > 0;
+                bool isForwards = isMacro == CurrentStep > PreviousStep;
+                ResumeScale(isForwards, isMacro);
+                return;
+            }
+
+            // コンポーネントが無効 or スケール中であればキャンセル
+            if ((!enabled && !forceScale) || isScaling)
+                return;
+
+            // 過去のスケール情報を保存
+            previousScaleInfo = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+
+            int nextStep = Mathf.Clamp(currentStep + additionalStep, minStep, maxStep);
+
+            // スケール段階を更新
+            previousStep = currentStep;
+            currentStep = nextStep;
+            state = GetScaleState();
+
+            ScaleEventArgs args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            OnScaleStarted?.Invoke(args);
+
+            // 同じスケールになる場合はスケールしない
+            if (previousStep == nextStep)
+                return;
+
+            // スケールする
+            OnScaleImmediate();
+
+            isPause = false;
+
+            // スケール完了イベントを送信
+            args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            OnScaleCompleted?.Invoke(args);
+        }
+
         /// <summary>
         /// 指定スケールにセットします
         /// </summary>
@@ -206,6 +248,13 @@ namespace Module.Scaling
             int targetStep = Mathf.Clamp(step, minStep, maxStep);
             int scaleDiff = targetStep - CurrentStep;
             return Scale(scaleDiff, forceScale);
+        }
+        
+        public void SetScaleImmediate(int step, bool forceScale = false)
+        {
+            int targetStep = Mathf.Clamp(step, minStep, maxStep);
+            int scaleDiff = targetStep - CurrentStep;
+            ScaleImmediate(scaleDiff, forceScale);
         }
 
         /// <summary>
@@ -241,7 +290,7 @@ namespace Module.Scaling
         private void ResumeScale(bool isForwards, bool isMacro)
         {
             isPause = false;
-            
+
             // 再開する際に再開前のサイズに戻る場合は、データも元に戻す
             if (!isForwards)
             {
@@ -286,8 +335,8 @@ namespace Module.Scaling
             SetScale(0, true).Forget();
         }
 
-
         protected abstract UniTask OnScale(CancellationToken cancellationToken);
+        protected abstract void OnScaleImmediate();
 
         protected abstract void OnPause();
         protected abstract void OnResume(bool isForwards);

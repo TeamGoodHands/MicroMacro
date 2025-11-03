@@ -3,14 +3,13 @@ using UnityEngine;
 
 namespace CoreModule.Utility
 {
-    [ExecuteAlways]
     public class TransformSyncer : MonoBehaviour
     {
         [SerializeField] private Transform target;
         public bool syncPosition;
         public bool syncRotation;
 
-        private void Update()
+        public void UpdateManual()
         {
             if (target == null)
                 return;
@@ -24,6 +23,11 @@ namespace CoreModule.Utility
             {
                 transform.rotation = target.rotation;
             }
+        }
+
+        private void Update()
+        {
+            UpdateManual();
         }
     }
 }

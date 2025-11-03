@@ -211,9 +211,9 @@ GameObject:
   - component: {fileID: 1725987536226730840}
   - component: {fileID: 333365790692849311}
   - component: {fileID: 1620172284009157263}
-  - component: {fileID: 3583164426310486761}
   - component: {fileID: 4942465749065928862}
   - component: {fileID: 7598591748724952042}
+  - component: {fileID: 2260007087646747889}
   m_Layer: 0
   m_Name: boomerang_cap_1008
   m_TagString: Untagged
@@ -230,7 +230,7 @@ Transform:
   m_GameObject: {fileID: 2391806728327707011}
   serializedVersion: 2
   m_LocalRotation: {x: -0.01669246, y: 0.38231927, z: -0.040299103, w: 0.9230002}
-  m_LocalPosition: {x: 0.017163413, y: 0.5711232, z: -0.017163396}
+  m_LocalPosition: {x: 0.017163413, y: 0.5711232, z: -0.017163394}
   m_LocalScale: {x: 0.49376827, y: 0.49376827, z: 0.49376827}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -304,30 +304,6 @@ MonoBehaviour:
   target: {fileID: 5658260059363774848}
   syncPosition: 1
   syncRotation: 1
---- !u!114 &3583164426310486761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2391806728327707011}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 623f6a1fabfc4e47854f71718084ea07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  minStep: 0
-  maxStep: 3
-  currentStep: 0
-  previousStep: 0
-  state: 0
-  isScaling: 0
-  isPause: 0
-  scaleAmount: {x: 1, y: 1}
-  scaleDuration: 0.5
-  lockPosition: 1
-  pivotX: 0
-  pivotY: 0
 --- !u!54 &4942465749065928862
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -353,7 +329,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 8
+  m_Constraints: 120
   m_CollisionDetection: 3
 --- !u!135 &7598591748724952042
 SphereCollider:
@@ -374,8 +350,33 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1.2
+  m_Radius: 1
   m_Center: {x: -2.3963853e-10, y: -0.032163743, z: 0}
+--- !u!114 &2260007087646747889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2391806728327707011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89c6c17deb73e80438e8d4fb9c74487b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minStep: 0
+  maxStep: 3
+  currentStep: 0
+  previousStep: 0
+  state: 0
+  isScaling: 0
+  isPause: 0
+  scaleAmount: {x: 0.4, y: 0.4, z: 0.4}
+  scaleDuration: 0.5
+  lockPosition: 1
+  scaleEase: 27
+  pivotX: 0
+  pivotY: 0
 --- !u!1 &2520917507879694268
 GameObject:
   m_ObjectHideFlags: 0
@@ -606,7 +607,7 @@ MonoBehaviour:
   throwInterval: 2
   shootHeightOffset: -0.1
   status: {fileID: 1951395449180523211}
-  boomerang: {fileID: 3583164426310486761}
+  boomerang: {fileID: 0}
   boomerangRig: {fileID: 4942465749065928862}
   capTransformSyncer: {fileID: 1620172284009157263}
   headBoneTransform: {fileID: 5658260059363774848}

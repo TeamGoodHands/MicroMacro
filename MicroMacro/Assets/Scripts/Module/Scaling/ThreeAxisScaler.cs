@@ -1,17 +1,16 @@
-﻿using System.Threading;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using Module.Management;
 using UnityEngine;
 
 namespace Module.Scaling
 {
     /// <summary>
-    /// XY軸方向にスケールするオブジェクト
+    /// XYZ軸方向にスケールするオブジェクト
     /// </summary>
-    public class TwoAxisScaler : Scaler
+    public class ThreeAxisScaler : Scaler
     {
-        [SerializeField, Header("1ステップあたりのスケール量")] private Vector2 scaleAmount = new Vector2(1, 1);
+        [SerializeField, Header("1ステップあたりのスケール量")] private Vector3 scaleAmount = new Vector3(1, 1, 1);
         [SerializeField, Header("スケール時間")] private float scaleDuration = 0.5f;
         [SerializeField, Header("座標移動の無効化")] private bool lockPosition = false;
         [SerializeField] private Ease scaleEase = Ease.OutBack;
@@ -46,7 +45,6 @@ namespace Module.Scaling
 
             // targetScaleまで滑らかにスケールする
             ScalerArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
-            args.Duration = scaleDuration;
             currentTween = CreateScaleTween(currentPosition, currentScale, args).SetLink(gameObject);
 
             // 完了を待っている間にキャンセルされたらtweenをキルする
@@ -54,7 +52,7 @@ namespace Module.Scaling
             {
                 // 完了を待つタスク
                 UniTask completeTask = currentTween.AsyncWaitForCompletion().AsUniTask();
-                
+
                 // 巻き戻しを待つタスク
                 UniTask rewindTask = currentTween.AsyncWaitForRewind().AsUniTask();
 
@@ -129,7 +127,7 @@ namespace Module.Scaling
             Vector2 scaledPosition = CalculateScaledPosition(pivot, targetScale);
             Vector3 positionOffset = (Vector3)scaledPosition - currentPosition;
 
-            return new ScalerArgs() { TargetScale = targetScale, PositionOffset = positionOffset };
+            return new ScalerArgs() { TargetScale = targetScale, PositionOffset = positionOffset, Duration = scaleDuration };
         }
 
         /// <summary>

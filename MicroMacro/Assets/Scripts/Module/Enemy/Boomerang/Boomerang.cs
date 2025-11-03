@@ -13,7 +13,6 @@ namespace Module.Enemy.Boomerang
     {
         [Min(0.001f)] [SerializeField] private float oneWayDistance = 10f; // 片道距離 D
         [Min(0.001f)] [SerializeField] private float oneWayTime = 1.0f; // 片道時間 T
-        [SerializeField] private float spinDegPerSec = 720f; // 見た目の回転
         [SerializeField, Header("ブーメランを投げる間隔")] private float throwInterval = 1f;
         [SerializeField, Header("発射位置の調整")] private float shootHeightOffset = -0.1f;
 
@@ -23,6 +22,11 @@ namespace Module.Enemy.Boomerang
         [SerializeField] private TransformSyncer capTransformSyncer;
         [SerializeField] private Transform headBoneTransform;
         [SerializeField] private BoomerangWrapper animatorWrapper;
+        [SerializeField] private Animator capAnimator;
+
+        [SerializeField, Min(0.0001f)] private float exponentialSharpness = 4.0f;
+        
+        private static readonly int boomerangRotationHash = Animator.StringToHash("BoomerangRotation");
 
         private void Start()
         {
@@ -41,6 +45,7 @@ namespace Module.Enemy.Boomerang
                 await UniTask.Delay(TimeSpan.FromSeconds(oneWayTime * 2f), cancellationToken: destroyCancellationToken);
 
                 animatorWrapper.IsAttacking = false;
+                CheckBoomerangHit();
 
                 await UniTask.Delay(TimeSpan.FromSeconds(throwInterval), cancellationToken: destroyCancellationToken);
             }
@@ -56,6 +61,8 @@ namespace Module.Enemy.Boomerang
 
         public void Catch()
         {
+            capAnimator.enabled = false;
+            boomerang.SetScaleImmediate(0, true);
             SetCapLockState(true);
         }
 
@@ -64,31 +71,36 @@ namespace Module.Enemy.Boomerang
             capTransformSyncer.gameObject.SetActive(!isLock);
             capTransformSyncer.syncPosition = isLock;
             capTransformSyncer.syncRotation = isLock;
-        }
 
+            if (isLock)
+            {
+                capTransformSyncer.UpdateManual();
+            }
+        }
 
         private bool isActive = false;
         private float t = 0f;
         private float v0; // 初速 = 2D/T
-        private float a; // 加速度 = 2D/T^2（向きは -uForward）
+        private float a; // 加速度 = 2D/T^2
         private Vector3 uForward; // 投げ方向の単位ベクトル
         private Vector3 originPos; // 投擲時の基準位置
 
         private void FixedUpdate()
         {
             if (!isActive)
+            {
                 return;
+            }
 
-            float T = oneWayTime;
             t += Time.fixedDeltaTime;
 
-            // 見た目の回転
-            var spin = Quaternion.AngleAxis(spinDegPerSec * Time.fixedDeltaTime, Vector3.up);
-            boomerangRig.MoveRotation(boomerangRig.rotation * spin);
+            float T = Mathf.Max(0.0001f, oneWayTime);
+            float d = Mathf.Max(0.0001f, oneWayDistance);
 
-            // 常に逆向き加速度を加え続ける
-            Vector3 aVec = -a * uForward;
-            Vector3 v = uForward * v0 + aVec * t;
+            float u = t / T;
+
+            float sdotPerSec = EvalExpPingPongVelocityPerSec(u, exponentialSharpness, T);
+            Vector3 v = uForward * (d * sdotPerSec);
             boomerangRig.linearVelocity = v;
 
             // 2T 経過で戻りきり → 停止
@@ -105,11 +117,11 @@ namespace Module.Enemy.Boomerang
         {
             SetCapLockState(false);
 
-            float D = Mathf.Max(0.0001f, oneWayDistance);
+            float d = Mathf.Max(0.0001f, oneWayDistance);
             float T = Mathf.Max(0.0001f, oneWayTime);
 
-            v0 = 2f * D / T;
-            a = 2f * D / (T * T);
+            v0 = 2f * d / T;
+            a = 2f * d / (T * T);
 
             uForward = (transform.right + Vector3.up * shootHeightOffset).normalized;
             originPos = headBoneTransform.position;
@@ -120,8 +132,11 @@ namespace Module.Enemy.Boomerang
             boomerangRig.isKinematic = false;
             boomerangRig.position = originPos;
             boomerangRig.rotation = headBoneTransform.rotation;
-            boomerangRig.linearVelocity = uForward * v0;
+            boomerangRig.linearVelocity = uForward * v0; // ※初期フレームはこの速度、以降は上書き
             boomerangRig.angularVelocity = Vector3.zero;
+
+            capAnimator.enabled = true;
+            capAnimator.Play(boomerangRotationHash);
         }
 
         private void Finish()
@@ -151,6 +166,30 @@ namespace Module.Enemy.Boomerang
             if (boomerang.CurrentStep > 0)
             {
                 status.Damage(1);
+            }
+        }
+
+        // ======================================================
+        // 指数イージング（ピンポン）速度：ds/dt を返すヘルパ
+        // u ∈ [0,2], k>0, T=片道時間
+        // 往路:   x=u,     ds/dt =  (k * e^{-k x}) / ((1-e^{-k}) * T)
+        // 復路:   x=2-u,   ds/dt = -(k * e^{-k x}) / ((1-e^{-k}) * T)
+        // 速度ベクトル = uForward * (oneWayDistance * ds/dt)
+        // ======================================================
+        private float EvalExpPingPongVelocityPerSec(float u, float k, float T)
+        {
+            float kk = Mathf.Max(0.0001f, k);
+            float denom = 1f - Mathf.Exp(-kk);
+
+            if (u <= 1f)
+            {
+                float x = Mathf.Clamp01(u);
+                return (kk * Mathf.Exp(-kk * x)) / (denom * T);
+            }
+            else
+            {
+                float x = Mathf.Clamp01(2f - u);
+                return -(kk * Mathf.Exp(-kk * x)) / (denom * T);
             }
         }
     }
