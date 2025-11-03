@@ -8,7 +8,7 @@ namespace Gimmick
 {
     public class BounceBox : MonoBehaviour
     {
-        [SerializeField] private TwoAxisScaler scaler;
+        [SerializeField] private Scaler scaler;
         [SerializeField] private float bounceForce = 5f;
         [SerializeField] private ScaleRewinder scaleRewinder;
 

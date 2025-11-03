@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace Module.Scaling
 {
-    public class TwoAxisScalerEffector : MonoBehaviour
+    public class ScalerEffector : MonoBehaviour
     {
-        [SerializeField] private TwoAxisScaler scaler;
+        [SerializeField] private Scaler scaler;
         [SerializeField] private Renderer bodyRenderer;
         [SerializeField] private BoundBoxWrapper boundBoxWrapper;
         [SerializeField, Header("効果発動時のアウトライン幅")] private float outlineWidth = 0.01f;
