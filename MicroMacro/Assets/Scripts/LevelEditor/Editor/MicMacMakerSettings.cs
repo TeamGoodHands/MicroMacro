@@ -7,9 +7,11 @@ namespace Editor.LevelEditor
     [CreateAssetMenu(fileName = "MicMacMakerSettings", menuName = "MicMacMaker/MicMacMakerSettings", order = 1)]
     public class MicMacMakerSettings : ScriptableObject
     {
-        public ObjectCategory[] ObjectCategories => objectCategories;
-
         [SerializeField] private ObjectCategory[] objectCategories;
+        [SerializeField] private Material groundMaterial;
+        
+        public ObjectCategory[] ObjectCategories => objectCategories;
+        public Material GroundMaterial => groundMaterial;
 
         [Serializable]
         public class ObjectCategory

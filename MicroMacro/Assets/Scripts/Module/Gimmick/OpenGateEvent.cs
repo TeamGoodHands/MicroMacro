@@ -11,7 +11,6 @@ namespace Module.Gimmick
     public class OpenGateEvent : MonoBehaviour
     {
         [SerializeField] private GameObject gate;
-        [SerializeField] private PlayerCamera playerCamera;
         [SerializeField] private PlayableDirector director;
 
         private PlayerBehaviour playerBehaviour;
@@ -26,7 +25,7 @@ namespace Module.Gimmick
         {
             if (!gate.activeSelf || isTriggered)
                 return;
-
+            
             if (other.gameObject.CompareTag(Tag.Handle.Untagged))
             {
                 OpenGate().Forget();
@@ -38,7 +37,6 @@ namespace Module.Gimmick
         private async UniTaskVoid OpenGate()
         {
             playerBehaviour.Component.Condition.IsPlayerLocked = true;
-            playerCamera.SetLockState(true);
             director.Play();
             
             await UniTask.Delay(TimeSpan.FromSeconds(3));
@@ -48,7 +46,6 @@ namespace Module.Gimmick
             await UniTask.Delay(TimeSpan.FromSeconds(2));
             
             playerBehaviour.Component.Condition.IsPlayerLocked = false;
-            playerCamera.SetLockState(false);
         }
     }
 }

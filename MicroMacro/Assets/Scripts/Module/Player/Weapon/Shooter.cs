@@ -36,8 +36,8 @@ namespace Module.Player.Weapon
             animatorWrapper = component.AnimatorWrapper;
 
             // 弾のObjectPoolの初期化
-            macroBulletPool = new ObjectPool<GameObject>(() => OnBulletCreate(macroBulletPrefab), null, poolAmount);
-            microBulletPool = new ObjectPool<GameObject>(() => OnBulletCreate(microBulletPrefab), null, poolAmount);
+            macroBulletPool = new ObjectPool<GameObject>(() => OnBulletCreate(macroBulletPrefab), null, null, poolAmount);
+            microBulletPool = new ObjectPool<GameObject>(() => OnBulletCreate(microBulletPrefab), null, null, poolAmount);
 
             // 入力イベントを取得
             macroShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MacroShoot);
@@ -118,7 +118,7 @@ namespace Module.Player.Weapon
             Vector2 dirVelocity = GetDirectedVelocity(condition.Direction, playerRigBody.linearVelocity, maxAdditionalSpeed);
             bullet.AddForce(condition.Direction * shootPower + dirVelocity);
             lastShootTime = Time.time;
-            
+
             PlayShotAnimation();
         }
 

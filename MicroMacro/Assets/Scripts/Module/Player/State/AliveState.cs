@@ -17,6 +17,7 @@ namespace Module.Player.State
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
         private readonly PlayerRotation rotation;
+        private readonly PlayerStatus status;
         private readonly WeaponSwitcher weaponSwitcher;
         private readonly PlayerControllerWrapper animatorWrapper;
 
@@ -29,6 +30,7 @@ namespace Module.Player.State
             transform = component.Transform;
             bodyTransform = component.BodyTransform;
             condition = component.Condition;
+            status = component.PlayerStatus;
             rotation = component.PlayerRotation;
             weaponSwitcher = component.WeaponSwitcher;
             animatorWrapper = component.AnimatorWrapper;
@@ -49,18 +51,27 @@ namespace Module.Player.State
             UpdateAnimatorDirection(condition.Direction.x);
 
             switchEvent.Started += OnSwitchWeapon;
+            status.OnDamage += OnDamaged;
         }
 
         internal override void OnExit()
         {
             switchEvent.Started -= OnSwitchWeapon;
+            status.OnDamage -= OnDamaged;
         }
 
+        private void OnDamaged(int damage)
+        {
+            if (status.CurrentHealth == 0)
+                return;
+            
+            animatorWrapper.SetDamagedTrigger();
+        }
 
         private void UpdateAnimatorDirection(float directionX)
         {
-            float zScale = Mathf.Abs(bodyTransform.localScale.z);
-            bodyTransform.localScale = new Vector3(1, 1, directionX > 0 ? zScale : -zScale);
+            float zScale = Mathf.Abs(bodyTransform.localScale.y);
+            bodyTransform.localScale = new Vector3(100, directionX > 0 ? zScale : -zScale, 100);
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)

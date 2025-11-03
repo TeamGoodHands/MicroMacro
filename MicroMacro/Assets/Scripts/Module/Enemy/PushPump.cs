@@ -20,9 +20,9 @@ namespace Module.Enemy
         private void Start()
         {
             shootCanceller = new CancellationTokenSource();
-            
+
             // 弾のObjectPoolの初期化
-            bulletPool = new ObjectPool<GameObject>(() => OnBulletCreate(bulletPrefab), null, poolAmount);
+            bulletPool = new ObjectPool<GameObject>(() => OnBulletCreate(bulletPrefab), null, null, poolAmount);
 
             // 発射ループを開始する
             ShootBulletLoopAsync(shootCanceller.Token).Forget();

@@ -21,8 +21,14 @@ namespace Module.Player.Component
 
         public void Damage(int damage)
         {
+            int prevHealth = currentHealth;
             currentHealth -= damage;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+            // HPが変わってなければダメージを受けていないことにする
+            if (currentHealth == prevHealth)
+                return;
+            
             OnDamage?.Invoke(currentHealth);
 
             if (currentHealth == 0)

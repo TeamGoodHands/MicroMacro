@@ -1,0 +1,67 @@
+name: WebGPUBuild and Deploy to Github Pages
+on:
+  push:           # releaseにpush(マージ)or手動で実行
+    branches: ["release"]
+  workflow_dispatch:  {}
+  
+permissions:
+  contents: read
+  pages:    write
+  id-token: write
+
+jobs:
+  Unity-Build:          # checkout->cache->build->uploadの順番
+    name: Build for WebGL
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout  データ取得
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          lfs: true
+      
+      # Cache   Libraryを一時的に別の場所に保管して高速化する
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: MicroMacro/Library
+          key:  Library-${{ runner.os }}-6000.1.2f1-${{ hashFiles('MicroMacro/Assets/**', 'MicroMacro/Packages/**', 'MicroMacro/ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ runner.os }}-6000.1.2f1-
+            Library-${{ runner.os }}-
+
+      
+      # WindowsBuild
+      - name: Run the WebGPU Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE:  ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL:    ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+          projectPath:    MicroMacro
+          unityVersion:   6000.1.2f1
+          allowDirtyBuild: true
+
+     # index.htmlを絶対パスから相対パスに
+      - name: Modify index.html for GitHub Pages
+        run: sed -i 's|"/Build/|"/MicroMacro/Build/|g; s|"/TemplateData/|"/MicroMacro/TemplateData/|g' build/WebGL/index.html
+            
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/WebGL
+      
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: Unity-Build            # buildが完了したら実行
+    runs-on: ubuntu-latest
+    environment: 
+      name: github-pages
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+    

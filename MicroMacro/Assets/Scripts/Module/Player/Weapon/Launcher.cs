@@ -15,13 +15,13 @@ namespace Module.Player.Weapon
         [SerializeField] private float maxAdditionalSpeed;
         [SerializeField, Range(0f, 90f)] float launcherAngle = 45f;
         [SerializeField] private int poolAmount;
-        
+
         [SerializeField] private GameObject macroGrenadePrefab;
         [SerializeField] private GameObject microGrenadePrefab;
         [SerializeField] private GameObject muzzle;
-        
+
         [SerializeField] private BallSimulator ballSimulator;
-        
+
         private PlayerCondition condition;
         private Rigidbody playerRigBody;
         private ObjectPool<GameObject> macroGrenadePool;
@@ -31,8 +31,9 @@ namespace Module.Player.Weapon
 
         private Vector3 defaultPosition;
         private float lastShootTime;
-        
+
         private Vector2 velocity;
+
         public override void Initialize(PlayerComponent component)
         {
             condition = component.Condition;
@@ -40,19 +41,19 @@ namespace Module.Player.Weapon
             defaultPosition = transform.localPosition;
 
             // 弾のObjectPoolの初期化
-            macroGrenadePool = new ObjectPool<GameObject>(() => OnGrenadeCreate(macroGrenadePrefab), null, poolAmount);
-            microGrenadePool = new ObjectPool<GameObject>(() => OnGrenadeCreate(microGrenadePrefab), null, poolAmount);
+            macroGrenadePool = new ObjectPool<GameObject>(() => OnGrenadeCreate(macroGrenadePrefab), null, null, poolAmount);
+            microGrenadePool = new ObjectPool<GameObject>(() => OnGrenadeCreate(microGrenadePrefab), null, null, poolAmount);
 
             // 入力イベントを取得
             macroShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MacroShoot);
             microShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MicroShoot);
         }
-    
+
         public override void OnEnabled()
         {
             macroShootEvent.Started += OnMacroShoot;
             microShootEvent.Started += OnMicroShoot;
-            
+
             // 武器と弾道予測の有効化
             gameObject.SetActive(true);
             ballSimulator.IsSimulate = true;
@@ -62,7 +63,7 @@ namespace Module.Player.Weapon
         {
             macroShootEvent.Started -= OnMacroShoot;
             microShootEvent.Started -= OnMicroShoot;
-            
+
             gameObject.SetActive(false);
             ballSimulator.IsSimulate = false;
         }
@@ -73,7 +74,7 @@ namespace Module.Player.Weapon
             obj.SetActive(false);
             return obj;
         }
-        
+
         private void OnMacroShoot(InputAction.CallbackContext _)
         {
             Shoot(macroGrenadePool);
@@ -83,6 +84,7 @@ namespace Module.Player.Weapon
         {
             Shoot(microGrenadePool);
         }
+
         private void Update()
         {
             // 銃の向きはカクカクで回転させる
@@ -96,7 +98,6 @@ namespace Module.Player.Weapon
             }
 
             SwitchLauncherPosition(condition.Direction);
-       
         }
 
         private void FixedUpdate()
@@ -142,7 +143,7 @@ namespace Module.Player.Weapon
 
             // 砲口に移動
             bullet.transform.position = muzzle.transform.position;
-            
+
             bullet.AddForce(velocity);
             lastShootTime = Time.time;
         }
@@ -153,47 +154,47 @@ namespace Module.Player.Weapon
         private Vector2 ClampVelocity(Vector2 velocity, float maxSpeed)
         {
             float x = 0f, y = 0f;
-            
+
             if (velocity.x >= 0)
                 x = Mathf.Clamp(velocity.x, 0f, maxSpeed);
             else if (velocity.x < 0)
                 x = Mathf.Clamp(velocity.x, -maxSpeed, 0f);
-            
+
             if (velocity.y >= 0)
                 y = Mathf.Clamp(velocity.y, 0f, maxSpeed);
             else if (velocity.y < 0)
                 y = Mathf.Clamp(velocity.y, -maxSpeed, 0f);
-            
+
             return new Vector2(x, y);
         }
-        
+
         /// <summary>
         /// 銃口の向きに応じてLauncherの位置を切り替える
         /// TODO: アニメーション実装時要修正
         /// </summary>
         private void SwitchLauncherPosition(Vector2 direction)
         {
-           if (direction == Vector2.up)
-           {
-               transform.localPosition = new Vector3(0f, 1f, 0f);
-               ballSimulator.IsSimulate = false;    // 上下の時は弾道予測off
-           }
-           else if (direction == Vector2.down)
-           {
-               transform.localPosition = new Vector3(0f, -1.5f, 0f);
-               ballSimulator.IsSimulate = false;
-           }
-           else if (direction == Vector2.right || direction == Vector2.left)
-           {
-               if (transform.localPosition != defaultPosition)
-                   transform.localPosition = defaultPosition;
-               
-               ballSimulator.IsSimulate = true;
-           }
-           else
-           {
-               Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
-           }
+            if (direction == Vector2.up)
+            {
+                transform.localPosition = new Vector3(0f, 1f, 0f);
+                ballSimulator.IsSimulate = false; // 上下の時は弾道予測off
+            }
+            else if (direction == Vector2.down)
+            {
+                transform.localPosition = new Vector3(0f, -1.5f, 0f);
+                ballSimulator.IsSimulate = false;
+            }
+            else if (direction == Vector2.right || direction == Vector2.left)
+            {
+                if (transform.localPosition != defaultPosition)
+                    transform.localPosition = defaultPosition;
+
+                ballSimulator.IsSimulate = true;
+            }
+            else
+            {
+                Debug.LogWarning($"無効なdirectionが渡されました: {direction}");
+            }
         }
     }
 }

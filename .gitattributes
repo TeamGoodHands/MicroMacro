@@ -7,8 +7,8 @@
 *.unity merge=unityyamlmerge eol=lf
 *.physicsMaterial2D merge=unityyamlmerge eol=lf
 *.physicsMaterial merge=unityyamlmerge eol=lf
-*.asset eol=lf -text
 *.meta merge=unityyamlmerge eol=lf
+*.asset merge=unityyamlmerge eol=lf
 *.controller merge=unityyamlmerge eol=lf
 
 ## git-lfs ##
@@ -86,6 +86,5 @@
 *.tiff filter=lfs diff=lfs merge=lfs -text
 *.unitypackage filter=lfs diff=lfs merge=lfs -text
 *.apk filter=lfs diff=lfs merge=lfs -text
-*.asset filter=lfs diff=lfs merge=lfs -text
 
 LightingData.asset filter=lfs diff=lfs merge=lfs -text

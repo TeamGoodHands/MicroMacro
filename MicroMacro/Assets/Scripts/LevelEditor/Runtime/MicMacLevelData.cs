@@ -5,12 +5,23 @@ using Constants;
 using CoreModule.Serialization;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace LevelEditor.Runtime
 {
     public class MicMacLevelData : MonoBehaviour
     {
         private const int MapSize = 8192;
+        [SerializeField, HideInInspector] private bool showBlocks;
         [SerializeField, HideInInspector] private List<Vector2Int> overlapCoords = new List<Vector2Int>();
+
+        public bool ShowBlocks
+        {
+            get => showBlocks;
+            set => showBlocks = value;
+        }
 
         public long CoordToIndex(Vector2Int coord)
         {
@@ -51,16 +62,37 @@ namespace LevelEditor.Runtime
                 GameObject combinedObject = meshCombiner.CombineMeshes(group);
                 combinedObject.transform.SetParent(transform);
             }
-        }
 
-        private void OnDrawGizmos()
-        {
-            foreach (Vector2Int coord in overlapCoords)
+            if (!showBlocks)
             {
-                Gizmos.color = Color.red;
-                Gizmos.DrawCube(new Vector3(coord.x, coord.y, -5), Vector3.one * 0.4f);
+                // ゲーム開始時に見た目オブジェクトを削除する
+                foreach (GameObject obj in mapData.Select(pair => pair.Value))
+                {
+                    Destroy(obj);
+                }
             }
         }
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+
+            foreach (Vector2Int coord in overlapCoords)
+            {
+                Handles.color = Color.red;
+                Handles.CubeHandleCap(
+                    0, // controlID（通常0でOK）
+                    new Vector3(coord.x, coord.y, transform.position.z), // 中心位置
+                    transform.rotation, // 回転
+                    0.4f, // 一辺の長さ
+                    EventType.Repaint // 描画タイプ
+                );
+            }
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+        }
+#endif
 
         private Dictionary<long, GameObject> GetMapData()
         {
@@ -68,7 +100,7 @@ namespace LevelEditor.Runtime
                 .Select(obj => obj.gameObject)
                 .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid))
                 .ToList();
-            
+
             CheckOverlap(gridObjects);
 
             if (overlapCoords.Count > 0)
