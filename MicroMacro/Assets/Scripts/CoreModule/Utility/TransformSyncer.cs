@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CoreModule.Utility
 {
+    [ExecuteAlways]
     public class TransformSyncer : MonoBehaviour
     {
         [SerializeField] private Transform target;
