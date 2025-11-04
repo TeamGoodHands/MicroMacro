@@ -48931,45 +48931,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boomerang
       objectReference: {fileID: 0}
-    - target: {fileID: 8390443236658167255, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: boomerang
-      value: 
-      objectReference: {fileID: 1846532735}
-    - target: {fileID: 8390443236658167255, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: oneWayTime
-      value: 0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 8390443236658167255, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: capAnimator
-      value: 
-      objectReference: {fileID: 1846532736}
-    - target: {fileID: 8710091510782422437, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.017163413
-      objectReference: {fileID: 0}
-    - target: {fileID: 8710091510782422437, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.01716339
-      objectReference: {fileID: 0}
-    - target: {fileID: 8710091510782422437, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 16.408
-      objectReference: {fileID: 0}
-    - target: {fileID: 8710091510782422437, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 283.0067
-      objectReference: {fileID: 0}
-    - target: {fileID: 8710091510782422437, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 9.778
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2391806728327707011, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1846532736}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
 --- !u!4 &604884580 stripped
 Transform:
@@ -85076,7 +85041,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1067435887}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.000043630065, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -25.70467, y: 1.4999979, z: -12.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -152604,44 +152569,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8889239416410981456, guid: 07da1f787c2e7a44fbf9e5f9360cf189, type: 3}
   m_PrefabInstance: {fileID: 798514570}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1846532728 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2391806728327707011, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-  m_PrefabInstance: {fileID: 604387153}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1846532735 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2260007087646747889, guid: 9c7398f1edffb4e4a8eeaca37c2052ed, type: 3}
-  m_PrefabInstance: {fileID: 604387153}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1846532728}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89c6c17deb73e80438e8d4fb9c74487b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!95 &1846532736
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1846532728}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b1031341cc9eca3429f14aa5f22e0189, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &1848124347
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -175234,6 +175161,10 @@ PrefabInstance:
     - target: {fileID: 4289285521358666090, guid: 715df9bb7885452419cf1b25e4913162, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4667942627592755181, guid: 715df9bb7885452419cf1b25e4913162, type: 3}
+      propertyPath: maxHealth
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

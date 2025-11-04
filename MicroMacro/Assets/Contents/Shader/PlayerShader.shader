@@ -55,7 +55,7 @@ Shader "PlayerShader/HalfLambert_Min"
 
             half4 dn_frag(V i) : SV_Target
             {
-                return half4(0,0,0,0);
+                return half4(0, 0, 0, 1);
             }
             ENDHLSL
         }

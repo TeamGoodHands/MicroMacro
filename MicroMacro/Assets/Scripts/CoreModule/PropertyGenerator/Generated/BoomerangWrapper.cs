@@ -11,6 +11,7 @@ namespace PropertyGenerator.Generated
 	public class BoomerangWrapper
 	{
 		private static readonly int IsAttackingProperty = Animator.StringToHash("IsAttacking");
+		private static readonly int IsDeathProperty = Animator.StringToHash("IsDeath");
 		[SerializeField] private Animator target;
 		public Animator Animator => target;
 		
@@ -18,6 +19,12 @@ namespace PropertyGenerator.Generated
 		{
 			get => target.GetBool(IsAttackingProperty);
 			set => target.SetBool(IsAttackingProperty, value);
+		}
+		
+		public bool IsDeath
+		{
+			get => target.GetBool(IsDeathProperty);
+			set => target.SetBool(IsDeathProperty, value);
 		}
 	}
 }

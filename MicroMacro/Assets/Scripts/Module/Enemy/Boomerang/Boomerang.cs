@@ -25,13 +25,16 @@ namespace Module.Enemy.Boomerang
         [SerializeField] private Animator capAnimator;
 
         [SerializeField, Min(0.0001f)] private float exponentialSharpness = 4.0f;
-        
+
+        private bool isActive = false;
+
         private static readonly int boomerangRotationHash = Animator.StringToHash("BoomerangRotation");
 
         private void Start()
         {
             // 死亡イベントを登録
             status.OnDeath += OnDeath;
+            status.OnDamage += OnDamage;
 
             LoopThrow().Forget();
         }
@@ -45,22 +48,27 @@ namespace Module.Enemy.Boomerang
                 await UniTask.Delay(TimeSpan.FromSeconds(oneWayTime * 2f), cancellationToken: destroyCancellationToken);
 
                 animatorWrapper.IsAttacking = false;
-                CheckBoomerangHit();
 
                 await UniTask.Delay(TimeSpan.FromSeconds(throwInterval), cancellationToken: destroyCancellationToken);
             }
         }
 
-        private async void OnDeath()
+        private void OnDamage(int damage)
         {
-            // ちょっと揺らす
-            await transform.DOShakePosition(0.5f, 0.5f, 10, 90f, false, true);
+            //今は適当に揺らす 
+            transform.DOShakePosition(0.35f, 0.2f, 30, 90f, false, false);
+        }
 
-            Destroy(gameObject);
+        private void OnDeath()
+        {
+            animatorWrapper.IsDeath = true;
+            Destroy(gameObject, 1f);
         }
 
         public void Catch()
         {
+            CheckBoomerangHit();
+
             capAnimator.enabled = false;
             boomerang.SetScaleImmediate(0, true);
             SetCapLockState(true);
@@ -68,7 +76,6 @@ namespace Module.Enemy.Boomerang
 
         private void SetCapLockState(bool isLock)
         {
-            capTransformSyncer.gameObject.SetActive(!isLock);
             capTransformSyncer.syncPosition = isLock;
             capTransformSyncer.syncRotation = isLock;
 
@@ -78,7 +85,6 @@ namespace Module.Enemy.Boomerang
             }
         }
 
-        private bool isActive = false;
         private float t = 0f;
         private float v0; // 初速 = 2D/T
         private float a; // 加速度 = 2D/T^2
@@ -111,7 +117,7 @@ namespace Module.Enemy.Boomerang
         }
 
         /// <summary>
-        /// 外部から呼び出す：ブーメラン投擲開始
+        /// ブーメラン投擲開始
         /// </summary>
         public void Throw()
         {
@@ -169,13 +175,7 @@ namespace Module.Enemy.Boomerang
             }
         }
 
-        // ======================================================
         // 指数イージング（ピンポン）速度：ds/dt を返すヘルパ
-        // u ∈ [0,2], k>0, T=片道時間
-        // 往路:   x=u,     ds/dt =  (k * e^{-k x}) / ((1-e^{-k}) * T)
-        // 復路:   x=2-u,   ds/dt = -(k * e^{-k x}) / ((1-e^{-k}) * T)
-        // 速度ベクトル = uForward * (oneWayDistance * ds/dt)
-        // ======================================================
         private float EvalExpPingPongVelocityPerSec(float u, float k, float T)
         {
             float kk = Mathf.Max(0.0001f, k);

@@ -157,7 +157,7 @@ namespace Module.Scaling
             }
 
             // コンポーネントが無効 or スケール中であればキャンセル
-            if ((!enabled && !forceScale) || isScaling)
+            if (!enabled || isScaling && !forceScale)
                 return;
 
             // 過去のスケール情報を保存
@@ -208,7 +208,7 @@ namespace Module.Scaling
             }
 
             // コンポーネントが無効 or スケール中であればキャンセル
-            if ((!enabled && !forceScale) || isScaling)
+            if (!enabled || isScaling && !forceScale)
                 return;
 
             // 過去のスケール情報を保存
@@ -249,7 +249,7 @@ namespace Module.Scaling
             int scaleDiff = targetStep - CurrentStep;
             return Scale(scaleDiff, forceScale);
         }
-        
+
         public void SetScaleImmediate(int step, bool forceScale = false)
         {
             int targetStep = Mathf.Clamp(step, minStep, maxStep);
