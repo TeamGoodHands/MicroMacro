@@ -6,6 +6,7 @@ namespace Module.Scaling
     public class FaceSyncer : MonoBehaviour
     {
         [SerializeField] private float baseScale = 1f;
+        [SerializeField] private bool swapXY = false;
 
         private void Update()
         {
@@ -28,8 +29,18 @@ namespace Module.Scaling
             float childScaleZ = targetWorldScale / Mathf.Max(parentScale.z, 0.0001f);
 
             Vector3 localScale = transform.localScale;
-            localScale.x = childScaleX;
-            localScale.y = childScaleY;
+
+            if (swapXY)
+            {
+                localScale.x = childScaleY;
+                localScale.y = childScaleX;
+            }
+            else
+            {
+                localScale.x = childScaleX;
+                localScale.y = childScaleY;
+            }
+
             localScale.z = childScaleZ;
             transform.localScale = localScale;
         }

@@ -23,6 +23,7 @@ namespace Module.Scaling
         private Vector3 defaultScale;
         private Tween currentTween;
         private Rigidbody rigidBody;
+        private Vector3 bounds;
 
         private void Awake()
         {
