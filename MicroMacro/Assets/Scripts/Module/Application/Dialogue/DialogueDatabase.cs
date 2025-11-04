@@ -13,7 +13,7 @@ namespace Module.Application.Dialogue
        public static DialogueDatabase Instance { get; private set; }
        // <"登録名", DialogueItem本体> の一意で登録、保持する辞書
        private readonly Dictionary<string, DialogueItem> database = new Dictionary<string, DialogueItem>();
-
+       
        [SerializeField] private DialogueCollection[] dialogueCollections;
 
        private void Awake()
@@ -21,7 +21,7 @@ namespace Module.Application.Dialogue
            if (Instance == null)
            {
                Instance = this;
-               DontDestroyOnLoad(gameObject);
+               DontDestroyOnLoad(gameObject);   // 何かの子にしてしまうと効かないので注意
                InitializeDatabase();
            }
            else

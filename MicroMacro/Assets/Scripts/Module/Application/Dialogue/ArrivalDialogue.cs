@@ -1,6 +1,7 @@
 ﻿using System;
 using Constants;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Module.Application.Dialogue
 {
@@ -10,17 +11,22 @@ namespace Module.Application.Dialogue
         [SerializeField] private DialogueManager dialogueManager;
 
         private bool hasBeenTriggered = false;
+        
+        /// <summary>
+        /// クラスを無効化してもOnTriggerは呼ばれるため、セリフが設定されていない場合は
+        /// 最初から発動済みに(無効化)しておく。
+        /// </summary>
         private void Awake()
         {
-            if (arrivalDialogues == null || arrivalDialogues.Length == 0)
-            {
-                Debug.LogWarning("到着時セリフが未設定または空です。");
-                hasBeenTriggered = true;
-            }
-
             if (dialogueManager == null)
             {
-                Debug.LogWarning("DialogueManagerが未設定です。");
+                Debug.LogWarning("[ArrivalDialogue] DialogueManagerが設定されていません。", this.gameObject);
+                hasBeenTriggered = true;
+                return;
+            }
+      
+            if (arrivalDialogues == null || arrivalDialogues.Length == 0)
+            {
                 hasBeenTriggered = true;
             }
         }
