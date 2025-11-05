@@ -29,6 +29,11 @@ namespace LevelEditor.Editor
             UpdateParentObject();
         }
 
+        ~ObjectPlacer()
+        {
+            SceneView.duringSceneGui -= HandleSceneGUI;
+        }
+
         public void Enable()
         {
             isWindowEnter = true;

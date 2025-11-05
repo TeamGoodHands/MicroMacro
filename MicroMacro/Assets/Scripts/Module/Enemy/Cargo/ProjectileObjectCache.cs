@@ -10,7 +10,7 @@ namespace Module.Enemy.Cargo
         public Collider Col { get; }
         public FallObjectPlayerAttacker Attacker { get; }
         public Scaler Scaler { get; }
-        public TwoAxisScalerEffector Effector { get; }
+        public ScalerEffector Effector { get; }
         public Vector3 DefaultPos { get; }
 
         public ProjectileObjectCache(ProjectileObject obj)
@@ -20,7 +20,7 @@ namespace Module.Enemy.Cargo
             Col = obj.GetComponent<Collider>();
             Attacker = obj.GetComponent<FallObjectPlayerAttacker>();
             Scaler = obj.GetComponent<Scaler>();
-            Effector = obj.GetComponent<TwoAxisScalerEffector>();
+            Effector = obj.GetComponent<ScalerEffector>();
             DefaultPos = obj.transform.position;
         }
     }

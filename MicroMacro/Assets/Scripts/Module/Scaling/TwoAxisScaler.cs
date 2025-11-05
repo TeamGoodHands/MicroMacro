@@ -45,7 +45,7 @@ namespace Module.Scaling
             currentTween?.Kill();
 
             // targetScaleまで滑らかにスケールする
-            TwoAxisScaleArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
+            ScalerArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
             args.Duration = scaleDuration;
             currentTween = CreateScaleTween(currentPosition, currentScale, args).SetLink(gameObject);
 
@@ -60,6 +60,28 @@ namespace Module.Scaling
 
                 // いずれかの完了を待つ
                 await UniTask.WhenAny(completeTask, rewindTask);
+            }
+        }
+
+        protected override void OnScaleImmediate()
+        {
+            Vector3 currentScale = transform.localScale;
+            Vector3 currentPosition = transform.localPosition;
+
+            // 物理の影響を受けていないRigidbodyを起動する
+            if (rigidBody != null)
+            {
+                rigidBody.WakeUp();
+            }
+
+            currentTween?.Kill();
+
+            ScalerArgs args = CalculateScaleArgs(currentPosition, Vector3.zero);
+            transform.localScale += args.TargetScale - currentScale;
+
+            if (!lockPosition)
+            {
+                transform.localPosition = currentPosition + args.PositionOffset;
             }
         }
 
@@ -80,7 +102,7 @@ namespace Module.Scaling
             }
         }
 
-        private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, TwoAxisScaleArgs args)
+        private Tween CreateScaleTween(Vector3 currentPosition, Vector3 currentScale, ScalerArgs args)
         {
             float progress = 0f;
             return DOTween.To(() => progress,
@@ -97,7 +119,7 @@ namespace Module.Scaling
                 .SetEase(scaleEase, 3f);
         }
 
-        private TwoAxisScaleArgs CalculateScaleArgs(Vector3 currentPosition, Vector3 scaleOffset)
+        private ScalerArgs CalculateScaleArgs(Vector3 currentPosition, Vector3 scaleOffset)
         {
             // 目標スケール値を求める
             Vector3 targetScale = defaultScale + (Vector3)scaleAmount * currentStep + scaleOffset;
@@ -107,7 +129,7 @@ namespace Module.Scaling
             Vector2 scaledPosition = CalculateScaledPosition(pivot, targetScale);
             Vector3 positionOffset = (Vector3)scaledPosition - currentPosition;
 
-            return new TwoAxisScaleArgs() { TargetScale = targetScale, PositionOffset = positionOffset };
+            return new ScalerArgs() { TargetScale = targetScale, PositionOffset = positionOffset };
         }
 
         /// <summary>
@@ -121,13 +143,6 @@ namespace Module.Scaling
 
             // ピボット分のオフセットを適用
             return localPosition - changeAmount * pivot;
-        }
-
-        private struct TwoAxisScaleArgs
-        {
-            public Vector3 TargetScale; // 目標スケール値
-            public Vector3 PositionOffset; // 前の地点からの座標の差分
-            public float Duration; // スケール時間
         }
     }
 }

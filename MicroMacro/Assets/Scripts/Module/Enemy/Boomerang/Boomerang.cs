@@ -1,96 +1,163 @@
 using System;
 using System.Threading;
+using CoreModule.Utility;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Scaling;
+using PropertyGenerator.Generated;
 using UnityEngine;
 
 namespace Module.Enemy.Boomerang
 {
     public class Boomerang : MonoBehaviour
     {
-        [SerializeField, Header("ブーメランの移動速度")] private float boomerangSpeed;
-        [SerializeField, Header("ブーメランの回転速度")] private int boomerangRotateSpeed = 5;
-        [SerializeField, Header("ブーメランを飛ばす距離")] private float boomerangRadius = 5f;
-        [SerializeField, Header("ブーメランを投げる間隔")] private float boomerangInterval = 1f;
+        [Min(0.001f)] [SerializeField] private float oneWayDistance = 10f; // 片道距離 D
+        [Min(0.001f)] [SerializeField] private float oneWayTime = 1.0f; // 片道時間 T
+        [SerializeField, Header("ブーメランを投げる間隔")] private float throwInterval = 1f;
+        [SerializeField, Header("発射位置の調整")] private float shootHeightOffset = -0.1f;
 
         [SerializeField] private EnemyStatus status;
         [SerializeField] private Scaler boomerang;
         [SerializeField] private Rigidbody boomerangRig;
+        [SerializeField] private TransformSyncer capTransformSyncer;
+        [SerializeField] private Transform headBoneTransform;
+        [SerializeField] private BoomerangWrapper animatorWrapper;
+        [SerializeField] private Animator capAnimator;
 
-        private CancellationTokenSource behaviourCanceller;
+        [SerializeField, Min(0.0001f)] private float exponentialSharpness = 4.0f;
+
+        private bool isActive = false;
+
+        private static readonly int boomerangRotationHash = Animator.StringToHash("BoomerangRotation");
 
         private void Start()
         {
             // 死亡イベントを登録
             status.OnDeath += OnDeath;
+            status.OnDamage += OnDamage;
 
-            behaviourCanceller = new CancellationTokenSource();
-            DoBoomerang(behaviourCanceller.Token).Forget();
+            LoopThrow().Forget();
         }
 
-        private async void OnDeath()
+        private async UniTaskVoid LoopThrow()
         {
-            behaviourCanceller.Cancel();
-
-            // ちょっと揺らす
-            await transform.DOShakePosition(0.5f, 0.5f, 10, 90f, false, true);
-
-            Destroy(gameObject);
-        }
-
-        private async UniTaskVoid DoBoomerang(CancellationToken cancellationToken)
-        {
-            float duration = boomerangRadius / boomerangSpeed;
-            Vector3 targetPosition = boomerang.transform.position + transform.right * boomerangRadius;
-
-            // 自身が破棄されるまでループする
-            while (!cancellationToken.IsCancellationRequested)
+            while (!destroyCancellationToken.IsCancellationRequested)
             {
-                await ThrowBoomerang(targetPosition, duration);
+                animatorWrapper.IsAttacking = true;
 
-                CheckBoomerangHit();
+                await UniTask.Delay(TimeSpan.FromSeconds(oneWayTime * 2f), cancellationToken: destroyCancellationToken);
 
-                await UniTask.Delay(TimeSpan.FromSeconds(boomerangInterval), cancellationToken: cancellationToken);
-                boomerang.SetScale(0, true);
+                animatorWrapper.IsAttacking = false;
+
+                await UniTask.Delay(TimeSpan.FromSeconds(throwInterval), cancellationToken: destroyCancellationToken);
             }
         }
 
-        private async UniTask ThrowBoomerang(Vector3 targetPosition, float duration)
+        private void OnDamage(int damage)
         {
-            // 累積回転角度を保持
-            float totalAngle = 0f;
-            Quaternion startRotation = boomerangRig.rotation;
+            //今は適当に揺らす 
+            transform.DOShakePosition(0.35f, 0.2f, 30, 90f, false, false);
+        }
 
-            _ = DOTween.To(
-                    () => 0f,
-                    angle =>
-                    {
-                        // 回転量を取得
-                        float delta = angle - totalAngle;
-                        totalAngle = angle;
+        private void OnDeath()
+        {
+            animatorWrapper.IsDeath = true;
+            Destroy(gameObject, 1f);
+        }
 
-                        // Rigidbodyをz軸で回転
-                        boomerangRig.MoveRotation(boomerangRig.rotation * Quaternion.AngleAxis(delta, Vector3.forward));
-                    },
-                    360f * boomerangRotateSpeed, // 行き帰りで n 回転
-                    duration * 2f // 往復分の時間
-                )
-                .SetEase(Ease.Linear)
-                .OnComplete(() =>
-                {
-                    // 終了時にスタート回転へ戻す（ズレ防止）
-                    boomerangRig.MoveRotation(startRotation);
-                });
+        public void Catch()
+        {
+            CheckBoomerangHit();
 
-            // 指定した位置まで移動する
-            await DOTween.To(
-                    () => boomerangRig.position,
-                    x => boomerangRig.MovePosition(x),
-                    targetPosition,
-                    duration
-                ).SetEase(Ease.InOutQuad)
-                .SetLoops(2, LoopType.Yoyo); // 逆再生して戻って来る
+            capAnimator.enabled = false;
+            boomerang.SetScaleImmediate(0, true);
+            SetCapLockState(true);
+        }
+
+        private void SetCapLockState(bool isLock)
+        {
+            capAnimator.gameObject.SetActive(!isLock);
+            capTransformSyncer.syncPosition = isLock;
+            capTransformSyncer.syncRotation = isLock;
+
+            if (isLock)
+            {
+                capTransformSyncer.UpdateManual();
+            }
+        }
+
+        private float t = 0f;
+        private float v0; // 初速 = 2D/T
+        private float a; // 加速度 = 2D/T^2
+        private Vector3 uForward; // 投げ方向の単位ベクトル
+        private Vector3 originPos; // 投擲時の基準位置
+
+        private void FixedUpdate()
+        {
+            if (!isActive)
+            {
+                return;
+            }
+
+            t += Time.fixedDeltaTime;
+
+            float T = Mathf.Max(0.0001f, oneWayTime);
+            float d = Mathf.Max(0.0001f, oneWayDistance);
+
+            float u = t / T;
+
+            float sdotPerSec = EvalExpPingPongVelocityPerSec(u, exponentialSharpness, T);
+            Vector3 v = uForward * (d * sdotPerSec);
+            boomerangRig.linearVelocity = v;
+
+            // 2T 経過で戻りきり → 停止
+            if (t >= 2f * T)
+            {
+                Finish();
+            }
+        }
+
+        /// <summary>
+        /// ブーメラン投擲開始
+        /// </summary>
+        public void Throw()
+        {
+            SetCapLockState(false);
+
+            float d = Mathf.Max(0.0001f, oneWayDistance);
+            float T = Mathf.Max(0.0001f, oneWayTime);
+
+            v0 = 2f * d / T;
+            a = 2f * d / (T * T);
+
+            uForward = (transform.right + Vector3.up * shootHeightOffset).normalized;
+            originPos = headBoneTransform.position;
+
+            t = 0f;
+            isActive = true;
+
+            boomerangRig.isKinematic = false;
+            boomerangRig.position = originPos;
+            boomerangRig.rotation = headBoneTransform.rotation;
+            boomerangRig.linearVelocity = uForward * v0; // ※初期フレームはこの速度、以降は上書き
+            boomerangRig.angularVelocity = Vector3.zero;
+
+            capAnimator.enabled = true;
+            capAnimator.Play(boomerangRotationHash);
+        }
+
+        private void Finish()
+        {
+            isActive = false;
+
+            Vector3 catchPos = headBoneTransform.position;
+            Quaternion catchRot = headBoneTransform.rotation;
+
+            boomerangRig.linearVelocity = Vector3.zero;
+            boomerangRig.angularVelocity = Vector3.zero;
+            boomerangRig.isKinematic = true;
+            boomerangRig.position = catchPos;
+            boomerangRig.rotation = catchRot;
         }
 
         private void OnDestroy()
@@ -99,10 +166,6 @@ namespace Module.Enemy.Boomerang
             {
                 status.OnDeath -= OnDeath;
             }
-
-            behaviourCanceller?.Cancel();
-            behaviourCanceller?.Dispose();
-            behaviourCanceller = null;
         }
 
         private void CheckBoomerangHit()
@@ -110,6 +173,24 @@ namespace Module.Enemy.Boomerang
             if (boomerang.CurrentStep > 0)
             {
                 status.Damage(1);
+            }
+        }
+
+        // 指数イージング（ピンポン）速度：ds/dt を返すヘルパ
+        private float EvalExpPingPongVelocityPerSec(float u, float k, float T)
+        {
+            float kk = Mathf.Max(0.0001f, k);
+            float denom = 1f - Mathf.Exp(-kk);
+
+            if (u <= 1f)
+            {
+                float x = Mathf.Clamp01(u);
+                return (kk * Mathf.Exp(-kk * x)) / (denom * T);
+            }
+            else
+            {
+                float x = Mathf.Clamp01(2f - u);
+                return -(kk * Mathf.Exp(-kk * x)) / (denom * T);
             }
         }
     }
