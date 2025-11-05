@@ -17,9 +17,19 @@ namespace Gimmick
 
         private void Start()
         {
-            // スケールイベントを購読
-            scaler.OnScaleStarted += OnScaleStarted;
-            scaler.OnScaleCompleted += OnScaleCompleted;
+            try
+            {
+                // スケールイベントを購読
+                scaler.OnScaleStarted += OnScaleStarted;
+                scaler.OnScaleCompleted += OnScaleCompleted;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine(gameObject.name);
+                throw;
+            }
+
 
             // 巻き戻しをスケジュール
             scaleRewinder.Schedule(scaler);

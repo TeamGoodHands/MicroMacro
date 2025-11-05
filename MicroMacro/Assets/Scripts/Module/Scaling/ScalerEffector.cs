@@ -34,14 +34,23 @@ namespace Module.Scaling
 
         private void Start()
         {
-            scaler.OnScaleStarted += OnScaleStarted;
-            scaler.OnScaleResumed += Resume;
-            scaler.OnScalePaused += Pause;
-            scalerShaderWrapper = new ScalerShaderWrapper(bodyRenderer.material);
-
-            // 初期値を登録
-            defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
-            defaultWavePower = scalerShaderWrapper.WavePower;
+            try
+            {
+                scaler.OnScaleStarted += OnScaleStarted;
+                scaler.OnScaleResumed += Resume;
+                scaler.OnScalePaused += Pause;
+                scalerShaderWrapper = new ScalerShaderWrapper(bodyRenderer.material);
+                
+                // 初期値を登録
+                defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
+                defaultWavePower = scalerShaderWrapper.WavePower;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                Debug.Log(gameObject.name, this);
+                throw;
+            }
         }
 
         private void OnScaleStarted(ScaleEventArgs args)
