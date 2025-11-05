@@ -76,6 +76,7 @@ namespace Module.Enemy.Boomerang
 
         private void SetCapLockState(bool isLock)
         {
+            capAnimator.gameObject.SetActive(!isLock);
             capTransformSyncer.syncPosition = isLock;
             capTransformSyncer.syncRotation = isLock;
 
