@@ -7,13 +7,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: IrisOverlay
-  m_Shader: {fileID: 4800000, guid: dc2dc090f69879841a054ba2f592d361, type: 3}
+  m_Name: ScalerPowerStationOutlet
+  m_Shader: {fileID: 4800000, guid: e861b9dadb6be804bb0532f9269d5faa, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords:
-  - _USESCREENCENTER_ON
+  m_ValidKeywords:
+  - _RECEIVE_DECALS
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -26,7 +26,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 000fee0209d829e4fa579c0cdb805ef8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -50,22 +50,18 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: caea2470441994b4693d8a894c4bf92f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _OcclusionMap:
+    - _NoiseMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _OverlayTex:
-        m_Texture: {fileID: 2800000, guid: e48699b9269f85944a97e4afcbc6f19f, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _PaperTex:
+    - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -94,90 +90,51 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _BleedPower: 2.4
-    - _BleedSoftness: 0.42
-    - _BleedWidthPx: 40.23
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _ColorMask: 15
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeAlpha: 1
-    - _EdgeAmpPx: 28
-    - _EdgeFreq: 4.09
-    - _EdgeWidth: 0.12
-    - _EdgeWidthPx: 23.13
-    - _EdgeWobbleAmpPx: 24.24
-    - _EdgeWobbleFreq: 32
-    - _EdgeWobbleOctaves: 4.09
-    - _EdgeWobbleSpeed: 0.5
     - _EnvironmentReflections: 1
-    - _FBMAmp: 0.2
-    - _FBMAmpPx: 150
-    - _FBMOctaves: 5
-    - _FBMScale: 8
-    - _Feather: 0.05
-    - _Feather01: 0.5
-    - _FillAlpha: 1
+    - _FresnelPower: 0.2
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GrainAmount: -0
-    - _GrainScalePx: 48.12
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _PaperAmount: 0
-    - _PaperScalePx: 322.92
+    - _OutlineWidth: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
-    - _Radius: 3
-    - _Radius01: 1
+    - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _Stencil: 0
-    - _StencilComp: 8
-    - _StencilOp: 0
-    - _StencilReadMask: 255
-    - _StencilWriteMask: 255
     - _Surface: 0
-    - _TimeScale: 0.5
-    - _UpdateInterval: 24
-    - _UseScreenCenter: 1
-    - _WarpAmp: 0.2
-    - _WarpAmpPx: 120
-    - _WarpFreq: 2
-    - _WarpScale: 2.89
-    - _WarpSpeed: 0
-    - _WaveSpeed: 3
+    - _WavePower: 0.05
+    - _WaveSpeed: 7
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
+    - _AdditionalColor: {r: 0, g: 0, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Center: {r: 0.5, g: 0.5, b: 0, a: 0}
-    - _Center01: {r: 0.5, g: 0.5, b: 0, a: 0}
-    - _CenterScreen: {r: 960, g: 540, b: 0, a: 0}
-    - _CenterUV: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EdgeColor: {r: 0.05, g: 0.12, b: 0.2, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _InkColor: {r: 0, g: 0, b: 0, a: 1}
-    - _OverlayColor: {r: 0.06289297, g: 0.06289297, b: 0.06289297, a: 1}
+    - _FresnelColor: {r: 0, g: 0, b: 0, a: 0}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &7215911941544924494
+--- !u!114 &5077790379501725381
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
