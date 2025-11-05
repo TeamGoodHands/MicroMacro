@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>obs-websocket-dotnet</id>
+    <version>5.0.1</version>
+    <authors>BarRaider</authors>
+    <license type="file">LICENSE</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <projectUrl>https://github.com/BarRaider/obs-websocket-dotnet</projectUrl>
+    <description>Official obs-websocket .NET library. Written in C#. Supports .NET Standard</description>
+    <releaseNotes>What's new in v5.0.1
+* Fixes for deserialization issues in MediaInputStatus
+* Allow OBSVideoSettings to be updated via the API
+* New ILogger support instead of writing to console
+* New UnsupportedEvent event</releaseNotes>
+    <copyright>Copyright © BarRaider 2025</copyright>
+    <tags>OBS obs-websocket websocket official obs-websocket-dotnet obs.websocket.net obs-websocket-net</tags>
+    <repository type="git" url="https://github.com/BarRaider/obs-websocket-dotnet" commit="54eacc1e7a3ebe3965a25f60dc4cd1232bb3a0c8" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="9.0.4" exclude="Build,Analyzers" />
+        <dependency id="Newtonsoft.Json" version="13.0.3" exclude="Build,Analyzers" />
+        <dependency id="Websocket.Client" version="5.1.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
