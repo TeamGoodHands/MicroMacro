@@ -6,6 +6,7 @@ namespace Module.Application.Dialogue
 {
     public class HelpDialogue : MonoBehaviour
     {
+        [Header("セリフ表示を一度のみとするか")] [SerializeField] private bool onlyOnce;
         [Header("呼び出すセリフたち")] [SerializeField] private String[] dialogues;
         [Header("〇秒経過でお助けUIを表示")] [SerializeField] private float helpTriggerTime;
         [Header("ゲート(入口)のPivot")] [SerializeField] private GameObject entrancePivot;
@@ -17,6 +18,7 @@ namespace Module.Application.Dialogue
         
         private float elapsedTime;
         private bool  isPlayerInside;
+        private bool isEnqueued;
         
         private Vector2 entrancePos;
         private Vector2 exitPos;
@@ -63,6 +65,9 @@ namespace Module.Application.Dialogue
         // TODO: 常にUpdate呼ぶ必要ないから今後Unitask等に改善したい。
         private void Update()
         {
+            if (isEnqueued && onlyOnce) // 一度表示済みで弾くことも可能に
+                return;
+            
             if (isPlayerInside)
             {
                 elapsedTime += Time.deltaTime;
@@ -71,6 +76,7 @@ namespace Module.Application.Dialogue
                 {
                     // セリフキューに追加
                     dialogueManager.EnqueueDialogues(dialogues);
+                    isEnqueued = true;
                     
                     // 経過時間リセット 再表示しないなら必要なし。
                     isPlayerInside = false;

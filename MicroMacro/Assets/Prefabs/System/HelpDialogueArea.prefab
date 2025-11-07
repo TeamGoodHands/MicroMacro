@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 7225769061665779126}
   - component: {fileID: 9076177286489412721}
   - component: {fileID: 6594686399565327244}
+  - component: {fileID: 2421087113908546007}
   m_Layer: 9
   m_Name: Exit
   m_TagString: Untagged
@@ -259,6 +260,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 022843d582204ad69d6bb02405f92d48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2421087113908546007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2178384275744663327}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63fa4bfa70c6440f8745aa5bd56e4f97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrivalDialogues: []
+  dialogueManager: {fileID: 0}
 --- !u!1 &5598444637794766883
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,11 +320,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d7b73017200470e99ad68afbde53156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogues:
-  - test_1
-  - test_2
-  - test_3
-  helpTriggerTime: 5
+  onlyOnce: 1
+  dialogues: []
+  helpTriggerTime: 15
   entrancePivot: {fileID: 8153867991853547394}
   exitPivot: {fileID: 5686168340242517578}
   entrance: {fileID: 1301574078458521653}
