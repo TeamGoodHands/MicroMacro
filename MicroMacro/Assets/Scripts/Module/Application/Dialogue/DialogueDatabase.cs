@@ -26,7 +26,7 @@ namespace Module.Application.Dialogue
            }
            else
            {
-               Destroy(gameObject);
+               Destroy(this);
            }
        }
 
