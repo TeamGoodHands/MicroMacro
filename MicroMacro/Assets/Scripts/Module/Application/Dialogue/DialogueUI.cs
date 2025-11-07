@@ -15,7 +15,6 @@ namespace Module.Application.Dialogue
         [SerializeField] private TextMeshProUGUI dialogueText;
         [Header("ウィンドウ表示、非表示にかかる時間")][SerializeField] private float playBackTime = 0.3f;
         
-        
         private void Awake()
         {
             if (dialogueWindow == null)
