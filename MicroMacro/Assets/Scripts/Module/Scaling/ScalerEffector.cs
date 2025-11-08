@@ -40,7 +40,7 @@ namespace Module.Scaling
                 scaler.OnScaleResumed += Resume;
                 scaler.OnScalePaused += Pause;
                 scalerShaderWrapper = new ScalerShaderWrapper(bodyRenderer.material);
-                
+
                 // 初期値を登録
                 defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
                 defaultWavePower = scalerShaderWrapper.WavePower;
@@ -180,10 +180,8 @@ namespace Module.Scaling
 
         private void PlaySound()
         {
-            bool isUpScaling = scaler.CurrentStep - scaler.PreviousStep > 0 ||
-                               (scaler.PreviousStep == scaler.CurrentStep && scaler.CurrentStep == scaler.MaxStep);
-            bool isDownScaling = scaler.CurrentStep - scaler.PreviousStep < 0 ||
-                                 (scaler.PreviousStep == scaler.CurrentStep && scaler.CurrentStep == scaler.MinStep);
+            bool isUpScaling = scaler.CurrentStep > scaler.PreviousStep;
+            bool isDownScaling = scaler.CurrentStep < scaler.PreviousStep;
 
             if (isUpScaling)
             {
@@ -192,6 +190,10 @@ namespace Module.Scaling
             else if (isDownScaling)
             {
                 SoundManager.instance.Play("縮小");
+            }
+            else
+            {
+                SoundManager.instance.Play("拡縮失敗");
             }
         }
     }
