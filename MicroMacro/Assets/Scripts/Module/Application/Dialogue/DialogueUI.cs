@@ -14,6 +14,7 @@ namespace Module.Application.Dialogue
         [SerializeField] private Image characterIcon;
         [SerializeField] private TextMeshProUGUI dialogueText;
         [Header("ウィンドウ表示、非表示にかかる時間")][SerializeField] private float playBackTime = 0.3f;
+        [SerializeField] [Range(0f, 1f)] private float maxSize;
         
         private void Awake()
         {
@@ -37,7 +38,7 @@ namespace Module.Application.Dialogue
             if (!dialogueWindow.activeSelf)
             {
                 dialogueWindow.SetActive(true);
-                dialogueWindow.transform.DOScale(Vector3.one, playBackTime);
+                dialogueWindow.transform.DOScale(new Vector3(maxSize, maxSize, 1f), playBackTime);
             }
         }
 
