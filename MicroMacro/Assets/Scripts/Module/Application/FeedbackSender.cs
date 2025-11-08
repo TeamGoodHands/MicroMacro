@@ -8,9 +8,32 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
+using System.IO;
 
 namespace Module.Application
 {
+
+    [System.Serializable]
+    public class FeedbackEntry
+    {
+        public string submissionId; // 削除時の識別に利用
+        public string postData;     // 送信するURLのエンコード済みデータ
+
+        public FeedbackEntry(string data)
+        {
+            submissionId = System.Guid.NewGuid().ToString();
+            postData = data;
+        }
+    }
+
+    /// <summary>
+    /// JsonUtilityでListをシリアライズするためのラッパークラス
+    /// </summary>
+    [System.Serializable]
+    public class FeedbackQueue
+    {
+        public List<FeedbackEntry> pendingSubmissions = new List<FeedbackEntry>();
+    }
 
     [System.Serializable]
     public class FormQuestion
@@ -26,7 +49,7 @@ namespace Module.Application
 
         [Header("「その他」選択肢用の設定")] public Toggle otherToggle; // 「その他」のトグル
         public TMP_InputField otherInputField; // 「その他」の入力欄
-        public string otherOptionEntryID; //  その他」入力欄用特別なEntryID
+        public string otherOptionEntryID;      //  その他」入力欄用特別なEntryID
     }
 
     // GoogleFormの質問タイプ (ToggleGroupはラジオボタン)
@@ -41,58 +64,200 @@ namespace Module.Application
     public class FeedbackSender : MonoBehaviour
     {
         [Header("共通設定")] [SerializeField] private string formActionURL; // 末尾の/viewformを/formResponseに書き換えた送信先URL 
-
         [Header("質問リスト")] [SerializeField] private FormQuestion[] questions; // 構造体の配列 
-
         [SerializeField] private Button sendButton;
         private bool isSending = false;
         public event Action OnSend;
 
-        // UnitaskはOnClickじゃ呼び出せない
-        public void OnClickSendButton()
+        private static bool isSyncing = false; // 複数の送信処理が同時に動くのを防ぐ
+        private static string FilePath =>
+            Path.Combine(UnityEngine.Application.persistentDataPath, "pending_feedback.json");
+        
+        private void Start()
         {
-            SendFeedbackAsync().Forget();
+            // 起動時に保留中のフィードバック送信を試みる
+            TryToSendQueueAsync().Forget();
         }
 
-        // ボタンのOnClickイベントから直接呼び出す非同期関数はUniTaskVoid型にするのが定石らしい
-        private async UniTaskVoid SendFeedbackAsync()
+        // インスペクターから呼び出すための同期メソッド
+        public void OnClickSendButton()
+        {
+            // 非同期処理を完了待たずに実行（Forget）
+            SendFeedbackLocallyAsync().Forget();
+        }
+
+        /// <summary>
+        /// データをローカルに保存し、UIをリセット
+        /// その後キューの送信を試みる
+        /// </summary>
+        private async UniTask SendFeedbackLocallyAsync()
         {
             // 連打対策
             if (isSending)
                 return;
 
-            // InputFieldが空でなければ送信処理を開始
-            FormQuestion firstInput = questions.FirstOrDefault(q => q.type == QuestionType.InputField);
-
-            if (firstInput != null && string.IsNullOrEmpty(firstInput.inputField.text))
+            if (!TryBuildPostData(out string postData))
             {
-                Debug.Log("必須項目が空欄です！");
+                Debug.Log("必須項目が空欄か、設定が不十分です。");
                 return;
             }
-
+            
             isSending = true;
             // 一度ボタンを無効化
             if (sendButton != null)
                 sendButton.interactable = false;
 
-            await PostAsync();
+            var newEntry = new FeedbackEntry(postData);
 
+            // 既存のキューをロードし、新しいEntryを追加して保存
+            var queue = LoadQueue();
+            queue.pendingSubmissions.Add(newEntry);
+            SaveQueue(queue);
+            
+            Debug.Log($"<color=green>フィードバックをローカルに保存しました: {newEntry.submissionId}</color>");
+            ResetAllFields();
+            
+            // オフラインならすぐ発火、オンラインなら全部送信してからイベント発火
+            bool allSent =　await TryToSendQueueAsync();
+            if (allSent)
+            {
+                OnSend?.Invoke();
+            }
+            
             isSending = false;
             if (sendButton != null)
                 sendButton.interactable = true;
         }
 
-        private async UniTask PostAsync()
+        /// <summary>
+        /// 保留中のフィードバックキューを非同期で送信する
+        /// </summary>
+        private async UniTask<bool> TryToSendQueueAsync()
         {
-            // 未設定チェック
-            if (questions == null || questions.Length == 0 ||
-                string.IsNullOrWhiteSpace(formActionURL))
+            if (isSyncing)
             {
-                Debug.LogWarning("FeedbackSenderの設定が不十分です。");
-                return;
+                Debug.Log("既に別の同期処理が実行中です。");
+                return false; // 既に別の同期処理が実行中
             }
 
-            // WWWFormを使って送信するデータを作成->複数選択だと微妙だから自力で作成
+            if (UnityEngine.Application.internetReachability == NetworkReachability.NotReachable)
+            {
+                Debug.Log("オフラインのため、送信をスキップします。");
+                return false;
+            }
+
+            isSyncing = true;
+            try
+            {
+                var queue = LoadQueue();
+                if (queue.pendingSubmissions.Count == 0)
+                {
+                    // 送信待ちのデータなし = 送信済みとみなす
+                    return true;             
+                }
+            
+                // 送信の開始
+                Debug.Log($"<color=yellow>保留中のフィードバック{queue.pendingSubmissions.Count}件の送信を開始します...</color>");
+            
+                // リストをコピーしてイテレート（ループ中に元のリストを変更するため）
+                List<FeedbackEntry> entriesToSend = new List<FeedbackEntry>(queue.pendingSubmissions);
+                bool queueWasModified = false;
+
+                foreach (var entry in entriesToSend)
+                {
+                    bool success = await SendDataAsync(entry.postData);
+                    if (success)
+                    {
+                        // 送信成功: 元のキューから削除
+                        queue.pendingSubmissions.Remove(entry);
+                        queueWasModified = true;
+                    }
+                    else
+                    {
+                        // 送信失敗: おそらくネットワークが切断された
+                        // この後のキューの送信を中止し、後で再試行する
+                        Debug.LogWarning($"フィードバック {entry.submissionId} の送信に失敗。後で再試行します。");
+                        
+                        // ここでも変更があれば保存
+                        if (queueWasModified)
+                        {
+                            SaveQueue(queue);
+                        }
+                        return false; // 送信失敗
+                    }
+                }
+
+                // キューに変更があった場合（＝送信成功した項目があった場合）のみファイルに保存
+                if (queueWasModified)
+                {
+                    SaveQueue(queue);
+                }
+                
+                // 全ての送信が成功した場合はtrue
+                return queue.pendingSubmissions.Count == 0;
+            }
+            finally
+            {
+                isSyncing = false;
+            }
+        }
+
+        /// <summary>
+        /// 実際のWebリクエスト(送信)部分
+        /// </summary>
+        /// <param name="postData"></param>
+        private async UniTask<bool> SendDataAsync(string postData)
+        {
+            if (string.IsNullOrWhiteSpace(formActionURL))
+            {
+                Debug.LogWarning("FeedbackSenderのURLが設定されていません。");
+                return false;
+            }
+            
+            using (UnityWebRequest www = new UnityWebRequest(formActionURL, "POST"))
+            {
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(postData);
+                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                www.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                await www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.Success)
+                {
+                    Debug.Log("<color=green>フィードバックが正常に送信されました</color>");
+                    return true;
+                }
+                else
+                {
+                    Debug.LogError("フィードバックの送信に失敗しました: " + www.error);
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// UIからデータを読み取り、送信用の文字列を構築する
+        /// </summary>
+        /// <param name="postData"></param>
+        private bool TryBuildPostData(out string postData)
+        {
+            postData = null;
+
+            // 必須項目のチェック
+            FormQuestion firstInput = questions.FirstOrDefault(q => q.type == QuestionType.InputField);
+            if (firstInput != null && string.IsNullOrEmpty(firstInput.inputField.text))
+            {
+                Debug.Log("必須項目が空欄です。");
+                return false;
+            }
+
+            if (questions == null || questions.Length == 0)
+            {
+                Debug.LogWarning("FeedbackSenderの質問リストが設定されていません。");
+                return false;
+            }
+
+            // 送信するデータの作成
             var formFields = new List<string>();
 
             foreach (var q in questions)
@@ -132,9 +297,9 @@ namespace Module.Application
                             if (toggle == q.otherToggle)
                             {
                                 Debug.Log("「その他」トグルは下の専用箇所にアタッチしてください。");
-                                continue; 
+                                continue;
                             }
-                            
+
                             if (toggle.isOn)
                             {
                                 value = GetToggleText(toggle);
@@ -166,28 +331,52 @@ namespace Module.Application
                         break;
                 }
             }
-
-            string postData = string.Join("&", formFields);
-            Debug.Log($"<color=cyan>送信データ: {postData}</color>");
-
-            using (UnityWebRequest www = new UnityWebRequest(formActionURL, "POST"))
+            
+            if (formFields.Count == 0)
             {
-                byte[] bodyRaw = Encoding.UTF8.GetBytes(postData);
-                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                www.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                Debug.LogWarning("送信するデータがありません。");
+                return false;
+            }
+            
+            postData = string.Join("&", formFields);
+            Debug.Log($"<color=cyan>送信データを作成: {postData}</color>");
+            return true;
+        }
 
-                await www.SendWebRequest();
+        /// <summary>
+        /// ローカルファイルからキューを読み込む
+        /// </summary>
+        private FeedbackQueue LoadQueue()
+        {
+            if (File.Exists(FilePath))
+            {
+                try
+                {
+                    string json = File.ReadAllText(FilePath);
+                    return JsonUtility.FromJson<FeedbackQueue>(json) ?? new FeedbackQueue();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"フィードバックキューの読み込みに失敗: {e.Message}");
+                    return new FeedbackQueue();
+                }
+            }
+            return new FeedbackQueue();
+        }
 
-                if (www.result == UnityWebRequest.Result.Success)
-                {
-                    Debug.Log("フィードバックが正常に送信されました");
-                    ResetAllFields();
-                    OnSend?.Invoke();
-                }
-                else
-                {
-                    Debug.LogError("フィードバックの送信に失敗しました: " + www.error);
-                }
+        /// <summary>
+        /// キューをローカルファイルに保存する
+        /// </summary>
+        private void SaveQueue(FeedbackQueue queue)
+        {
+            try
+            {
+                string json = JsonUtility.ToJson(queue, true); // trueで整形
+                File.WriteAllText(FilePath, json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"フィードバックキューの保存に失敗: {e.Message}");
             }
         }
 
@@ -234,6 +423,5 @@ namespace Module.Application
                 if (q.otherInputField != null) q.otherInputField.text = "";
             }
         }
-
     }
 }
