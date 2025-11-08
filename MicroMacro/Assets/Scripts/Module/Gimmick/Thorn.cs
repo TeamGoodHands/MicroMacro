@@ -13,7 +13,8 @@ namespace Module.Gimmick
 
         private void OnCollisionEnter(Collision other)
         {
-            if (other.gameObject.CompareTag(Tag.Handle.Player) && other.transform.root.TryGetComponent<PlayerStatus>(out var playerStatus))
+            Debug.Log(other.gameObject.name);
+            if (other.gameObject.CompareTag(Tag.Handle.Player) && other.gameObject.TryGetComponent<PlayerStatus>(out var playerStatus))
             {
                 int hpBefore = playerStatus.CurrentHealth;
                 playerStatus.Damage(damage);

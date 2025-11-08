@@ -1,4 +1,5 @@
 ﻿using System;
+using Module.Application.Dialogue;
 using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace Module.Enemy.Cargo
         [SerializeField] private Transform goal;
         [SerializeField] private NoiseSettings backAttackNoise;
         [SerializeField] private NoiseSettings moveNoise;
+        [SerializeField] private DialogueManager dialogueManager;
 
         public CargoParameter Parameter => parameter;
         public CargoCondition Condition => condition;
@@ -40,6 +42,7 @@ namespace Module.Enemy.Cargo
         public CanvasGroup HpBarCanvasGroup => hpBarCanvasGroup;
         public Transform Start => start;
         public Transform Goal => goal;
+        public DialogueManager DialogueManager => dialogueManager;
         public NoiseSettings BackAttackNoise => backAttackNoise;
         public NoiseSettings MoveNoise => moveNoise;
     }

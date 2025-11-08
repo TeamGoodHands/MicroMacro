@@ -1,4 +1,5 @@
 using System;
+using Module.Management;
 using UnityEngine;
 
 namespace Module.Player.Component
@@ -30,6 +31,7 @@ namespace Module.Player.Component
                 return;
             
             OnDamage?.Invoke(currentHealth);
+            SoundManager.instance.Play("プレイヤーダメージ音");
 
             if (currentHealth == 0)
             {

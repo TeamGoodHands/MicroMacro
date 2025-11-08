@@ -77,6 +77,23 @@ namespace Module.Application.SceneSwitch
             fadeHandler.StartFadeOut();
             StartCoroutine(LoadNextSceneAsync());
         }
+        
+        
+        public void StartTransitionSame()
+        {
+            if (isSceneTransitioning || fadeHandler == null)
+                return;
+
+            nextSceneName = SceneManager.GetActiveScene().name;
+
+            isSceneTransitioning = true;
+
+            // サウンド停止等あれば
+            // SoundManager.instance.StopAllSound();
+
+            fadeHandler.StartFadeOut();
+            StartCoroutine(LoadNextSceneAsync());
+        }
 
         /// <summary>
         /// 名前指定してシーン移動したい場合
