@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System;
-using UnityEngine.Serialization;
+using Module.Player.Component;
 
 namespace Module.Application.Dialogue
 {
+    // TODO 役割多くなってきたからクラス分割したい
     public class HelpDialogue : MonoBehaviour
     {
         [Header("セリフ表示を一度のみとするか")] [SerializeField] private bool onlyOnce;
@@ -11,14 +12,16 @@ namespace Module.Application.Dialogue
         [Header("〇秒経過でお助けUIを表示")] [SerializeField] private float helpTriggerTime;
         [Header("ゲート(入口)のPivot")] [SerializeField] private GameObject entrancePivot;
         [Header("ゲート(出口)のPivot")] [SerializeField] private GameObject exitPivot;
+
         [SerializeField] private SectionGate entrance;
         [SerializeField] private SectionGate exit;
         [SerializeField] private GameObject player;
+        [SerializeField] private PlayerStatus playerStatus;
         [SerializeField] private DialogueManager dialogueManager;
         
         private float elapsedTime;
         private bool  isPlayerInside;
-        private bool isEnqueued;
+        private bool  isEnqueued;
         
         private Vector2 entrancePos;
         private Vector2 exitPos;
@@ -27,15 +30,30 @@ namespace Module.Application.Dialogue
         {
              entrancePos = entrancePivot.transform.position;
              exitPos = exitPivot.transform.position;
-             
+             if (playerStatus == null)
+             {
+                 Debug.LogError("PlayerStatusが設定されていません。");
+                 return;
+             }
+
+             playerStatus.OnDeath  += OnDeath;
              entrance.OnPlayerExit += OnPlayerExit;
              exit.OnPlayerExit     += OnPlayerExit;
         }
-
         private void OnDestroy()
         {
             entrance.OnPlayerExit -= OnPlayerExit;
             exit.OnPlayerExit     -= OnPlayerExit;
+            playerStatus.OnDeath  -= OnDeath;
+        }
+        
+        /// <summary>
+        /// プレイヤー死んだらセリフキャンセル
+        /// </summary>
+        private void OnDeath()
+        {
+            dialogueManager.ClearQueue();
+            isPlayerInside = false;
         }
 
         private void OnPlayerExit()

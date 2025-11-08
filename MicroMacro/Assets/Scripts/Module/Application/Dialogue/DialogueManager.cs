@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Module.Player.Component;
 
 namespace Module.Application.Dialogue
 {
@@ -11,10 +12,11 @@ namespace Module.Application.Dialogue
     public class DialogueManager : MonoBehaviour
     {
         [SerializeField] private DialogueUI dialogueUI;
-        
+    
         private readonly Queue<DialogueItem> dialogueQueue = new Queue<DialogueItem>();
         private bool isDisplaying;
         private bool isClearRequested = false;
+
 
         // 念のためセリフ単体のEnqueueも外部から呼び出し可能に。
         public void Enqueue(string itemName)
@@ -53,7 +55,6 @@ namespace Module.Application.Dialogue
             if (dialogueQueue.Count > 0)
             {
                 dialogueQueue.Clear();
-                Debug.Log("Queueがクリアされました。");
             }
 
             // 表示中のセリフがあったら中断フラグ立てる
