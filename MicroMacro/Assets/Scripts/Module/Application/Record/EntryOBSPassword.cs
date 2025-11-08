@@ -23,7 +23,7 @@ namespace Module.Application.Recoed
         {
             if (!string.IsNullOrWhiteSpace(password))
             {
-                RecordManager.Instance.Password = password;
+                RecordManager.Instance.SetPasswordAsync(password);
             }
         }
 
@@ -32,7 +32,7 @@ namespace Module.Application.Recoed
             if (!string.IsNullOrWhiteSpace(inputField.text))
             {
                 password = inputField.text;
-                RecordManager.Instance.Password = password;
+                RecordManager.Instance.SetPasswordAsync(password);
                 inputField.text = "";
                 return;
             }

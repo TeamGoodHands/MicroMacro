@@ -19,15 +19,12 @@ namespace Module.Application.Recoed
         [SerializeField] private string[] recordStartSceneNames;
         [SerializeField] private string[] recordStopSceneNames;
 
-        public string Password
+        public async UniTask SetPasswordAsync(string value)
         {
-            set
-            {
-                password = value;
+            password = value;
                 
-                if (!RecordController.IsConnected())
-                    Initialize();
-            }
+            if (!RecordController.IsConnected())
+                await Initialize();
         }
         
         private void Awake()
