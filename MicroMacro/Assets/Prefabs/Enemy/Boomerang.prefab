@@ -209,10 +209,10 @@ GameObject:
   - component: {fileID: 333365790692849311}
   - component: {fileID: 1620172284009157263}
   - component: {fileID: 4942465749065928862}
-  - component: {fileID: 7598591748724952042}
   - component: {fileID: 2260007087646747889}
   - component: {fileID: 2152098549550341501}
   - component: {fileID: 6845793086764421177}
+  - component: {fileID: 1080053065604523570}
   m_Layer: 0
   m_Name: boomerang_cap_1008
   m_TagString: Untagged
@@ -330,27 +330,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 3
---- !u!135 &7598591748724952042
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2391806728327707011}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2.3963853e-10, y: -0.032163743, z: 0}
 --- !u!114 &2260007087646747889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,6 +390,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+--- !u!136 &1080053065604523570
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2391806728327707011}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.78
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: -1.1981927e-10, y: -0.03216278, z: 0.00001525855}
 --- !u!1 &2589274954265984032
 GameObject:
   m_ObjectHideFlags: 0
