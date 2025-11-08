@@ -14,10 +14,21 @@ namespace Module.Application.Recoed
         public static RecordManager Instance { get; private set; }
         [SerializeField] private string host;
         [SerializeField] private string port;
-        [SerializeField] private string password;
+        private string password;
         
         [SerializeField] private string[] recordStartSceneNames;
         [SerializeField] private string[] recordStopSceneNames;
+
+        public string Password
+        {
+            set
+            {
+                password = value;
+                
+                if (!RecordController.IsConnected())
+                    Initialize();
+            }
+        }
         
         private void Awake()
         {
@@ -32,10 +43,10 @@ namespace Module.Application.Recoed
             }
         }
 
-        private async void Start()
+        /*private async void Start()
         {
             await Initialize();
-        }
+        }*/
 
         private async UniTask Initialize()
         {
