@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using Module.Management;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,6 +54,8 @@ namespace Module.UI
 
             irisOutSequence.Append(DOVirtual.Float(closeFocusRadius, closeCompleteRadius, closeCompleteDuration, t => { irisOverlay.Radius = t; })
                 .SetEase(Ease.OutBack));
+            
+            // SoundManager.instance.Play("キャラデス後のフェード");
 
             currentTween = irisOutSequence;
         }

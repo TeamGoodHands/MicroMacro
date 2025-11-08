@@ -1,6 +1,7 @@
 ﻿using System;
 using CoreModule.Input;
 using CoreModule.ObjectPool;
+using Module.Management;
 using Module.Player.Component;
 using PropertyGenerator.Generated;
 using UnityEngine;
@@ -67,12 +68,12 @@ namespace Module.Player.Weapon
 
         private void OnMacroShoot(InputAction.CallbackContext _)
         {
-            Shoot(macroBulletPool);
+            Shoot(macroBulletPool, true);
         }
 
         private void OnMicroShoot(InputAction.CallbackContext _)
         {
-            Shoot(microBulletPool);
+            Shoot(microBulletPool, false);
         }
 
         private void Update()
@@ -88,7 +89,7 @@ namespace Module.Player.Weapon
             }
         }
 
-        private void Shoot(ObjectPool<GameObject> targetPool)
+        private void Shoot(ObjectPool<GameObject> targetPool, bool isMacro)
         {
             // 発射間隔が空いていない場合は終了
             if (Time.time - lastShootTime < shootInterval)
@@ -99,6 +100,15 @@ namespace Module.Player.Weapon
             {
                 Debug.LogError("ObjectPoolが空になりました");
                 return;
+            }
+
+            if (isMacro)
+            {
+                SoundManager.instance.Play("マクロ発射");
+            }
+            else
+            {
+                SoundManager.instance.Play("ミクロ発射");
             }
 
             bulletObj.SetActive(true);

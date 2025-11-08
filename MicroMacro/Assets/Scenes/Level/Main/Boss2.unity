@@ -404,6 +404,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1362162785}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &83058572 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3005088918196492960, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
+  m_PrefabInstance: {fileID: 1295394546}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a73df721fe754f7aa55fa1cae6112b90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &93918180
 GameObject:
   m_ObjectHideFlags: 0
@@ -1882,7 +1893,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4921413811876426302, guid: 25bc4fa4d63cc8048b07421b259a52f6, type: 3}
       propertyPath: nextSceneName
-      value: Feedback
+      value: Boss2
       objectReference: {fileID: 0}
     - target: {fileID: 5503500586881348826, guid: 25bc4fa4d63cc8048b07421b259a52f6, type: 3}
       propertyPath: m_Name
@@ -4127,7 +4138,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -4153,8 +4164,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1067435887}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0013090889, y: 0, z: 0, w: 0.9999992}
-  m_LocalPosition: {x: -205.74864, y: 4.044796, z: -12.503736}
+  m_LocalRotation: {x: 0.04557809, y: 0, z: 0, w: 0.9989608}
+  m_LocalPosition: {x: 11.980001, y: 9.43, z: -1.1800003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4793,6 +4804,22 @@ PrefabInstance:
     - target: {fileID: 4348744578973123278, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4831846750489956391, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4831846750489956391, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
+      propertyPath: dialogues.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4831846750489956391, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
+      propertyPath: 'dialogues.Array.data[0]'
+      value: Boss_1_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4831846750489956391, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
+      propertyPath: 'dialogues.Array.data[1]'
+      value: Boss_1_2
       objectReference: {fileID: 0}
     - target: {fileID: 7526978658220422608, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
       propertyPath: m_Name
@@ -9287,6 +9314,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8212009657992931730, guid: 7b1085c4f89a3fd4192dd84cf54e969e, type: 3}
+      propertyPath: dialogueCollections.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8212009657992931730, guid: 7b1085c4f89a3fd4192dd84cf54e969e, type: 3}
+      propertyPath: 'dialogueCollections.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 9f58ac2a437311f43b3971e827598892, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -9771,6 +9806,7 @@ MonoBehaviour:
     goal: {fileID: 982400550}
     backAttackNoise: {fileID: 11400000, guid: 320d7f34e41ef144397a1980d6931a66, type: 2}
     moveNoise: {fileID: 11400000, guid: 0aa0ef884519df24f9b42f018a077115, type: 2}
+    dialogueManager: {fileID: 83058572}
 --- !u!114 &4229828677506884289
 MonoBehaviour:
   m_ObjectHideFlags: 0

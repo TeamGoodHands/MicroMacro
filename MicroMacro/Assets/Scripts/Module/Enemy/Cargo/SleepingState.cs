@@ -77,7 +77,7 @@ namespace Module.Enemy.Cargo
             component.BossCamera.Priority = -1;
             component.NearInEnemyCamera.Priority = 100;
 
-            await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
+            await UniTask.Delay(TimeSpan.FromSeconds(0.4f));
 
             SoundManager.instance.Play("目を開く");
 
@@ -94,9 +94,14 @@ namespace Module.Enemy.Cargo
             component.BossCamera.Priority = 100;
             _ = component.HpBarCanvasGroup.DOFade(1f, 2f);
 
+            await UniTask.Delay(TimeSpan.FromSeconds(0.8f));
+            
+            component.DialogueManager.Enqueue("Boss_1_3");
+            component.DialogueManager.Enqueue("Boss_1_4");
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(6f));
+            
             SoundManager.instance.Play("Boss2");
-
-            await UniTask.Delay(TimeSpan.FromSeconds(1.4f));
 
             component.Condition.SwitchState(CargoCondition.State.BackAttack);
         }
