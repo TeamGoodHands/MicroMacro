@@ -115,12 +115,14 @@ namespace Module.Application
             SaveQueue(queue);
             
             Debug.Log($"<color=green>フィードバックをローカルに保存しました: {newEntry.submissionId}</color>");
-
-            // オフラインならすぐ発火、オンラインなら全部送信してからイベント発火
-            await TryToSendQueueAsync();
-            
             ResetAllFields();
-            OnSend?.Invoke();
+            
+            // オフラインならすぐ発火、オンラインなら全部送信してからイベント発火
+            bool allSent =　await TryToSendQueueAsync();
+            if (allSent)
+            {
+                OnSend?.Invoke();
+            }
             
             isSending = false;
             if (sendButton != null)
@@ -130,18 +132,18 @@ namespace Module.Application
         /// <summary>
         /// 保留中のフィードバックキューを非同期で送信する
         /// </summary>
-        private async UniTask TryToSendQueueAsync()
+        private async UniTask<bool> TryToSendQueueAsync()
         {
             if (isSyncing)
             {
                 Debug.Log("既に別の同期処理が実行中です。");
-                return; // 既に別の同期処理が実行中
+                return false; // 既に別の同期処理が実行中
             }
 
             if (UnityEngine.Application.internetReachability == NetworkReachability.NotReachable)
             {
                 Debug.Log("オフラインのため、送信をスキップします。");
-                return;
+                return false;
             }
 
             isSyncing = true;
@@ -150,8 +152,8 @@ namespace Module.Application
                 var queue = LoadQueue();
                 if (queue.pendingSubmissions.Count == 0)
                 {
-                    // 送信待ちのデータなし
-                    return;             
+                    // 送信待ちのデータなし = 送信済みとみなす
+                    return true;             
                 }
             
                 // 送信の開始
@@ -175,7 +177,13 @@ namespace Module.Application
                         // 送信失敗: おそらくネットワークが切断された
                         // この後のキューの送信を中止し、後で再試行する
                         Debug.LogWarning($"フィードバック {entry.submissionId} の送信に失敗。後で再試行します。");
-                        break;
+                        
+                        // ここでも変更があれば保存
+                        if (queueWasModified)
+                        {
+                            SaveQueue(queue);
+                        }
+                        return false; // 送信失敗
                     }
                 }
 
@@ -184,6 +192,9 @@ namespace Module.Application
                 {
                     SaveQueue(queue);
                 }
+                
+                // 全ての送信が成功した場合はtrue
+                return queue.pendingSubmissions.Count == 0;
             }
             finally
             {
