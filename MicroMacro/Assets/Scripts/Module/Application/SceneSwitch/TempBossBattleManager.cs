@@ -32,10 +32,10 @@ namespace Module.Application.SceneSwitch
         {
             await UniTask.Delay(TimeSpan.FromSeconds(4f));
 
-            if (sceneManager != null && sceneManager.nextSceneName == "Feedback")
+            if (sceneManager != null)
             {
                 Debug.Log("ボス戦をクリアしました");
-                sceneManager.StartTransition();
+                sceneManager.StartTransition("Feedback");
             }
         }
     }
