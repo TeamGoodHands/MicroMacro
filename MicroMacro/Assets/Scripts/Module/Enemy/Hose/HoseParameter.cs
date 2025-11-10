@@ -1,0 +1,37 @@
+﻿using UnityEngine;
+
+namespace Module.Enemy.Hose
+{
+    public class HoseParameter : MonoBehaviour
+    {
+        [SerializeField, Header("水流の力")] private Vector2 waterPower;
+        [SerializeField, Header("左右に弾くときの倍率")] private float sideForceMultiplier = 0.5f;
+        [SerializeField, Header("スケールによって水流を強くするか")] private float scaleMultiplier = 1.5f;
+        [SerializeField, Header("スケールによってどれだけ水を長くするか")] private float lengthMultiplier = 1.5f;
+
+        [Space]
+        [SerializeField, Header("一定の間隔で発射するか")]
+        private bool isLooping;
+
+        [SerializeField, Header("オンになる時間")]
+        private float onTime;
+        [SerializeField, Header("オフになる時間")]
+        private float offTime;
+        [SerializeField, Header("水流のスピード")]
+        private float waterSpeed;
+        
+        [Space]
+        [SerializeField, Header("プレイヤーの方向を向くか")]
+        private bool lookAtPlayer;
+
+        public Vector2 WaterPower => waterPower;
+        public float LengthMultiplier => lengthMultiplier;
+        public float ScaleMultiplier => scaleMultiplier;
+        public float SideForceMultiplier => sideForceMultiplier;
+        public bool IsLooping => isLooping;
+        public float OnTime => onTime;
+        public float OffTime => offTime;
+        public float WaterSpeed => waterSpeed;
+        public bool LookAtPlayer => lookAtPlayer;
+    }
+}
