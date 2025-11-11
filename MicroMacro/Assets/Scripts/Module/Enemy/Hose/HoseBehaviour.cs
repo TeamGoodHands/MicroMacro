@@ -39,22 +39,29 @@ namespace Module.Enemy.Hose
             }
         }
 
+        float maxMultiplier = 1f;
+
         private void FixedUpdate()
         {
             float lengthScale = scaler.transform.localScale.x - scalerDefaultScale.x;
             waterScale = waterDefaultScale + Vector3.right * (lengthScale * parameter.LengthMultiplier);
 
-            if (isObjectHit)
+            if (!parameter.IsLooping)
             {
-                float distance = Vector3.Distance(hitInfo.point, waterPivot.position);
-                scaleMultiplier = distance / (waterScale.x * 2f) + 0.01f;
-                scaleMultiplier = Mathf.Clamp01(scaleMultiplier);
-            }
-            else
-            {
+                if (isObjectHit)
+                {
+                    float distance = Vector3.Distance(waterPivot.position, hitInfo.point);
+                    maxMultiplier = distance / (waterScale.x * 3f);
+                }
+                else
+                {
+                    maxMultiplier = 1f;
+                }
+
                 scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime;
-                scaleMultiplier = Mathf.Clamp01(scaleMultiplier);
+                scaleMultiplier = Mathf.Clamp(scaleMultiplier, 0, maxMultiplier);
             }
+
 
             Vector3 scale = waterScale;
             scale.x *= scaleMultiplier;
@@ -76,7 +83,7 @@ namespace Module.Enemy.Hose
             float radius = waterScale.y;
             float maxDistance = scaler.transform.localScale.x * waterPivot.localScale.x - radius;
 
-            int layerMask = ~(Layer.Mask.PlayerOnly | Layer.Mask.Enemy);
+            int layerMask = ~(Layer.Mask.PlayerOnly | Layer.Mask.Enemy | Layer.Mask.Bullet);
 
             isObjectHit = Physics.SphereCast(position, radius, rotatePivot.up, out hitInfo, maxDistance, layerMask);
 

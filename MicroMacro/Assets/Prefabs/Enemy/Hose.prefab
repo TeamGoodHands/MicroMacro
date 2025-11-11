@@ -164,7 +164,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2947332812029785437}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 1, w: 0.000001952052}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: -187.62, y: 10.86, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 523a35f50ef24e8fa798b5957091d3c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waterPower: {x: 100, y: 50}
+  waterPower: {x: 30, y: 10}
   sideForceMultiplier: 1.8
   scaleMultiplier: 1.05
   lengthMultiplier: 2
@@ -443,7 +443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parameter: {fileID: 120949696596305902}
   scaler: {fileID: 754767507220242133}
-  playerMultiplier: 1.5
+  playerMultiplier: 4
 --- !u!1 &4748289762434188353
 GameObject:
   m_ObjectHideFlags: 0
@@ -970,7 +970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89c6c17deb73e80438e8d4fb9c74487b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minStep: -1
+  minStep: -2
   maxStep: 3
   currentStep: 0
   previousStep: 0
