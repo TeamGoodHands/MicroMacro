@@ -13,11 +13,11 @@ namespace Module.Enemy.Hose
         [SerializeField, Header("一定の間隔で発射するか")]
         private bool isLooping;
 
-        [SerializeField, Header("オンになる時間")]
+        [SerializeField, Header("オン状態の時間")]
         private float onTime;
-        [SerializeField, Header("オフになる時間")]
+        [SerializeField, Header("オフ状態の時間")]
         private float offTime;
-        [SerializeField, Header("水流のスピード")]
+        [SerializeField, Header("オンになるスピード")]
         private float waterSpeed;
         
         [Space]

@@ -21,6 +21,7 @@ namespace Module.Enemy.Hose
         private Vector3 waterDefaultScale;
         private Vector3 waterScale;
         private Vector3 scalerDefaultScale;
+        private RaycastHit hitInfo;
         private float scaleMultiplier = 1f;
         private bool isObjectHit;
 
@@ -43,6 +44,18 @@ namespace Module.Enemy.Hose
             float lengthScale = scaler.transform.localScale.x - scalerDefaultScale.x;
             waterScale = waterDefaultScale + Vector3.right * (lengthScale * parameter.LengthMultiplier);
 
+            if (isObjectHit)
+            {
+                float distance = Vector3.Distance(hitInfo.point, waterPivot.position);
+                scaleMultiplier = distance / (waterScale.x * 2f) + 0.01f;
+                scaleMultiplier = Mathf.Clamp01(scaleMultiplier);
+            }
+            else
+            {
+                scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime;
+                scaleMultiplier = Mathf.Clamp01(scaleMultiplier);
+            }
+
             Vector3 scale = waterScale;
             scale.x *= scaleMultiplier;
             waterPivot.localScale = scale;
@@ -61,11 +74,11 @@ namespace Module.Enemy.Hose
         {
             Vector3 position = rotatePivot.position;
             float radius = waterScale.y;
-            float maxDistance = Vector3.Distance(transform.position, waterHead.position) - radius * 3f;
+            float maxDistance = scaler.transform.localScale.x * waterPivot.localScale.x - radius;
 
             int layerMask = ~(Layer.Mask.PlayerOnly | Layer.Mask.Enemy);
 
-            isObjectHit = Physics.SphereCast(position, radius, rotatePivot.up, out RaycastHit hitInfo, maxDistance, layerMask);
+            isObjectHit = Physics.SphereCast(position, radius, rotatePivot.up, out hitInfo, maxDistance, layerMask);
 
             UGizmos.DrawSphereCast(position, radius, rotatePivot.up, maxDistance, isObjectHit, hitInfo);
         }
@@ -103,7 +116,10 @@ namespace Module.Enemy.Hose
                     return timer >= parameter.OffTime;
                 }, PlayerLoopTiming.FixedUpdate);
 
-                await LookAt(playerTransform.position, 0.5f);
+                if (parameter.LookAtPlayer)
+                {
+                    await LookAt(playerTransform.position, 0.5f);
+                }
             }
         }
 
