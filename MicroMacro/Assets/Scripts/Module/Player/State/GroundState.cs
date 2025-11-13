@@ -115,7 +115,7 @@ namespace Module.Player.State
         private float CalculateNormalizedSpeed()
         {
             float xVelocity = Mathf.Abs(rigidbody.linearVelocity.x);
-            float maxSpeed = parameter.MaxSpeed;
+            float maxSpeed = parameter.MaxSpeedX;
 
             return Mathf.Clamp01(xVelocity / maxSpeed);
         }

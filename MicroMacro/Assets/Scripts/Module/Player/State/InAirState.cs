@@ -86,14 +86,22 @@ namespace Module.Player.State
                 PerformAdditionalJump(ref velocity);
             }
 
-            rigidbody.linearVelocity = velocity + externalVelocity;
+            Vector2 linearVelocity = velocity + externalVelocity;
+            ClampJumpPower(ref linearVelocity);
+
+            rigidbody.linearVelocity = linearVelocity;
             condition.ExternalForce = externalVelocity;
 
             // ジャンプから一定時間経過してから、着地状態を更新
             if (condition.LastJumpTime + parameter.GroundInterval < Time.time)
-                         {
+            {
                 UpdateGroundState();
             }
+        }
+
+        private void ClampJumpPower(ref Vector2 velocity)
+        {
+            velocity.y = Mathf.Min(velocity.y, parameter.MaxSpeedY);
         }
 
         private void ApplyGravity(ref Vector2 velocity)

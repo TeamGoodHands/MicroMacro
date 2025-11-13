@@ -45,13 +45,13 @@ namespace Module.Player.Component
             get => isGround;
             set => isGround = value;
         }
-        
+
         public Vector2 Direction
         {
             get => direction;
             set => direction = value;
         }
-        
+
         public Vector2 LastSideInput
         {
             get => lastSideInput;
