@@ -35,7 +35,7 @@ namespace Module.Player.Component
             velocity.x *= airControl;
 
             // Rigidbodyの速度を設定する
-            velocity.x = Mathf.Clamp(velocity.x, -parameter.MaxSpeed, parameter.MaxSpeed);
+            velocity.x = Mathf.Clamp(velocity.x, -parameter.MaxSpeedX, parameter.MaxSpeedX);
         }
 
         /// <summary>
