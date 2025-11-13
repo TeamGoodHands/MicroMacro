@@ -116,7 +116,7 @@ namespace Module.Player.Weapon
 
             hitEffect.Play();
 
-            await UniTask.Delay(TimeSpan.FromSeconds(disappearDelay));
+            await UniTask.Delay(TimeSpan.FromSeconds(disappearDelay), cancellationToken: destroyCancellationToken);
         }
     }
 }
