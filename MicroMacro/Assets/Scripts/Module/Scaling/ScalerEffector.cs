@@ -1,8 +1,11 @@
 ﻿using System;
+using ChameleonOutline;
 using DG.Tweening;
 using Module.Management;
+using PostProcessing.ChameleonOutline;
 using PropertyGenerator.Generated;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace Module.Scaling
 {
@@ -10,7 +13,8 @@ namespace Module.Scaling
     {
         [SerializeField] private Scaler scaler;
         [SerializeField] private Renderer bodyRenderer;
-        [SerializeField] private BoundBoxWrapper boundBoxWrapper;
+        [SerializeField] private ScaleFaceWrapper scaleFaceWrapper;
+        [SerializeField] private Animator scaleAnimator;
         [SerializeField, Header("効果発動時のアウトライン幅")] private float outlineWidth = 0.01f;
 
         [Header("拡大縮小成功時ののフレネルとアウトラインの色")]
@@ -31,6 +35,7 @@ namespace Module.Scaling
         private Tween currentTween;
         private float defaultWaveSpeed;
         private float defaultWavePower;
+        private int outlineStyleHandle;
 
         private void Start()
         {
@@ -88,8 +93,10 @@ namespace Module.Scaling
             if (isValid)
             {
                 // 拡大縮小に成功した
-                currentTween = CreateScaleTween(isMacro, duration);
-                boundBoxWrapper.SetScaleTrigger();
+                // currentTween = CreateScaleTween(isMacro, duration);
+                scaleFaceWrapper.SetScaleTrigger();
+
+                scaleAnimator.Play("Scale");
             }
             else
             {
@@ -109,8 +116,6 @@ namespace Module.Scaling
             Color fresnelColor = isMacro ? macroFresnelColor : microFresnelColor;
             Color outlineColor = isMacro ? macroOutlineColor : microOutlineColor;
 
-            scalerShaderWrapper.OutlineColor = outlineColor;
-
             const float tweenTime = 0.05f;
             const float disappearTime = 1f;
             const float disappearWaitTime = 1f;
@@ -122,7 +127,6 @@ namespace Module.Scaling
             sequence.Append(DOTween.To(() => progress, value =>
             {
                 scalerShaderWrapper.FresnelColor = Color.Lerp(Color.clear, fresnelColor, value);
-                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(0f, outlineWidth, value);
                 progress = value;
             }, 1f, tweenTime));
 
@@ -138,7 +142,6 @@ namespace Module.Scaling
             sequence.Append(DOTween.To(() => progress, value =>
             {
                 scalerShaderWrapper.FresnelColor = Color.Lerp(fresnelColor, Color.clear, value);
-                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(outlineWidth, 0f, value);
                 progress = value;
             }, 1f, disappearTime));
             return sequence;
@@ -172,7 +175,6 @@ namespace Module.Scaling
 
         private void ResetMaterial()
         {
-            scalerShaderWrapper.OutlineWidth = 0f;
             scalerShaderWrapper.FresnelColor = Color.clear;
             scalerShaderWrapper.WaveSpeed = defaultWaveSpeed;
             scalerShaderWrapper.WavePower = defaultWavePower;

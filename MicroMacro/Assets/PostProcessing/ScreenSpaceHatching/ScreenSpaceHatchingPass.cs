@@ -13,8 +13,6 @@ namespace Contents.ScreenSpaceHatching
         private readonly ScreenSpaceHatchingFeature.ScreenSpaceHatchingSettings settings;
 
         // shader property IDs
-        private static readonly int blendID = Shader.PropertyToID("_Blend");
-        private static readonly int occlusionColorID = Shader.PropertyToID("_OcclusionColor");
         private static readonly int occlusionSampleLengthID = Shader.PropertyToID("_OcclusionSampleLength");
         private static readonly int occlusionMinDistanceID = Shader.PropertyToID("_OcclusionMinDistance");
         private static readonly int occlusionMaxDistanceID = Shader.PropertyToID("_OcclusionMaxDistance");
@@ -35,14 +33,14 @@ namespace Contents.ScreenSpaceHatching
         private static readonly int hatchOffsetBorderID = Shader.PropertyToID("_HatchOffsetBorder");
         private static readonly int crossPatternTextureID = Shader.PropertyToID("_CrossHatchPatternTexture");
 
-        public ScreenSpaceHatchingPass(Material mat, ScreenSpaceHatchingFeature.ScreenSpaceHatchingSettings settings)
+        public ScreenSpaceHatchingPass(Material material, ScreenSpaceHatchingFeature.ScreenSpaceHatchingSettings settings)
         {
-            this.material = mat;
-            (float[] rotations, float[] length) samplingData = settings.GetSamplingData();
-            material.SetFloatArray(samplingRotationsID, samplingData.rotations);
-            material.SetFloatArray(samplingDistancesID, samplingData.length);
-
+            this.material = material;
             this.settings = settings;
+
+            // サンプリング点を作成
+            CreateSamplingData(settings);
+
             this.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
         }
 
@@ -54,6 +52,12 @@ namespace Contents.ScreenSpaceHatching
             public TextureHandle Destination; // 書き込み先 (temp)
         }
 
+        private void CreateSamplingData(ScreenSpaceHatchingFeature.ScreenSpaceHatchingSettings settings)
+        {
+            (float[] rotations, float[] length) samplingData = settings.GetSamplingData();
+            material.SetFloatArray(samplingRotationsID, samplingData.rotations);
+            material.SetFloatArray(samplingDistancesID, samplingData.length);
+        }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
@@ -67,21 +71,21 @@ namespace Contents.ScreenSpaceHatching
 
             var desc = cameraData.cameraTargetDescriptor;
             desc.depthBufferBits = (int)DepthBits.None;
-            TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSAOResult", false);
+            TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSHatchingResult", false);
 
-            desc.graphicsFormat = GraphicsFormat.R16_SFloat;
+            desc.graphicsFormat = GraphicsFormat.R16_UNorm;
 
             // SSAOを書き込むための一時テクスチャを作成
-            TextureHandle ssaoTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "SSAO_TempColor", false);
+            TextureHandle ssaoTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSHatchingCompute", false);
 
             desc.width = Mathf.Max(1, desc.width / 8);
             desc.height = Mathf.Max(1, desc.height / 8);
             TextureHandle downsampleTarget =
-                UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSAODownSample", false, FilterMode.Bilinear);
-            TextureHandle horizontalBlurTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_OutlineHorizontalBlur", false);
-            TextureHandle verticalBlurTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_OutlineVerticalBlur", false);
+                UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSHatchingDownSample", false, FilterMode.Bilinear);
+            TextureHandle horizontalBlurTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSHatchingHorizontalBlur", false);
+            TextureHandle verticalBlurTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSHatchingVerticalBlur", false);
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSAO: Compute", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSHatching: Compute", out var passData))
             {
                 passData.Material = material;
                 passData.Settings = settings;
@@ -95,8 +99,6 @@ namespace Contents.ScreenSpaceHatching
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
                     // パラメータを設定
-                    data.Material.SetFloat(blendID, data.Settings.Blend);
-                    data.Material.SetColor(occlusionColorID, data.Settings.OcclusionColor);
                     data.Material.SetFloat(occlusionSampleLengthID, data.Settings.OcclusionSampleLength);
                     data.Material.SetFloat(occlusionMinDistanceID, data.Settings.OcclusionMinDistance);
                     data.Material.SetFloat(occlusionMaxDistanceID, data.Settings.OcclusionMaxDistance);
@@ -111,7 +113,7 @@ namespace Contents.ScreenSpaceHatching
             }
 
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSAO: Downsampling", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSHatching: Downsampling", out var passData))
             {
                 passData.Material = material;
                 passData.Settings = settings;
@@ -129,7 +131,7 @@ namespace Contents.ScreenSpaceHatching
                 });
             }
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSAO: Horizontal Blur", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSHatching: Horizontal Blur", out var passData))
             {
                 passData.Material = material;
                 passData.Settings = settings;
@@ -152,7 +154,7 @@ namespace Contents.ScreenSpaceHatching
             }
 
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSAO: Vertical Blur", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSHatching: Vertical Blur", out var passData))
             {
                 passData.Material = material;
                 passData.Settings = settings;
@@ -174,18 +176,18 @@ namespace Contents.ScreenSpaceHatching
                 });
             }
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSAO: Commit to Camera", out var passData2))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SSHatching: Composite", out var passData))
             {
-                passData2.Material = material;
-                passData2.Settings = settings;
-                passData2.Destination = commitTarget;
-                passData2.Source = resourceData.activeColorTexture;
+                passData.Material = material;
+                passData.Settings = settings;
+                passData.Destination = commitTarget;
+                passData.Source = resourceData.activeColorTexture;
 
-                builder.UseTexture(passData2.Source, AccessFlags.Read);
+                builder.UseTexture(passData.Source, AccessFlags.Read);
                 builder.UseTexture(verticalBlurTarget, AccessFlags.Read);
                 builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
 
-                builder.SetRenderAttachment(passData2.Destination, 0);
+                builder.SetRenderAttachment(passData.Destination, 0);
 
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
@@ -196,9 +198,7 @@ namespace Contents.ScreenSpaceHatching
                     data.Material.SetFloat(hatchScaleID, data.Settings.HatchScale);
                     data.Material.SetFloat(frontHatchOffsetID, data.Settings.FrontHatchOffset);
                     data.Material.SetFloat(backHatchOffsetID, data.Settings.BackHatchOffset);
-                    ;
                     data.Material.SetFloat(hatchOffsetBorderID, data.Settings.HatchOffsetBorder);
-                    ;
 
                     Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 4);
                 });

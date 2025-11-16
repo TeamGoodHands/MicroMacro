@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0597bc3e869cd3a4aaf616f570820b9f, type: 3}
   m_Name: SketchOutlineFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   outlineShader: {fileID: 4800000, guid: 4856a36404e2efc40898b281d4efaf7f, type: 3}
   settings:
     outlineColor: {r: 0, g: 0, b: 0, a: 1}
@@ -28,6 +28,22 @@ MonoBehaviour:
     normalLow: 0.24
     normalHigh: 0.37
     injectEvent: 450
+--- !u!114 &-6901351376431522638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1c528b0124425a9e8bf91ebb98ffa6, type: 3}
+  m_Name: ChameleonOutlineFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  featureSettings:
+    PrepassEvent: 550
+    JumpIterations: 6
 --- !u!114 &-4740895762259731709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40,15 +56,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e372f27cd8211b447be4556529f9b566, type: 3}
   m_Name: ScreenSpaceHatchingFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   settings:
-    Blend: 0.65
     OcclusionSampleLength: 4
     OcclusionMinDistance: 0
     OcclusionMaxDistance: 89.2
     OcclusionBias: 0.35
-    OcclusionStrength: 2.67
-    OcclusionPower: 0.26
+    OcclusionStrength: 1.62
+    OcclusionPower: 0.6
     OcclusionDifferenceThreshold: 20
     BlendStep: 0.87
     BlendPower: 2.79
@@ -58,7 +73,6 @@ MonoBehaviour:
     HatchOffsetBorder: 0.0056
     BlurKernelRadius: 5
     CrossPatternTexture: {fileID: 2800000, guid: 171cea23cfdea7d4bb041284a3c8ff5f, type: 3}
-    OcclusionColor: {r: 0, g: 0, b: 0, a: 1}
     ssaoShader: {fileID: 4800000, guid: aa54c93f5f2b0e145bc0b9cec9bf5edc, type: 3}
     generateSamplingPoint: 0
     samplingRotations:
@@ -176,7 +190,8 @@ MonoBehaviour:
   - {fileID: -535502895991043015}
   - {fileID: -702103982027134681}
   - {fileID: -8253487787215220038}
-  m_RendererFeatureMap: 039b5a2d6cf434be3448c8b14eac35cb40e9e37aa4053a3a39cc420cf48291f827a9e2f325a041f6ba12031d96b8758d
+  - {fileID: -6901351376431522638}
+  m_RendererFeatureMap: 039b5a2d6cf434be3448c8b14eac35cb40e9e37aa4053a3a39cc420cf48291f827a9e2f325a041f6ba12031d96b8758db25ca5f17c7939a0
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}

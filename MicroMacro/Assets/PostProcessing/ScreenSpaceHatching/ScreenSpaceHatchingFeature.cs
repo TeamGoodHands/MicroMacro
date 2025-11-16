@@ -10,7 +10,6 @@ namespace Contents.ScreenSpaceHatching
         [System.Serializable]
         public class ScreenSpaceHatchingSettings
         {
-            [Range(0f, 1f)] public float Blend = 0.5f;
             [Range(0.01f, 5f)] public float OcclusionSampleLength = 1f;
             [Range(0f, 5f)] public float OcclusionMinDistance = 0f;
             [Range(0f, 150f)] public float OcclusionMaxDistance = 5f;
@@ -29,7 +28,6 @@ namespace Contents.ScreenSpaceHatching
 
             public float BlurStandardDeviation => Mathf.Floor((float)BlurKernelRadius * 0.5f);
 
-            public Color OcclusionColor = Color.black;
             public Shader ssaoShader;
             public bool generateSamplingPoint = true;
 

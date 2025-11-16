@@ -9,17 +9,26 @@ namespace PropertyGenerator.Generated
 	public readonly struct ScalerShaderWrapper
 	{
 		private readonly Material target;
+		private static readonly int ObjectIdProperty = Shader.PropertyToID("_ObjectId");
 		private static readonly int BaseMapProperty = Shader.PropertyToID("_BaseMap");
-		private static readonly int OutlineWidthProperty = Shader.PropertyToID("_OutlineWidth");
-		private static readonly int OutlineColorProperty = Shader.PropertyToID("_OutlineColor");
+		private static readonly int NoiseMapProperty = Shader.PropertyToID("_NoiseMap");
+		private static readonly int BaseColorProperty = Shader.PropertyToID("_BaseColor");
 		private static readonly int FresnelPowerProperty = Shader.PropertyToID("_FresnelPower");
 		private static readonly int FresnelColorProperty = Shader.PropertyToID("_FresnelColor");
+		private static readonly int AdditionalColorProperty = Shader.PropertyToID("_AdditionalColor");
 		private static readonly int WavePowerProperty = Shader.PropertyToID("_WavePower");
 		private static readonly int WaveSpeedProperty = Shader.PropertyToID("_WaveSpeed");
+		private static readonly int ReceiveDecalsProperty = Shader.PropertyToID("_ReceiveDecals");
 		
 		public ScalerShaderWrapper(Material target)
 		{
 			this.target = target;
+		}
+		
+		public float ObjectId
+		{
+			get => target.GetFloat(ObjectIdProperty);
+			set => target.SetFloat(ObjectIdProperty, value);
 		}
 		
 		public Texture BaseMap
@@ -28,16 +37,16 @@ namespace PropertyGenerator.Generated
 			set => target.SetTexture(BaseMapProperty, value);
 		}
 		
-		public float OutlineWidth
+		public Texture NoiseMap
 		{
-			get => target.GetFloat(OutlineWidthProperty);
-			set => target.SetFloat(OutlineWidthProperty, value);
+			get => target.GetTexture(NoiseMapProperty);
+			set => target.SetTexture(NoiseMapProperty, value);
 		}
 		
-		public Color OutlineColor
+		public Color BaseColor
 		{
-			get => target.GetColor(OutlineColorProperty);
-			set => target.SetColor(OutlineColorProperty, value);
+			get => target.GetColor(BaseColorProperty);
+			set => target.SetColor(BaseColorProperty, value);
 		}
 		
 		public float FresnelPower
@@ -52,6 +61,12 @@ namespace PropertyGenerator.Generated
 			set => target.SetColor(FresnelColorProperty, value);
 		}
 		
+		public Color AdditionalColor
+		{
+			get => target.GetColor(AdditionalColorProperty);
+			set => target.SetColor(AdditionalColorProperty, value);
+		}
+		
 		public float WavePower
 		{
 			get => target.GetFloat(WavePowerProperty);
@@ -62,6 +77,12 @@ namespace PropertyGenerator.Generated
 		{
 			get => target.GetFloat(WaveSpeedProperty);
 			set => target.SetFloat(WaveSpeedProperty, value);
+		}
+		
+		public float ReceiveDecals
+		{
+			get => target.GetFloat(ReceiveDecalsProperty);
+			set => target.SetFloat(ReceiveDecalsProperty, value);
 		}
 	}
 }

@@ -5,8 +5,8 @@ Shader "ScalerShader"
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
         _NoiseMap("NoiseMap Map", 2D) = "white"{}
         [HDR]_BaseColor("Base Color", Color) = (0,0,0,1)
-        _OutlineWidth("Outline Width", Float) = 0
-        [HDR]_OutlineColor("Outline Color", Color) = (0,0,0,1)
+        _OutlineWidth("Outline Width", Range(0, 255)) = 0
+        _OutlineColor("Outline Color", Color) = (0,0,0,1)
         _FresnelPower("Fresnel Power", Float) = 0.2
         [HDR]_FresnelColor("Fresnel Color", Color) = (0,0,0,0)
         [HDR]_AdditionalColor("Additional Color", Color) = (0,0,0,0)
@@ -116,37 +116,67 @@ Shader "ScalerShader"
             ENDHLSL
         }
 
-
         Pass
         {
-            Name "MotionVectors"
+            Name "ChameleonOutlinePrepass"
             Tags
             {
-                "LightMode" = "MotionVectors"
+                // ここが ChameleonOutlinePass の ShaderTagId と一致してないと描画されない
+                "LightMode" = "ChameleonOutlinePrepass"
             }
-            ColorMask RG
+
+            ZWrite On
+            ZTest LEqual
+            Cull Back
 
             HLSLPROGRAM
-            #pragma shader_feature_local _ALPHATEST_ON
-            #pragma multi_compile _ LOD_FADE_CROSSFADE
-            #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
+            #pragma vertex   Vert
+            #pragma fragment Frag
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+            };
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _OutlineColor;
+                int _OutlineWidth;
+            CBUFFER_END
+
+            Varyings Vert(Attributes input)
+            {
+                Varyings output;
+                output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
+                return output;
+            }
+
+            float4 Frag(Varyings input) : SV_Target
+            {
+                // 太さ（ピクセル）を 0〜1 に正規化して A に詰める
+                float width01 = saturate((float)_OutlineWidth / 255.0);
+
+                return float4(_OutlineColor.rgb, width01);
+            }
             ENDHLSL
         }
 
-
         Pass
         {
+            ZWrite On
+
             Stencil
             {
                 Ref 1
                 Comp Always
                 Pass Replace
             }
-
-            ZWrite On
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -335,25 +365,29 @@ Shader "ScalerShader"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
-                float _OutlineWidth;
                 float4 _OutlineColor;
-                float _FresnelPower;
-                float4 _FresnelColor;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
-                IN.positionOS.xyz += IN.normal * _OutlineWidth;
+                
+                
+                float2 pixelSizeNdc = float2(2.0 / _ScreenParams.x, 2.0 / _ScreenParams.y);
+                
+                IN.positionOS.xyz += IN.normal * 0.4;
+                
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+
+
                 return OUT;
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
                 float4 color = _OutlineColor;
-                color.a *= 1.0 - step(_OutlineWidth, 0);
+                color.a *= 1.0 - step(0.4, 0);
                 return color;
             }
             ENDHLSL

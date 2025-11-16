@@ -10,18 +10,18 @@ float Gaussian(float standardDeviation, float offset)
     return a * b;
 }
 
-float4 GaussianBlur(float2 uv, float2 dir, int kernelRadius, float standardDeviation, TEXTURE2D_X(textureToBlur), SAMPLER(sampler_TextureToBlur), float2 textureToBlurTexelSizeXy)
+float GaussianBlur(float2 uv, float2 dir, int kernelRadius, float standardDeviation, TEXTURE2D_X(textureToBlur), SAMPLER(sampler_TextureToBlur), float2 textureToBlurTexelSizeXy)
 {
     float2 texelSizeTimesDir = textureToBlurTexelSizeXy * dir;
-    float4 result = float4(0.0, 0.0, 0.0, 0.0);
+    float result = 0.0;
 
     UNITY_LOOP
     for (int i = -kernelRadius; i <= kernelRadius; ++i)
     {
         float2 uvOffset = (float)i * texelSizeTimesDir;
         float2 uvSample = uv + uvOffset;
-        float4 rgba = SAMPLE_TEXTURE2D_X(textureToBlur, sampler_TextureToBlur, uvSample);
-        result += (rgba * Gaussian(standardDeviation, (float)i));
+        float t = SAMPLE_TEXTURE2D_X(textureToBlur, sampler_TextureToBlur, uvSample).r;
+        result += t * Gaussian(standardDeviation, (float)i);
     }
 
     return result;
