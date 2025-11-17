@@ -9,10 +9,11 @@ namespace PropertyGenerator.Generated
 	public readonly struct ScalerShaderWrapper
 	{
 		private readonly Material target;
-		private static readonly int ObjectIdProperty = Shader.PropertyToID("_ObjectId");
 		private static readonly int BaseMapProperty = Shader.PropertyToID("_BaseMap");
 		private static readonly int NoiseMapProperty = Shader.PropertyToID("_NoiseMap");
 		private static readonly int BaseColorProperty = Shader.PropertyToID("_BaseColor");
+		private static readonly int OutlineWidthProperty = Shader.PropertyToID("_OutlineWidth");
+		private static readonly int OutlineColorProperty = Shader.PropertyToID("_OutlineColor");
 		private static readonly int FresnelPowerProperty = Shader.PropertyToID("_FresnelPower");
 		private static readonly int FresnelColorProperty = Shader.PropertyToID("_FresnelColor");
 		private static readonly int AdditionalColorProperty = Shader.PropertyToID("_AdditionalColor");
@@ -23,12 +24,6 @@ namespace PropertyGenerator.Generated
 		public ScalerShaderWrapper(Material target)
 		{
 			this.target = target;
-		}
-		
-		public float ObjectId
-		{
-			get => target.GetFloat(ObjectIdProperty);
-			set => target.SetFloat(ObjectIdProperty, value);
 		}
 		
 		public Texture BaseMap
@@ -47,6 +42,18 @@ namespace PropertyGenerator.Generated
 		{
 			get => target.GetColor(BaseColorProperty);
 			set => target.SetColor(BaseColorProperty, value);
+		}
+		
+		public float OutlineWidth
+		{
+			get => target.GetFloat(OutlineWidthProperty);
+			set => target.SetFloat(OutlineWidthProperty, value);
+		}
+		
+		public Color OutlineColor
+		{
+			get => target.GetColor(OutlineColorProperty);
+			set => target.SetColor(OutlineColorProperty, value);
 		}
 		
 		public float FresnelPower

@@ -93,7 +93,7 @@ namespace Module.Scaling
             if (isValid)
             {
                 // 拡大縮小に成功した
-                // currentTween = CreateScaleTween(isMacro, duration);
+                currentTween = CreateScaleTween(isMacro, duration);
                 scaleFaceWrapper.SetScaleTrigger();
 
                 scaleAnimator.Play("Scale");
@@ -116,9 +116,11 @@ namespace Module.Scaling
             Color fresnelColor = isMacro ? macroFresnelColor : microFresnelColor;
             Color outlineColor = isMacro ? macroOutlineColor : microOutlineColor;
 
+            scalerShaderWrapper.OutlineColor = outlineColor;
+
             const float tweenTime = 0.05f;
-            const float disappearTime = 1f;
-            const float disappearWaitTime = 1f;
+            const float disappearTime = 0.25f;
+            const float disappearWaitTime = 1.2f;
 
             float progress = 0f;
             Sequence sequence = DOTween.Sequence();
@@ -127,6 +129,7 @@ namespace Module.Scaling
             sequence.Append(DOTween.To(() => progress, value =>
             {
                 scalerShaderWrapper.FresnelColor = Color.Lerp(Color.clear, fresnelColor, value);
+                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(0f, outlineWidth, value);
                 progress = value;
             }, 1f, tweenTime));
 
@@ -142,8 +145,9 @@ namespace Module.Scaling
             sequence.Append(DOTween.To(() => progress, value =>
             {
                 scalerShaderWrapper.FresnelColor = Color.Lerp(fresnelColor, Color.clear, value);
+                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(outlineWidth, 0f, value);
                 progress = value;
-            }, 1f, disappearTime));
+            }, 1f, disappearTime)).SetEase(Ease.InSine);
             return sequence;
         }
 
@@ -175,6 +179,7 @@ namespace Module.Scaling
 
         private void ResetMaterial()
         {
+            scalerShaderWrapper.OutlineWidth = 0f;
             scalerShaderWrapper.FresnelColor = Color.clear;
             scalerShaderWrapper.WaveSpeed = defaultWaveSpeed;
             scalerShaderWrapper.WavePower = defaultWavePower;
