@@ -241,7 +241,7 @@ Shader "ScalerShader"
                 float fresnel = FresnelEffect(IN.normal, UNITY_MATRIX_V[2].xyz, _FresnelPower);
 
                 // フレネルにノイズを重ねる
-                fresnel *= SimpleNoise(IN.screenPos, 10);
+                fresnel *= SimpleNoise(IN.worldPos.xy, 10);
 
                 fresnel *= _FresnelColor.a;
 

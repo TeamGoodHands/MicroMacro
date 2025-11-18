@@ -6,6 +6,7 @@ using PostProcessing.ChameleonOutline;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.VFX;
 
 namespace Module.Scaling
 {
@@ -15,6 +16,7 @@ namespace Module.Scaling
         [SerializeField] private Renderer bodyRenderer;
         [SerializeField] private ScaleFaceWrapper scaleFaceWrapper;
         [SerializeField] private Animator scaleAnimator;
+        [SerializeField] private VisualEffect scaleEffect;
         [SerializeField, Header("効果発動時のアウトライン幅")] private float outlineWidth = 0.01f;
 
         [Header("拡大縮小成功時ののフレネルとアウトラインの色")]
@@ -97,6 +99,7 @@ namespace Module.Scaling
                 scaleFaceWrapper.SetScaleTrigger();
 
                 scaleAnimator.Play("Scale");
+                // scaleEffect.Play();
             }
             else
             {
@@ -120,7 +123,7 @@ namespace Module.Scaling
 
             const float tweenTime = 0.05f;
             const float disappearTime = 0.25f;
-            const float disappearWaitTime = 1.2f;
+            const float disappearWaitTime = 1.1f;
 
             float progress = 0f;
             Sequence sequence = DOTween.Sequence();
