@@ -12,13 +12,6 @@ namespace Module.Level
         [SerializeField] private int activePriority = 1;
         [SerializeField] private int inactivePriority = 0;
 
-        private CinemachineBrain cinemachineBrain;
-
-        private void Start()
-        {
-            cinemachineBrain = Camera.main.GetComponent<CinemachineBrain>();
-        }
-
         private void OnTriggerStay(Collider other)
         {
             if (targetCamera.Priority == activePriority)
