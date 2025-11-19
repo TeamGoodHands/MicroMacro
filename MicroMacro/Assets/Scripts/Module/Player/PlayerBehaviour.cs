@@ -26,6 +26,7 @@ namespace Module.Player
             stateMachine.AddState(new DeathState(component));
             stateMachine.AddState<GroundState, AliveState>(new GroundState(component));
             stateMachine.AddState<InAirState, AliveState>(new InAirState(component));
+            stateMachine.AddState<RideState, AliveState>(new RideState(component));
 
             // ステート遷移の初期化
             stateMachine.AddTransition<GroundState, InAirState>(() => component.Condition.IsGround == false);
@@ -34,7 +35,9 @@ namespace Module.Player
             stateMachine.AddTransition<LockState, AliveState>(() => component.Condition.IsPlayerLocked == false);
             stateMachine.AddTransition<AliveState, DeathState>(() => component.PlayerStatus.CurrentHealth == 0);
             stateMachine.AddTransition<DeathState, AliveState>(() => component.PlayerStatus.CurrentHealth > 0);
-            
+            stateMachine.AddTransition<GroundState, RideState>(() => component.Condition.IsRiding == true);
+            stateMachine.AddTransition<RideState, GroundState>(() => component.Condition.IsRiding == false);
+
             // ステートマシンはAliveStateから起動
             stateMachine.Start<AliveState>();
         }

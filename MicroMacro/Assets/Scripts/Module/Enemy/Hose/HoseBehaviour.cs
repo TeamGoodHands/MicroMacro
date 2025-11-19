@@ -92,6 +92,8 @@ namespace Module.Enemy.Hose
 
         private async UniTaskVoid DoLoopWater()
         {
+            await UniTask.Delay(TimeSpan.FromSeconds(parameter.FirstDelay), cancellationToken: destroyCancellationToken);
+            
             while (!destroyCancellationToken.IsCancellationRequested)
             {
                 float timer = 0f;

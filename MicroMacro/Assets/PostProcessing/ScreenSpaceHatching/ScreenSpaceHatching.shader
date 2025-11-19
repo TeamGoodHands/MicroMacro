@@ -6,7 +6,7 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
     {
         Pass
         {
-            Name "SSAO"
+            Name "ScreenSpaceHatching Compute"
             ZTest Always Cull Off ZWrite Off
 
             HLSLPROGRAM
@@ -17,7 +17,6 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
             #pragma vertex Vert
             #pragma fragment Frag
 
-            float _Blend;
             float _SamplingRotations[12];
             float _SamplingDistances[12];
             float _OcclusionSampleLength;
@@ -27,8 +26,6 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
             float _OcclusionStrength;
             float _OcclusionPower;
             float _OcclusionDifferenceThreshold;
-            float4 _OcclusionColor;
-
 
             float3 ReconstructViewPositionFromDepth(float2 screenUV, float rawDepth)
             {
@@ -75,7 +72,7 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
                 return samplingRawDepth;
             }
 
-            float4 Frag(Varyings i) : SV_Target
+            float Frag(Varyings i) : SV_Target
             {
                 // 1. depth を depth texture から参照する場合
                 // return float4(i.texcoord.r, i.texcoord.g, 1.0, 1.0);
@@ -141,16 +138,9 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
 
                 float aoRate = occludedAcc / (float)samplingCount;
 
-                float4 color = float4(1, 1, 1, 1);
-                color.rgb = lerp(
-                    color,
-                    _OcclusionColor,
-                    saturate(pow(saturate(aoRate), _OcclusionPower) * _OcclusionStrength)
-                );
+                float ao = 1 - saturate(pow(saturate(aoRate), _OcclusionPower) * _OcclusionStrength);
 
-                color.rgb = lerp(float4(1, 1, 1, 1), color.rgb, _Blend);
-
-                return color;
+                return ao;
             }
             ENDHLSL
         }
@@ -188,7 +178,7 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
             int _BlurKernelRadius;
             float _BlurStandardDeviation;
 
-            float4 Frag(Varyings i) : SV_Target
+            float Frag(Varyings i) : SV_Target
             {
                 float scale = ((float)_ScreenParams.y / 1440.0);
 
@@ -213,7 +203,7 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
             int _BlurKernelRadius;
             float _BlurStandardDeviation;
 
-            float4 Frag(Varyings i) : SV_Target
+            float Frag(Varyings i) : SV_Target
             {
                 float scale = ((float)_ScreenParams.y / 1440.0);
 
@@ -259,7 +249,7 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
                 hatchUv.x = (hatchUv.x - 0.5) * aspect + 0.5;
 
                 float4 color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_BlitTexture, i.texcoord);
-                float4 blur = SAMPLE_TEXTURE2D(_BlurResultTexture, sampler_LinearClamp, i.texcoord);
+                float blur = SAMPLE_TEXTURE2D(_BlurResultTexture, sampler_LinearClamp, i.texcoord).r;
                 float4 hatch = SAMPLE_TEXTURE2D(_CrossHatchPatternTexture, sampler_LinearRepeat, hatchUv);
 
                 float4 stepBlur = step(blur, _BlendStep);

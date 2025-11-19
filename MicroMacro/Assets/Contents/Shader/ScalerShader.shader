@@ -6,7 +6,7 @@ Shader "ScalerShader"
         _NoiseMap("NoiseMap Map", 2D) = "white"{}
         [HDR]_BaseColor("Base Color", Color) = (0,0,0,1)
         _OutlineWidth("Outline Width", Float) = 0
-        [HDR]_OutlineColor("Outline Color", Color) = (0,0,0,1)
+        _OutlineColor("Outline Color", Color) = (0,0,0,1)
         _FresnelPower("Fresnel Power", Float) = 0.2
         [HDR]_FresnelColor("Fresnel Color", Color) = (0,0,0,0)
         [HDR]_AdditionalColor("Additional Color", Color) = (0,0,0,0)
@@ -116,38 +116,8 @@ Shader "ScalerShader"
             ENDHLSL
         }
 
-
         Pass
         {
-            Name "MotionVectors"
-            Tags
-            {
-                "LightMode" = "MotionVectors"
-            }
-            ColorMask RG
-
-            HLSLPROGRAM
-            #pragma shader_feature_local _ALPHATEST_ON
-            #pragma multi_compile _ LOD_FADE_CROSSFADE
-            #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
-
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
-            ENDHLSL
-        }
-
-
-        Pass
-        {
-            Stencil
-            {
-                Ref 1
-                Comp Always
-                Pass Replace
-            }
-
-            ZWrite On
-
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -271,7 +241,7 @@ Shader "ScalerShader"
                 float fresnel = FresnelEffect(IN.normal, UNITY_MATRIX_V[2].xyz, _FresnelPower);
 
                 // フレネルにノイズを重ねる
-                fresnel *= SimpleNoise(IN.screenPos, 10);
+                fresnel *= SimpleNoise(IN.worldPos.xy, 10);
 
                 fresnel *= _FresnelColor.a;
 
@@ -293,10 +263,73 @@ Shader "ScalerShader"
 
         Pass
         {
-            Name "Outline"
             Tags
             {
                 "LightMode" = "UniversalForward"
+            }
+
+            ZWrite On
+            ZTest Always
+
+            Stencil
+            {
+                Ref 1
+                Comp Always
+                Pass Replace
+            }
+
+            ColorMask 0
+        }
+
+
+        //        Pass
+        //        {
+        //
+        //            Name "HandwriteOutlineCutoutPrepass"
+        //            Tags
+        //            {
+        //                "LightMode" = "HandwriteOutlineCutoutPrepass"
+        //            }
+        //            
+        //            ZTest Always
+        //
+        //            HLSLPROGRAM
+        //            #pragma vertex vert
+        //            #pragma fragment frag
+        //
+        //            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        //
+        //
+        //            struct Attributes
+        //            {
+        //                float4 positionOS : POSITION;
+        //            };
+        //
+        //            struct Varyings
+        //            {
+        //                float4 positionHCS : SV_POSITION;
+        //            };
+        //
+        //            Varyings vert(Attributes IN)
+        //            {
+        //                Varyings OUT;
+        //                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+        //                return OUT;
+        //            }
+        //
+        //            half4 frag() : SV_Target
+        //            {
+        //                return float4(0, 0, 0, 0);
+        //            }
+        //            ENDHLSL
+        //        }
+
+        Pass
+        {
+            Name "HandwriteOutlinePrepass"
+            Tags
+            {
+                "LightMode" = "HandwriteOutlinePrepass"
             }
 
             Stencil
@@ -307,8 +340,8 @@ Shader "ScalerShader"
             }
 
             Cull Front
-            ZTest Always
             ZWrite On
+            ZTest Always
             AlphaToMask On
 
             HLSLPROGRAM
@@ -335,26 +368,30 @@ Shader "ScalerShader"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
-                float _OutlineWidth;
                 float4 _OutlineColor;
-                float _FresnelPower;
-                float4 _FresnelColor;
+                float _OutlineWidth;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
-                IN.positionOS.xyz += IN.normal * _OutlineWidth;
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS);
+
+                float3 normal = TransformObjectToWorldDir(IN.normal);
+                normal = TransformWorldToHClipDir(normal);
+
+                // オブジェクト空間で normal 方向に押し出す
+                OUT.positionHCS.xy += normal.xy * _OutlineWidth / unity_CameraProjection._m11;
+
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+
                 return OUT;
             }
 
-            half4 frag(Varyings IN) : SV_Target
+            float4 frag(Varyings IN) : SV_Target
             {
-                float4 color = _OutlineColor;
-                color.a *= 1.0 - step(_OutlineWidth, 0);
-                return color;
+                return _OutlineColor;
             }
             ENDHLSL
         }

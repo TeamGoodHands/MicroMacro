@@ -93,9 +93,9 @@ namespace Module.Player.State
         {
             Vector2 moveInput = moveEvent.ReadValue<Vector2>();
             Vector2 direction = rotation.GetDirection(moveInput);
-
+            
             condition.Direction = direction;
-
+            
             // 左右の入力の場合は更新
             if (direction.x != 0)
             {
