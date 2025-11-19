@@ -12,6 +12,9 @@ namespace Module.Application.Recoed
     public class RecordManager : MonoBehaviour
     {
         public static RecordManager Instance { get; private set; }
+        
+        // 現在のセッションIDを外部（FeedbackSender）から取れるようにする
+        public string CurrentTestPlayID { get; private set; }
         [SerializeField] private string host;
         [SerializeField] private string port;
         private string password;
@@ -85,9 +88,19 @@ namespace Module.Application.Recoed
             {
                 RecordController.RecordStop();
             }
+            
+            RecordController.ResetFileNameFormat();
             RecordController.OBSDisconnect();
         }
-        
+
+        private void OnApplicationQuit()
+        {
+            if (Instance == this)
+            {
+                RecordController.ResetFileNameFormat();
+            }
+        }
+
         // ボタンからも呼び出し可能
         // TODO ステージセレクトのボタン周りを改善しボタンで録画開始できるよう変更
         /*public void RecordStart()
@@ -104,13 +117,20 @@ namespace Module.Application.Recoed
                 return;
             }
             
+            // 録画開始対象のシーンかチェック
             if (!RecordController.IsRecording())
             {
                 foreach (var name in recordStartSceneNames)
                 {
                     if (scene.name == name)
                     {
-                        RecordController.RecordStart();
+                        // GUID:「世界中で重複しない番号」を作る仕組み
+                        // ファイル名に使いやすいよう、短めのIDを生成
+                        CurrentTestPlayID = "Play_" + Guid.NewGuid().ToString().Substring(0, 8);
+                        
+                        Debug.Log($"テストプレイ開始 ID: {CurrentTestPlayID}");
+                        
+                        RecordController.RecordStart(CurrentTestPlayID);
                         return;
                     }
                 }

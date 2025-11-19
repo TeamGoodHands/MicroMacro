@@ -9,6 +9,7 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
 using System.IO;
+using Module.Application.Recoed;
 
 namespace Module.Application
 {
@@ -65,7 +66,9 @@ namespace Module.Application
     {
         [Header("共通設定")] [SerializeField] private string formActionURL; // 末尾の/viewformを/formResponseに書き換えた送信先URL 
         [Header("質問リスト")] [SerializeField] private FormQuestion[] questions; // 構造体の配列 
+        [Header("ID連携設定")] [SerializeField] private string testPlayIdEntryID;
         [SerializeField] private Button sendButton;
+        
         private bool isSending = false;
         public event Action OnSend;
 
@@ -245,6 +248,7 @@ namespace Module.Application
 
             // 必須項目のチェック
             FormQuestion firstInput = questions.FirstOrDefault(q => q.type == QuestionType.InputField);
+            
             if (firstInput != null && string.IsNullOrEmpty(firstInput.inputField.text))
             {
                 Debug.Log("必須項目が空欄です。");
@@ -259,6 +263,17 @@ namespace Module.Application
 
             // 送信するデータの作成
             var formFields = new List<string>();
+
+            if (!string.IsNullOrEmpty(testPlayIdEntryID) && RecordManager.Instance != null)
+            {
+                string currentId = RecordManager.Instance.CurrentTestPlayID;
+
+                if (!string.IsNullOrEmpty(currentId))
+                {
+                    formFields.Add(CreateField(testPlayIdEntryID, currentId));
+                    Debug.Log($"フォームにID紐づけ: {currentId}");
+                }
+            }
 
             foreach (var q in questions)
             {
