@@ -1,8 +1,13 @@
 ﻿using System;
+using ChameleonOutline;
 using DG.Tweening;
 using Module.Management;
+using PostProcessing.ChameleonOutline;
 using PropertyGenerator.Generated;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.VFX;
 
 namespace Module.Scaling
 {
@@ -10,27 +15,16 @@ namespace Module.Scaling
     {
         [SerializeField] private Scaler scaler;
         [SerializeField] private Renderer bodyRenderer;
-        [SerializeField] private BoundBoxWrapper boundBoxWrapper;
-        [SerializeField, Header("効果発動時のアウトライン幅")] private float outlineWidth = 0.01f;
-
-        [Header("拡大縮小成功時ののフレネルとアウトラインの色")]
-        [SerializeField, ColorUsage(true, true)] private Color macroFresnelColor;
-
-        [SerializeField, ColorUsage(true, true)] private Color macroOutlineColor;
-        [SerializeField, ColorUsage(true, true)] private Color microFresnelColor;
-        [SerializeField, ColorUsage(true, true)] private Color microOutlineColor;
-
-        [Header("拡大縮小失敗時のフレネルの色")]
-        [SerializeField, ColorUsage(true, true)] private Color invalidFresnelColor;
-
-        [SerializeField, Header("失敗時の震えるスピード")] private float invalidWaveSpeed = 10f;
-        [SerializeField, Header("失敗時の震える力")] private float invalidWavePower = 0.6f;
-        [SerializeField, Header("失敗時の震える時間")] private float invalidWaveTime = 0.6f;
+        [SerializeField] private ScaleFaceWrapper scaleFaceWrapper;
+        [SerializeField] private Animator scaleAnimator;
+        [SerializeField] private ScaleEffectProfile profile;
+        [SerializeField] private VisualEffect sparkEffect;
 
         private ScalerShaderWrapper scalerShaderWrapper;
         private Tween currentTween;
         private float defaultWaveSpeed;
         private float defaultWavePower;
+        private int outlineStyleHandle;
 
         private void Start()
         {
@@ -44,6 +38,8 @@ namespace Module.Scaling
                 // 初期値を登録
                 defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
                 defaultWavePower = scalerShaderWrapper.WavePower;
+                
+                scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never;
             }
             catch (Exception e)
             {
@@ -89,7 +85,10 @@ namespace Module.Scaling
             {
                 // 拡大縮小に成功した
                 currentTween = CreateScaleTween(isMacro, duration);
-                boundBoxWrapper.SetScaleTrigger();
+                scaleFaceWrapper.SetScaleTrigger();
+
+                scaleAnimator.Play("Scale");
+                // sparkEffect.Play();
             }
             else
             {
@@ -106,41 +105,43 @@ namespace Module.Scaling
 
         private Tween CreateScaleTween(bool isMacro, float scaleDuration)
         {
-            Color fresnelColor = isMacro ? macroFresnelColor : microFresnelColor;
-            Color outlineColor = isMacro ? macroOutlineColor : microOutlineColor;
+            Color fresnelColor = isMacro ? profile.MacroFresnelColor : profile.MicroFresnelColor;
+            Color outlineColor = isMacro ? profile.MacroOutlineColor : profile.MicroOutlineColor;
 
             scalerShaderWrapper.OutlineColor = outlineColor;
 
-            const float tweenTime = 0.05f;
-            const float disappearTime = 1f;
-            const float disappearWaitTime = 1f;
-
             float progress = 0f;
             Sequence sequence = DOTween.Sequence();
+
+            sequence.AppendCallback(() => { scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Always; });
 
             // 拡大中
             sequence.Append(DOTween.To(() => progress, value =>
             {
                 scalerShaderWrapper.FresnelColor = Color.Lerp(Color.clear, fresnelColor, value);
-                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(0f, outlineWidth, value);
+                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(0f, profile.OutlineWidth, value);
                 progress = value;
-            }, 1f, tweenTime));
+            }, 1f, profile.OutlineTweenTime));
 
             sequence.AppendCallback(() => progress = 0f);
 
             // 拡大終了まで待機
-            sequence.AppendInterval(Mathf.Max(0f, scaleDuration - tweenTime));
+            sequence.AppendInterval(Mathf.Max(0f, scaleDuration - profile.OutlineTweenTime));
 
             // 拡大縮小エフェクトが消えるのを少し遅延させる
-            sequence.AppendInterval(disappearWaitTime);
+            sequence.AppendInterval(profile.OutlineDisappearWaitTime);
 
             // 拡大エフェクトをだんだん消す
             sequence.Append(DOTween.To(() => progress, value =>
-            {
-                scalerShaderWrapper.FresnelColor = Color.Lerp(fresnelColor, Color.clear, value);
-                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(outlineWidth, 0f, value);
-                progress = value;
-            }, 1f, disappearTime));
+                {
+                    scalerShaderWrapper.FresnelColor = Color.Lerp(fresnelColor, Color.clear, value);
+                    scalerShaderWrapper.OutlineWidth = Mathf.Lerp(profile.OutlineWidth, 0f, value);
+                    progress = value;
+                }, 1f, profile.OutlineDisappearTime))
+                .SetEase(Ease.InSine);
+            
+            sequence.AppendCallback(() => { scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never; });
+            
             return sequence;
         }
 
@@ -152,20 +153,20 @@ namespace Module.Scaling
             // 失敗エフェクトだんだん適用する
             sequence.Append(DOTween.To(() => progress, value =>
             {
-                scalerShaderWrapper.WaveSpeed = Mathf.Lerp(defaultWaveSpeed, invalidWaveSpeed, value);
-                scalerShaderWrapper.WavePower = Mathf.Lerp(defaultWavePower, invalidWavePower, value);
-                scalerShaderWrapper.FresnelColor = Color.Lerp(Color.clear, invalidFresnelColor, value);
-            }, 1f, invalidWaveTime / 2));
+                scalerShaderWrapper.WaveSpeed = Mathf.Lerp(defaultWaveSpeed, profile.InvalidWaveSpeed, value);
+                scalerShaderWrapper.WavePower = Mathf.Lerp(defaultWavePower, profile.InvalidWavePower, value);
+                scalerShaderWrapper.FresnelColor = Color.Lerp(Color.clear, profile.InvalidFresnelColor, value);
+            }, 1f, profile.InvalidWaveTime / 2f));
 
             sequence.AppendCallback(() => progress = 0f);
 
             // 失敗エフェクトだんだん消す
             sequence.Append(DOTween.To(() => progress, value =>
             {
-                scalerShaderWrapper.WaveSpeed = Mathf.Lerp(invalidWaveSpeed, defaultWaveSpeed, value);
-                scalerShaderWrapper.WavePower = Mathf.Lerp(invalidWavePower, defaultWavePower, value);
-                scalerShaderWrapper.FresnelColor = Color.Lerp(invalidFresnelColor, Color.clear, value);
-            }, 1f, invalidWaveTime / 2));
+                scalerShaderWrapper.WaveSpeed = Mathf.Lerp(profile.InvalidWaveSpeed, defaultWaveSpeed, value);
+                scalerShaderWrapper.WavePower = Mathf.Lerp(profile.InvalidWavePower, defaultWavePower, value);
+                scalerShaderWrapper.FresnelColor = Color.Lerp(profile.InvalidFresnelColor, Color.clear, value);
+            }, 1f, profile.InvalidWaveTime / 2f));
 
             return sequence;
         }

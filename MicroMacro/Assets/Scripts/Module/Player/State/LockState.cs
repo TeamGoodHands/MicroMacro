@@ -9,7 +9,6 @@ namespace Module.Player.State
     {
         internal override void OnEnter()
         {
-            
         }
 
         internal override void OnExit()

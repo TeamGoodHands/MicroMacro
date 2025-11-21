@@ -42,13 +42,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    Blend: 0.65
     OcclusionSampleLength: 4
     OcclusionMinDistance: 0
     OcclusionMaxDistance: 89.2
     OcclusionBias: 0.35
-    OcclusionStrength: 2.67
-    OcclusionPower: 0.26
+    OcclusionStrength: 1.62
+    OcclusionPower: 0.6
     OcclusionDifferenceThreshold: 20
     BlendStep: 0.87
     BlendPower: 2.79
@@ -58,7 +57,6 @@ MonoBehaviour:
     HatchOffsetBorder: 0.0056
     BlurKernelRadius: 5
     CrossPatternTexture: {fileID: 2800000, guid: 171cea23cfdea7d4bb041284a3c8ff5f, type: 3}
-    OcclusionColor: {r: 0, g: 0, b: 0, a: 1}
     ssaoShader: {fileID: 4800000, guid: aa54c93f5f2b0e145bc0b9cec9bf5edc, type: 3}
     generateSamplingPoint: 0
     samplingRotations:
@@ -176,7 +174,8 @@ MonoBehaviour:
   - {fileID: -535502895991043015}
   - {fileID: -702103982027134681}
   - {fileID: -8253487787215220038}
-  m_RendererFeatureMap: 039b5a2d6cf434be3448c8b14eac35cb40e9e37aa4053a3a39cc420cf48291f827a9e2f325a041f6ba12031d96b8758d
+  - {fileID: 2802236311613486901}
+  m_RendererFeatureMap: 039b5a2d6cf434be3448c8b14eac35cb40e9e37aa4053a3a39cc420cf48291f827a9e2f325a041f6ba12031d96b8758d35376c1a148be326
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -189,7 +188,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   m_DefaultStencilState:
     overrideStencilState: 0
-    stencilReference: 1
+    stencilReference: 0
     stencilCompareFunction: 3
     passOperation: 2
     failOperation: 0
@@ -202,6 +201,35 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &2802236311613486901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aec142b1b70b4f5996d221c22ee5c0e0, type: 3}
+  m_Name: HandwriteOutlineFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  featureSettings:
+    PrepassEvent: 500
+    CompositeEvent: 550
+    CrayonIntensityPixels: 9.14
+    CrayonScale: 23.69
+    CrayonTimeSpeed: 1.5
+    CrayonTimeStepSize: 0.25
+    Stroke1NoiseOffset: {x: 9.8, y: 2.6}
+    Stroke2NoiseOffset: {x: 3.08, y: 3.01}
+    Stroke2PerpendicularOffsetPixels: 0.27
+    JitterIntensityPixels: 0.32
+    JitterFrequency: 620.06
+    Stroke2Weight: 2.69
+    Stroke2ColorTint: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+    CoreThreshold: 0.06
+    OuterAlphaMultiplier: 0.26
 --- !u!114 &4195672206843570496
 MonoBehaviour:
   m_ObjectHideFlags: 0

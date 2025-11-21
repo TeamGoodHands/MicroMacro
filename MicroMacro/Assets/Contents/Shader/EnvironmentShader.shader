@@ -3,6 +3,7 @@ Shader "EnvironmentShader"
     Properties
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
+        _BaseColor("Base Color", Color) = (1,1,1,1)
         _NoiseMap("Noise Map", 2D) = "white"{}
         _NoiseScale("Noise Scale",Float) = 1
         _NoisePower("Noise Power",Range(0,1)) = 0
@@ -184,6 +185,7 @@ Shader "EnvironmentShader"
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 float4 _NoiseMap_ST;
+                float4 _BaseColor;
                 float4 _ShadowColor;
                 float _NoiseScale;
                 float _NoisePower;
@@ -211,7 +213,7 @@ Shader "EnvironmentShader"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
+                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
 
                 float4 shadowCoord = TransformWorldToShadowCoord(IN.worldPos);
 

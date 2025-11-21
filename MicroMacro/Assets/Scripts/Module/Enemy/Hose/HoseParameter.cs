@@ -12,7 +12,10 @@ namespace Module.Enemy.Hose
         [Space]
         [SerializeField, Header("一定の間隔で発射するか")]
         private bool isLooping;
-
+        
+        
+        [SerializeField, Header("起動時の遅延")]
+        private float firstDelay;
         [SerializeField, Header("オン状態の時間")]
         private float onTime;
         [SerializeField, Header("オフ状態の時間")]
@@ -29,6 +32,7 @@ namespace Module.Enemy.Hose
         public float ScaleMultiplier => scaleMultiplier;
         public float SideForceMultiplier => sideForceMultiplier;
         public bool IsLooping => isLooping;
+        public float FirstDelay => firstDelay;
         public float OnTime => onTime;
         public float OffTime => offTime;
         public float WaterSpeed => waterSpeed;

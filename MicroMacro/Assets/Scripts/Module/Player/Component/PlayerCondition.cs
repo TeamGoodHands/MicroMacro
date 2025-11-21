@@ -12,6 +12,7 @@ namespace Module.Player.Component
         [SerializeField, ReadOnly] private Vector2 externalForce;
         [SerializeField, ReadOnly] private bool isJumping;
         [SerializeField, ReadOnly] private bool isGround;
+        [SerializeField, ReadOnly] private bool isRiding;
         [SerializeField, ReadOnly] private bool isPlayerLocked;
         [SerializeField, ReadOnly] private Vector2 direction = Vector2.right;
         [SerializeField, ReadOnly] private Vector2 lastSideInput = Vector2.right;
@@ -44,6 +45,12 @@ namespace Module.Player.Component
         {
             get => isGround;
             set => isGround = value;
+        }
+        
+        public bool IsRiding
+        {
+            get => isRiding;
+            set => isRiding = value;
         }
 
         public Vector2 Direction
