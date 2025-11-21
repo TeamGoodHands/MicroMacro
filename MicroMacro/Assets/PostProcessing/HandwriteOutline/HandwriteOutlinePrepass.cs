@@ -54,8 +54,8 @@ namespace PostProcessing.HandwriteOutline
                 RendererListDesc rendererListDesc = new RendererListDesc(writeTagIds, renderingData.cullResults, cameraData.camera)
                 {
                     overrideMaterial = null,
-                    renderQueueRange = RenderQueueRange.all,
                     layerMask = cameraData.camera.cullingMask,
+                    renderQueueRange = RenderQueueRange.all,
                 };
 
                 passData.RendererList = renderGraph.CreateRendererList(rendererListDesc);

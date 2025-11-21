@@ -15,11 +15,13 @@ namespace PropertyGenerator.Generated
 		private static readonly int OutlineWidthProperty = Shader.PropertyToID("_OutlineWidth");
 		private static readonly int OutlineColorProperty = Shader.PropertyToID("_OutlineColor");
 		private static readonly int FresnelPowerProperty = Shader.PropertyToID("_FresnelPower");
+		private static readonly int UseVertexColorOutlineProperty = Shader.PropertyToID("_UseVertexColorOutline");
 		private static readonly int FresnelColorProperty = Shader.PropertyToID("_FresnelColor");
 		private static readonly int AdditionalColorProperty = Shader.PropertyToID("_AdditionalColor");
 		private static readonly int WavePowerProperty = Shader.PropertyToID("_WavePower");
 		private static readonly int WaveSpeedProperty = Shader.PropertyToID("_WaveSpeed");
 		private static readonly int ReceiveDecalsProperty = Shader.PropertyToID("_ReceiveDecals");
+		private static readonly int OutlineStencilCompProperty = Shader.PropertyToID("_OutlineStencilComp");
 		
 		public ScalerShaderWrapper(Material target)
 		{
@@ -62,6 +64,12 @@ namespace PropertyGenerator.Generated
 			set => target.SetFloat(FresnelPowerProperty, value);
 		}
 		
+		public float UseVertexColorOutline
+		{
+			get => target.GetFloat(UseVertexColorOutlineProperty);
+			set => target.SetFloat(UseVertexColorOutlineProperty, value);
+		}
+		
 		public Color FresnelColor
 		{
 			get => target.GetColor(FresnelColorProperty);
@@ -90,6 +98,12 @@ namespace PropertyGenerator.Generated
 		{
 			get => target.GetFloat(ReceiveDecalsProperty);
 			set => target.SetFloat(ReceiveDecalsProperty, value);
+		}
+		
+		public float OutlineStencilComp
+		{
+			get => target.GetFloat(OutlineStencilCompProperty);
+			set => target.SetFloat(OutlineStencilCompProperty, value);
 		}
 	}
 }
