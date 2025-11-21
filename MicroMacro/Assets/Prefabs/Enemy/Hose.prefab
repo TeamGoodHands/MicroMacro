@@ -318,6 +318,7 @@ MonoBehaviour:
   sideForceMultiplier: 1.8
   scaleMultiplier: 1.05
   lengthMultiplier: 2
+  playerMultiplier: 2
   isLooping: 1
   firstDelay: 0
   onTime: 2
@@ -341,6 +342,7 @@ MonoBehaviour:
   waterPivot: {fileID: 8285137654200784058}
   rotatePivot: {fileID: 7310249037069564553}
   waterHead: {fileID: 1299044410674977800}
+  maxMultiplier: 1
 --- !u!1 &3835206435887652273
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,9 +463,8 @@ GameObject:
   - component: {fileID: 2606284379308230604}
   - component: {fileID: 6674564558576474763}
   - component: {fileID: 4000955261097681351}
-  - component: {fileID: 8180539831368092059}
   m_Layer: 9
-  m_Name: Water
+  m_Name: "Water(\u3044\u3058\u3063\u3061\u3083\u3060\u3081)"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -559,21 +560,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.9, y: 2, z: 0.9}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8180539831368092059
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4282620610566101156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80d9cebdf1484965822a7d7cded5a0b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parameter: {fileID: 120949696596305902}
-  scaler: {fileID: 754767507220242133}
-  playerMultiplier: 4
 --- !u!1 &4748289762434188353
 GameObject:
   m_ObjectHideFlags: 0
@@ -584,7 +570,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7310249037069564553}
   m_Layer: 0
-  m_Name: ScalePivot
+  m_Name: "ScalePivot(\u30C7\u30D5\u30A9\u30EB\u30C8\u306E\u56DE\u8EE2)"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -648,7 +634,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8285137654200784058}
   m_Layer: 0
-  m_Name: Pivot
+  m_Name: "WaterPivot(\u30C7\u30D5\u30A9\u30EB\u30C8\u306E\u9577\u3055)"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
