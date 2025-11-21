@@ -8,11 +8,13 @@ Shader "ScalerShader"
         _OutlineWidth("Outline Width", Float) = 0
         _OutlineColor("Outline Color", Color) = (0,0,0,1)
         _FresnelPower("Fresnel Power", Float) = 0.2
+        _UseVertexColorOutline("Use Vertex Color Outline", Int) = 0
         [HDR]_FresnelColor("Fresnel Color", Color) = (0,0,0,0)
         [HDR]_AdditionalColor("Additional Color", Color) = (0,0,0,0)
         _WavePower("Wave Power", Float) = 0.05
         _WaveSpeed("Wave Speed", Float) = 7
         [Toggle(_RECEIVE_DECALS)] _ReceiveDecals("Receive Decals", Float) = 1
+        [Enum(UnityEngine.Rendering.CompareFunction)] _OutlineStencilComp("Outline Stencil Comp", Int) = 8
     }
 
     SubShader
@@ -135,6 +137,7 @@ Shader "ScalerShader"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
             #include  "SimpleNoise.hlsl"
+
 
             struct Attributes
             {
@@ -268,61 +271,19 @@ Shader "ScalerShader"
                 "LightMode" = "UniversalForward"
             }
 
-            ZWrite On
+            ZWrite Off
             ZTest Always
 
             Stencil
             {
                 Ref 1
-                Comp Always
+                Comp [_OutlineStencilComp]
                 Pass Replace
+                Fail Keep
             }
 
             ColorMask 0
         }
-
-
-        //        Pass
-        //        {
-        //
-        //            Name "HandwriteOutlineCutoutPrepass"
-        //            Tags
-        //            {
-        //                "LightMode" = "HandwriteOutlineCutoutPrepass"
-        //            }
-        //            
-        //            ZTest Always
-        //
-        //            HLSLPROGRAM
-        //            #pragma vertex vert
-        //            #pragma fragment frag
-        //
-        //            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-        //
-        //
-        //            struct Attributes
-        //            {
-        //                float4 positionOS : POSITION;
-        //            };
-        //
-        //            struct Varyings
-        //            {
-        //                float4 positionHCS : SV_POSITION;
-        //            };
-        //
-        //            Varyings vert(Attributes IN)
-        //            {
-        //                Varyings OUT;
-        //                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-        //                return OUT;
-        //            }
-        //
-        //            half4 frag() : SV_Target
-        //            {
-        //                return float4(0, 0, 0, 0);
-        //            }
-        //            ENDHLSL
-        //        }
 
         Pass
         {
@@ -350,11 +311,15 @@ Shader "ScalerShader"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
+            int _UseVertexColorOutline;
+
             struct Attributes
             {
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
-                half3 normal : NORMAL;
+                float4 color : COLOR;
+                float3 normal : NORMAL;
+                float4 tangent : TANGENT;
             };
 
             struct Varyings
@@ -370,7 +335,32 @@ Shader "ScalerShader"
                 float4 _BaseMap_ST;
                 float4 _OutlineColor;
                 float _OutlineWidth;
+                int _OutlineStencilComp;
             CBUFFER_END
+
+            float3 DecodeNormal(Attributes IN)
+            {
+                if (_UseVertexColorOutline == 0)
+                    return IN.normal;
+
+                // 頂点カラーにベイクされた法線を格納（タンジェント空間）
+                float3 smoothNormalTS = IN.color.xyz * 2 - 1;
+
+                // オブジェクト空間の情報
+                float3 normalOS = IN.normal;
+                float3 tangentOS = IN.tangent.xyz;
+                float3 binormalOS = cross(normalOS, tangentOS) * IN.tangent.w * unity_WorldTransformParams.w;
+
+                // オブジェクト空間 → タンジェント空間 の変換行列
+                float3x3 objectToTangentMatrix = float3x3(tangentOS.xyz, binormalOS, normalOS);
+                // タンジェント空間 → オブジェクト空間 の変換行列
+                float3x3 tangentToObjectMatrix = transpose(objectToTangentMatrix);
+
+                // タンジェント空間のベクトルをオブジェクト空間に変換
+                float3 normal = mul(tangentToObjectMatrix, smoothNormalTS);
+
+                return normal;
+            }
 
             Varyings vert(Attributes IN)
             {
@@ -378,7 +368,9 @@ Shader "ScalerShader"
 
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS);
 
-                float3 normal = TransformObjectToWorldDir(IN.normal);
+                float3 decodedNormal = DecodeNormal(IN);
+
+                float3 normal = TransformObjectToWorldDir(decodedNormal);
                 normal = TransformWorldToHClipDir(normal);
 
                 // オブジェクト空間で normal 方向に押し出す
@@ -391,6 +383,11 @@ Shader "ScalerShader"
 
             float4 frag(Varyings IN) : SV_Target
             {
+                if (_OutlineStencilComp != 8)
+                {
+                    discard;
+                }
+
                 return _OutlineColor;
             }
             ENDHLSL

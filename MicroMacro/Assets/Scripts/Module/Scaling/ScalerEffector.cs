@@ -5,6 +5,7 @@ using Module.Management;
 using PostProcessing.ChameleonOutline;
 using PropertyGenerator.Generated;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.VFX;
 
@@ -17,6 +18,7 @@ namespace Module.Scaling
         [SerializeField] private ScaleFaceWrapper scaleFaceWrapper;
         [SerializeField] private Animator scaleAnimator;
         [SerializeField] private ScaleEffectProfile profile;
+        [SerializeField] private VisualEffect sparkEffect;
 
         private ScalerShaderWrapper scalerShaderWrapper;
         private Tween currentTween;
@@ -36,6 +38,8 @@ namespace Module.Scaling
                 // 初期値を登録
                 defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
                 defaultWavePower = scalerShaderWrapper.WavePower;
+                
+                scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never;
             }
             catch (Exception e)
             {
@@ -84,7 +88,7 @@ namespace Module.Scaling
                 scaleFaceWrapper.SetScaleTrigger();
 
                 scaleAnimator.Play("Scale");
-                // scaleEffect.Play();
+                // sparkEffect.Play();
             }
             else
             {
@@ -101,13 +105,15 @@ namespace Module.Scaling
 
         private Tween CreateScaleTween(bool isMacro, float scaleDuration)
         {
-            Color fresnelColor = isMacro ? profile.MacroFresnelColor : profile.MicroFresnelColor;;
-            Color outlineColor = isMacro ? profile.MacroOutlineColor : profile.MicroOutlineColor;;
+            Color fresnelColor = isMacro ? profile.MacroFresnelColor : profile.MicroFresnelColor;
+            Color outlineColor = isMacro ? profile.MacroOutlineColor : profile.MicroOutlineColor;
 
             scalerShaderWrapper.OutlineColor = outlineColor;
 
             float progress = 0f;
             Sequence sequence = DOTween.Sequence();
+
+            sequence.AppendCallback(() => { scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Always; });
 
             // 拡大中
             sequence.Append(DOTween.To(() => progress, value =>
@@ -133,6 +139,9 @@ namespace Module.Scaling
                     progress = value;
                 }, 1f, profile.OutlineDisappearTime))
                 .SetEase(Ease.InSine);
+            
+            sequence.AppendCallback(() => { scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never; });
+            
             return sequence;
         }
 
