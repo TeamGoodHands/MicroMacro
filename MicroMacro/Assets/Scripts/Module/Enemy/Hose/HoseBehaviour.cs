@@ -4,6 +4,7 @@ using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Scaling;
+using NaughtyAttributes;
 using UGizmo;
 using UnityEngine;
 
@@ -18,50 +19,58 @@ namespace Module.Enemy.Hose
         [SerializeField] private Transform waterHead;
 
         private Transform playerTransform;
+        private HoseWater hoseWater;
         private Vector3 waterDefaultScale;
         private Vector3 waterScale;
         private Vector3 scalerDefaultScale;
-        private RaycastHit hitInfo;
+        private Vector3 hitPoint;
         private float scaleMultiplier = 1f;
         private bool isObjectHit;
 
         private void Start()
         {
+            // プレイヤーのTransformを取得する
             playerTransform = GameObject.FindWithTag(Tag.Player).transform;
 
+            hoseWater = new HoseWater(scaler, waterPivot, rotatePivot, parameter);
+
+            // 初期情報の取得
             waterDefaultScale = waterPivot.localScale;
             waterScale = waterDefaultScale;
             scalerDefaultScale = scaler.transform.localScale;
 
+            // 水のオンオフを切り替える場合は実行
             if (parameter.IsLooping)
             {
                 DoLoopWater().Forget();
             }
         }
 
-        float maxMultiplier = 1f;
+        [SerializeField, ReadOnly] private float maxMultiplier = 1f;
 
         private void FixedUpdate()
         {
+            // スケールの差を基に水の長さを計算する
             float lengthScale = scaler.transform.localScale.x - scalerDefaultScale.x;
-            waterScale = waterDefaultScale + Vector3.right * (lengthScale * parameter.LengthMultiplier);
+            waterScale = CalculateWaterScale(lengthScale);
+
+            if (isObjectHit)
+            {
+                // ヒットしていたらヒットした場所まで水を伸ばす
+                float distance = Vector3.Distance(waterPivot.position, hitPoint);
+                maxMultiplier = Mathf.Min(distance / (waterScale.x * scaler.transform.localScale.y), 1f);
+            }
+            else
+            {
+                // ヒットしていない場合は最大まで伸ばす
+                maxMultiplier = 1f;
+            }
 
             if (!parameter.IsLooping)
             {
-                if (isObjectHit)
-                {
-                    float distance = Vector3.Distance(waterPivot.position, hitInfo.point);
-                    maxMultiplier = distance / (waterScale.x * 3f);
-                }
-                else
-                {
-                    maxMultiplier = 1f;
-                }
-
                 scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime;
                 scaleMultiplier = Mathf.Clamp(scaleMultiplier, 0, maxMultiplier);
             }
-
 
             Vector3 scale = waterScale;
             scale.x *= scaleMultiplier;
@@ -69,58 +78,51 @@ namespace Module.Enemy.Hose
 
             if (scaler.CurrentStep == scaler.MinStep)
             {
+                // スケーラーが最小の場合は水を出さない
                 waterPivot.localScale = Vector3.zero;
             }
             else
             {
-                WaterCast();
+                // それ以外の場合は水流の力を加える
+                isObjectHit = hoseWater.TryAddWaterForce(scale.y, out hitPoint);
             }
         }
 
-        private void WaterCast()
+        private Vector3 CalculateWaterScale(float lengthScale)
         {
-            Vector3 position = rotatePivot.position;
-            float radius = waterScale.y;
-            float maxDistance = scaler.transform.localScale.x * waterPivot.localScale.x - radius;
-
-            int layerMask = ~(Layer.Mask.PlayerOnly | Layer.Mask.Enemy | Layer.Mask.Bullet);
-
-            isObjectHit = Physics.SphereCast(position, radius, rotatePivot.up, out hitInfo, maxDistance, layerMask);
-
-            UGizmos.DrawSphereCast(position, radius, rotatePivot.up, maxDistance, isObjectHit, hitInfo);
+            return waterDefaultScale + Vector3.right * (lengthScale * parameter.LengthMultiplier);
         }
 
         private async UniTaskVoid DoLoopWater()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(parameter.FirstDelay), cancellationToken: destroyCancellationToken);
-            
+
             while (!destroyCancellationToken.IsCancellationRequested)
             {
                 float timer = 0f;
 
-                await UniTask.WaitUntil(() =>
+                void AddWaterSpeed(int direction)
                 {
-                    if (!isObjectHit)
-                    {
-                        scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime;
-                    }
-
-                    scaleMultiplier = Mathf.Clamp01(scaleMultiplier);
+                    scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime * direction;
+                    scaleMultiplier = Mathf.Clamp(scaleMultiplier, 0, maxMultiplier);
 
                     timer += Time.fixedDeltaTime;
+                }
+
+                // 水の柱をだんだん長くする
+                await UniTask.WaitUntil(() =>
+                {
+                    AddWaterSpeed(1);
 
                     return timer >= parameter.OnTime;
                 }, PlayerLoopTiming.FixedUpdate);
 
                 timer = 0f;
 
+                // 水の柱をだんだん短くする
                 await UniTask.WaitUntil(() =>
                 {
-                    scaleMultiplier -= parameter.WaterSpeed * Time.fixedDeltaTime;
-
-                    scaleMultiplier = Mathf.Clamp01(scaleMultiplier);
-
-                    timer += Time.fixedDeltaTime;
+                    AddWaterSpeed(-1);
 
                     return timer >= parameter.OffTime;
                 }, PlayerLoopTiming.FixedUpdate);
