@@ -10,6 +10,7 @@ namespace Module.Player.Component
     {
         [SerializeField, ReadOnly] private float lastJumpTime;
         [SerializeField, ReadOnly] private Vector2 externalForce;
+        [SerializeField, ReadOnly] private Vector2 externalWeaponForce;
         [SerializeField, ReadOnly] private bool isJumping;
         [SerializeField, ReadOnly] private bool isGround;
         [SerializeField, ReadOnly] private bool isRiding;
@@ -24,6 +25,12 @@ namespace Module.Player.Component
         }
 
         public Vector2 ExternalForce
+        {
+            get => externalForce;
+            set => externalForce = value;
+        }
+        
+        public Vector2 ExternalWeaponForce
         {
             get => externalForce;
             set => externalForce = value;

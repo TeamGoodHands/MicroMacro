@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Module.Player.Weapon;
 
 namespace Module.Player.Component
@@ -26,8 +28,18 @@ namespace Module.Player.Component
                 weapon.Initialize(component);
                 weapon.OnDisabled();
             }
-            
+
             weapons[currentIndex].OnEnabled();
+        }
+
+        public T GetWeapon<T>() where T : AbstractWeapon
+        {
+            T result = weapons.OfType<T>().FirstOrDefault();
+            
+            if (result == null)
+                throw new InvalidOperationException($"Weapon of type {typeof(T).Name} not found.");
+
+            return result;
         }
 
         public void Switch()
@@ -40,7 +52,7 @@ namespace Module.Player.Component
 
             weapons[currentIndex].OnEnabled();*/
         }
-        
+
         public void Destroy()
         {
             // 武器の無効化

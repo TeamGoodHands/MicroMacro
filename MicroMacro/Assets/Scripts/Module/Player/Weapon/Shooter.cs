@@ -112,6 +112,7 @@ namespace Module.Player.Weapon
             }
 
             bulletObj.SetActive(true);
+            bulletObj.transform.forward = condition.Direction;
 
             // 弾の初期化
             Bullet bullet = bulletObj.GetComponent<Bullet>();
@@ -126,7 +127,8 @@ namespace Module.Player.Weapon
 
             // プレイヤーの速度を足して発射
             Vector2 dirVelocity = GetDirectedVelocity(condition.Direction, playerRigBody.linearVelocity, maxAdditionalSpeed);
-            bullet.AddForce(condition.Direction * shootPower + dirVelocity);
+            Vector2 bulletForce = condition.Direction * shootPower + dirVelocity + condition.ExternalWeaponForce;
+            bullet.Shoot(bulletForce, condition.Direction.y != 0f);
             lastShootTime = Time.time;
 
             PlayShotAnimation();
