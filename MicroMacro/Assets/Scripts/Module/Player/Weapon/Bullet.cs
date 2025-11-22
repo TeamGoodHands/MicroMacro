@@ -13,6 +13,7 @@ namespace Module.Player.Weapon
         [SerializeField] private Rigidbody rigBody;
         [SerializeField] private GameObject body;
         [SerializeField] private VisualEffect hitEffect;
+        [SerializeField] private VisualEffect trailEffect;
         [SerializeField] private int scaleStep;
         [SerializeField] private float disappearDistance;
         [SerializeField] private float effectZOffset;
@@ -25,6 +26,7 @@ namespace Module.Player.Weapon
         public event Action OnHit;
         private Camera mainCamera;
         private bool isHitting;
+        private bool isVertical;
 
         private void Start()
         {
@@ -36,15 +38,18 @@ namespace Module.Player.Weapon
             // 画面外に出たら無効化する
             if (IsOutOfScreen())
             {
-                Disable(false, false).Forget();
+                Disable(false).Forget();
             }
 
             // useGravityをtrueにするとさらに余計に重力が加わり弾道予測線がずれる
             rigBody.AddForce(new Vector2(0, Physics.gravity.y * gravityScale), ForceMode.Acceleration);
         }
 
-        public void AddForce(Vector2 force)
+        public void Shoot(Vector2 force, bool isVertical)
         {
+            this.isVertical = isVertical;
+            trailEffect.gameObject.SetActive(true);
+            trailEffect.Play();
             rigBody.AddForce(force, ForceMode.Impulse);
         }
 
@@ -58,9 +63,8 @@ namespace Module.Player.Weapon
                 scaler.Scale(scaleStep).Forget();
             }
 
-            bool isScaleChanged = scaler != null && scaler.CurrentStep != scaler.PreviousStep;
             // サイズ変動が無くても無効化
-            Disable(true, isScaleChanged).Forget();
+            Disable(true).Forget();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -88,33 +92,31 @@ namespace Module.Player.Weapon
             hitEffect.transform.localPosition = Vector3.zero;
         }
 
-        private async UniTaskVoid Disable(bool isHit, bool isScaleChanged)
+        private async UniTaskVoid Disable(bool isHit)
         {
             isHitting = true;
 
-            Vector2 velocity = rigBody.linearVelocity;
             rigBody.linearVelocity = Vector3.zero;
             body.gameObject.SetActive(false);
 
             if (isHit)
             {
-                await PlayHitEffect(velocity, isScaleChanged);
+                await PlayHitEffect();
             }
 
             OnHit?.Invoke();
             OnHit = null;
         }
 
-        private async UniTask PlayHitEffect(Vector3 velocity, bool isScaleChanged)
+        private async UniTask PlayHitEffect()
         {
-            int offsetMultiplier = isScaleChanged ? scaleStep : 1;
+            var sparkRotation = isVertical ? new Vector2(90f, 0f) : new Vector2(0f, 90f);
 
-            Vector3 position = hitEffect.transform.position;
-            position.z += effectZOffset;
-            position += velocity.normalized * (effectXOffset * offsetMultiplier);
-            hitEffect.transform.position = position;
+            hitEffect.SetVector2("SparkRotation", sparkRotation);
 
             hitEffect.Play();
+            trailEffect.Stop();
+            trailEffect.gameObject.SetActive(false);
 
             await UniTask.Delay(TimeSpan.FromSeconds(disappearDelay), cancellationToken: destroyCancellationToken);
         }

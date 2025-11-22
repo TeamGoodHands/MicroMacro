@@ -144,7 +144,7 @@ namespace Module.Player.Weapon
             // 砲口に移動
             bullet.transform.position = muzzle.transform.position;
 
-            bullet.AddForce(velocity);
+            bullet.Shoot(velocity, false);
             lastShootTime = Time.time;
         }
 

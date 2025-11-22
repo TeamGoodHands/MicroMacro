@@ -1,4 +1,5 @@
 ﻿using CoreModule.AI.HSM;
+using Module.Player.Weapon;
 using UnityEngine;
 
 namespace Module.Player.State

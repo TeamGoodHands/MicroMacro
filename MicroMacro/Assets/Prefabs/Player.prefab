@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shootPower: 16
-  shootRadius: 0.85
+  shootRadius: 0.3
   shootInterval: 0.25
   maxAdditionalSpeed: 4
   poolAmount: 8
@@ -475,8 +475,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lastJumpTime: 0
   externalForce: {x: 0, y: 0}
+  externalWeaponForce: {x: 0, y: 0}
   isJumping: 0
   isGround: 0
+  isRiding: 0
   isPlayerLocked: 0
   direction: {x: 1, y: 0}
   lastSideInput: {x: 1, y: 0}
@@ -514,7 +516,7 @@ Rigidbody:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 1
+  m_ImplicitCom: 0
   m_ImplicitTensor: 1
   m_UseGravity: 0
   m_IsKinematic: 0
