@@ -38,7 +38,7 @@ namespace Module.Scaling
                 // 初期値を登録
                 defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
                 defaultWavePower = scalerShaderWrapper.WavePower;
-                
+
                 scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never;
             }
             catch (Exception e)
@@ -87,7 +87,10 @@ namespace Module.Scaling
                 currentTween = CreateScaleTween(isMacro, duration);
                 scaleFaceWrapper.SetScaleTrigger();
 
-                scaleAnimator.Play("Scale");
+                if (scaleAnimator != null)
+                {
+                    scaleAnimator.Play("Scale");
+                }
                 // sparkEffect.Play();
             }
             else
@@ -139,9 +142,9 @@ namespace Module.Scaling
                     progress = value;
                 }, 1f, profile.OutlineDisappearTime))
                 .SetEase(Ease.InSine);
-            
+
             sequence.AppendCallback(() => { scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never; });
-            
+
             return sequence;
         }
 
