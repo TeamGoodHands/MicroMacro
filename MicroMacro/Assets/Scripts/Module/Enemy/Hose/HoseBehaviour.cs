@@ -18,8 +18,9 @@ namespace Module.Enemy.Hose
         [SerializeField] private Transform rotatePivot;
         [SerializeField] private Transform waterHead;
 
+        public HoseWater HoseWater { get; private set; }
+
         private Transform playerTransform;
-        private HoseWater hoseWater;
         private Vector3 waterDefaultScale;
         private Vector3 waterScale;
         private Vector3 scalerDefaultScale;
@@ -32,7 +33,7 @@ namespace Module.Enemy.Hose
             // プレイヤーのTransformを取得する
             playerTransform = GameObject.FindWithTag(Tag.Player).transform;
 
-            hoseWater = new HoseWater(scaler, waterPivot, rotatePivot, parameter);
+            HoseWater = new HoseWater(scaler, waterPivot, rotatePivot, parameter);
 
             // 初期情報の取得
             waterDefaultScale = waterPivot.localScale;
@@ -84,7 +85,7 @@ namespace Module.Enemy.Hose
             else
             {
                 // それ以外の場合は水流の力を加える
-                isObjectHit = hoseWater.TryAddWaterForce(scale.y, out hitPoint);
+                isObjectHit = HoseWater.TryAddWaterForce(scale.y, out hitPoint);
             }
         }
 
