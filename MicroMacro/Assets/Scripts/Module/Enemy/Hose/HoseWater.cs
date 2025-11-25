@@ -25,6 +25,7 @@ namespace Module.Enemy.Hose
         public bool TryAddWaterForce(float radius, out Vector3 hitPoint)
         {
             const int layerMask = ~(Layer.Mask.PlayerOnly |
+                                    Layer.Mask.Player |
                                     Layer.Mask.Enemy |
                                     Layer.Mask.Bullet |
                                     Layer.Mask.ThroughPlatform);
@@ -57,18 +58,16 @@ namespace Module.Enemy.Hose
 
         private void ApplyWaterForce(Vector3 hitPoint)
         {
-            bool isPlayerHit = hitInfo.collider.CompareTag(Tag.Player);
-
             // 縦方向と横方向の力を計算する
-            Vector3 verticalForce = CalculateVerticalForce(isPlayerHit);
-            Vector3 horizontalForce = CalculateHorizontalForce(isPlayerHit);
+            Vector3 verticalForce = CalculateVerticalForce(false);
+            Vector3 horizontalForce = CalculateHorizontalForce(false, hitInfo.rigidbody.position);
             Vector3 force = verticalForce + horizontalForce;
 
             // 衝突したポイントに力を加える
             hitInfo.rigidbody.AddForceAtPosition(force, hitPoint);
         }
 
-        private Vector3 CalculateVerticalForce(bool isPlayerHit)
+        public Vector3 CalculateVerticalForce(bool isPlayerHit)
         {
             float scaleMultiplier = parameter.ScaleMultiplier * (scaler.CurrentStep - scaler.MinStep);
             float playerMultiplier = isPlayerHit ? parameter.PlayerMultiplier : 1f;
@@ -79,9 +78,9 @@ namespace Module.Enemy.Hose
             return verticalForce;
         }
 
-        private Vector3 CalculateHorizontalForce(bool isPlayerHit)
+        public Vector3 CalculateHorizontalForce(bool isPlayerHit, Vector3 hitPosition)
         {
-            Vector2 relativePosition = hitInfo.rigidbody.position - waterPivot.position;
+            Vector2 relativePosition = hitPosition - waterPivot.position;
             float playerMultiplier = isPlayerHit ? parameter.PlayerMultiplier : 1f;
 
             // 水流に対して垂直なベクトルを求める
