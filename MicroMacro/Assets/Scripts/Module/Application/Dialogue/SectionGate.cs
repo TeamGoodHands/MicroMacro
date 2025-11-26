@@ -23,5 +23,16 @@ namespace Module.Application.Dialogue
                 OnPlayerExit?.Invoke();
             }
         }
+        
+#if UNITY_EDITOR
+        private void OnDrawGizmosSelected()
+        {
+            var cache = Gizmos.matrix;
+            Gizmos.color = new Color(0.27f, 0.88f, 0.88f, 0.5f);
+            Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+            Gizmos.DrawCube(Vector3.zero, Vector3.one);
+            Gizmos.matrix = cache;
+        }
+#endif
     }
 }
