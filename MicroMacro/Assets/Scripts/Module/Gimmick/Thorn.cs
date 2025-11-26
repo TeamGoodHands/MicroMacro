@@ -17,7 +17,7 @@ namespace Module.Gimmick
             {
                 int hpBefore = playerStatus.CurrentHealth;
                 playerStatus.Damage(damage);
-
+                
                 // 実際にHPが減った場合のみイベント発火
                 if (playerStatus.CurrentHealth < hpBefore)
                 {
