@@ -9,9 +9,9 @@ namespace PostProcessing.HandwriteOutline
     public class HandwriteOutlineFeature : ScriptableRendererFeature
     {
         [SerializeField] private HandwriteOutlineSettings featureSettings = new HandwriteOutlineSettings();
+        [SerializeField] private Shader compositeShader;
 
         private Material compositeMaterial;
-
         private HandwriteOutlinePrepass prepass;
         private HandwriteOutlineCompositePass compositePass;
         private OutlineSharedData outlineSharedData;
@@ -19,8 +19,6 @@ namespace PostProcessing.HandwriteOutline
 
         public override void Create()
         {
-            Shader compositeShader = Shader.Find("Hidden/HandwriteOutline/Composite");
-
             outlineSharedData = new OutlineSharedData();
             compositeMaterial = CoreUtils.CreateEngineMaterial(compositeShader);
 

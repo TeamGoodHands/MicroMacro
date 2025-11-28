@@ -123,26 +123,6 @@ MonoBehaviour:
     strength: 0.3
     injectionPoint: 450
     globalParamName: _UVOffset
---- !u!114 &-535502895991043015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b00045f12942b46c698459096c89274e, type: 3}
-  m_Name: FullScreenPassRendererFeature
-  m_EditorClassIdentifier: 
-  m_Active: 0
-  injectionPoint: 450
-  fetchColorBuffer: 1
-  requirements: 4
-  passMaterial: {fileID: 2100000, guid: b41c83c4d0a9c684690b43d61f3e5422, type: 2}
-  passIndex: 0
-  bindDepthStencilAttachment: 0
-  m_Version: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,11 +151,10 @@ MonoBehaviour:
   - {fileID: -4740895762259731709}
   - {fileID: -3803944856254396364}
   - {fileID: 4195672206843570496}
-  - {fileID: -535502895991043015}
   - {fileID: -702103982027134681}
   - {fileID: -8253487787215220038}
   - {fileID: 2802236311613486901}
-  m_RendererFeatureMap: 039b5a2d6cf434be3448c8b14eac35cb40e9e37aa4053a3a39cc420cf48291f827a9e2f325a041f6ba12031d96b8758d35376c1a148be326
+  m_RendererFeatureMap: 039b5a2d6cf434be3448c8b14eac35cb40e9e37aa4053a3a27a9e2f325a041f6ba12031d96b8758d35376c1a148be326
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -230,6 +209,7 @@ MonoBehaviour:
     Stroke2ColorTint: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
     CoreThreshold: 0.06
     OuterAlphaMultiplier: 0.26
+  compositeShader: {fileID: 4800000, guid: f2d46db5fa4244cebcc701112e753699, type: 3}
 --- !u!114 &4195672206843570496
 MonoBehaviour:
   m_ObjectHideFlags: 0
