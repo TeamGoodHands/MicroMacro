@@ -63,9 +63,9 @@ namespace Module.Application.SceneSwitch
             if (isSceneTransitioning || fadeHandler == null)
                 return;
 
-            if (string.IsNullOrEmpty(nextSceneName) || nextSceneName == SceneManager.GetActiveScene().name)
+            if (string.IsNullOrEmpty(nextSceneName))
             {
-                Debug.LogError("次のシーン名が設定されていないか、現在のシーンと同じです");
+                Debug.LogError("次のシーン名が設定されていません。");
                 return;
             }
 
@@ -129,6 +129,9 @@ namespace Module.Application.SceneSwitch
             }
 
             isSceneTransitioning = false;
+            
+            if (Time.timeScale == 0)
+                Time.timeScale = 1f;   // ポーズ画面から遷移した際
         }
     }
 }
