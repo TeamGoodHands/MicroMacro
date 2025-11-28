@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 
-namespace Module.Application.Recoed
+namespace Module.Application.Record
 {
     /// <summary>
     /// シングルトンでシーンの動きを監視し、ゲームの開始と終了に合わせて録画、停止を行うクラス

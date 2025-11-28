@@ -4,12 +4,11 @@ using UnityEngine.Networking;
 using TMPro;
 using Cysharp.Threading.Tasks;
 using UnityEngine.UI;
-using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using UnityEngine.Serialization;
 using System.IO;
-using Module.Application.Recoed;
+using Module.Application.Record;
 
 namespace Module.Application
 {
@@ -101,7 +100,7 @@ namespace Module.Application
 
             if (!TryBuildPostData(out string postData))
             {
-                Debug.Log("必須項目が空欄か、設定が不十分です。");
+                Debug.LogWarning("設定が不十分かなにも入力していないため送信に失敗しました。");
                 return;
             }
             
@@ -245,15 +244,6 @@ namespace Module.Application
         private bool TryBuildPostData(out string postData)
         {
             postData = null;
-
-            // 必須項目のチェック
-            FormQuestion firstInput = questions.FirstOrDefault(q => q.type == QuestionType.InputField);
-            
-            if (firstInput != null && string.IsNullOrEmpty(firstInput.inputField.text))
-            {
-                Debug.Log("必須項目が空欄です。");
-                return false;
-            }
 
             if (questions == null || questions.Length == 0)
             {
