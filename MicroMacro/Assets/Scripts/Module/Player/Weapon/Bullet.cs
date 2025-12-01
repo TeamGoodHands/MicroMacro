@@ -1,5 +1,6 @@
 ﻿using System;
 using Constants;
+using CoreModule.Utility;
 using Cysharp.Threading.Tasks;
 using Module.Scaling;
 using Unity.VisualScripting;
@@ -58,7 +59,7 @@ namespace Module.Player.Weapon
             if (isHitting)
                 return;
 
-            if (hitObject.TryGetComponent(out Scaler scaler))
+            if (hitObject.transform.TryGetComponentInParent(out Scaler scaler))
             {
                 scaler.Scale(scaleStep).Forget();
             }
