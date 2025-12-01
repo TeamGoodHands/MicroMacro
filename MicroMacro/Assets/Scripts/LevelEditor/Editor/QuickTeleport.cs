@@ -36,36 +36,26 @@ namespace LevelEditor.Editor
             // マウスの位置からワールド空間へのレイを作る
             Ray ray = HandleUtility.GUIPointToWorldRay(mousePos);
             Vector3 targetPosition;
-            
-            if (Physics.Raycast(ray, out RaycastHit hit))
+           
+            // z=0の平面上の位置を計算する
+            Plane plane = new Plane(Vector3.back, Vector3.zero);
+
+            if (plane.Raycast(ray, out float enter))
             {
-                // 地面の少し上に配置（めり込み防止、要調整）
-                targetPosition = hit.point + Vector3.up * 0.5f;
-                
-                // コライダーは基本z=0で固定だけど念のためzを0にしておく
+                // rayと平面(Z=0)が交差するポイントを取得
+                targetPosition = ray.GetPoint(enter);
+                    
+                // 念のためZを完全に0にする（計算誤差対策）
                 targetPosition.z = 0f;
             }
             else
             {
-                // 足場がない場合、z=0の平面上の位置を計算する
-                Plane plane = new Plane(Vector3.back, Vector3.zero);
-
-                if (plane.Raycast(ray, out float enter))
-                {
-                    // レイと平面(Z=0)が交差するポイントを取得
-                    targetPosition = ray.GetPoint(enter);
-                    
-                    // 念のためZを完全に0にする（計算誤差対策）
-                    targetPosition.z = 0f;
-                }
-                else
-                {
-                    // 万が一平面と交差しない場合（カメラが真上を向いている等）の安全策
-                    targetPosition = ray.GetPoint(10f);
-                    targetPosition.z = 0f;
-                }
-                
+                // 万が一平面と交差しない場合（カメラが真上を向いている等）の安全策
+                targetPosition = ray.GetPoint(10f);
+                targetPosition.z = 0f;
             }
+                
+            
             
             // ctrl + zで元に戻せるようにUndo登録
             Undo.RecordObject(player.transform, "Teleport Player");
