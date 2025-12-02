@@ -9,11 +9,9 @@ public static class RecordController
     private static readonly OBSWebsocket websocket = new();
     private static bool isInitialize;
     private static bool isRecordingInternal;
-
     private static string host;
     private static string port;
     private static string password;
-
     private static CancellationTokenSource cancellationTokenSource = new();
     
     // エディタ上で終了するとstatic変数はリセットされないため、開始前にリセット
@@ -82,7 +80,7 @@ public static class RecordController
         return websocket.IsConnected;
     }
 
-    public static void RecordStart()
+    public static void RecordStart(string uniqueId = null)
     {
         if (!websocket.IsConnected || isRecordingInternal)
         {
@@ -92,6 +90,14 @@ public static class RecordController
         
         try
         {
+            if (!string.IsNullOrEmpty(uniqueId))
+            {
+                // OBSのプロファイル設定「Output」カテゴリの「FilenameFormatting」を書き換え
+                string newFormat = $"%CCYY-%MM-%DD %hh-%mm-%ss_{uniqueId}";
+                websocket.SetProfileParameter("Output", "FilenameFormatting", newFormat);
+                
+                Debug.Log($"OBSファイル名設定を変更: {newFormat}");
+            }
             websocket.StartRecord();
             isRecordingInternal = true;
         }
@@ -135,5 +141,17 @@ public static class RecordController
         if (canceled)
             return;
         cancellationTokenSource.Cancel();
+    }
+    
+    // 必要に応じてフォーマットを元に戻す関数
+    public static void ResetFileNameFormat()
+    {
+        if (!websocket.IsConnected)
+            return;
+        try
+        {
+            websocket.SetProfileParameter("Output", "FilenameFormatting", "%CCYY-%MM-%DD %hh-%mm-%ss");
+        } 
+        catch {}
     }
 }

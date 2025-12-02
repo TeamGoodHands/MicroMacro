@@ -9,4 +9,12 @@ namespace Module.Scaling
         public Vector3 PositionOffset; // 前の地点からの座標の差分
         public float Duration; // スケール時間
     }
+    
+    
+    public struct ScalerArgsFloat
+    {
+        public float TargetScale; // 目標スケール値
+        public float PositionOffset; // 前の地点からの座標の差分
+        public float Duration; // スケール時間
+    }
 }
