@@ -72,8 +72,9 @@ namespace Module.Player.State
 
         private void UpdateAnimatorDirection(float directionX)
         {
-            float zScale = Mathf.Abs(bodyTransform.localScale.y);
-            bodyTransform.localScale = new Vector3(1, directionX > 0 ? zScale : -zScale, 1);
+            Vector3 localScale = bodyTransform.localScale;
+            float zScale = Mathf.Abs(localScale.z);
+            bodyTransform.localScale = new Vector3(localScale.x, localScale.y, directionX > 0 ? zScale : -zScale);
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)
@@ -134,7 +135,6 @@ namespace Module.Player.State
         internal override void UpdatePhysics()
         {
             UpdateRotation();
-
         }
 
         internal override void Dispose()
