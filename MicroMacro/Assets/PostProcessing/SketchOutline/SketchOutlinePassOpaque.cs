@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace SketchOutline
 {
-    public class SketchOutlinePass : ScriptableRenderPass
+    public class SketchOutlinePassOpaque : ScriptableRenderPass
     {
         private readonly Material material;
         private readonly SketchOutlineSettings settings;
@@ -31,7 +31,7 @@ namespace SketchOutline
             public TextureHandle Destination;
         }
 
-        public SketchOutlinePass(Material material, SketchOutlineSettings settings)
+        public SketchOutlinePassOpaque(Material material, SketchOutlineSettings settings)
         {
             this.material = material;
             this.settings = settings;

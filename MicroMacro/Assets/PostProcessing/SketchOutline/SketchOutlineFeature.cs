@@ -13,7 +13,7 @@ namespace SketchOutline
         [SerializeField] private SketchOutlineSettings settings = new SketchOutlineSettings();
 
         private Material material;
-        private SketchOutlinePass pass;
+        private SketchOutlinePassOpaque passOpaque;
 
         public override void Create()
         {
@@ -26,7 +26,7 @@ namespace SketchOutline
                 Debug.LogWarning("ScreenSpaceHatching shader not assigned in ScreenSpaceHatchingFeature.");
             }
 
-            pass = new SketchOutlinePass(material, settings);
+            passOpaque = new SketchOutlinePassOpaque(material, settings);
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -34,8 +34,8 @@ namespace SketchOutline
             if (outlineShader == null)
                 return;
 
-            pass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
-            renderer.EnqueuePass(pass);
+            passOpaque.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
+            renderer.EnqueuePass(passOpaque);
         }
     }
 }
