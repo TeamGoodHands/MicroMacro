@@ -1,7 +1,9 @@
-﻿using Module.Application.SceneSwitch;
+﻿using CoreModule.Input;
+using Module.Application.SceneSwitch;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Button = UnityEngine.UI.Button;
 
 namespace Module.Application
 {
@@ -15,6 +17,7 @@ namespace Module.Application
         [SerializeField] private Button titleButton;       // タイトルへ戻る
         
         private bool isPaused = false;
+        private InputEvent pauseEvent;
         private void Start()
         {
             // 各ボタンにリスナーを追加
@@ -25,18 +28,23 @@ namespace Module.Application
 
             // ポーズメニューを非表示にする
             pauseScreenUI.SetActive(false);
-        }
 
-        private void Update()
-        {
-            // ESCキーでポーズ切り替え
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                TogglePause();
-            }
+            pauseEvent = InputProvider.CreateEvent(ActionGuid.Player.Pause);
+          
+            pauseEvent.Started += OnTogglePause;
         }
-        public void TogglePause()
+        
+        private void OnDestroy()
         {
+            if (pauseEvent == null)
+                return;
+            
+            pauseEvent.Started -= OnTogglePause;
+        }
+        
+        public  void OnTogglePause(InputAction.CallbackContext _)
+        { 
+            
             if (isPaused)
             {
                 ResumeGame();
@@ -49,8 +57,8 @@ namespace Module.Application
         
         public void PauseGame()
         {
-            resumeButton.Select();
             pauseScreenUI.SetActive(true);
+            resumeButton.Select();
             Time.timeScale = 0f; 
             isPaused = true;
         }

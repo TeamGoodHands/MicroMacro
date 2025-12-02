@@ -1,6 +1,9 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
+using CoreModule.Input;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace Module.Application.SceneSwitch
 {
@@ -14,25 +17,17 @@ namespace Module.Application.SceneSwitch
         private static GameObject faderObj;
         private static IFadeHandler fadeHandler;
         private bool isSceneTransitioning;
+        private InputActionMap input;
 
         private void Awake()
         {
+            input = InputProvider.GetActionMap(ActionGuid.Player.MapId);
             if (faderObj == null)
             {
                 CreateAndRegisterFader();
             }
         }
-
-        private void OnEnable()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-
-        private void OnDisable()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
-
+        
         /// <summary>
         /// FadeCanvasの生成、永続化
         /// </summary>
@@ -56,82 +51,76 @@ namespace Module.Application.SceneSwitch
         }
 
         /// <summary>
-        /// シーン切り替え開始（フェードアウト → ロード → フェードイン）
+        /// シーン切り替え開始（外部から呼ばれる入り口）
         /// </summary>
         public void StartTransition()
         {
-            if (isSceneTransitioning || fadeHandler == null)
-                return;
-
-            if (string.IsNullOrEmpty(nextSceneName))
-            {
-                Debug.LogError("次のシーン名が設定されていません。");
-                return;
-            }
-
-            isSceneTransitioning = true;
-
-            // サウンド停止等あれば
-            // SoundManager.instance.StopAllSound();
-
-            fadeHandler.StartFadeOut();
-            StartCoroutine(LoadNextSceneAsync());
+            // UniTaskVoidにすることで、投げっぱなしで実行
+            TransitionSequence(this.GetCancellationTokenOnDestroy()).Forget();
         }
         
         
         public void StartTransitionSame()
         {
-            if (isSceneTransitioning || fadeHandler == null)
-                return;
-
-            nextSceneName = SceneManager.GetActiveScene().name;
-
-            isSceneTransitioning = true;
-
-            // サウンド停止等あれば
-            // SoundManager.instance.StopAllSound();
-
-            fadeHandler.StartFadeOut();
-            StartCoroutine(LoadNextSceneAsync());
+           nextSceneName = SceneManager.GetActiveScene().name;
+           StartTransition();
         }
 
         /// <summary>
         /// 名前指定してシーン移動したい場合
         /// </summary>
-        public void StartTransition(string SceneName)
+        public void StartTransition(string sceneName)
         {
-            nextSceneName = SceneName;
+            nextSceneName = sceneName;
             StartTransition();
         }
 
         /// <summary>
-        /// フェードアウト完了を待ってシーンを非同期ロード
+        /// 一連の遷移処理
         /// </summary>
-        private IEnumerator LoadNextSceneAsync()
+        private async UniTaskVoid TransitionSequence(CancellationToken token)
         {
-            // 同時に呼ばれたUpdateを反映させるため1フレ待機 (多分)
-            yield return null;
-
-            while (fadeHandler.IsFadeOutComplete() == false)
+            if (isSceneTransitioning || fadeHandler == null)
+                return;
+            if (string.IsNullOrEmpty(nextSceneName))
             {
-                yield return null;
+                Debug.LogError("次のシーン名が設定されていません。");
+                return;
             }
-
-            // LoadSceneMode.Singleは現在のシーンを自動アンロードしてくれる
-            yield return SceneManager.LoadSceneAsync(nextSceneName, LoadSceneMode.Single);
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (fadeHandler != null)
-            {
-                fadeHandler.StartFadeIn();
-            }
-
-            isSceneTransitioning = false;
             
-            if (Time.timeScale == 0)
-                Time.timeScale = 1f;   // ポーズ画面から遷移した際
+            isSceneTransitioning = true;
+            input.Disable();    // 入力無効化
+            
+            fadeHandler.StartFadeOut();
+            
+            // フェードアウト完了待ち
+            await UniTask.WaitUntil(() => fadeHandler.IsFadeOutComplete(), cancellationToken: token);
+            
+            // LoadSceneMode.Singleは現在のシーンを自動アンロードしてくれる
+            // .ToUniTask() をつけることで await できるようになる
+            await SceneManager.LoadSceneAsync(nextSceneName, LoadSceneMode.Single).ToUniTask(cancellationToken: token);
+
+            await OnSceneLoadedSequence(token);
+        }
+       
+        private async UniTask OnSceneLoadedSequence(CancellationToken token)
+        {
+            if (fadeHandler == null)
+                return;
+            
+            // 念のため1フレーム待つ（Update反映用)
+             await UniTask.Yield(token);
+             
+             fadeHandler.StartFadeIn();
+
+             await UniTask.WaitUntil(() => fadeHandler.IsFadeInComplete(), cancellationToken: token);
+             
+             input.Enable();  
+             isSceneTransitioning = false;
+             
+             if (Time.timeScale == 0)
+                 Time.timeScale = 1;  // ポーズ画面から遷移した際（念のため）
+                
         }
     }
 }

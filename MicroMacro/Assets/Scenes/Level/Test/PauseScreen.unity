@@ -388,29 +388,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &719248054 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5283627854420791883, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
-  m_PrefabInstance: {fileID: 964817646}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &719248057
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 719248054}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4c06a11d6904dd2b44adf5a32c7e080, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneManager: {fileID: 510705693}
-  pauseScreenUI: {fileID: 878369705}
-  resumeButton: {fileID: 999880352}
-  restartButton: {fileID: 2143470423}
-  stageSelectButton: {fileID: 1533477948}
-  titleButton: {fileID: 154478649}
 --- !u!1001 &762271044
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -816,13 +793,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: System
       objectReference: {fileID: 0}
+    - target: {fileID: 8216297010131068869, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+      propertyPath: titleButton
+      value: 
+      objectReference: {fileID: 154478649}
+    - target: {fileID: 8216297010131068869, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+      propertyPath: resumeButton
+      value: 
+      objectReference: {fileID: 999880352}
+    - target: {fileID: 8216297010131068869, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+      propertyPath: sceneManager
+      value: 
+      objectReference: {fileID: 510705693}
+    - target: {fileID: 8216297010131068869, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+      propertyPath: pauseScreenUI
+      value: 
+      objectReference: {fileID: 878369705}
+    - target: {fileID: 8216297010131068869, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+      propertyPath: restartButton
+      value: 
+      objectReference: {fileID: 2143470423}
+    - target: {fileID: 8216297010131068869, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
+      propertyPath: stageSelectButton
+      value: 
+      objectReference: {fileID: 1533477948}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5283627854420791883, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 719248057}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0622fcd9ee866c04da80f293c12610ab, type: 3}
 --- !u!114 &999880352 stripped
 MonoBehaviour:

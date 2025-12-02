@@ -4,7 +4,8 @@
     {
         void StartFadeOut();        
         void StartFadeIn();
-        bool IsFadeOutComplete();   
+        bool IsFadeOutComplete();
+        bool IsFadeInComplete();
         bool IsFading();
     }
 }
