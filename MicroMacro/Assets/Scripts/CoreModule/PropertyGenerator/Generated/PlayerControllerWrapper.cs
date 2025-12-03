@@ -12,6 +12,7 @@ namespace PropertyGenerator.Generated
 	{
 		private static readonly int SpeedProperty = Animator.StringToHash("Speed");
 		private static readonly int IsJumpingProperty = Animator.StringToHash("IsJumping");
+		private static readonly int IsGroundProperty = Animator.StringToHash("IsGround");
 		private static readonly int DirectionYProperty = Animator.StringToHash("DirectionY");
 		private static readonly int ShotSideProperty = Animator.StringToHash("ShotSide");
 		private static readonly int ShotUpProperty = Animator.StringToHash("ShotUp");
@@ -31,6 +32,12 @@ namespace PropertyGenerator.Generated
 		{
 			get => target.GetBool(IsJumpingProperty);
 			set => target.SetBool(IsJumpingProperty, value);
+		}
+		
+		public bool IsGround
+		{
+			get => target.GetBool(IsGroundProperty);
+			set => target.SetBool(IsGroundProperty, value);
 		}
 		
 		public float DirectionY

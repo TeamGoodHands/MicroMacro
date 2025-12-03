@@ -45,7 +45,6 @@ namespace Module.Player.State
 
         internal override void OnEnter()
         {
-            animatorWrapper.IsJumping = true;
             isTopStop = false;
             topStopFrameCount = 0;
 
@@ -131,6 +130,7 @@ namespace Module.Player.State
         {
             // 着地状態を更新
             condition.IsGround = movement.IsGround(transform);
+            animatorWrapper.IsGround = condition.IsGround;
 
             // 着地した場合は、ジャンプ状態を解除
             if (condition.IsGround)

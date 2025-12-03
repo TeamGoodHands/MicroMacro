@@ -78,6 +78,7 @@ namespace Module.Player.State
 
             // 着地状態を更新
             condition.IsGround = movement.IsGround(transform);
+            animatorWrapper.IsGround = condition.IsGround;
 
             float normalizedSpeed = CalculateNormalizedSpeed();
             animatorWrapper.Speed = normalizedSpeed;
@@ -128,6 +129,7 @@ namespace Module.Player.State
             // 上方向に力を加える
             rigidbody.AddForce(new Vector2(0f, parameter.JumpPower), ForceMode.Impulse);
             condition.IsGround = false;
+            animatorWrapper.IsGround = false;
             condition.IsJumping = true;
             condition.LastJumpTime = Time.time;
 

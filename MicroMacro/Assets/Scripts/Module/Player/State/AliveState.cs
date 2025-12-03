@@ -72,8 +72,9 @@ namespace Module.Player.State
 
         private void UpdateAnimatorDirection(float directionX)
         {
-            float zScale = Mathf.Abs(bodyTransform.localScale.y);
-            bodyTransform.localScale = new Vector3(100, directionX > 0 ? zScale : -zScale, 100);
+            Vector3 localScale = bodyTransform.localScale;
+            float zScale = Mathf.Abs(localScale.z);
+            bodyTransform.localScale = new Vector3(localScale.x, localScale.y, directionX > 0 ? zScale : -zScale);
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)
@@ -106,7 +107,7 @@ namespace Module.Player.State
 
         private void UpdateRotation()
         {
-            float angle = condition.LastSideInput.x > 0f ? 0f : -180f;
+            float angle = condition.LastSideInput.x > 0f ? -180f : 0f;
             rigidbody.rotation = Quaternion.Slerp(rigidbody.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.fixedDeltaTime);
         }
 
@@ -134,7 +135,6 @@ namespace Module.Player.State
         internal override void UpdatePhysics()
         {
             UpdateRotation();
-
         }
 
         internal override void Dispose()
