@@ -85,7 +85,11 @@ namespace Module.Scaling
             {
                 // 拡大縮小に成功した
                 currentTween = CreateScaleTween(isMacro, duration);
-                scaleFaceWrapper.SetScaleTrigger();
+
+                if (scaleFaceWrapper.Animator != null)
+                {
+                    scaleFaceWrapper.SetScaleTrigger();
+                }
 
                 if (scaleAnimator != null)
                 {
