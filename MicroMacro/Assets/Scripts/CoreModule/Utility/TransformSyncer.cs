@@ -8,6 +8,7 @@ namespace CoreModule.Utility
     {
         [SerializeField] private Transform target;
         [SerializeField] private bool hasOffset;
+        [SerializeField] private bool updateAlways = true;
         public bool syncPosition;
         public bool syncRotation;
 
@@ -38,7 +39,10 @@ namespace CoreModule.Utility
 
         private void Update()
         {
-            UpdateManual();
+            if (updateAlways)
+            {
+                UpdateManual();
+            }
         }
     }
 }
