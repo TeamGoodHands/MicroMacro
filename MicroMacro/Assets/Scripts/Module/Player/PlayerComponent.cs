@@ -4,6 +4,7 @@ using Module.Player.Component;
 using Module.Gimmick;
 using PropertyGenerator.Generated;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Module.Player
 {
@@ -16,6 +17,9 @@ namespace Module.Player
         [SerializeField] private Transform bodyTransform;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
         [SerializeField] private PlayerStatus playerStatus;
+        [SerializeField] private VisualEffect footEffect;
+        [SerializeField] private VisualEffect jumpEffect;
+        [SerializeField] private PlayerAnimationEventReceiver animationEventReceiver;
        
         public PlayerParameter Parameter => parameter;
         public PlayerCondition Condition => condition;
@@ -23,6 +27,9 @@ namespace Module.Player
         public Transform Transform => rigidbody.transform;
         public Transform BodyTransform => bodyTransform;
         public PlayerStatus PlayerStatus => playerStatus;
+        public VisualEffect FootEffect => footEffect;
+        public VisualEffect JumpEffect => jumpEffect;
+        public PlayerAnimationEventReceiver AnimationEventReceiver => animationEventReceiver;
         public PlayerControllerWrapper AnimatorWrapper => playerAnimatorController;
         public PlayerMovement PlayerMovement => playerMovement ??= new PlayerMovement(parameter, condition);
         public PlayerRotation PlayerRotation => playerRotation ??= new PlayerRotation(parameter, condition);

@@ -20,7 +20,6 @@ Shader "EnvironmentShader"
         }
 
 
-        // ====== DepthNormals（Angle Fade/法線影響を使う時は推奨）======
         Pass
         {
             Name "DepthNormals"
@@ -59,8 +58,6 @@ Shader "EnvironmentShader"
                 return o;
             }
 
-            // URPのDepthNormalsはWS法線をそのまま書き出す実装に依存するため、
-            // ここでは簡易的に0..1へエンコード（URP内部の実装差があっても「何かは出る」）
             half4 dn_frag(V i) : SV_Target
             {
                 float3 n = normalize(i.normalWS);
@@ -142,12 +139,7 @@ Shader "EnvironmentShader"
         Pass
         {
             Name "ForwardLit"
-
-            Tags
-            {
-                "LightMode" = "UniversalForward"
-            }
-
+            
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -242,6 +234,7 @@ Shader "EnvironmentShader"
 
                 return color;
             }
+            
             ENDHLSL
         }
     }
