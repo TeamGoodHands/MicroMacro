@@ -1,5 +1,6 @@
 ﻿using CoreModule.Input;
 using Module.Application.SceneSwitch;
+using Module.Management;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -18,6 +19,8 @@ namespace Module.Application
         
         private bool isPaused = false;
         private InputEvent pauseEvent;
+        private InputActionMap playerInput;
+        
         private void Start()
         {
             // 各ボタンにリスナーを追加
@@ -30,7 +33,8 @@ namespace Module.Application
             pauseScreenUI.SetActive(false);
 
             pauseEvent = InputProvider.CreateEvent(ActionGuid.Player.Pause);
-          
+            playerInput = InputProvider.GetActionMap(ActionGuid.Player.MapId);
+            
             pauseEvent.Started += OnTogglePause;
         }
         
@@ -41,10 +45,14 @@ namespace Module.Application
             
             pauseEvent.Started -= OnTogglePause;
         }
-        
-        public  void OnTogglePause(InputAction.CallbackContext _)
+
+        public bool IsPaused
+        {
+            private set { isPaused = value; }
+            get { return isPaused; }
+        }
+        public void OnTogglePause(InputAction.CallbackContext _)
         { 
-            
             if (isPaused)
             {
                 ResumeGame();
@@ -57,17 +65,22 @@ namespace Module.Application
         
         public void PauseGame()
         {
+            playerInput.Disable();  // プレイヤーの入力切っておく
             pauseScreenUI.SetActive(true);
             resumeButton.Select();
+            
+            SoundManager.instance.Play("ポーズを開く");
             Time.timeScale = 0f; 
-            isPaused = true;
+            IsPaused = true;
         }
         
         public void ResumeGame()
         {
             pauseScreenUI.SetActive(false);
+            
+            playerInput.Enable();
             Time.timeScale = 1f; 
-            isPaused = false;
+            IsPaused = false;
         }
 
         public void ReturnToStageSelect()

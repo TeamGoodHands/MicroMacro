@@ -35,13 +35,13 @@ namespace Module.UI
         {
             buttonBackground.enabled = true;
             OnSelectStateChanged?.Invoke(true);
-          //  SoundManager.instance.Play("ボタンセレクト");
         }
 
         public void OnDeselect(BaseEventData eventData)
         {
             buttonBackground.enabled = false;
             OnSelectStateChanged?.Invoke(false);
+            SoundManager.instance.Play("ボタンセレクト");  // ポーズ等を開くと同時に鳴らないようこっちで呼ぶ
         }
 
         public void OnButtonClick()

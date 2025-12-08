@@ -26,7 +26,16 @@ namespace Module.Application.SceneSwitch
             {
                 CreateAndRegisterFader();
             }
+            
+            SceneManager.sceneLoaded += OnSceneLoadedWrapper;
         }
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoadedWrapper;
+        }
+
+        private void OnSceneLoadedWrapper(Scene scene, LoadSceneMode mode)
+            => OnSceneLoadedSequence(CancellationToken.None).Forget();
         
         /// <summary>
         /// FadeCanvasの生成、永続化
@@ -82,6 +91,7 @@ namespace Module.Application.SceneSwitch
         {
             if (isSceneTransitioning || fadeHandler == null)
                 return;
+            
             if (string.IsNullOrEmpty(nextSceneName))
             {
                 Debug.LogError("次のシーン名が設定されていません。");
@@ -99,14 +109,19 @@ namespace Module.Application.SceneSwitch
             // LoadSceneMode.Singleは現在のシーンを自動アンロードしてくれる
             // .ToUniTask() をつけることで await できるようになる
             await SceneManager.LoadSceneAsync(nextSceneName, LoadSceneMode.Single).ToUniTask(cancellationToken: token);
-
-            await OnSceneLoadedSequence(token);
         }
        
+        /// <summary>
+        /// 切り替わったシーン先のSceneManagerオブジェクトから呼ばれる関数
+        /// </summary>
+        /// <param name="token"></param>
         private async UniTask OnSceneLoadedSequence(CancellationToken token)
         {
             if (fadeHandler == null)
                 return;
+            
+            if (input.enabled)      // 最初のシーン読み込み時はこの関数しか呼ばれないので入力切っておく
+                input.Disable(); 
             
             // 念のため1フレーム待つ（Update反映用)
              await UniTask.Yield(token);
@@ -120,7 +135,6 @@ namespace Module.Application.SceneSwitch
              
              if (Time.timeScale == 0)
                  Time.timeScale = 1;  // ポーズ画面から遷移した際（念のため）
-                
         }
     }
 }
