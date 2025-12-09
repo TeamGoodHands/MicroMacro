@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Boomerang
-  m_Shader: {fileID: 4800000, guid: b9b44df8977b6944a8c6d4c662f2a046, type: 3}
+  m_Name: BoomerangFluid
+  m_Shader: {fileID: 4800000, guid: 917f1e10769acdd4ba1d9da2e8a4c6ee, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -107,7 +107,7 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _Cutoff: 0
+    - _Cutoff: 0.5
     - _DecalAngleFadeSupported: 1
     - _DecalMeshBiasType: 0
     - _DecalMeshDepthBias: 0
@@ -122,19 +122,26 @@ Material:
     - _FresnelPower: 0.2
     - _GlossMapScale: 0
     - _Glossiness: 0
+    - _GlossinessSource: 0
     - _GlossyReflections: 0
     - _HalfLambertExp: 1.93
     - _Metallic: 0
+    - _NoisePower: 0
+    - _NoiseScale: 1
     - _OcclusionStrength: 1
     - _OutlineStencilComp: 8
     - _OutlineWidth: 0
     - _Parallax: 0.005
-    - _QueueOffset: 0
+    - _QueueOffset: -1
     - _ReceiveDecals: 1
     - _ReceiveShadows: 1
     - _SampleGI: 0
+    - _ShadowNoiseScale: 10
+    - _Shininess: 0
     - _Smoothness: 0.5
+    - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
+    - _SpecSource: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
@@ -153,6 +160,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FresnelColor: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

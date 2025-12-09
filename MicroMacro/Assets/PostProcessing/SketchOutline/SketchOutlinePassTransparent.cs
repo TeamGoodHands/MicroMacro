@@ -6,10 +6,12 @@ using UnityEngine.Rendering.Universal;
 
 namespace SketchOutline
 {
-    public class SketchOutlinePass : ScriptableRenderPass
+    public class SketchOutlinePassTransparent : ScriptableRenderPass
     {
         private readonly Material material;
         private readonly SketchOutlineSettings settings;
+        private readonly OutlineSharedData outlineSharedData;
+        private TextureHandle originalNormalTexture;
 
         private static readonly int outlineColorID = Shader.PropertyToID("_OutlineColor");
         private static readonly int blendID = Shader.PropertyToID("_Blend");
@@ -31,10 +33,12 @@ namespace SketchOutline
             public TextureHandle Destination;
         }
 
-        public SketchOutlinePass(Material material, SketchOutlineSettings settings)
+        public SketchOutlinePassTransparent(Material material, SketchOutlineSettings settings,
+            OutlineSharedData outlineSharedData)
         {
             this.material = material;
             this.settings = settings;
+            this.outlineSharedData = outlineSharedData;
 
             renderPassEvent = settings.injectEvent;
         }
@@ -50,35 +54,53 @@ namespace SketchOutline
 
             desc.depthBufferBits = (int)DepthBits.None;
 
-            TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchedTarget", false);
+            TextureHandle commitTarget =
+                UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchedTarget", false);
 
             desc.graphicsFormat = GraphicsFormat.R16_SFloat;
-            TextureHandle destination = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", false);
+            TextureHandle destination =
+                UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", false);
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlinePass: Edge Detection", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlineTransparentPass: Edge Detection", out var passData))
             {
                 passData.Material = material;
                 passData.Destination = destination;
 
                 builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
-                builder.UseTexture(resourceData.cameraNormalsTexture, AccessFlags.Read);
+                builder.UseTexture(outlineSharedData.PrepassTexture, AccessFlags.Read);
+
+                if (resourceData.cameraNormalsTexture.IsValid())
+                {
+                    builder.UseTexture(resourceData.cameraNormalsTexture);
+                }
 
                 builder.SetRenderAttachment(passData.Destination, 0, AccessFlags.Write);
+                builder.AllowGlobalStateModification(true);
 
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
                     data.Material.SetColor(outlineColorID, settings.outlineColor);
                     data.Material.SetFloat(thicknessID, settings.thickness);
+                    ctx.cmd.SetGlobalTexture("_CameraNormalsTexture", outlineSharedData.PrepassTexture);
 
                     Blitter.BlitTexture(ctx.cmd, Texture2D.blackTexture, Vector2.one, data.Material, 0);
                 });
             }
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlinePass: Composite", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlineTransparentPass: Composite", out var passData))
             {
                 passData.Material = material;
                 passData.Source = resourceData.activeColorTexture;
                 passData.Destination = commitTarget;
+
+                // 元の法線マップのハンドルを取得して渡す
+                if (resourceData.cameraNormalsTexture.IsValid())
+                {
+                    originalNormalTexture = resourceData.cameraNormalsTexture;
+                    builder.UseTexture(originalNormalTexture);
+                }
+                
+                builder.AllowGlobalStateModification(true);
 
                 builder.UseTexture(passData.Source, AccessFlags.Read);
                 builder.UseTexture(destination, AccessFlags.Read);
@@ -97,6 +119,8 @@ namespace SketchOutline
                     data.Material.SetFloat(normalHiId, settings.normalHigh);
                     data.Material.SetFloat(timeStepSizeId, settings.timeStepSize);
                     data.Material.SetFloat(blendID, settings.blend);
+                    
+                    ctx.cmd.SetGlobalTexture("_CameraNormalsTexture", originalNormalTexture);
 
                     Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 1);
                 });

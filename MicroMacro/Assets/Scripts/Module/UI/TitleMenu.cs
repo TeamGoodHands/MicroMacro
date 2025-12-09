@@ -1,5 +1,6 @@
 using System;
 using CoreModule.Attribute;
+using CoreModule.Input;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;

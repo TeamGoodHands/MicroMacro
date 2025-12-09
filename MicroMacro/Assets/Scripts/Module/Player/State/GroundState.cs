@@ -5,6 +5,7 @@ using Module.Player.Component;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.VFX;
 
 namespace Module.Player.State
 {
@@ -19,12 +20,16 @@ namespace Module.Player.State
         private readonly PlayerControllerWrapper animatorWrapper;
         private readonly Rigidbody rigidbody;
         private readonly Transform transform;
+        private readonly VisualEffect footEffect;
+        private readonly VisualEffect jumpEffect;
+        private readonly PlayerAnimationEventReceiver animationEventReceiver;
 
         private readonly InputEvent moveEvent;
         private readonly InputEvent jumpEvent;
 
         private Vector2 moveInput;
         private float footStepTimer;
+        private bool isPlayingFootstep;
 
         public GroundState(PlayerComponent component)
         {
@@ -33,8 +38,11 @@ namespace Module.Player.State
             movement = component.PlayerMovement;
             rigidbody = component.Rigidbody;
             transform = component.Transform;
+            footEffect = component.FootEffect;
+            jumpEffect = component.JumpEffect;
 
             animatorWrapper = component.AnimatorWrapper;
+            animationEventReceiver = component.AnimationEventReceiver;
 
             // 入力イベントを取得
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
@@ -47,12 +55,15 @@ namespace Module.Player.State
             jumpEvent.Started += OnJump;
 
             footStepTimer = 0f;
+            animationEventReceiver.OnWalk += PlayFootEffect;
         }
+
 
         internal override void OnExit()
         {
             // ジャンプイベントを解除
             jumpEvent.Started -= OnJump;
+            animationEventReceiver.OnWalk -= PlayFootEffect;
         }
 
         internal override void Update()
@@ -110,6 +121,24 @@ namespace Module.Player.State
             }
         }
 
+        private void PlayFootEffect()
+        {
+            int direction = (int)Mathf.Sign(rigidbody.linearVelocity.x) >= 0 ? 0 : 1;
+            float speed = Mathf.Abs(rigidbody.linearVelocity.x);
+
+            if (speed <= 0.1f)
+                return;
+
+            footEffect.SetInt("Direction", direction);
+
+            footEffect.Play();
+        }
+
+        private void PlayJumpEffect()
+        {
+            jumpEffect.Play();
+        }
+
         /// <summary>
         /// 最大速度で正規化した現在の速度を返します。
         /// </summary>
@@ -134,6 +163,7 @@ namespace Module.Player.State
             condition.LastJumpTime = Time.time;
 
             animatorWrapper.IsJumping = true;
+            PlayJumpEffect();
             SoundManager.instance.Play("ジャンプ");
         }
     }
