@@ -4,12 +4,14 @@ using Module.Management;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using Button = UnityEngine.UI.Button;
 
 namespace Module.Application
 {
     public class PauseScreen : MonoBehaviour
     {
+        [SerializeField] private CanvasGroup pauseCanvasGroup;
         [SerializeField] private FadeAndSceneTransition sceneManager;
         [SerializeField] private GameObject pauseScreenUI; // ポーズメニューのUIパネル
         [SerializeField] private Button resumeButton;      // 再開
@@ -32,7 +34,7 @@ namespace Module.Application
             // ポーズメニューを非表示にする
             pauseScreenUI.SetActive(false);
 
-            pauseEvent = InputProvider.CreateEvent(ActionGuid.Player.Pause);
+            pauseEvent = InputProvider.CreateEvent(ActionGuid.UI.Pause);
             playerInput = InputProvider.GetActionMap(ActionGuid.Player.MapId);
             
             pauseEvent.Started += OnTogglePause;
@@ -51,6 +53,19 @@ namespace Module.Application
             private set { isPaused = value; }
             get { return isPaused; }
         }
+
+        /// <summary>
+        /// ボタンやスライダーを全部無効化する関数（連打対策）
+        /// </summary>
+        private void DisableAllUI()
+        {
+            if (pauseCanvasGroup != null)
+            {
+                pauseCanvasGroup.interactable = false;
+                pauseCanvasGroup.blocksRaycasts = false;
+            }
+        }
+        
         public void OnTogglePause(InputAction.CallbackContext _)
         { 
             if (isPaused)
@@ -68,7 +83,6 @@ namespace Module.Application
             playerInput.Disable();  // プレイヤーの入力切っておく
             pauseScreenUI.SetActive(true);
             resumeButton.Select();
-            
             SoundManager.instance.Play("ポーズを開く");
             Time.timeScale = 0f; 
             IsPaused = true;
@@ -77,7 +91,6 @@ namespace Module.Application
         public void ResumeGame()
         {
             pauseScreenUI.SetActive(false);
-            
             playerInput.Enable();
             Time.timeScale = 1f; 
             IsPaused = false;
@@ -85,18 +98,21 @@ namespace Module.Application
 
         public void ReturnToStageSelect()
         {
+            DisableAllUI();
             Time.timeScale = 1f; 
             sceneManager.StartTransition("StageSelect");
         }
 
         public void ReturnToTitle()
         {
+            DisableAllUI();
             Time.timeScale = 1f; 
             sceneManager.StartTransition("Title");
         }
 
         public void RestartLevel()
         {
+            DisableAllUI();
             Time.timeScale = 1f; 
             sceneManager.StartTransition(SceneManager.GetActiveScene().name);
         }

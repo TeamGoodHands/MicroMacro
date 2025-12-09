@@ -20,7 +20,6 @@ namespace CoreModule.Input
        public readonly Guid MacroShoot = new Guid("b2807df1-b81a-4c22-8bd0-7af2b1dde5ce");
        public readonly Guid MicroShoot = new Guid("3e0df64b-e9ce-4b35-9eed-219cb0df794b");
        public readonly Guid SwitchWeapon = new Guid("8cf3eb97-db56-47b5-9203-57ce106d3d79");
-       public readonly Guid Pause = new Guid("8465cbc9-1b5e-47e3-800a-5015c4372b25");
     }
 
     public class UI
@@ -36,5 +35,6 @@ namespace CoreModule.Input
        public readonly Guid ScrollWheel = new Guid("0489e84a-4833-4c40-bfae-cea84b696689");
        public readonly Guid TrackedDevicePosition = new Guid("24908448-c609-4bc3-a128-ea258674378a");
        public readonly Guid TrackedDeviceOrientation = new Guid("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
+       public readonly Guid Pause = new Guid("df1d9af8-8585-4fb3-baf0-ca8ec2aaa77d");
     }
 }

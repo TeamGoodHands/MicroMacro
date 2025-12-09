@@ -1,4 +1,5 @@
 ﻿using System;
+using Module.Management;
 using UnityEngine;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -14,6 +15,8 @@ namespace Module.UI
         [SerializeField] private Slider MasterSlider;
         [SerializeField] private Slider BGMSlider; 
         [SerializeField] private Slider SESlider;
+        
+        private bool isInitialized = false;
 
         private void Start()
         {
@@ -25,12 +28,26 @@ namespace Module.UI
 
             audioMixer.GetFloat("SE", out float seVolume);
             SESlider.value = seVolume;
+            isInitialized = true;
         }
 
-        public void SetMasterVol(float volume) => audioMixer.SetFloat("Master", volume);
+        public void SetMasterVol(float volume)
+        {
+            audioMixer.SetFloat("Master", volume);
+        }
 
-        public void SetBGM(float volume) => audioMixer.SetFloat("BGM", volume);
-        
-        public void SetSE(float volume)  => audioMixer.SetFloat("SE", volume);
+        public void SetBGM(float volume)
+        {
+            audioMixer.SetFloat("BGM", volume);
+        }
+
+        public void SetSE(float volume)
+        {
+            audioMixer.SetFloat("SE", volume);
+            
+            if (!isInitialized) return; // 初期化時はサウンド鳴らさない
+            
+            SoundManager.instance.Play("ボタン決定");           
+        }
     }
 }

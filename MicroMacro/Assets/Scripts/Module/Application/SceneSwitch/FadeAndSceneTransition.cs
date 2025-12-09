@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using CoreModule.Input;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using UnityEngine.EventSystems; 
 
 namespace Module.Application.SceneSwitch
 {
@@ -17,11 +18,14 @@ namespace Module.Application.SceneSwitch
         private static GameObject faderObj;
         private static IFadeHandler fadeHandler;
         private bool isSceneTransitioning;
-        private InputActionMap input;
+        
+        private InputActionMap playerInput;
+        private InputActionMap uiInput;
 
         private void Awake()
         {
-            input = InputProvider.GetActionMap(ActionGuid.Player.MapId);
+            playerInput = InputProvider.GetActionMap(ActionGuid.Player.MapId);
+            uiInput = InputProvider.GetActionMap(ActionGuid.UI.MapId);
             if (faderObj == null)
             {
                 CreateAndRegisterFader();
@@ -36,6 +40,23 @@ namespace Module.Application.SceneSwitch
 
         private void OnSceneLoadedWrapper(Scene scene, LoadSceneMode mode)
             => OnSceneLoadedSequence(CancellationToken.None).Forget();
+        
+        /// <summary>
+        /// 入力の有効/無効を一括設定する関数。クラス分けてもいい。
+        /// </summary>
+        private void SetInputActive(bool isActive)
+        {
+            if (isActive)
+            {
+                playerInput?.Enable();
+                uiInput?.Enable();
+            }
+            else
+            {
+                playerInput?.Disable();
+                uiInput?.Disable();
+            }
+        }
         
         /// <summary>
         /// FadeCanvasの生成、永続化
@@ -68,7 +89,6 @@ namespace Module.Application.SceneSwitch
             TransitionSequence(this.GetCancellationTokenOnDestroy()).Forget();
         }
         
-        
         public void StartTransitionSame()
         {
            nextSceneName = SceneManager.GetActiveScene().name;
@@ -99,7 +119,7 @@ namespace Module.Application.SceneSwitch
             }
             
             isSceneTransitioning = true;
-            input.Disable();    // 入力無効化
+            SetInputActive(false);
             
             fadeHandler.StartFadeOut();
             
@@ -120,21 +140,20 @@ namespace Module.Application.SceneSwitch
             if (fadeHandler == null)
                 return;
             
-            if (input.enabled)      // 最初のシーン読み込み時はこの関数しか呼ばれないので入力切っておく
-                input.Disable(); 
+            SetInputActive(false);  // 最初のシーン読み込み時はこの関数しか呼ばれないので入力切っておく
             
             // 念のため1フレーム待つ（Update反映用)
-             await UniTask.Yield(token);
+            await UniTask.Yield(token);
              
-             fadeHandler.StartFadeIn();
+            fadeHandler.StartFadeIn();
 
-             await UniTask.WaitUntil(() => fadeHandler.IsFadeInComplete(), cancellationToken: token);
+            await UniTask.WaitUntil(() => fadeHandler.IsFadeInComplete(), cancellationToken: token);
              
-             input.Enable();  
-             isSceneTransitioning = false;
+            SetInputActive(true); 
+            isSceneTransitioning = false;
              
-             if (Time.timeScale == 0)
-                 Time.timeScale = 1;  // ポーズ画面から遷移した際（念のため）
+            if (Time.timeScale == 0)
+                Time.timeScale = 1;  // ポーズ画面から遷移した際（念のため）
         }
     }
 }
