@@ -42,7 +42,7 @@ namespace PostProcessing.HandwriteOutline
             var desc = cameraData.cameraTargetDescriptor;
             desc.depthBufferBits = (int)DepthBits.None;
             desc.msaaSamples = (int)MSAASamples.None;
-            desc.graphicsFormat = GraphicsFormat.B8G8R8A8_UNorm; // RGBチャンネル: アウトラインの色, Aチャンネル: アウトラインの太さ
+            desc.graphicsFormat = GraphicsFormat.R8G8B8A8_SNorm; // RGBチャンネル: アウトラインの色, Aチャンネル: アウトラインの太さ
 
             outlineSharedData.PrepassTexture = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_HandwriteOutlinePrepass", true);
 

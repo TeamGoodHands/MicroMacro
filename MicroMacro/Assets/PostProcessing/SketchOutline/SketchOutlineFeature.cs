@@ -13,7 +13,10 @@ namespace SketchOutline
         [SerializeField] private SketchOutlineSettings settings = new SketchOutlineSettings();
 
         private Material material;
-        private SketchOutlinePass pass;
+        private SketchOutlinePassOpaque passOpaque;
+        private SketchOutlineTransparentPrepass prepassTransparent;
+        private SketchOutlinePassTransparent passTransparent;
+        private OutlineSharedData outlineSharedData;
 
         public override void Create()
         {
@@ -25,8 +28,11 @@ namespace SketchOutline
             {
                 Debug.LogWarning("ScreenSpaceHatching shader not assigned in ScreenSpaceHatchingFeature.");
             }
-
-            pass = new SketchOutlinePass(material, settings);
+            
+            outlineSharedData = new OutlineSharedData();
+            passOpaque = new SketchOutlinePassOpaque(material, settings);
+            prepassTransparent = new SketchOutlineTransparentPrepass(outlineSharedData);
+            passTransparent = new SketchOutlinePassTransparent(material, settings, outlineSharedData);
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -34,8 +40,15 @@ namespace SketchOutline
             if (outlineShader == null)
                 return;
 
-            pass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
-            renderer.EnqueuePass(pass);
+            passOpaque.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
+            renderer.EnqueuePass(passOpaque);
+            renderer.EnqueuePass(prepassTransparent);
+            renderer.EnqueuePass(passTransparent);
         }
+    }
+    
+    public class OutlineSharedData
+    {
+        public TextureHandle PrepassTexture;
     }
 }
