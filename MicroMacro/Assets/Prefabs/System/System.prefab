@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5147957806343134768}
-  - component: {fileID: 1520242926110836410}
+  - component: {fileID: 8216297010131068869}
   m_Layer: 0
   m_Name: System
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1520242926110836410
+--- !u!114 &8216297010131068869
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,8 +41,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5283627854420791883}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7beba818cd394f49b18fb4701c492bb, type: 3}
+  m_Script: {fileID: 11500000, guid: c4c06a11d6904dd2b44adf5a32c7e080, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stageSelectScene:
-    sceneName: StageSelect
+  sceneManager: {fileID: 0}
+  pauseScreenUI: {fileID: 0}
+  resumeButton: {fileID: 0}
+  restartButton: {fileID: 0}
+  stageSelectButton: {fileID: 0}
+  titleButton: {fileID: 0}

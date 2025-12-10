@@ -8,6 +8,9 @@ namespace Module.UI
 {
     public class ButtonSelector : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
+        [Header("決定時の音を鳴らすか")]
+        [SerializeField] private bool isPlayClickSE = true;
+        
         private Image buttonBackground;
         private Button button;
         public Action<bool> OnSelectStateChanged;
@@ -35,17 +38,20 @@ namespace Module.UI
         {
             buttonBackground.enabled = true;
             OnSelectStateChanged?.Invoke(true);
-          //  SoundManager.instance.Play("ボタンセレクト");
         }
 
         public void OnDeselect(BaseEventData eventData)
         {
             buttonBackground.enabled = false;
             OnSelectStateChanged?.Invoke(false);
+            SoundManager.instance.Play("ボタンセレクト");  // ポーズ等を開くと同時に鳴らないようこっちで呼ぶ
         }
 
         public void OnButtonClick()
         {
+            if (isPlayClickSE == false)
+                return;
+            
             SoundManager.instance.Play("ボタン決定");
         }
     }
