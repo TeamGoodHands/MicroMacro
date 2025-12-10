@@ -19,6 +19,12 @@ namespace Module.UI
         private void Start()
         {
             audioMixer.GetFloat("Master", out float masterVolume);
+
+            if (MasterSlider == null || BGMSlider == null || SESlider == null)
+            {
+                Debug.Log("スライダーがアタッチされていません。", this.gameObject);
+                return;
+            }
             MasterSlider.value = masterVolume;
             
             audioMixer.GetFloat("BGM", out float bgmVolume);
