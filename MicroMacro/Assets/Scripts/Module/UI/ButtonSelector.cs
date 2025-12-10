@@ -8,6 +8,9 @@ namespace Module.UI
 {
     public class ButtonSelector : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
+        [Header("決定時の音を鳴らすか")]
+        [SerializeField] private bool isPlayClickSE = true;
+        
         private Image buttonBackground;
         private Button button;
         public Action<bool> OnSelectStateChanged;
@@ -46,6 +49,9 @@ namespace Module.UI
 
         public void OnButtonClick()
         {
+            if (isPlayClickSE == false)
+                return;
+            
             SoundManager.instance.Play("ボタン決定");
         }
     }

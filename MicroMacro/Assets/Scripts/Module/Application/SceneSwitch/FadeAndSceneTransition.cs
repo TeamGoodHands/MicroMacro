@@ -19,13 +19,8 @@ namespace Module.Application.SceneSwitch
         private static IFadeHandler fadeHandler;
         private bool isSceneTransitioning;
         
-        private InputActionMap playerInput;
-        private InputActionMap uiInput;
-
         private void Awake()
         {
-            playerInput = InputProvider.GetActionMap(ActionGuid.Player.MapId);
-            uiInput = InputProvider.GetActionMap(ActionGuid.UI.MapId);
             if (faderObj == null)
             {
                 CreateAndRegisterFader();
@@ -40,23 +35,6 @@ namespace Module.Application.SceneSwitch
 
         private void OnSceneLoadedWrapper(Scene scene, LoadSceneMode mode)
             => OnSceneLoadedSequence(CancellationToken.None).Forget();
-        
-        /// <summary>
-        /// 入力の有効/無効を一括設定する関数。クラス分けてもいい。
-        /// </summary>
-        private void SetInputActive(bool isActive)
-        {
-            if (isActive)
-            {
-                playerInput?.Enable();
-                uiInput?.Enable();
-            }
-            else
-            {
-                playerInput?.Disable();
-                uiInput?.Disable();
-            }
-        }
         
         /// <summary>
         /// FadeCanvasの生成、永続化
@@ -119,7 +97,7 @@ namespace Module.Application.SceneSwitch
             }
             
             isSceneTransitioning = true;
-            SetInputActive(false);
+            InputSystem.actions.Disable();
             
             fadeHandler.StartFadeOut();
             
@@ -140,7 +118,7 @@ namespace Module.Application.SceneSwitch
             if (fadeHandler == null)
                 return;
             
-            SetInputActive(false);  // 最初のシーン読み込み時はこの関数しか呼ばれないので入力切っておく
+            InputSystem.actions.Disable();  // 最初のシーン読み込み時はこの関数しか呼ばれないので入力切っておく
             
             // 念のため1フレーム待つ（Update反映用)
             await UniTask.Yield(token);
@@ -149,7 +127,7 @@ namespace Module.Application.SceneSwitch
 
             await UniTask.WaitUntil(() => fadeHandler.IsFadeInComplete(), cancellationToken: token);
              
-            SetInputActive(true); 
+            InputSystem.actions.Enable();
             isSceneTransitioning = false;
              
             if (Time.timeScale == 0)

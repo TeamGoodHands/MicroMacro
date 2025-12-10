@@ -17,6 +17,7 @@ namespace Module.UI
             if (handleBackground == null)
             {
                 Debug.LogError("Sliderのツマミ背景が設定されていません。", this.gameObject);
+                return;
             }
             handleBackground.enabled = false;
         }

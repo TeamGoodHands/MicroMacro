@@ -4,8 +4,7 @@ using Module.Management;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
-using Button = UnityEngine.UI.Button;
+using UnityEngine.UI;
 
 namespace Module.Application
 {
@@ -39,13 +38,16 @@ namespace Module.Application
             
             pauseEvent.Started += OnTogglePause;
         }
-        
         private void OnDestroy()
         {
             if (pauseEvent == null)
                 return;
             
             pauseEvent.Started -= OnTogglePause;
+            resumeButton.onClick.RemoveListener(ResumeGame);
+            restartButton.onClick.RemoveListener(RestartLevel);
+            stageSelectButton.onClick.RemoveListener(ReturnToStageSelect);
+            titleButton.onClick.RemoveListener(ReturnToTitle);
         }
 
         public bool IsPaused
@@ -57,12 +59,12 @@ namespace Module.Application
         /// <summary>
         /// ボタンやスライダーを全部無効化する関数（連打対策）
         /// </summary>
-        private void DisableAllUI()
+        private void SetInputActive(bool active)
         {
             if (pauseCanvasGroup != null)
             {
-                pauseCanvasGroup.interactable = false;
-                pauseCanvasGroup.blocksRaycasts = false;
+                pauseCanvasGroup.interactable = active;
+                pauseCanvasGroup.blocksRaycasts = active;
             }
         }
         
@@ -91,6 +93,7 @@ namespace Module.Application
         public void ResumeGame()
         {
             pauseScreenUI.SetActive(false);
+            SoundManager.instance.Play("ボタン決定");
             playerInput.Enable();
             Time.timeScale = 1f; 
             IsPaused = false;
@@ -98,21 +101,21 @@ namespace Module.Application
 
         public void ReturnToStageSelect()
         {
-            DisableAllUI();
+            SetInputActive(false);
             Time.timeScale = 1f; 
             sceneManager.StartTransition("StageSelect");
         }
 
         public void ReturnToTitle()
         {
-            DisableAllUI();
+            SetInputActive(false);
             Time.timeScale = 1f; 
             sceneManager.StartTransition("Title");
         }
 
         public void RestartLevel()
         {
-            DisableAllUI();
+            SetInputActive(false);
             Time.timeScale = 1f; 
             sceneManager.StartTransition(SceneManager.GetActiveScene().name);
         }
