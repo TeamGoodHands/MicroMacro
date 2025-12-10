@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5593816017117760208}
   - component: {fileID: 2710887994455872968}
   - component: {fileID: 4229331393101984309}
+  - component: {fileID: 1241178845990833570}
   m_Layer: 0
   m_Name: FallScaler
   m_TagString: Untagged
@@ -34,7 +35,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 2, z: 1}
+  m_LocalScale: {x: 4, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -125,15 +126,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89c6c17deb73e80438e8d4fb9c74487b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minStep: 0
-  maxStep: 1
+  minStep: -1
+  maxStep: 2
   currentStep: 0
   previousStep: 0
   state: 0
   isScaling: 0
   isPause: 0
-  scaleAmount: {x: 1.5, y: 0, z: 0}
-  scaleDuration: 0.5
+  scaleAmount: {x: 3, y: 1, z: 0}
+  scaleDuration: 0.4
   lockPosition: 1
   scaleEase: 27
   pivotX: 0
@@ -208,5 +209,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bedb8338d59f5f543bcdcfcd2596ac26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallSpeed: 5
+  fallSpeed: 2
   rigidBody: {fileID: 8655560685110207268}
+--- !u!114 &1241178845990833570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4598364475802049770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2caaf8de76b6d5b4fac143ef75174b38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaler: {fileID: 7659234870186036072}
+  bounceForce: 15
+  scaleRewinder:
+    rewindDelay: 1
+    isPhasedRewind: 0
