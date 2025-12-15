@@ -51,6 +51,9 @@ namespace Module.Scaling
 
         private void OnScaleStarted(ScaleEventArgs args)
         {
+            if (!args.DoEffect)
+                return;
+
             bool isValid = args.PreviousStep != args.CurrentStep;
             bool isMacro = isValid && args.CurrentStep - args.PreviousStep > 0;
 
