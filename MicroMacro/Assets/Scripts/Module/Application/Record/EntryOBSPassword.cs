@@ -28,10 +28,11 @@ namespace Module.Application.Record
 
         public void InputAndSend()
         {
-            if (RecordController.IsConnected())
+            if (RecordController.IsConnected() || RecordController.IsInitialized)
             {
-                Debug.LogWarning("既にOBSに接続されています。");
-                return;
+                Debug.LogWarning("既にOBSに接続されているため再度接続を試みます。");
+                RecordController.OBSDisconnect();
+                RecordController.PasswordReset();
             }
             
             if (!string.IsNullOrWhiteSpace(inputField.text))

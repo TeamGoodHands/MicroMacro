@@ -7,7 +7,7 @@ using UnityEngine;
 public static class RecordController
 {
     private static readonly OBSWebsocket websocket = new();
-    private static bool isInitialize;
+    private static bool isInitialized;
     private static bool isRecordingInternal;
     private static string host;
     private static string port;
@@ -20,13 +20,13 @@ public static class RecordController
     {
         // websocketはreadonly、その他はInitializeで上書きされるため、
         // isInitializeのリセットだけで十分。
-        isInitialize = false;
+        isInitialized = false;
         isRecordingInternal = false;
     }
 
     public static bool Initialize(string host, string port, string password)
     {
-        if (isInitialize)
+        if (isInitialized)
         {
             Debug.LogWarning("すでに初期化済みです。");
             return false;
@@ -35,7 +35,7 @@ public static class RecordController
         RecordController.host = host;
         RecordController.port = port;
         RecordController.password = password;
-        isInitialize = true;
+        isInitialized = true;
         return true;
     }
 
@@ -52,9 +52,14 @@ public static class RecordController
         get { return password; }
     }
 
+    public static bool IsInitialized
+    {
+        get { return isInitialized; }
+    }
+
     public static async UniTask OBSConnect(CancellationToken token)
     {
-        if (!isInitialize)
+        if (!isInitialized)
             return;
        
         // タイムアウトした際再度接続できるようCTS(ストップボタン的な物)をリセット
@@ -67,6 +72,15 @@ public static class RecordController
         var canceled = await UniTask.WaitUntil(() => websocket.IsConnected, PlayerLoopTiming.Update, ct).SuppressCancellationThrow();
         if (canceled)
             return;
+    }
+
+    public static void PasswordReset()
+    {
+        if (isRecordingInternal)
+            return;
+
+        isInitialized = false;
+        password = null;
     }
 
     public static void OBSDisconnect()
