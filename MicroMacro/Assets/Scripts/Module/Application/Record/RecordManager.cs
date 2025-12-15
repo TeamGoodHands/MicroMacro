@@ -43,11 +43,6 @@ namespace Module.Application.Record
             }
         }
 
-        /*private async void Start()
-        {
-            await Initialize();
-        }*/
-
         private async UniTask Initialize()
         {
             if (!RecordController.Initialize(host, port, password))
@@ -109,7 +104,7 @@ namespace Module.Application.Record
         }*/
 
         // ステージセレクト画面のボタン周りがよく分からなかったのでひとまずシーン名から録画開始に。
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        private async void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (!RecordController.IsConnected())
             {
@@ -141,6 +136,12 @@ namespace Module.Application.Record
                 if (scene.name == name)
                 {
                     RecordController.RecordStop();
+
+                    if (ErrorLogger.Instance != null)
+                    {
+                        Debug.Log("ゲーム終了 : エラーログの送信を開始します。");
+                        await ErrorLogger.Instance.SendLogExternalAsync();
+                    }
                     return;
                 }
             }
