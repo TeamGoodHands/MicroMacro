@@ -17,6 +17,7 @@ namespace Module.Application
         [SerializeField] private Button restartButton;     // やり直し
         [SerializeField] private Button stageSelectButton; // ステージセレクトへ戻る
         [SerializeField] private Button titleButton;       // タイトルへ戻る
+        [SerializeField] private Button feedbackButton;    // アンケート画面
         
         private bool isPaused = false;
         private InputEvent pauseEvent;
@@ -29,7 +30,8 @@ namespace Module.Application
             restartButton.onClick.AddListener(RestartLevel);
             stageSelectButton.onClick.AddListener(ReturnToStageSelect);
             titleButton.onClick.AddListener(ReturnToTitle);
-
+            feedbackButton.onClick.AddListener(Feedback);
+            
             // ポーズメニューを非表示にする
             pauseScreenUI.SetActive(false);
 
@@ -48,6 +50,7 @@ namespace Module.Application
             restartButton.onClick.RemoveListener(RestartLevel);
             stageSelectButton.onClick.RemoveListener(ReturnToStageSelect);
             titleButton.onClick.RemoveListener(ReturnToTitle);
+            feedbackButton.onClick.RemoveListener(Feedback);
         }
 
         public bool IsPaused
@@ -118,6 +121,13 @@ namespace Module.Application
             SetInputActive(false);
             Time.timeScale = 1f; 
             sceneManager.StartTransition(SceneManager.GetActiveScene().name);
+        }
+
+        public void Feedback()
+        {
+            SetInputActive(false);
+            Time.timeScale = 1f; 
+            sceneManager.StartTransition("Feedback");
         }
         
         public void QuitGame()
