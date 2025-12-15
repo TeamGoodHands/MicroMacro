@@ -111,7 +111,7 @@ namespace LevelEditor.Runtime
 
                 if (checkedCoords.Contains(gridPos))
                 {
-                    DestroyImmediate(obj);
+                    Undo.DestroyObjectImmediate(obj);
                     continue;
                 }
 
