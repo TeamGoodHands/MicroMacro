@@ -22,7 +22,7 @@ public class ErrorLogger : MonoBehaviour
     // StringBuilder : 文字列の編集ができるstring
     private StringBuilder logBuilder = new StringBuilder();
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -39,50 +39,49 @@ public class ErrorLogger : MonoBehaviour
         }
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         Application.logMessageReceived += HandleLog;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         Application.logMessageReceived -= HandleLog;
     }
 
-    void HandleLog(string logString, string stackTrace, LogType type)
+    private void HandleLog(string logString, string stackTrace, LogType type)
     {
         // ログタイプでフィルタリング
         if (logErrorsOnly && type != LogType.Error && type != LogType.Exception)
-        {
             return;
-        }
 
-        // ログのフォーマットを作成
-        logBuilder.Clear();
+        // 即時送信 (UploadLogToDriveAsync) は行わず、StringBuilderに溜めるだけにする
         logBuilder.AppendLine("--------------------");
         logBuilder.AppendLine($"[{System.DateTime.Now:yyyy-MM-dd HH:mm:ss}] - [{type}]");
         logBuilder.AppendLine(logString);
         logBuilder.AppendLine(stackTrace);
         logBuilder.AppendLine("--------------------");
-
-        string finalLog = logBuilder.ToString();
         
         // ローカル保存
-        try
+        try 
         {
             File.AppendAllText(logFilePath, logBuilder.ToString());
-        }
-        catch (IOException ex)
-        {
-            // ここでのDebug.Logは無限ループするので避ける
-            Debug.LogWarning($"ログの書き込みに失敗: {ex.Message}");
-        }
-        
-        // Driveに送信
-        UploadLogToDriveAsync(finalLog).Forget();
+        } catch (IOException) {}
     }
 
-    private async UniTaskVoid UploadLogToDriveAsync(string logContent)
+    public async UniTask SendLogExternalAsync()
+    {
+        string finalLog = logBuilder.ToString();
+        
+        if (string.IsNullOrEmpty(finalLog))
+            return;
+
+        await UploadLogToDriveAsync(finalLog);
+
+        logBuilder.Clear();
+    }
+
+    private async UniTask UploadLogToDriveAsync(string logContent)
     {
         // 回線繋がってない場合弾く
         if (Application.internetReachability == NetworkReachability.NotReachable)
@@ -96,7 +95,7 @@ public class ErrorLogger : MonoBehaviour
         }
 
         // ファイル名にIDを含める (GAS側での紐づけ用)
-        string fileName = $"ErrorLog_{playId}_{System.DateTime.Now:yyyyMMMMdd_HHmmss}.txt";
+        string fileName = $"ErrorLog_{playId}_{DateTime.Now:yyyyMMMMdd_HHmmss}.txt";
         
         // Jsonデータ作成
         LogData data = new LogData
