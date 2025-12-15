@@ -7,8 +7,15 @@ namespace Module.Gimmick
 {
     public class SingleBalloon : MonoBehaviour
     {
-        [SerializeField, Header("スケール量に対するY軸の力")] private float forceMultiplier;
-        [SerializeField, Header("X軸方向の移動スピード")] private float moveSpeed;
+        [SerializeField, Header("スケール量に対するY軸の力")]
+        private float forceMultiplier;
+        
+        [SerializeField, Header("スケールを変更した瞬間に発生するY軸の力")]
+        private float forceMultiplierOnScale;
+
+        [SerializeField, Header("X軸方向の移動スピード")]
+        private float moveSpeed;
+        
         [SerializeField, Header("最大スピード")] private Vector2 maxSpeed;
 
         [SerializeField] private VehicleRider vehicleRider;
@@ -24,6 +31,13 @@ namespace Module.Gimmick
 
             vehicleRider.OnRide += OnRide;
             vehicleRider.OnDismount += OnDismount;
+            scaler.OnScaleStarted += OnScale;
+        }
+
+        private void OnScale(ScaleEventArgs args)
+        {
+            Vector2 verticalForce = Vector2.up * (forceMultiplierOnScale * (args.CurrentStep - args.PreviousStep));
+            rigidBody.AddForce(verticalForce, ForceMode.VelocityChange);
         }
 
         private void OnRide()

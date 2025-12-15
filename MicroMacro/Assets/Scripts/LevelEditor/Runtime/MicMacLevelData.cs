@@ -4,6 +4,7 @@ using System.Linq;
 using Constants;
 using CoreModule.Serialization;
 using UnityEngine;
+using Object = System.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,11 +12,11 @@ using UnityEditor;
 
 namespace LevelEditor.Runtime
 {
+    [ExecuteAlways]
     public class MicMacLevelData : MonoBehaviour
     {
         private const int MapSize = 8192;
         [SerializeField, HideInInspector] private bool showBlocks;
-        [SerializeField, HideInInspector] private List<Vector2Int> overlapCoords = new List<Vector2Int>();
 
         public bool ShowBlocks
         {
@@ -41,6 +42,9 @@ namespace LevelEditor.Runtime
 
         private void Start()
         {
+            if (!Application.isPlaying)
+                return;
+
             Dictionary<long, GameObject> mapData = GetMapData();
 
             // Y座標でグリッドデータを分割する
@@ -73,27 +77,6 @@ namespace LevelEditor.Runtime
             }
         }
 
-#if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
-
-            foreach (Vector2Int coord in overlapCoords)
-            {
-                Handles.color = Color.red;
-                Handles.CubeHandleCap(
-                    0, // controlID（通常0でOK）
-                    new Vector3(coord.x, coord.y, transform.position.z), // 中心位置
-                    transform.rotation, // 回転
-                    0.4f, // 一辺の長さ
-                    EventType.Repaint // 描画タイプ
-                );
-            }
-
-            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
-        }
-#endif
-
         private Dictionary<long, GameObject> GetMapData()
         {
             List<GameObject> gridObjects = transform.Cast<Transform>()
@@ -101,47 +84,39 @@ namespace LevelEditor.Runtime
                 .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid))
                 .ToList();
 
-            CheckOverlap(gridObjects);
-
-            if (overlapCoords.Count > 0)
-            {
-                Debug.LogWarning("重複して配置されているオブジェクトがあります！");
-            }
-
             var mapData = new Dictionary<long, GameObject>();
 
             foreach (GameObject obj in gridObjects)
             {
-                Vector2 position = obj.transform.position;
+                Vector3 position = Snapping.Snap(obj.transform.position, EditorSnapSettings.move);
                 mapData.Add(CoordToIndex(new Vector2Int((int)position.x, (int)position.y)), obj);
             }
 
             return mapData;
         }
 
-        public List<Vector2Int> CheckOverlapNow()
+        public void RemoveOverlaps()
         {
-            return CheckOverlap(transform.Cast<Transform>().Select(obj => obj.gameObject).Where(obj => obj.isStatic).ToList());
-        }
+            if (Application.isPlaying)
+                return;
 
-        private List<Vector2Int> CheckOverlap(List<GameObject> objects)
-        {
             var checkedCoords = new HashSet<Vector2Int>();
-            overlapCoords.Clear();
 
-            foreach (GameObject obj in objects)
+            foreach (GameObject obj in transform.Cast<Transform>()
+                         .Select(obj => obj.gameObject)
+                         .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid)))
             {
-                Vector2Int gridPos = new Vector2Int((int)obj.transform.position.x, (int)obj.transform.position.y);
+                Vector3 snappedPosition = Snapping.Snap(obj.transform.position, EditorSnapSettings.move);
+                Vector2Int gridPos = new Vector2Int((int)snappedPosition.x, (int)snappedPosition.y);
 
                 if (checkedCoords.Contains(gridPos))
                 {
-                    overlapCoords.Add(gridPos);
+                    Undo.DestroyObjectImmediate(obj);
+                    continue;
                 }
 
                 checkedCoords.Add(gridPos);
             }
-
-            return overlapCoords;
         }
 
         private Dictionary<int, List<(int x, MeshFilter filter)>> SplitByY(Dictionary<long, GameObject> mapData)
@@ -255,8 +230,7 @@ namespace LevelEditor.Runtime
                         sortedFilters.Remove(targetAve);
                         checkedCount++;
                     }
-                }
-                while (isContinuous);
+                } while (isContinuous);
 
                 result.Add(meshFilters);
                 sortedFilters.Remove(ave);
