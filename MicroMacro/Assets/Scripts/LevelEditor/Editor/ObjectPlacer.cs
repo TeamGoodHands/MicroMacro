@@ -48,19 +48,6 @@ namespace LevelEditor.Editor
             SceneView.duringSceneGui -= HandleSceneGUI;
         }
 
-        public void CheckOverlap()
-        {
-            List<Vector2Int> overlaps = parentObject.CheckOverlapNow();
-            if (overlaps.Count > 0)
-            {
-                Debug.LogError($"{overlaps.Count}個のオブジェクトが重複しています！");
-            }
-            else
-            {
-                Debug.Log("重複したオブジェクトは見つかりませんでした。");
-            }
-        }
-
         public void UpdateParentObject()
         {
             if (parentObject != null)
@@ -416,6 +403,11 @@ namespace LevelEditor.Editor
             {
                 mousePosition = worldPosition;
             }
+        }
+
+        public void Postprocess()
+        {
+            parentObject.RemoveOverlaps();
         }
     }
 }

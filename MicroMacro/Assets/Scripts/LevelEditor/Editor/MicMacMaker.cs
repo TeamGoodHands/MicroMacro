@@ -228,9 +228,9 @@ namespace Editor.LevelEditor
 
         private Button CreateCheckOverlapButton()
         {
-            return new Button(() => { objectPlacer.CheckOverlap(); })
+            return new Button(() => { objectPlacer.Postprocess(); })
             {
-                text = "<b>重複確認</b>",
+                text = "<b>重複削除</b>",
                 enableRichText = true,
                 style =
                 {
