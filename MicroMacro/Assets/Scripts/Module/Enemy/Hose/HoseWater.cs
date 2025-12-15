@@ -22,19 +22,21 @@ namespace Module.Enemy.Hose
             this.parameter = parameter;
         }
 
-        public bool TryAddWaterForce(float radius, out Vector3 hitPoint)
+        public bool TryAddWaterForce(float radius, float maxDistance, out Vector3 hitPoint, out float actualDistance)
         {
             const int layerMask = ~(Layer.Mask.PlayerOnly |
                                     Layer.Mask.Player |
                                     Layer.Mask.Enemy |
                                     Layer.Mask.Bullet |
-                                    Layer.Mask.ThroughPlatform);
+                                    Layer.Mask.ThroughPlatform |
+                                    Layer.Mask.IgnoreRaycast |
+                                    Layer.Mask.WaterOnly);
 
             hitPoint = Vector2.zero;
+            actualDistance = maxDistance; // デフォルトは最大距離
 
             Vector3 position = rotatePivot.position;
             Vector3 halfExtents = new Vector3(radius, radius, radius);
-            float maxDistance = Mathf.Max(0f, scaler.transform.localScale.x * waterPivot.localScale.x - radius);
 
             // 水が飛ぶ方向に球体キャストを行う
             bool isObjectHit = Physics.BoxCast(position, halfExtents, rotatePivot.up, out hitInfo, rotatePivot.rotation, maxDistance, layerMask);
@@ -42,6 +44,7 @@ namespace Module.Enemy.Hose
             if (isObjectHit)
             {
                 hitPoint = hitInfo.point;
+                actualDistance = hitInfo.distance + radius; // ヒットした場合はその距離を採用
 
                 if (hitInfo.rigidbody != null)
                 {
@@ -49,9 +52,13 @@ namespace Module.Enemy.Hose
                     ApplyWaterForce(hitPoint);
                 }
             }
+            else
+            {
+                actualDistance = maxDistance + radius;
+            }
 
             // デバッグ表示
-            UGizmos.DrawBoxCast(position, halfExtents, rotatePivot.up, rotatePivot.rotation, maxDistance, isObjectHit, hitInfo);
+            UGizmos.DrawBoxCast(position, halfExtents, rotatePivot.up, rotatePivot.rotation, actualDistance, isObjectHit, hitInfo);
 
             return isObjectHit;
         }

@@ -26,7 +26,6 @@ namespace Module.Enemy.Hose
         private Vector3 scalerDefaultScale;
         private Vector3 hitPoint;
         private float scaleMultiplier = 1f;
-        private bool isObjectHit;
 
         private void Start()
         {
@@ -51,42 +50,46 @@ namespace Module.Enemy.Hose
 
         private void FixedUpdate()
         {
-            // スケールの差を基に水の長さを計算する
+        // 1. 本来伸びるべき長さ（アニメーション・スケーラー考慮）を計算
             float lengthScale = scaler.transform.localScale.x - scalerDefaultScale.x;
-            waterScale = CalculateWaterScale(lengthScale);
-
-            if (isObjectHit)
-            {
-                // ヒットしていたらヒットした場所まで水を伸ばす
-                float distance = Vector3.Distance(waterPivot.position, hitPoint);
-                maxMultiplier = Mathf.Min(distance / (waterScale.x * scaler.transform.localScale.y), 1f);
-            }
-            else
-            {
-                // ヒットしていない場合は最大まで伸ばす
-                maxMultiplier = 1f;
-            }
-
+            
+            // アニメーションの進行（scaleMultiplier）
             if (!parameter.IsLooping)
             {
+                // BoxCastの結果を待たずに、単純に伸びようとする（壁に当たれば視覚的に縮むだけ）
                 scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime;
-                scaleMultiplier = Mathf.Clamp(scaleMultiplier, 0, maxMultiplier);
+                scaleMultiplier = Mathf.Clamp(scaleMultiplier, 0, 1f); // maxMultiplierによる制限はBoxCast後に行うためここでは1f上限
             }
 
-            Vector3 scale = waterScale;
-            scale.x *= scaleMultiplier;
-            waterPivot.localScale = scale;
+            // ターゲットとなるローカルスケール（壁がない場合の最大サイズ）
+            Vector3 targetLocalScale = CalculateWaterScale(lengthScale);
+            targetLocalScale.x *= scaleMultiplier;
 
             if (scaler.CurrentStep == scaler.MinStep)
             {
-                // スケーラーが最小の場合は水を出さない
                 waterPivot.localScale = Vector3.zero;
+                return;
             }
-            else
-            {
-                // それ以外の場合は水流の力を加える
-                isObjectHit = HoseWater.TryAddWaterForce(scale.y, out hitPoint);
-            }
+
+            // 2. ローカルスケールを「ワールド空間での距離」に変換してBoxCast用の距離を算出
+            // waterPivotの親のスケールが影響するため、lossyScale比率を利用して変換係数を求める
+            // 簡易的に親のXスケールを使用（回転などが複雑でない前提）
+            float parentScaleX = waterPivot.parent != null ? waterPivot.parent.lossyScale.x : 1f;
+            
+            // BoxCastすべき距離
+            float castMaxDistance = targetLocalScale.x * parentScaleX;
+
+            // 3. BoxCastを実行し、実際に水が到達した距離を取得
+            // HoseWater側の引数変更に対応
+            bool isHit = HoseWater.TryAddWaterForce(targetLocalScale.y, castMaxDistance, out hitPoint, out float actualDistance);
+
+            // 4. 実際の距離をローカルスケールに戻して適用
+            // 「実際の距離」を「親のスケール」で割れば、設定すべきローカルスケールになる
+            Vector3 finalScale = targetLocalScale;
+            finalScale.x = actualDistance / parentScaleX;
+
+            // スケール適用
+            waterPivot.localScale = finalScale;
         }
 
         private Vector3 CalculateWaterScale(float lengthScale)
