@@ -35,7 +35,7 @@ namespace Module.Application.SceneSwitch
             if (sceneManager != null)
             {
                 Debug.Log("ボス戦をクリアしました");
-                sceneManager.StartTransition("Feedback");
+                sceneManager.StartTransition();
             }
         }
     }
