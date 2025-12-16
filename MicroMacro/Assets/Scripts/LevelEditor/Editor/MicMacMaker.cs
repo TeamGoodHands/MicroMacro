@@ -48,8 +48,20 @@ namespace Editor.LevelEditor
             groundMaterial = settings.GroundMaterial;
         }
 
+        private void OnEnable()
+        {
+            Debug.Log("OnEnable");
+        }
+
         public void CreateGUI()
         {
+            // 即座に実行せず、delayCallに入れる
+            EditorApplication.delayCall += () => { ReCreate(); };
+        }
+
+        private void ReCreate()
+        {
+            OnDisable();
             LoadGroundMaterial();
 
             // EditorToolがアクティブでない場合は、Windowを無効化する
@@ -98,6 +110,8 @@ namespace Editor.LevelEditor
 
             rootVisualElement.Add(tabView);
             selectedCategory = categoryGroups.First().Value;
+
+            Debug.Log("ReCreate finished");
         }
 
         public void SetEnable(bool isEnable)
@@ -190,7 +204,7 @@ namespace Editor.LevelEditor
 
                 rootVisualElement.Clear();
                 OnDisable();
-                CreateGUI();
+                ReCreate();
                 objectPlacer.UpdateParentObject();
             })
             {
@@ -210,10 +224,7 @@ namespace Editor.LevelEditor
 
         private Button CreateDestroyButton()
         {
-            return new Button(() =>
-            {
-                objectPlacer.DestroyAll();
-            })
+            return new Button(() => { objectPlacer.DestroyAll(); })
             {
                 text = "<b>全て破壊</b>",
                 enableRichText = true,
@@ -231,10 +242,7 @@ namespace Editor.LevelEditor
 
         private Button CreateCheckOverlapButton()
         {
-            return new Button(() =>
-            {
-                objectPlacer.Postprocess();
-            })
+            return new Button(() => { objectPlacer.Postprocess(); })
             {
                 text = "<b>重複削除</b>",
                 enableRichText = true,
@@ -264,7 +272,9 @@ namespace Editor.LevelEditor
             }
             else if (state == PlayModeStateChange.EnteredEditMode)
             {
+                Debug.Log("EnteredEditMode");
                 // EditModeに入るとき、オブジェクト配置を再開する
+                ReCreate();
                 SetEnable(true);
                 if (lastSelectedObject != null)
                 {
@@ -315,6 +325,7 @@ namespace Editor.LevelEditor
 
         private void OnDisable()
         {
+            Debug.Log("OnDisable");
             if (objectPlacer != null)
             {
                 objectPlacer.Disable();
@@ -327,6 +338,7 @@ namespace Editor.LevelEditor
             }
 
             categoryGroups.Clear();
+            rootVisualElement.Clear();
         }
     }
 }
