@@ -345,7 +345,7 @@ namespace Module.Scaling
             scaleCanceller = null;
 
             // スケールを初期値に戻す
-            SetScale(0, true).Forget();
+            SetScaleImmediate(0, true);;
         }
 
         protected abstract UniTask OnScale(CancellationToken cancellationToken);

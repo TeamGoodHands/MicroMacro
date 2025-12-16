@@ -1,3 +1,6 @@
+using System;
+using Constants;
+using Cysharp.Threading.Tasks;
 using Module.Player.Component;
 using Module.Scaling;
 using Unity.Cinemachine;
@@ -7,15 +10,12 @@ namespace Module.Gimmick
 {
     public class SingleBalloon : MonoBehaviour
     {
-        [SerializeField, Header("スケール量に対するY軸の力")]
-        private float forceMultiplier;
-        
-        [SerializeField, Header("スケールを変更した瞬間に発生するY軸の力")]
-        private float forceMultiplierOnScale;
+        [SerializeField, Header("スケール量に対するY軸の力")] private float forceMultiplier;
 
-        [SerializeField, Header("X軸方向の移動スピード")]
-        private float moveSpeed;
-        
+        [SerializeField, Header("スケールを変更した瞬間に発生するY軸の力")] private float forceMultiplierOnScale;
+
+        [SerializeField, Header("X軸方向の移動スピード")] private float moveSpeed;
+
         [SerializeField, Header("最大スピード")] private Vector2 maxSpeed;
 
         [SerializeField] private VehicleRider vehicleRider;
@@ -23,11 +23,12 @@ namespace Module.Gimmick
         [SerializeField] private Rigidbody rigidBody;
         [SerializeField] private CinemachineCamera balloonCamera;
 
-        private PlayerCondition playerCondition;
+        private Vector3 initialPosition;
 
         private void Start()
         {
             rigidBody.isKinematic = true;
+            initialPosition = rigidBody.position;
 
             vehicleRider.OnRide += OnRide;
             vehicleRider.OnDismount += OnDismount;
@@ -72,6 +73,62 @@ namespace Module.Gimmick
             velocity.x = Mathf.Clamp(velocity.x, -maxSpeed.x, maxSpeed.x);
             velocity.y = Mathf.Clamp(velocity.y, -maxSpeed.y, maxSpeed.y);
             rigidBody.linearVelocity = velocity;
+        }
+
+
+        private void OnCollisionEnter(Collision other)
+        {
+            if (other.gameObject.GetComponent<Thorn>() != null)
+            {
+                KillBalloon().Forget();
+            }
+        }
+
+        private async UniTaskVoid KillBalloon()
+        {
+            rigidBody.linearVelocity = Vector3.zero;
+            vehicleRider.Dismount();
+            vehicleRider.enabled = false;
+            KillPlayer();
+
+            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: destroyCancellationToken);
+
+            ResetBalloon();
+            vehicleRider.enabled = true;
+        }
+
+        private void KillPlayer()
+        {
+            GameObject playerObject = GameObject.FindWithTag(Tag.Player);
+            if (playerObject == null)
+                return;
+
+            if (playerObject.TryGetComponent<PlayerStatus>(out var playerStatus))
+            {
+                // 確実に死亡させる（RespawnSystemはPlayerStatus.OnDeathを購読している）
+                int killDamage = Mathf.Max(1, playerStatus.CurrentHealth);
+                playerStatus.Damage(killDamage);
+            }
+        }
+
+        private void ResetBalloon()
+        {
+            // 風船操作停止（カメラも戻す）
+            rigidBody.isKinematic = true;
+            balloonCamera.Priority = 0;
+
+            // 位置・回転・スケールを初期値へ
+            rigidBody.position = initialPosition;
+
+            // 速度リセット
+            rigidBody.linearVelocity = Vector3.zero;
+            rigidBody.angularVelocity = Vector3.zero;
+
+            // スケール段階も初期化（0段階へ）
+            if (scaler != null)
+            {
+                scaler.ResetScale();
+            }
         }
     }
 }

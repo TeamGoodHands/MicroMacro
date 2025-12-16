@@ -10,7 +10,7 @@ Shader "UI/IrisOverlay"
         _Center01 ("Center (Normalized Screen 0-1)", Vector) = (0.5, 0.5, 0, 0)
 
         // 半径
-        _Radius ("Radius", Range(-1,3)) = 1.0
+        _Radius ("Radius", Range(-1,4)) = 1.0
 
         _EdgeWidth ("Edge Width", Range(0.001, 0.3)) = 0.08
 

@@ -33,6 +33,9 @@ namespace Module.Gimmick
 
         private void OnTriggerEnter(Collider other)
         {
+            if (!enabled)
+                return; 
+            
             // プレイヤーがトリガーに触れたら乗る
             if (other.CompareTag(Tag.Handle.Player) && other.TryGetComponent(out PlayerCondition condition))
             {
@@ -41,7 +44,7 @@ namespace Module.Gimmick
             }
         }
 
-        private void HandleRide()
+        public void Ride()
         {
             isRiding = true;
             playerRigidbody = playerCondition.GetComponent<Rigidbody>();
@@ -53,7 +56,12 @@ namespace Module.Gimmick
             OnRide?.Invoke();
         }
 
-        private void HandleDismount(InputAction.CallbackContext _)
+        private void HandleRide()
+        {
+            Ride();
+        }
+
+        public void Dismount()
         {
             isRiding = false;
             playerCondition.IsRiding = false;
@@ -65,6 +73,11 @@ namespace Module.Gimmick
             jumpEvent.Started -= HandleDismount;
 
             OnDismount?.Invoke();
+        }
+
+        private void HandleDismount(InputAction.CallbackContext _)
+        {
+            Dismount();
         }
 
         private void FixedUpdate()
