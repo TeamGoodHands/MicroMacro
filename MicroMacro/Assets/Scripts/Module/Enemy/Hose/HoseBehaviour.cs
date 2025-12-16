@@ -50,9 +50,9 @@ namespace Module.Enemy.Hose
 
         private void FixedUpdate()
         {
-        // 1. 本来伸びるべき長さ（アニメーション・スケーラー考慮）を計算
+            // 1. 本来伸びるべき長さ（アニメーション・スケーラー考慮）を計算
             float lengthScale = scaler.transform.localScale.x - scalerDefaultScale.x;
-            
+
             // アニメーションの進行（scaleMultiplier）
             if (!parameter.IsLooping)
             {
@@ -75,7 +75,7 @@ namespace Module.Enemy.Hose
             // waterPivotの親のスケールが影響するため、lossyScale比率を利用して変換係数を求める
             // 簡易的に親のXスケールを使用（回転などが複雑でない前提）
             float parentScaleX = waterPivot.parent != null ? waterPivot.parent.lossyScale.x : 1f;
-            
+
             // BoxCastすべき距離
             float castMaxDistance = targetLocalScale.x * parentScaleX;
 
@@ -119,7 +119,7 @@ namespace Module.Enemy.Hose
                     AddWaterSpeed(1);
 
                     return timer >= parameter.OnTime;
-                }, PlayerLoopTiming.FixedUpdate);
+                }, PlayerLoopTiming.FixedUpdate, cancellationToken: destroyCancellationToken);
 
                 timer = 0f;
 
@@ -129,7 +129,7 @@ namespace Module.Enemy.Hose
                     AddWaterSpeed(-1);
 
                     return timer >= parameter.OffTime;
-                }, PlayerLoopTiming.FixedUpdate);
+                }, PlayerLoopTiming.FixedUpdate, cancellationToken: destroyCancellationToken);
 
                 if (parameter.LookAtPlayer)
                 {

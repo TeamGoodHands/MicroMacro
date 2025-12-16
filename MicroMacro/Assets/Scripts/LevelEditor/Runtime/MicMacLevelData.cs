@@ -88,7 +88,7 @@ namespace LevelEditor.Runtime
 
             foreach (GameObject obj in gridObjects)
             {
-                Vector3 position = Snapping.Snap(obj.transform.position, EditorSnapSettings.move);
+                Vector3 position = Snapping.Snap(obj.transform.position, Vector2.one);
                 mapData.Add(CoordToIndex(new Vector2Int((int)position.x, (int)position.y)), obj);
             }
 
@@ -97,6 +97,7 @@ namespace LevelEditor.Runtime
 
         public void RemoveOverlaps()
         {
+#if UNITY_EDITOR
             if (Application.isPlaying)
                 return;
 
@@ -106,7 +107,7 @@ namespace LevelEditor.Runtime
                          .Select(obj => obj.gameObject)
                          .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid)))
             {
-                Vector3 snappedPosition = Snapping.Snap(obj.transform.position, EditorSnapSettings.move);
+                Vector3 snappedPosition = Snapping.Snap(obj.transform.position, Vector2.one);
                 Vector2Int gridPos = new Vector2Int((int)snappedPosition.x, (int)snappedPosition.y);
 
                 if (checkedCoords.Contains(gridPos))
@@ -117,6 +118,7 @@ namespace LevelEditor.Runtime
 
                 checkedCoords.Add(gridPos);
             }
+#endif
         }
 
         private Dictionary<int, List<(int x, MeshFilter filter)>> SplitByY(Dictionary<long, GameObject> mapData)
@@ -230,7 +232,8 @@ namespace LevelEditor.Runtime
                         sortedFilters.Remove(targetAve);
                         checkedCount++;
                     }
-                } while (isContinuous);
+                }
+                while (isContinuous);
 
                 result.Add(meshFilters);
                 sortedFilters.Remove(ave);

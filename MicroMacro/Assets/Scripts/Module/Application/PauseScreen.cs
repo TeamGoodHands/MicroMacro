@@ -129,18 +129,5 @@ namespace Module.Application
             Time.timeScale = 1f; 
             sceneManager.StartTransition("Feedback");
         }
-        
-        public void QuitGame()
-        {
-            Time.timeScale = 1f;
-
-            // アプリケーション終了（エディタでは動作しない）
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
-#endif
-        }
-       
     }
 }
