@@ -101,22 +101,28 @@ namespace LevelEditor.Runtime
             if (Application.isPlaying)
                 return;
 
-            var checkedCoords = new HashSet<Vector2Int>();
-
-            foreach (GameObject obj in transform.Cast<Transform>()
-                         .Select(obj => obj.gameObject)
-                         .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid)))
-            {
-                Vector3 snappedPosition = Snapping.Snap(obj.transform.position, Vector2.one);
-                Vector2Int gridPos = new Vector2Int((int)snappedPosition.x, (int)snappedPosition.y);
-
-                if (checkedCoords.Contains(gridPos))
+            var overlapGroups = transform.Cast<Transform>()
+                .Select(t => t.gameObject)
+                .Where(obj => obj.CompareTag(Tag.Handle.LevelGrid))
+                .GroupBy(obj =>
                 {
-                    Undo.DestroyObjectImmediate(obj);
-                    continue;
-                }
+                    // ここがグルーピングのキー（同じ座標なら同じグループになる）
+                    Vector3 snapped = Snapping.Snap(obj.transform.position, Vector2.one);
+                    return new Vector2Int((int)snapped.x, (int)snapped.y);
+                });
 
-                checkedCoords.Add(gridPos);
+            // グループごとに処理（重複削除）
+            foreach (var group in overlapGroups)
+            {
+                // グループ内の個数が1つなら重複なしなのでスキップ
+                if (group.Count() <= 1)
+                    continue;
+
+                // Skip(1) で「最初の1つ」以外を取得して削除する（＝1つだけ残る）
+                foreach (var duplicateObj in group.Skip(1))
+                {
+                    Undo.DestroyObjectImmediate(duplicateObj);
+                }
             }
 #endif
         }

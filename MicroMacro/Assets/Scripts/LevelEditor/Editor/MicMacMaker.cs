@@ -210,7 +210,10 @@ namespace Editor.LevelEditor
 
         private Button CreateDestroyButton()
         {
-            return new Button(() => { objectPlacer.DestroyAll(); })
+            return new Button(() =>
+            {
+                objectPlacer.DestroyAll();
+            })
             {
                 text = "<b>全て破壊</b>",
                 enableRichText = true,
@@ -228,7 +231,10 @@ namespace Editor.LevelEditor
 
         private Button CreateCheckOverlapButton()
         {
-            return new Button(() => { objectPlacer.Postprocess(); })
+            return new Button(() =>
+            {
+                objectPlacer.Postprocess();
+            })
             {
                 text = "<b>重複削除</b>",
                 enableRichText = true,
@@ -309,6 +315,12 @@ namespace Editor.LevelEditor
 
         private void OnDisable()
         {
+            if (objectPlacer != null)
+            {
+                objectPlacer.Disable();
+                objectPlacer = null;
+            }
+
             foreach (Category group in categoryGroups.Values)
             {
                 group.CleanUp();
