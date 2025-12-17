@@ -58,6 +58,7 @@ namespace Module.Application.Record
                 if (RecordController.IsConnected())
                 {
                     Debug.Log("OBSへの接続に成功しました。");
+                    SceneManager.sceneLoaded -= OnSceneLoaded;  // 多重登録防ぐ
                     SceneManager.sceneLoaded += OnSceneLoaded;
                 }
             }
