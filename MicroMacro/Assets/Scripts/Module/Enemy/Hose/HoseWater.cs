@@ -57,8 +57,10 @@ namespace Module.Enemy.Hose
                 actualDistance = maxDistance + radius;
             }
 
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
             // デバッグ表示
             UGizmos.DrawBoxCast(position, halfExtents, rotatePivot.up, rotatePivot.rotation, actualDistance, isObjectHit, hitInfo);
+#endif 
 
             return isObjectHit;
         }

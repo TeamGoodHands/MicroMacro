@@ -48,15 +48,10 @@ namespace Editor.LevelEditor
             groundMaterial = settings.GroundMaterial;
         }
 
-        private void OnEnable()
-        {
-            Debug.Log("OnEnable");
-        }
-
         public void CreateGUI()
         {
             // 即座に実行せず、delayCallに入れる
-            EditorApplication.delayCall += () => { ReCreate(); };
+            EditorApplication.delayCall += ReCreate;
         }
 
         private void ReCreate()
@@ -110,8 +105,6 @@ namespace Editor.LevelEditor
 
             rootVisualElement.Add(tabView);
             selectedCategory = categoryGroups.First().Value;
-
-            Debug.Log("ReCreate finished");
         }
 
         public void SetEnable(bool isEnable)
@@ -272,7 +265,6 @@ namespace Editor.LevelEditor
             }
             else if (state == PlayModeStateChange.EnteredEditMode)
             {
-                Debug.Log("EnteredEditMode");
                 // EditModeに入るとき、オブジェクト配置を再開する
                 ReCreate();
                 SetEnable(true);
@@ -325,7 +317,6 @@ namespace Editor.LevelEditor
 
         private void OnDisable()
         {
-            Debug.Log("OnDisable");
             if (objectPlacer != null)
             {
                 objectPlacer.Disable();
