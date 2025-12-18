@@ -31,7 +31,7 @@ namespace Module.Application.Dialogue
             if (item != null)
             {
                 dialogueQueue.Enqueue(item);
-                Debug.Log("Enqueue: " + item.EntryName);
+                // Debug.Log("Enqueue: " + item.EntryName);
                 if (!isDisplaying)
                 {
                     ProcessQueueAsync().Forget();

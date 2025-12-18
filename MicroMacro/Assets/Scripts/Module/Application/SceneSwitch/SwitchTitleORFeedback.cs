@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Module.Application.SceneSwitch
 {
@@ -25,11 +26,11 @@ namespace Module.Application.SceneSwitch
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F1))
+            if (Keyboard.current[Key.F1].wasPressedThisFrame)
             {
                 SwitchTitle();
             }
-            else if (Input.GetKeyDown(KeyCode.F12))
+            else if (Keyboard.current[Key.F12].wasPressedThisFrame)
             {
                 SwitchFeedback();
             }

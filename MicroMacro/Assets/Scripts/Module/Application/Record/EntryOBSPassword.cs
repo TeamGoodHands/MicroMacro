@@ -1,9 +1,7 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace Module.Application.Recoed
+namespace Module.Application.Record
 {
     public class EntryOBSPassword : MonoBehaviour
     {
@@ -24,11 +22,19 @@ namespace Module.Application.Recoed
             if (!string.IsNullOrWhiteSpace(password))
             {
                 RecordManager.Instance.SetPasswordAsync(password);
+                Debug.Log("パスワードを自動登録しました。");
             }
         }
 
         public void InputAndSend()
         {
+            if (RecordController.IsConnected() || RecordController.IsInitialized)
+            {
+                Debug.LogWarning("既にOBSに接続されているため再度接続を試みます。");
+                RecordController.OBSDisconnect();
+                RecordController.PasswordReset();
+            }
+            
             if (!string.IsNullOrWhiteSpace(inputField.text))
             {
                 password = inputField.text;

@@ -11,6 +11,7 @@ namespace Module.UI
     {
         [Header("閉じるとき")]
         [SerializeField] private float closeFocusRadius;
+
         [SerializeField] private float closeFocusDuration;
 
         [SerializeField] private float closeCompleteRadius;
@@ -18,6 +19,7 @@ namespace Module.UI
 
         [Header("開くとき")]
         [SerializeField] private float openFocusRadius;
+
         [SerializeField] private float openFocusDuration;
 
         [SerializeField] private float openCompleteRadius;
@@ -25,13 +27,17 @@ namespace Module.UI
 
 
         private Tween currentTween;
+        private Material uniqueMaterial;
         private IrisOverlayWrapper irisOverlay;
 
         private void Start()
         {
             if (TryGetComponent(out Image image))
             {
-                irisOverlay = new IrisOverlayWrapper(image.material);
+                uniqueMaterial = new Material(image.material);
+                image.material = uniqueMaterial;
+                
+                irisOverlay = new IrisOverlayWrapper(uniqueMaterial);
             }
             else
             {
@@ -54,7 +60,7 @@ namespace Module.UI
 
             irisOutSequence.Append(DOVirtual.Float(closeFocusRadius, closeCompleteRadius, closeCompleteDuration, t => { irisOverlay.Radius = t; })
                 .SetEase(Ease.OutBack));
-            
+
             // SoundManager.instance.Play("キャラデス後のフェード");
 
             currentTween = irisOutSequence;

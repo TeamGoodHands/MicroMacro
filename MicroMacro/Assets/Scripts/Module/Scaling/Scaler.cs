@@ -31,13 +31,15 @@ namespace Module.Scaling
         public readonly int PreviousStep;
         public readonly float Duration;
         public readonly State State;
+        public readonly bool DoEffect;
 
-        public ScaleEventArgs(int currentStep, int previousStep, float duration, State state)
+        public ScaleEventArgs(int currentStep, int previousStep, float duration, State state, bool doEffect)
         {
             CurrentStep = currentStep;
             PreviousStep = previousStep;
             Duration = duration;
             State = state;
+            DoEffect = doEffect;
         }
     }
 
@@ -48,11 +50,21 @@ namespace Module.Scaling
     {
         [SerializeField, Header("最小段階")] int minStep = 0;
         [SerializeField, Header("最大段階")] int maxStep = 3;
-        [SerializeField, Header("現在の段階"), ReadOnly] protected int currentStep;
-        [SerializeField, Header("前の段階"), ReadOnly] protected int previousStep;
-        [SerializeField, Header("現在のステート"), ReadOnly] protected State state;
-        [SerializeField, Header("スケール中か"), ReadOnly] protected bool isScaling;
-        [SerializeField, Header("ポーズ中か"), ReadOnly] protected bool isPause;
+
+        [SerializeField, Header("現在の段階"), ReadOnly]
+        protected int currentStep;
+
+        [SerializeField, Header("前の段階"), ReadOnly]
+        protected int previousStep;
+
+        [SerializeField, Header("現在のステート"), ReadOnly]
+        protected State state;
+
+        [SerializeField, Header("スケール中か"), ReadOnly]
+        protected bool isScaling;
+
+        [SerializeField, Header("ポーズ中か"), ReadOnly]
+        protected bool isPause;
 
         /// <summary>
         /// 現在のスケール段階
@@ -139,6 +151,7 @@ namespace Module.Scaling
 
         private CancellationTokenSource scaleCanceller;
         private ScaleEventArgs previousScaleInfo;
+        private ScaleEventArgs currentScaleInfo;
 
         /// <summary>
         /// オブジェクトを追加スケールします
@@ -161,7 +174,7 @@ namespace Module.Scaling
                 return;
 
             // 過去のスケール情報を保存
-            previousScaleInfo = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            previousScaleInfo = currentScaleInfo;
 
             int nextStep = Mathf.Clamp(currentStep + additionalStep, minStep, maxStep);
 
@@ -170,7 +183,7 @@ namespace Module.Scaling
             currentStep = nextStep;
             state = GetScaleState();
 
-            ScaleEventArgs args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            ScaleEventArgs args = new ScaleEventArgs(currentStep, previousStep, 0f, state, true);
             OnScaleStarted?.Invoke(args);
 
             // 同じスケールになる場合はスケールしない
@@ -192,8 +205,8 @@ namespace Module.Scaling
             scaleCanceller = null;
 
             // スケール完了イベントを送信
-            args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
-            OnScaleCompleted?.Invoke(args);
+            currentScaleInfo = new ScaleEventArgs(currentStep, previousStep, 0f, state, true);
+            OnScaleCompleted?.Invoke(currentScaleInfo);
         }
 
         public void ScaleImmediate(int additionalStep, bool forceScale)
@@ -212,7 +225,7 @@ namespace Module.Scaling
                 return;
 
             // 過去のスケール情報を保存
-            previousScaleInfo = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            previousScaleInfo = currentScaleInfo;
 
             int nextStep = Mathf.Clamp(currentStep + additionalStep, minStep, maxStep);
 
@@ -221,7 +234,7 @@ namespace Module.Scaling
             currentStep = nextStep;
             state = GetScaleState();
 
-            ScaleEventArgs args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
+            ScaleEventArgs args = new ScaleEventArgs(currentStep, previousStep, 0f, state, false);
             OnScaleStarted?.Invoke(args);
 
             // 同じスケールになる場合はスケールしない
@@ -234,8 +247,8 @@ namespace Module.Scaling
             isPause = false;
 
             // スケール完了イベントを送信
-            args = new ScaleEventArgs(currentStep, previousStep, 0f, state);
-            OnScaleCompleted?.Invoke(args);
+            currentScaleInfo = new ScaleEventArgs(currentStep, previousStep, 0f, state, false);
+            OnScaleCompleted?.Invoke(currentScaleInfo);
         }
 
         /// <summary>

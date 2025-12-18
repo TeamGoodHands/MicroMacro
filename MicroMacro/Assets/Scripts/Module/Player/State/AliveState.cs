@@ -13,6 +13,7 @@ namespace Module.Player.State
     public class AliveState : HierarchicalStateMachine.State
     {
         private readonly Transform transform;
+        private readonly Rigidbody rigidbody;
         private readonly Transform bodyTransform;
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
@@ -28,6 +29,7 @@ namespace Module.Player.State
         {
             parameter = component.Parameter;
             transform = component.Transform;
+            rigidbody = component.Rigidbody;
             bodyTransform = component.BodyTransform;
             condition = component.Condition;
             status = component.PlayerStatus;
@@ -64,14 +66,15 @@ namespace Module.Player.State
         {
             if (status.CurrentHealth == 0)
                 return;
-            
+
             animatorWrapper.SetDamagedTrigger();
         }
 
         private void UpdateAnimatorDirection(float directionX)
         {
-            float zScale = Mathf.Abs(bodyTransform.localScale.y);
-            bodyTransform.localScale = new Vector3(100, directionX > 0 ? zScale : -zScale, 100);
+            Vector3 localScale = bodyTransform.localScale;
+            float zScale = Mathf.Abs(localScale.z);
+            bodyTransform.localScale = new Vector3(localScale.x, localScale.y, directionX > 0 ? zScale : -zScale);
         }
 
         private void OnSwitchWeapon(InputAction.CallbackContext _)
@@ -83,8 +86,6 @@ namespace Module.Player.State
         {
             // プレイヤーの向きを更新
             UpdateDirectionInput();
-
-            UpdateRotation();
 
             UpdateAnimatorParameter();
         }
@@ -106,8 +107,8 @@ namespace Module.Player.State
 
         private void UpdateRotation()
         {
-            float angle = condition.LastSideInput.x > 0f ? 0f : -180f;
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.deltaTime);
+            float angle = condition.LastSideInput.x > 0f ? -180f : 0f;
+            rigidbody.rotation = Quaternion.Slerp(rigidbody.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.fixedDeltaTime);
         }
 
         private void UpdateAnimatorParameter()
@@ -133,6 +134,7 @@ namespace Module.Player.State
 
         internal override void UpdatePhysics()
         {
+            UpdateRotation();
         }
 
         internal override void Dispose()

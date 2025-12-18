@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 
-namespace Module.Application.Recoed
+namespace Module.Application.Record
 {
     /// <summary>
     /// シングルトンでシーンの動きを監視し、ゲームの開始と終了に合わせて録画、停止を行うクラス
@@ -12,6 +12,9 @@ namespace Module.Application.Recoed
     public class RecordManager : MonoBehaviour
     {
         public static RecordManager Instance { get; private set; }
+        
+        // 現在のセッションIDを外部（FeedbackSender）から取れるようにする
+        public string CurrentTestPlayID { get; private set; }
         [SerializeField] private string host;
         [SerializeField] private string port;
         private string password;
@@ -39,11 +42,6 @@ namespace Module.Application.Recoed
                 Destroy(this);
             }
         }
-
-        /*private async void Start()
-        {
-            await Initialize();
-        }*/
 
         private async UniTask Initialize()
         {
@@ -85,9 +83,19 @@ namespace Module.Application.Recoed
             {
                 RecordController.RecordStop();
             }
+            
+            RecordController.ResetFileNameFormat();
             RecordController.OBSDisconnect();
         }
-        
+
+        private void OnApplicationQuit()
+        {
+            if (Instance == this)
+            {
+                RecordController.ResetFileNameFormat();
+            }
+        }
+
         // ボタンからも呼び出し可能
         // TODO ステージセレクトのボタン周りを改善しボタンで録画開始できるよう変更
         /*public void RecordStart()
@@ -96,7 +104,7 @@ namespace Module.Application.Recoed
         }*/
 
         // ステージセレクト画面のボタン周りがよく分からなかったのでひとまずシーン名から録画開始に。
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        private async void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (!RecordController.IsConnected())
             {
@@ -104,13 +112,20 @@ namespace Module.Application.Recoed
                 return;
             }
             
+            // 録画開始対象のシーンかチェック
             if (!RecordController.IsRecording())
             {
                 foreach (var name in recordStartSceneNames)
                 {
                     if (scene.name == name)
                     {
-                        RecordController.RecordStart();
+                        // GUID:「世界中で重複しない番号」を作る仕組み
+                        // ファイル名に使いやすいよう、短めのIDを生成
+                        CurrentTestPlayID = "Play_" + Guid.NewGuid().ToString().Substring(0, 8);
+                        
+                        Debug.Log($"テストプレイ開始 ID: {CurrentTestPlayID}");
+                        
+                        RecordController.RecordStart(CurrentTestPlayID);
                         return;
                     }
                 }
@@ -121,6 +136,12 @@ namespace Module.Application.Recoed
                 if (scene.name == name)
                 {
                     RecordController.RecordStop();
+
+                    if (ErrorLogger.Instance != null)
+                    {
+                        Debug.Log("ゲーム終了 : エラーログの送信を開始します。");
+                        await ErrorLogger.Instance.SendLogExternalAsync();
+                    }
                     return;
                 }
             }

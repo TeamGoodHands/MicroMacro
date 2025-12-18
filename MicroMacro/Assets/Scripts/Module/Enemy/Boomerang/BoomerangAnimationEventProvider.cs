@@ -8,7 +8,7 @@ namespace Module.Enemy.Boomerang
 
         private void ThrowCap()
         {
-            boomerang.Throw();
+            boomerang.Throw().Forget();
         }
 
         private void CatchCap()

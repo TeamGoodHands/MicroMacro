@@ -3,6 +3,7 @@ Shader "EnvironmentShader"
     Properties
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
+        _BaseColor("Base Color", Color) = (1,1,1,1)
         _NoiseMap("Noise Map", 2D) = "white"{}
         _NoiseScale("Noise Scale",Float) = 1
         _NoisePower("Noise Power",Range(0,1)) = 0
@@ -19,7 +20,6 @@ Shader "EnvironmentShader"
         }
 
 
-        // ====== DepthNormals（Angle Fade/法線影響を使う時は推奨）======
         Pass
         {
             Name "DepthNormals"
@@ -58,8 +58,6 @@ Shader "EnvironmentShader"
                 return o;
             }
 
-            // URPのDepthNormalsはWS法線をそのまま書き出す実装に依存するため、
-            // ここでは簡易的に0..1へエンコード（URP内部の実装差があっても「何かは出る」）
             half4 dn_frag(V i) : SV_Target
             {
                 float3 n = normalize(i.normalWS);
@@ -141,12 +139,7 @@ Shader "EnvironmentShader"
         Pass
         {
             Name "ForwardLit"
-
-            Tags
-            {
-                "LightMode" = "UniversalForward"
-            }
-
+            
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -184,6 +177,7 @@ Shader "EnvironmentShader"
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 float4 _NoiseMap_ST;
+                float4 _BaseColor;
                 float4 _ShadowColor;
                 float _NoiseScale;
                 float _NoisePower;
@@ -211,7 +205,7 @@ Shader "EnvironmentShader"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
+                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
 
                 float4 shadowCoord = TransformWorldToShadowCoord(IN.worldPos);
 
@@ -240,6 +234,7 @@ Shader "EnvironmentShader"
 
                 return color;
             }
+            
             ENDHLSL
         }
     }
