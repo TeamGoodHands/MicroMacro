@@ -174,7 +174,7 @@ PrefabInstance:
     - target: {fileID: 6225912287103670787, guid: 4b7fdd363dba57f43b1df87e793b5b82, type: 3}
       propertyPath: triggerObj
       value: 
-      objectReference: {fileID: 677517055}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1040,11 +1040,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &677517055 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9070193192297310587, guid: 00c77b8e9f3916e4dbf50a26a5e16c59, type: 3}
-  m_PrefabInstance: {fileID: 582766706}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &710699302
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2803,6 +2798,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15a40ec4f4c36a94caafd9c7cb9fbbc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  showBlocks: 0
   overlapCoords: []
 --- !u!4 &1816938202
 Transform:

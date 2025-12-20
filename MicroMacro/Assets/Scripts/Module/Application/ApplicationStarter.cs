@@ -13,6 +13,7 @@ namespace Module.Application
         {
             // DOTweenのCapacityを設定
             DOTween.SetTweensCapacity(500, 50);
+            DOTween.Init();
 
             UnityEngine.Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 1;
