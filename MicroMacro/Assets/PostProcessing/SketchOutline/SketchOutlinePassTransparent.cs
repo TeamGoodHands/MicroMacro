@@ -20,11 +20,10 @@ namespace SketchOutline
         private static readonly int jitterAmpPixelsID = Shader.PropertyToID("_JitterAmpPixels");
         private static readonly int jitterScaleID = Shader.PropertyToID("_JitterScale");
         private static readonly int jitterSpeedID = Shader.PropertyToID("_JitterSpeed");
-        private static readonly int depthLoId = Shader.PropertyToID("_DepthLo");
-        private static readonly int depthHiId = Shader.PropertyToID("_DepthHi");
         private static readonly int normalLoId = Shader.PropertyToID("_NormalLo");
         private static readonly int normalHiId = Shader.PropertyToID("_NormalHi");
         private static readonly int timeStepSizeId = Shader.PropertyToID("_TimeStepSize");
+        private static readonly int cameraNormalsTextureId = Shader.PropertyToID("_CameraNormalsTexture");
 
         private class PassData
         {
@@ -54,12 +53,10 @@ namespace SketchOutline
 
             desc.depthBufferBits = (int)DepthBits.None;
 
-            TextureHandle commitTarget =
-                UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchedTarget", false);
+            TextureHandle commitTarget = outlineSharedData.SketchedTarget;
 
             desc.graphicsFormat = GraphicsFormat.R16_SFloat;
-            TextureHandle destination =
-                UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", false);
+            TextureHandle destination = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", true);
 
             using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlineTransparentPass: Edge Detection", out var passData))
             {
@@ -81,52 +78,48 @@ namespace SketchOutline
                 {
                     data.Material.SetColor(outlineColorID, settings.outlineColor);
                     data.Material.SetFloat(thicknessID, settings.thickness);
-                    ctx.cmd.SetGlobalTexture("_CameraNormalsTexture", outlineSharedData.PrepassTexture);
+                    data.Material.SetFloat(normalLoId, settings.normalLow);
+                    data.Material.SetFloat(normalHiId, settings.normalHigh);
+                    ctx.cmd.SetGlobalTexture(cameraNormalsTextureId, outlineSharedData.PrepassTexture);
 
-                    Blitter.BlitTexture(ctx.cmd, Texture2D.blackTexture, Vector2.one, data.Material, 0);
+                    Blitter.BlitTexture(ctx.cmd, Texture2D.blackTexture, Vector2.one, data.Material, 1);
                 });
             }
 
             using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlineTransparentPass: Composite", out var passData))
             {
                 passData.Material = material;
-                passData.Source = resourceData.activeColorTexture;
-                passData.Destination = commitTarget;
-
+                passData.Source = commitTarget;
+                passData.Destination = resourceData.activeColorTexture;
+            
                 // 元の法線マップのハンドルを取得して渡す
                 if (resourceData.cameraNormalsTexture.IsValid())
                 {
                     originalNormalTexture = resourceData.cameraNormalsTexture;
                     builder.UseTexture(originalNormalTexture);
                 }
-                
+            
                 builder.AllowGlobalStateModification(true);
-
+            
                 builder.UseTexture(passData.Source, AccessFlags.Read);
                 builder.UseTexture(destination, AccessFlags.Read);
-
+            
                 builder.SetRenderAttachment(passData.Destination, 0, AccessFlags.Write);
-
+            
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
                     data.Material.SetTexture(edgeTextureID, destination);
                     data.Material.SetFloat(jitterAmpPixelsID, settings.enableJitter ? settings.jitterAmpPixels : 0f);
                     data.Material.SetFloat(jitterScaleID, settings.jitterScale);
                     data.Material.SetFloat(jitterSpeedID, settings.jitterSpeed);
-                    data.Material.SetFloat(depthLoId, settings.depthLow);
-                    data.Material.SetFloat(depthHiId, settings.depthHigh);
-                    data.Material.SetFloat(normalLoId, settings.normalLow);
-                    data.Material.SetFloat(normalHiId, settings.normalHigh);
                     data.Material.SetFloat(timeStepSizeId, settings.timeStepSize);
                     data.Material.SetFloat(blendID, settings.blend);
-                    
-                    ctx.cmd.SetGlobalTexture("_CameraNormalsTexture", originalNormalTexture);
-
-                    Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 1);
+            
+                    ctx.cmd.SetGlobalTexture(cameraNormalsTextureId, originalNormalTexture);
+            
+                    Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 2);
                 });
             }
-
-            resourceData.cameraColor = commitTarget;
         }
     }
 }
