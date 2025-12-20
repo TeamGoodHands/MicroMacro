@@ -26,6 +26,8 @@ namespace Module.Player.State
 
         private readonly InputEvent moveEvent;
         private readonly InputEvent jumpEvent;
+        
+        private static readonly int footDirectionId = Shader.PropertyToID("Direction");
 
         private Vector2 moveInput;
         private float footStepTimer;
@@ -129,7 +131,7 @@ namespace Module.Player.State
             if (speed <= 0.1f)
                 return;
 
-            footEffect.SetInt("Direction", direction);
+            footEffect.SetInt(footDirectionId, direction);
 
             footEffect.Play();
         }

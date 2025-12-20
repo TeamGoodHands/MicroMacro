@@ -30,7 +30,7 @@ namespace SketchOutline
             }
             
             outlineSharedData = new OutlineSharedData();
-            passOpaque = new SketchOutlinePassOpaque(material, settings);
+            passOpaque = new SketchOutlinePassOpaque(material, settings, outlineSharedData);
             prepassTransparent = new SketchOutlineTransparentPrepass(outlineSharedData);
             passTransparent = new SketchOutlinePassTransparent(material, settings, outlineSharedData);
         }
@@ -40,7 +40,7 @@ namespace SketchOutline
             if (outlineShader == null)
                 return;
 
-            passOpaque.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
+            passOpaque.ConfigureInput(ScriptableRenderPassInput.Normal);
             renderer.EnqueuePass(passOpaque);
             renderer.EnqueuePass(prepassTransparent);
             renderer.EnqueuePass(passTransparent);
@@ -50,5 +50,6 @@ namespace SketchOutline
     public class OutlineSharedData
     {
         public TextureHandle PrepassTexture;
+        public TextureHandle SketchedTarget;
     }
 }

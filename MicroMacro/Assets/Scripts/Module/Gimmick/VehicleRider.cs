@@ -89,5 +89,10 @@ namespace Module.Gimmick
                 playerCondition.ExternalWeaponForce = rigidBody.linearVelocity;
             }
         }
+
+        private void OnDestroy()
+        {
+            jumpEvent.Clear();
+        }
     }
 }
