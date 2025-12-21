@@ -206,7 +206,7 @@ Shader "Hidden/Custom/SketchOutline"
                 float n = SmoothStep01(edge_normal, _NormalLo, _NormalHi);
 
                 float edge = saturate(n);
-                return edge;
+                return float4(0,0,0,0);
             }
             ENDHLSL
         }
