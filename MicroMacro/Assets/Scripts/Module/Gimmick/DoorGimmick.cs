@@ -27,6 +27,8 @@ namespace Module.Gimmick
         [SerializeField] private float stopDistance = 0.1f; 
         [SerializeField] private float breakDuration = 2.0f; 
         [SerializeField] private float defaultMoveSpeed = 5f;
+        [SerializeField] private float rotateDuration = 0.5f;
+        [SerializeField] private Vector3 modelRotationOffset = new Vector3(90f, -70f, 0f);
         
         [Header("ギミック中切り替えるLayer & Z軸オフセット")]
         [SerializeField] private int ignoreLayerIndex = 2; 
@@ -41,7 +43,7 @@ namespace Module.Gimmick
         private int originalLayer;
         private float originalZ;
         
-        private event Action OnArrivalDoor;
+        public event Action OnArrivalDoor;
       
         private void OnDestroy()
         {
@@ -83,19 +85,24 @@ namespace Module.Gimmick
                 nuts.SetActive(false);
                 warmAnim.SetTrigger("EatNuts");
                 await WaitForAnimation(warmAnim, "EatNuts", 0, token);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.5f));  
                 
-                // Z軸を手前にズラして手前に描画     (厳密にやるならRay飛ばしてみるとか)
-                transform.position = new Vector3(transform.position.x, transform.position.y, originalZ + frontOffsetZ);
+              //  transform.localScale = new Vector3(1f, 1f, 1f); // スケールリセット
                 
-                // --- ドアまで移動 ---
+                // --- 回転してドアの始点へ移動 ---
+                await TurnToTargetAsync(startPoint.transform.position, rotateDuration, token);
+                // Z軸を手前にズラして手前に描画 
+                Vector3 target = new Vector3(transform.position.x, transform.position.y, originalZ + frontOffsetZ);
+                await MoveRoutine(target, 0.3f, token);
+               
                 await MoveToDoorAsync(startPoint.transform.position, token);
-                await UniTask.Delay(TimeSpan.FromSeconds(0.3f));  
                 
-                // --- ドア破壊しながら終点へ ---
+                // 奥行を元に戻す
+                Vector3 currentPos = transform.position;
+                transform.position = new Vector3(currentPos.x, currentPos.y, originalZ);
+                
+                // --- 回転とドア破壊 ---
+                await TurnToTargetAsync(endPoint.transform.position, 0.5f, token);    
                 await BreakDoorAsync(token);
-                
-                
             }
             catch (System.OperationCanceledException)
             {
@@ -104,11 +111,10 @@ namespace Module.Gimmick
             finally
             {
                 // 後処理
-                rb.linearVelocity = Vector3.zero;
-                gameObject.layer = originalLayer;
+                if (rb != null)
+                 rb.linearVelocity = Vector3.zero;
                 
-                Vector3 currentPos = transform.position;
-                transform.position = new Vector3(currentPos.x, currentPos.y, originalZ);
+                gameObject.layer = originalLayer;
             }
         }
 
@@ -118,7 +124,7 @@ namespace Module.Gimmick
         private async UniTask MoveToDoorAsync(Vector3 targetPosition, CancellationToken token)
         {
             warmAnim.SetTrigger("BreakDoor");
-           // director.Play(); // カメラ移動開始
+            // director.Play(); // カメラ移動開始
             
             // 時間指定なし(0f) = defaultMoveSpeedで移動
             await MoveRoutine(targetPosition, 0f, token);
@@ -132,7 +138,7 @@ namespace Module.Gimmick
            // warmAnim.SetTrigger("BreakDoor");
            // これ受信させてドア側モーション再生
            OnArrivalDoor?.Invoke();
-            await MoveRoutine(endPoint.transform.position, breakDuration, token);
+           await MoveRoutine(endPoint.transform.position, breakDuration, token);
            
         }
         
@@ -144,8 +150,16 @@ namespace Module.Gimmick
         {
             Debug.Log($"移動開始 Target:{target} Duration:{duration}");
             
-            while(Vector3.Distance(transform.position, target) > stopDistance)
+            while(true)
             {
+                
+                Vector3 flatTarget = new Vector3(target.x, target.y, transform.position.z);
+                
+                if (Vector3.Distance(transform.position, flatTarget) <= stopDistance)
+                {
+                    break;
+                }
+                
                 if (duration > 0f && duration <= -0.01f)
                 {
                     // 時間指定モードで時間が過ぎていたら強制終了
@@ -153,8 +167,8 @@ namespace Module.Gimmick
                     break;
                 }
                 
-                Vector3 direction = (target - transform.position).normalized;
-                float currentDistance = Vector3.Distance(transform.position, target);
+                Vector3 direction = (flatTarget - transform.position).normalized;
+                float currentDistance = Vector3.Distance(transform.position, flatTarget);
                 
                 if (duration > 0f)
                 {
@@ -189,6 +203,35 @@ namespace Module.Gimmick
             
             rb.linearVelocity = Vector3.zero;
             Debug.Log("移動完了");
+        }
+        
+        private async UniTask TurnToTargetAsync(Vector3 targetPosition, float duration, CancellationToken token)
+        {
+            // 2DだからZはこのオブジェクトと同じにする
+            Vector3 flatTarget = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
+            Vector3 direction = (flatTarget - transform.position).normalized;
+            
+            if (direction == Vector3.zero)
+                return;
+
+            // 目標となる回転角度（Y軸回転）
+            // 2Dゲーム上のキャラが横を向く動きなら LookRotationでOK
+            Quaternion startRot = transform.rotation;
+            Quaternion endRot = Quaternion.LookRotation(direction) * Quaternion.Euler(modelRotationOffset);
+
+            // 指定時間で回転
+            float time = 0;
+            while (time < duration)
+            {
+                // Slerp（球状線形補間）で滑らかに回す
+                transform.rotation = Quaternion.Slerp(startRot, endRot, time / duration);
+                
+                time += Time.deltaTime;
+                await UniTask.WaitForFixedUpdate(cancellationToken: token);
+            }
+
+            // 最後にズレがないように確定させる
+            transform.rotation = endRot;
         }
         
         /// <summary>
