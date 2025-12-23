@@ -26,6 +26,9 @@ namespace Module.Player.Weapon
 
         void Update()
         {
+            if (!IsSimulate)
+                return;
+            
             // デバッグ用に線を出してみる。必要無いなら無くても問題なし。
             if (simulatePointList != null && simulatePointList.Count > 0)
             {

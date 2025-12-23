@@ -115,6 +115,103 @@ Shader "Hidden/Custom/SketchOutline"
             ENDHLSL
         }
 
+       Pass
+        {
+            Name "EdgeDetectionNoDepth"
+            Cull Off ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            HLSLPROGRAM
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
+
+            #pragma vertex Vert
+            #pragma fragment Frag
+
+            float4 _OutlineColor;
+            float _Thickness;
+            float _NormalLo;
+            float _NormalHi;
+
+            float SobelFloat(
+                float s00, float s10, float s20,
+                float s01, float s21,
+                float s02, float s12, float s22)
+            {
+                float gx = (s20 + 2.0 * s21 + s22) - (s00 + 2.0 * s01 + s02);
+                float gy = (s02 + 2.0 * s12 + s22) - (s00 + 2.0 * s10 + s20);
+                
+                return sqrt(gx * gx + gy * gy);
+            }
+
+            float SobelFloat3(
+                float3 s00, float3 s10, float3 s20,
+                float3 s01,  float3 s21,
+                float3 s02, float3 s12, float3 s22)
+            {
+                float3 gx = (s20 + 2.0 * s21 + s22) - (s00 + 2.0 * s01 + s02);
+                float3 gy = (s02 + 2.0 * s12 + s22) - (s00 + 2.0 * s10 + s20);
+                
+                // ベクトル勾配の大きさ
+                return length(float2(length(gx), length(gy)));
+            }
+
+            float3 SampleSceneNormalsRemapped(float2 uv)
+            {
+                return SampleSceneNormals(uv) * 0.5 + 0.5;
+            }
+
+            // しきい値の幅を持たせてスムース化
+            float SmoothStep01(float x, float lo, float hi)
+            {
+                float t = saturate((x - lo) / max(1e-6, (hi - lo)));
+                return t; // 0..1
+            }
+
+            half4 Frag(Varyings IN) : SV_TARGET
+            {
+                float2 uv = IN.texcoord;
+                float2 texel = float2(1.0 / _ScreenParams.x, 1.0 / _ScreenParams.y);
+
+                // _Thickness をピクセル単位ステップに丸める（1以上）
+                int stepPx = max(1, (int)round(_Thickness));
+                float2 o = texel * stepPx;
+
+                // 3×3 の 8 方向 （8サンプル）
+                float2 uv00 = uv + float2(-o.x, -o.y);
+                float2 uv10 = uv + float2(0.0, -o.y);
+                float2 uv20 = uv + float2(o.x, -o.y);
+
+                float2 uv01 = uv + float2(-o.x, 0.0);
+                float2 uv21 = uv + float2(o.x, 0.0);
+
+                float2 uv02 = uv + float2(-o.x, o.y);
+                float2 uv12 = uv + float2(0.0, o.y);
+                float2 uv22 = uv + float2(o.x, o.y);
+
+                // 法線サンプル（0..1 に再マップ）
+                float3 n00 = SampleSceneNormalsRemapped(uv00);
+                float3 n10 = SampleSceneNormalsRemapped(uv10);
+                float3 n20 = SampleSceneNormalsRemapped(uv20);
+                float3 n01 = SampleSceneNormalsRemapped(uv01);
+                float3 n21 = SampleSceneNormalsRemapped(uv21);
+                float3 n02 = SampleSceneNormalsRemapped(uv02);
+                float3 n12 = SampleSceneNormalsRemapped(uv12);
+                float3 n22 = SampleSceneNormalsRemapped(uv22);
+
+                // Sobel（8方向勾配）でエッジ強度算出
+                float edge_normal = SobelFloat3(n00, n10, n20, n01, n21, n02, n12, n22);
+
+                float n = SmoothStep01(edge_normal, _NormalLo, _NormalHi);
+
+                float edge = saturate(n);
+                return edge;
+            }
+            ENDHLSL
+        }
+
+
         Pass
         {
             Name "Composite"

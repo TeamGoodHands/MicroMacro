@@ -25,6 +25,7 @@ namespace Module.Scaling
         private float defaultWaveSpeed;
         private float defaultWavePower;
         private int outlineStyleHandle;
+        private int scaleId = Animator.StringToHash("Scale");
 
         private void Start()
         {
@@ -96,7 +97,7 @@ namespace Module.Scaling
 
                 if (scaleAnimator != null)
                 {
-                    scaleAnimator.Play("Scale");
+                    scaleAnimator.Play(scaleId);
                 }
                 // sparkEffect.Play();
             }

@@ -22,7 +22,7 @@ namespace SketchOutline
             public RendererListHandle RendererList;
         }
 
-        public SketchOutlineTransparentPrepass( OutlineSharedData outlineSharedData)
+        public SketchOutlineTransparentPrepass(OutlineSharedData outlineSharedData)
         {
             this.outlineSharedData = outlineSharedData;
             renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
@@ -44,14 +44,12 @@ namespace SketchOutline
             {
                 passData.PrepassTexture = outlineSharedData.PrepassTexture;
                 
-                builder.AllowPassCulling(false);
-
                 // RendererList を作る
                 RendererListDesc rendererListDesc = new RendererListDesc(writeTagIds, renderingData.cullResults, cameraData.camera)
                 {
                     overrideMaterial = null,
                     layerMask = cameraData.camera.cullingMask,
-                    renderQueueRange = RenderQueueRange.all,
+                    renderQueueRange = RenderQueueRange.transparent,
                 };
 
                 passData.RendererList = renderGraph.CreateRendererList(rendererListDesc);
@@ -59,7 +57,10 @@ namespace SketchOutline
 
                 builder.SetRenderAttachment(passData.PrepassTexture, 0);
 
-                builder.SetRenderFunc((PrePassData data, RasterGraphContext context) => { context.cmd.DrawRendererList(data.RendererList); });
+                builder.SetRenderFunc((PrePassData data, RasterGraphContext context) =>
+                {
+                    context.cmd.DrawRendererList(data.RendererList);
+                });
             }
         }
     }

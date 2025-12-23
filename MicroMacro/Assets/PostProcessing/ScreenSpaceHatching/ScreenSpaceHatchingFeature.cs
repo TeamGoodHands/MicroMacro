@@ -41,6 +41,9 @@ namespace Contents.ScreenSpaceHatching
             {
                 if (generateSamplingPoint)
                 {
+                    samplingRotations = new float[SamplingCount];
+                    samplingLength = new float[SamplingCount];
+                    
                     for (int i = 0; i < SamplingCount; i++)
                     {
                         // 任意の角度. できるだけ均等にバラけていた方がよい

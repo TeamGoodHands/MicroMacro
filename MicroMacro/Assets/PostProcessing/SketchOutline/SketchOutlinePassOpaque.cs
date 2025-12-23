@@ -10,6 +10,7 @@ namespace SketchOutline
     {
         private readonly Material material;
         private readonly SketchOutlineSettings settings;
+        private readonly OutlineSharedData outlineSharedData;
 
         private static readonly int outlineColorID = Shader.PropertyToID("_OutlineColor");
         private static readonly int blendID = Shader.PropertyToID("_Blend");
@@ -31,10 +32,11 @@ namespace SketchOutline
             public TextureHandle Destination;
         }
 
-        public SketchOutlinePassOpaque(Material material, SketchOutlineSettings settings)
+        public SketchOutlinePassOpaque(Material material, SketchOutlineSettings settings, OutlineSharedData outlineSharedData)
         {
             this.material = material;
             this.settings = settings;
+            this.outlineSharedData = outlineSharedData;
 
             renderPassEvent = settings.injectEvent;
         }
@@ -50,12 +52,13 @@ namespace SketchOutline
 
             desc.depthBufferBits = (int)DepthBits.None;
 
-            TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchedTarget", false);
+            outlineSharedData.SketchedTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchedTarget", false);
+            TextureHandle commitTarget = outlineSharedData.SketchedTarget;
 
             desc.graphicsFormat = GraphicsFormat.R16_SFloat;
-            TextureHandle destination = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", false);
+            TextureHandle destination = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SketchTemporary", true);
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlinePass: Edge Detection", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlineOpaque: Edge Detection", out var passData))
             {
                 passData.Material = material;
                 passData.Destination = destination;
@@ -69,12 +72,16 @@ namespace SketchOutline
                 {
                     data.Material.SetColor(outlineColorID, settings.outlineColor);
                     data.Material.SetFloat(thicknessID, settings.thickness);
+                    data.Material.SetFloat(depthLoId, settings.depthLow);
+                    data.Material.SetFloat(depthHiId, settings.depthHigh);
+                    data.Material.SetFloat(normalLoId, settings.normalLow);
+                    data.Material.SetFloat(normalHiId, settings.normalHigh);
 
                     Blitter.BlitTexture(ctx.cmd, Texture2D.blackTexture, Vector2.one, data.Material, 0);
                 });
             }
 
-            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlinePass: Composite", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<PassData>("SketchOutlineOpaque: Composite", out var passData))
             {
                 passData.Material = material;
                 passData.Source = resourceData.activeColorTexture;
@@ -91,18 +98,12 @@ namespace SketchOutline
                     data.Material.SetFloat(jitterAmpPixelsID, settings.enableJitter ? settings.jitterAmpPixels : 0f);
                     data.Material.SetFloat(jitterScaleID, settings.jitterScale);
                     data.Material.SetFloat(jitterSpeedID, settings.jitterSpeed);
-                    data.Material.SetFloat(depthLoId, settings.depthLow);
-                    data.Material.SetFloat(depthHiId, settings.depthHigh);
-                    data.Material.SetFloat(normalLoId, settings.normalLow);
-                    data.Material.SetFloat(normalHiId, settings.normalHigh);
                     data.Material.SetFloat(timeStepSizeId, settings.timeStepSize);
                     data.Material.SetFloat(blendID, settings.blend);
 
-                    Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 1);
+                    Blitter.BlitTexture(ctx.cmd, data.Source, Vector2.one, data.Material, 2);
                 });
             }
-
-            resourceData.cameraColor = commitTarget;
         }
     }
 }
