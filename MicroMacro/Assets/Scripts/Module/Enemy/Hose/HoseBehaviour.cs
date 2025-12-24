@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Scaling;
 using NaughtyAttributes;
+using PropertyGenerator.Generated;
 using UGizmo;
 using UnityEngine;
 
@@ -17,14 +18,13 @@ namespace Module.Enemy.Hose
         [SerializeField] private Transform waterPivot;
         [SerializeField] private Transform rotatePivot;
         [SerializeField] private Transform waterHead;
+        [SerializeField] private HoseControllerWrapper hoseControllerWrapper;
 
         public HoseWater HoseWater { get; private set; }
 
         private Transform playerTransform;
         private Vector3 waterDefaultScale;
-        private Vector3 waterScale;
         private Vector3 scalerDefaultScale;
-        private Vector3 hitPoint;
         private float scaleMultiplier = 1f;
 
         private void Start()
@@ -33,16 +33,30 @@ namespace Module.Enemy.Hose
             playerTransform = GameObject.FindWithTag(Tag.Player).transform;
 
             HoseWater = new HoseWater(scaler, waterPivot, rotatePivot, parameter);
+            
+            scaler.OnScaleStarted += OnScaleStarted;
 
             // 初期情報の取得
             waterDefaultScale = waterPivot.localScale;
-            waterScale = waterDefaultScale;
             scalerDefaultScale = scaler.transform.localScale;
 
             // 水のオンオフを切り替える場合は実行
             if (parameter.IsLooping)
             {
                 DoLoopWater().Forget();
+            }
+        }
+
+        private void OnScaleStarted(ScaleEventArgs args)
+        {
+            int direction = (args.CurrentStep - args.PreviousStep) > 0 ? 1 : -1;
+            if (direction > 0)
+            {
+               hoseControllerWrapper.SetRotateRTrigger();
+            }
+            else
+            {
+                hoseControllerWrapper.SetRotateLTrigger();
             }
         }
 
@@ -81,7 +95,7 @@ namespace Module.Enemy.Hose
 
             // 3. BoxCastを実行し、実際に水が到達した距離を取得
             // HoseWater側の引数変更に対応
-            bool isHit = HoseWater.TryAddWaterForce(targetLocalScale.y, castMaxDistance, out hitPoint, out float actualDistance);
+            bool isHit = HoseWater.TryAddWaterForce(targetLocalScale.y, castMaxDistance, out float actualDistance);
 
             // 4. 実際の距離をローカルスケールに戻して適用
             // 「実際の距離」を「親のスケール」で割れば、設定すべきローカルスケールになる

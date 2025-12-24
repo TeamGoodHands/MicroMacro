@@ -345,6 +345,8 @@ MonoBehaviour:
   waterPivot: {fileID: 8285137654200784058}
   rotatePivot: {fileID: 2598884852024413352}
   waterHead: {fileID: 1299044410674977800}
+  hoseControllerWrapper:
+    target: {fileID: 5047396638292185423}
   maxMultiplier: 1
 --- !u!65 &5718002603898001750
 BoxCollider:
@@ -1013,6 +1015,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7990369739807625152}
+  - component: {fileID: 5047396638292185423}
   m_Layer: 0
   m_Name: waternozzle1211
   m_TagString: Untagged
@@ -1037,6 +1040,28 @@ Transform:
   - {fileID: 2200555294058746763}
   m_Father: {fileID: 4440252061952959787}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!95 &5047396638292185423
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7325296508775159162}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f0323084db7479940bd8dbb92bd79840, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &8421947512287214073
 GameObject:
   m_ObjectHideFlags: 0
