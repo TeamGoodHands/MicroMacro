@@ -46,7 +46,7 @@ namespace Module.Scaling
     /// <summary>
     /// オブジェクトをスケールする基底クラス
     /// </summary>
-    public abstract class Scaler : MonoBehaviour
+    public abstract class Scaler : MonoBehaviour, IScaleSender
     {
         [SerializeField, Header("最小段階")] int minStep = 0;
         [SerializeField, Header("最大段階")] int maxStep = 3;
@@ -345,7 +345,8 @@ namespace Module.Scaling
             scaleCanceller = null;
 
             // スケールを初期値に戻す
-            SetScaleImmediate(0, true);;
+            SetScaleImmediate(0, true);
+            ;
         }
 
         protected abstract UniTask OnScale(CancellationToken cancellationToken);

@@ -3,32 +3,50 @@ using Constants;
 using Cysharp.Threading.Tasks;
 using Module.Player.Component;
 using Module.Scaling;
+using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace Module.Gimmick
 {
     public class SingleBalloon : MonoBehaviour
     {
-        [SerializeField, Header("スケール量に対するY軸の力")] private float forceMultiplier;
+        [SerializeField, Header("スケール量に対するY軸の力")]
+        private float forceMultiplier;
 
-        [SerializeField, Header("スケールを変更した瞬間に発生するY軸の力")] private float forceMultiplierOnScale;
+        [SerializeField, Header("スケールを変更した瞬間に発生するY軸の力")]
+        private float forceMultiplierOnScale;
 
-        [SerializeField, Header("X軸方向の移動スピード")] private float moveSpeed;
+        [SerializeField, Header("X軸方向の移動スピード")]
+        private float moveSpeed;
 
         [SerializeField, Header("最大スピード")] private Vector2 maxSpeed;
 
+        [SerializeField, Header("壁に当たったときに反発する力")]
+        private float bouncePower;
+        
+        [SerializeField, Header("連続で衝突する間隔")]
+        private float bounceInterval = 0.5f;
+
         [SerializeField] private VehicleRider vehicleRider;
         [SerializeField] private Scaler scaler;
+        [SerializeField] private Collider scalerCollider;
         [SerializeField] private Rigidbody rigidBody;
         [SerializeField] private CinemachineCamera balloonCamera;
+        [SerializeField] private VisualEffect fluffSplash;
+        [SerializeField] private GameObject[] fluffObjects;
+        [SerializeField] private BalloonControllerWrapper balloonControllerWrapper;
 
         private Vector3 initialPosition;
+        private int healthPoint;
+        private float lastBounceTime;
 
         private void Start()
         {
             rigidBody.isKinematic = true;
             initialPosition = rigidBody.position;
+            healthPoint = fluffObjects.Length;
 
             vehicleRider.OnRide += OnRide;
             vehicleRider.OnDismount += OnDismount;
@@ -37,8 +55,13 @@ namespace Module.Gimmick
 
         private void OnScale(ScaleEventArgs args)
         {
+            if (healthPoint <= 0)
+                return;
+
             Vector2 verticalForce = Vector2.up * (forceMultiplierOnScale * (args.CurrentStep - args.PreviousStep));
             rigidBody.AddForce(verticalForce, ForceMode.VelocityChange);
+
+            // balloonControllerWrapper.SetActionTrigger();
         }
 
         private void OnRide()
@@ -55,7 +78,7 @@ namespace Module.Gimmick
         private void FixedUpdate()
         {
             // プレイヤー乗っている間は風船を動かす
-            if (vehicleRider.IsRiding)
+            if (vehicleRider.IsRiding && healthPoint > 0)
             {
                 MoveBalloon();
             }
@@ -74,13 +97,43 @@ namespace Module.Gimmick
             velocity.y = Mathf.Clamp(velocity.y, -maxSpeed.y, maxSpeed.y);
             rigidBody.linearVelocity = velocity;
         }
-
+        
+        private bool CanDamage()
+        {
+            return vehicleRider.IsRiding &&
+                   healthPoint > 0 &&
+                   Time.time - lastBounceTime >= bounceInterval;
+        }
 
         private void OnCollisionEnter(Collision other)
         {
-            if (other.gameObject.GetComponent<Thorn>() != null)
+            if (CanDamage())
             {
-                KillBalloon().Forget();
+                Damage(other);
+                lastBounceTime = Time.time;
+            }
+
+            // if (other.gameObject.GetComponent<Thorn>() != null)
+            // {
+            //     KillBalloon().Forget();
+            // }
+        }
+
+        private void Damage(Collision collision)
+        {
+            Vector3 normal = collision.GetContact(0).normal;
+            Vector3 bounceVelocity = normal * bouncePower;
+
+            rigidBody.linearVelocity = bounceVelocity;
+            fluffSplash.Play();
+
+            healthPoint--;
+            fluffObjects[healthPoint].SetActive(false);
+
+            if (healthPoint == 0)
+            {
+                rigidBody.useGravity = true;
+                scalerCollider.enabled = false;
             }
         }
 
@@ -115,6 +168,7 @@ namespace Module.Gimmick
         {
             // 風船操作停止（カメラも戻す）
             rigidBody.isKinematic = true;
+            rigidBody.useGravity = false;
             balloonCamera.Priority = 0;
 
             // 位置・回転・スケールを初期値へ
@@ -123,6 +177,14 @@ namespace Module.Gimmick
             // 速度リセット
             rigidBody.linearVelocity = Vector3.zero;
             rigidBody.angularVelocity = Vector3.zero;
+
+            // 綿毛を戻す
+            healthPoint = fluffObjects.Length;
+            scalerCollider.enabled = true;
+            foreach (GameObject fluffObject in fluffObjects)
+            {
+                fluffObject.SetActive(true);
+            }
 
             // スケール段階も初期化（0段階へ）
             if (scaler != null)

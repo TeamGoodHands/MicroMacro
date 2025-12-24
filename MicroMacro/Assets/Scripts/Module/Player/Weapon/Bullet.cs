@@ -59,7 +59,7 @@ namespace Module.Player.Weapon
             if (isHitting)
                 return;
 
-            if (hitObject.transform.TryGetComponentInParent(out Scaler scaler))
+            if (hitObject.transform.TryGetComponentInParent(out IScaleSender scaler))
             {
                 scaler.Scale(scaleStep).Forget();
             }

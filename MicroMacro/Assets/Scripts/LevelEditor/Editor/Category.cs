@@ -11,6 +11,7 @@ namespace Editor.LevelEditor
         private string name;
         private PreviewTextureCreator previewTextureCreator;
         private List<Button> buttonGroup = new List<Button>();
+        private List<RenderTexture> renderTextures;
         private Button selectedButton;
 
         private static readonly Color backgroundColor = Color.clear;
@@ -43,7 +44,7 @@ namespace Editor.LevelEditor
                 }
             };
 
-            var renderTextures = previewTextureCreator.CreatePreviewTextures(prefabs);
+            renderTextures = previewTextureCreator.CreatePreviewTextures(prefabs);
 
             foreach (RenderTexture renderTexture in renderTextures)
             {

@@ -8,7 +8,7 @@ namespace SketchOutline
     public class SketchOutlineSettings
     {
         public Color outlineColor = Color.black;
-        [Range(0.5f, 6f)] public float thickness = 1.0f;
+        [Range(1, 6)] public int thickness = 1;
 
         [Header("Jitter (Sketchy Outline)")]
         public bool enableJitter = true;

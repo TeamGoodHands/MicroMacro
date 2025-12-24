@@ -92,7 +92,7 @@ namespace Module.Gimmick
 
         private void OnDestroy()
         {
-            jumpEvent.Clear();
+            jumpEvent?.Clear();
         }
     }
 }

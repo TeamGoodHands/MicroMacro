@@ -22,7 +22,7 @@ namespace Module.Enemy.Hose
             this.parameter = parameter;
         }
 
-        public bool TryAddWaterForce(float radius, float maxDistance, out Vector3 hitPoint, out float actualDistance)
+        public bool TryAddWaterForce(float radius, float maxDistance, out float actualDistance)
         {
             const int layerMask = ~(Layer.Mask.PlayerOnly |
                                     Layer.Mask.Player |
@@ -32,7 +32,6 @@ namespace Module.Enemy.Hose
                                     Layer.Mask.IgnoreRaycast |
                                     Layer.Mask.WaterOnly);
 
-            hitPoint = Vector2.zero;
             actualDistance = maxDistance; // デフォルトは最大距離
 
             Vector3 position = rotatePivot.position;
@@ -43,7 +42,7 @@ namespace Module.Enemy.Hose
 
             if (isObjectHit)
             {
-                hitPoint = hitInfo.point;
+                Vector2 hitPoint = hitInfo.point;
                 actualDistance = hitInfo.distance + radius; // ヒットした場合はその距離を採用
 
                 if (hitInfo.rigidbody != null)
@@ -57,8 +56,10 @@ namespace Module.Enemy.Hose
                 actualDistance = maxDistance + radius;
             }
 
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
             // デバッグ表示
             UGizmos.DrawBoxCast(position, halfExtents, rotatePivot.up, rotatePivot.rotation, actualDistance, isObjectHit, hitInfo);
+#endif
 
             return isObjectHit;
         }
