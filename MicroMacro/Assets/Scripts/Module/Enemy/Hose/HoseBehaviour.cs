@@ -19,6 +19,9 @@ namespace Module.Enemy.Hose
         [SerializeField] private Transform rotatePivot;
         [SerializeField] private Transform waterHead;
         [SerializeField] private HoseControllerWrapper hoseControllerWrapper;
+        [SerializeField] private bool isRapids;
+        [SerializeField] private Renderer screwRenderer;
+        [SerializeField] private Renderer waterRenderer;
 
         public HoseWater HoseWater { get; private set; }
 
@@ -26,14 +29,17 @@ namespace Module.Enemy.Hose
         private Vector3 waterDefaultScale;
         private Vector3 scalerDefaultScale;
         private float scaleMultiplier = 1f;
+        
+       private static readonly int WaterThresholdId = Shader.PropertyToID("_WaterThreshold");
+       private static readonly int MainColor = Shader.PropertyToID("_MainColor");
 
-        private void Start()
+       private void Start()
         {
             // プレイヤーのTransformを取得する
             playerTransform = GameObject.FindWithTag(Tag.Player).transform;
 
             HoseWater = new HoseWater(scaler, waterPivot, rotatePivot, parameter);
-            
+
             scaler.OnScaleStarted += OnScaleStarted;
 
             // 初期情報の取得
@@ -45,6 +51,23 @@ namespace Module.Enemy.Hose
             {
                 DoLoopWater().Forget();
             }
+            
+            SetRapidsMode(isRapids);
+        }
+
+        private void SetRapidsMode(bool isRapids)
+        {
+            this.isRapids = isRapids;
+            if (isRapids)
+            {
+                screwRenderer.material.DOFloat(parameter.ScrewWidth, WaterThresholdId, 1f);
+                waterRenderer.material.SetColor(MainColor, parameter.RapidsWaterColor);
+            }
+            else
+            {
+                screwRenderer.material.DOFloat(1f, WaterThresholdId, 1f);
+                waterRenderer.material.SetColor(MainColor, parameter.DefaultWaterColor);
+            }
         }
 
         private void OnScaleStarted(ScaleEventArgs args)
@@ -52,7 +75,7 @@ namespace Module.Enemy.Hose
             int direction = (args.CurrentStep - args.PreviousStep) > 0 ? 1 : -1;
             if (direction > 0)
             {
-               hoseControllerWrapper.SetRotateRTrigger();
+                hoseControllerWrapper.SetRotateRTrigger();
             }
             else
             {

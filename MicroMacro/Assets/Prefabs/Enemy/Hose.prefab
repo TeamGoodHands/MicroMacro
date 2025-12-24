@@ -93,6 +93,92 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.00039999746, y: 0.0017102882, z: 0.0026953847}
     m_Extent: {x: 0.007600003, y: 0.012141945, z: 0.0077362703}
   m_DirtyAABB: 0
+--- !u!1 &1441132741347462605
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4323439991825712940}
+  - component: {fileID: 8366168456623554441}
+  - component: {fileID: 7505893226417239057}
+  m_Layer: 0
+  m_Name: WaterSkrew
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4323439991825712940
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1441132741347462605}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.000000021073546, y: 0.00000006322027, z: 0.00000017881393, w: 1}
+  m_LocalPosition: {x: 0.391, y: 0, z: -0}
+  m_LocalScale: {x: 0.09788401, y: 0.80605, z: 0.9077502}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8285137654200784058}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &8366168456623554441
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1441132741347462605}
+  m_Mesh: {fileID: -462981019419857548, guid: 5e8992365cb157545bcf1441c3796f72, type: 3}
+--- !u!23 &7505893226417239057
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1441132741347462605}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a469ac75f7af1c24ebd8252c2a778b70, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1868579900176875220
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,6 +1179,7 @@ Transform:
   m_Children:
   - {fileID: 8040321308362244333}
   - {fileID: 3508890906601347858}
+  - {fileID: 4323439991825712940}
   - {fileID: 2849492104647806056}
   m_Father: {fileID: 2598884852024413352}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}

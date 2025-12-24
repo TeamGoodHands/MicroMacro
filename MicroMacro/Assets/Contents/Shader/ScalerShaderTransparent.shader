@@ -15,6 +15,7 @@ Shader "ScalerShaderTransparent"
         _WaveSpeed("Wave Speed", Float) = 7
         [Toggle(_RECEIVE_DECALS)] _ReceiveDecals("Receive Decals", Float) = 1
         [Enum(UnityEngine.Rendering.CompareFunction)] _OutlineStencilComp("Outline Stencil Comp", Int) = 8
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull Mode", Float) = 2
     }
 
     SubShader
@@ -125,6 +126,7 @@ Shader "ScalerShaderTransparent"
         {
             
             ZWrite On
+            Cull [_Cull]
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -156,7 +158,7 @@ Shader "ScalerShaderTransparent"
                 float4 positionHCS : SV_POSITION;
                 float3 normal : NORMAL;
                 float2 uv : TEXCOORD0;
-                float2 screenPos : TEXCOORD1;
+                float4 screenPos : TEXCOORD1;
                 float3 worldPos : TEXCOORD2;
             };
 
@@ -219,10 +221,10 @@ Shader "ScalerShaderTransparent"
                 // カメラから見た画面XY方向だけ揺らす（Zは変えない）
                 float3 vertexOffsetWS = cameraRight * offsetXY.x + cameraUp * offsetXY.y;
 
-                worldPos += vertexOffsetWS;
+                // worldPos += vertexOffsetWS;
 
                 OUT.positionHCS = TransformWorldToHClip(worldPos);
-                OUT.screenPos = ComputeScreenPos(OUT.positionHCS);
+                OUT.screenPos = ComputeScreenPos(TransformObjectToHClip(IN.positionOS));
                 OUT.worldPos = worldPos;
 
                 return OUT;
@@ -249,7 +251,8 @@ Shader "ScalerShaderTransparent"
                 float fresnel = FresnelEffect(IN.normal, UNITY_MATRIX_V[2].xyz, _FresnelPower);
 
                 // フレネルにノイズを重ねる
-                fresnel *= SimpleNoise(IN.worldPos.xy, 10);
+                float2 uv = IN.screenPos.xy / IN.screenPos.w;
+                fresnel *= SimpleNoise(uv, 80);
 
                 fresnel *= _FresnelColor.a;
 
