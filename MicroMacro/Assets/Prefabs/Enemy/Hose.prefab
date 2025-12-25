@@ -414,6 +414,9 @@ MonoBehaviour:
   offTime: 2
   waterSpeed: 3
   lookAtPlayer: 0
+  screwWidth: 0.19
+  defaultWaterColor: {r: 0.3137255, g: 0.6117647, b: 0.99215686, a: 1}
+  rapidsWaterColor: {r: 0.7709594, g: 0.86743397, b: 0.990566, a: 1}
 --- !u!114 &9153948616478439091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -433,6 +436,9 @@ MonoBehaviour:
   waterHead: {fileID: 1299044410674977800}
   hoseControllerWrapper:
     target: {fileID: 5047396638292185423}
+  isRapids: 0
+  screwRenderer: {fileID: 7505893226417239057}
+  waterRenderer: {fileID: 6674564558576474763}
   maxMultiplier: 1
 --- !u!65 &5718002603898001750
 BoxCollider:
