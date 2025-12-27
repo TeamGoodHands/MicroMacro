@@ -1,17 +1,21 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Module.Scaling
 {
     /// <summary>
-    /// オブジェクトの拡大縮小に合わせて、外側のトリガーを一段階大きい状態を保つようスケールするクラス。
+    /// オブジェクトの拡大縮小に合わせて、外側のトリガーを任意のサイズ差に保つようスケールするクラス。
     /// トリガーのサイズは基準になるオブジェクトと同じサイズなことが前提。
     /// </summary>
-    public class OneSizeLargeScaler : MonoBehaviour
+    public class MaintainSizeScaler : MonoBehaviour
     {
         [SerializeField, Header("基準とするオブジェクトのスケーラー")] private Scaler refScaler;
 
-        [SerializeField, Header("トリガーのスケーラー")] private Scaler trigScaler;
+        [SerializeField, Header("差を保ちたいオブジェクトのスケーラー")] private Scaler scaler;
+        
+        [Tooltip("1 = 基準スケーラーから一段階大きい状態を保つ")]
+        [SerializeField, Header("基準スケーラーから保つサイズ差")] private int stepOffset = 1;
 
         private void Awake()
         {
@@ -27,7 +31,7 @@ namespace Module.Scaling
         private IEnumerator Start()
         {
             yield return null;
-            if (refScaler != null && trigScaler != null)
+            if (refScaler != null && scaler != null)
             {
                 InitTrigScaler();
             }
@@ -42,8 +46,8 @@ namespace Module.Scaling
         /// </summary>
         private void InitTrigScaler()
         {
-            int additionalStep = (refScaler.CurrentStep + 1) - trigScaler.CurrentStep;
-            trigScaler.Scale(additionalStep);
+            int additionalStep = (refScaler.CurrentStep + stepOffset) - scaler.CurrentStep;
+            scaler.Scale(additionalStep);
         }
         private void OnDestroy()
         {
@@ -59,7 +63,7 @@ namespace Module.Scaling
         /// <param name="args">refScalerの情報</param>
         private void OnScaleStarted(ScaleEventArgs args)
         {
-            if (trigScaler == null)
+            if (scaler == null)
             {
                 Debug.LogError("trigScalerが未設定の状態でイベントを受信しました",　this);
                 return;
@@ -67,7 +71,7 @@ namespace Module.Scaling
             
             int diff = args.CurrentStep - args.PreviousStep;
             if (diff == 0) return;
-            trigScaler.Scale(diff);
+            scaler.Scale(diff);
         }
     }
 }

@@ -111,10 +111,11 @@ namespace Module.Gimmick
             finally
             {
                 // 後処理
-                if (rb != null)
-                 rb.linearVelocity = Vector3.zero;
-                
-                gameObject.layer = originalLayer;
+                if (rb != null && gameObject != null)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    gameObject.layer = originalLayer;
+                }
             }
         }
 
