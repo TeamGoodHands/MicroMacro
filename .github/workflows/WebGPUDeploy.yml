@@ -17,7 +17,7 @@ jobs:
     steps:
       # Checkout  データ取得
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           lfs: true
       
@@ -33,35 +33,36 @@ jobs:
 
       
       # WindowsBuild
-      - name: Run the WebGPU Build
+      - name: Run the WebGL Build
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_LICENSE:  ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL:    ${{ secrets.UNITY_EMAIL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: WebGL
-          projectPath:    MicroMacro
-          unityVersion:   6000.1.2f1
+          projectPath: MicroMacro
+          unityVersion: 6000.1.2f1
           allowDirtyBuild: true
+          # ビルド成果物の出力先を明示的に指定（後続のステップでパスを迷わないため）
+          buildsPath: build
 
-     # index.htmlを絶対パスから相対パスに
-      - name: Modify index.html for GitHub Pages
-        run: sed -i 's|"/Build/|"/MicroMacro/Build/|g; s|"/TemplateData/|"/MicroMacro/TemplateData/|g' build/WebGL/index.html
-            
+      # sedコマンドは削除（最近のUnityテンプレートは相対パス対応済みのため、逆にバグの原因に）
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: build/WebGL
-      
+          # projectPathがある場合、通常は {projectPath}/{buildsPath}/{targetPlatform} に出力される
+          path: MicroMacro/build/WebGL
+
   deploy:
     name: Deploy to GitHub Pages
-    needs: Unity-Build            # buildが完了したら実行
+    needs: Unity-Build
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-    
