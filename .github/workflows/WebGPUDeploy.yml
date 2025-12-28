@@ -62,16 +62,16 @@ jobs:
         run: ls -R
 
       #  所有権を修正してから.nojekyllを作成（これが無いとUnityのファイルが無視されて404になる）
-      - name: Fix Permissions & Create .nojek
+      - name: Fix Permissions & Create .nojekyll
         run: |
           sudo chown -R $USER:$USER build
-          touch build/WebGL/.nojekyll
+          touch build/WebGL/WebGL/.nojekyll
 
       # Upload 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/WebGL
+          path: build/WebGL/WebGL
 
   deploy:
     name: Deploy to GitHub Pages
