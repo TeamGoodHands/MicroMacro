@@ -61,9 +61,11 @@ jobs:
       - name: Debug - List files
         run: ls -R
 
-      #  .nojekyllファイルを作成（これが無いとUnityのファイルが無視されて404になる）
-      - name: Create .nojekyll
-        run: touch build/WebGL/.nojekyll
+      #  所有権を修正してから.nojekyllを作成（これが無いとUnityのファイルが無視されて404になる）
+      - name: Fix Permissions & Create .nojek
+        run: |
+          sudo chown -R $USER:$USER build
+          touch build/WebGL/.nojekyll
 
       # Upload 
       - name: Upload artifact
