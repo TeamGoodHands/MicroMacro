@@ -44,7 +44,7 @@ jobs:
             Library-${{ runner.os }}-6000.1.2f1-
             Library-${{ runner.os }}-
 
-      # 3. Unity Build
+      # Unity Build
       - name: Run the WebGL Build
         uses: game-ci/unity-builder@v4
         env:
@@ -57,6 +57,13 @@ jobs:
           unityVersion: 6000.1.2f1
           allowDirtyBuild: true
           buildsPath: build
+
+      - name: Debug - List files
+        run: ls -R
+
+      #  .nojekyllファイルを作成（これが無いとUnityのファイルが無視されて404になる）
+      - name: Create .nojekyll
+        run: touch build/WebGL/.nojekyll
 
       # Upload 
       - name: Upload artifact
