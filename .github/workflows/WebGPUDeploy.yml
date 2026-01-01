@@ -1,38 +1,50 @@
-name: WebGPUBuild and Deploy to Github Pages
+name: WebGPU Build and Deploy to Github Pages
+
 on:
-  push:           # releaseにpush(マージ)or手動で実行
+  push:
     branches: ["release"]
-  workflow_dispatch:  {}
-  
+  workflow_dispatch: {}
+
 permissions:
   contents: read
-  pages:    write
+  pages: write
   id-token: write
 
 jobs:
-  Unity-Build:          # checkout->cache->build->uploadの順番
+  Unity-Build:
     name: Build for WebGL
     runs-on: ubuntu-latest
     
     steps:
-      # Checkout  データ取得
+      # 不要なツールを削除して容量確保
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: false
+          swap-storage: false
+
+      # Checkout
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           lfs: true
-      
-      # Cache   Libraryを一時的に別の場所に保管して高速化する
+
+      # Cache
       - name: Cache Library
         uses: actions/cache@v4
         with:
           path: MicroMacro/Library
-          key:  Library-${{ runner.os }}-6000.1.2f1-${{ hashFiles('MicroMacro/Assets/**', 'MicroMacro/Packages/**', 'MicroMacro/ProjectSettings/**') }}
+          key: Library-${{ runner.os }}-6000.1.2f1-${{ hashFiles('MicroMacro/Assets/**', 'MicroMacro/Packages/**', 'MicroMacro/ProjectSettings/**') }}
           restore-keys: |
             Library-${{ runner.os }}-6000.1.2f1-
             Library-${{ runner.os }}-
 
-      
-      # WindowsBuild
+      # Unity Build
       - name: Run the WebGL Build
         uses: game-ci/unity-builder@v4
         env:
@@ -44,15 +56,22 @@ jobs:
           projectPath: MicroMacro
           unityVersion: 6000.1.2f1
           allowDirtyBuild: true
-          # ビルド成果物の出力先を明示的に指定（後続のステップでパスを迷わないため）
           buildsPath: build
 
-      # sedコマンドは削除（最近のUnityテンプレートは相対パス対応済みのため、逆にバグの原因に）
+      - name: Debug - List files
+        run: ls -R
+
+      #  所有権を修正してから.nojekyllを作成（これが無いとUnityのファイルが無視されて404になる）
+      - name: Fix Permissions & Create .nojekyll
+        run: |
+          sudo chown -R $USER:$USER build
+          touch build/WebGL/WebGL/.nojekyll
+
+      # Upload 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # projectPathがある場合、通常は {projectPath}/{buildsPath}/{targetPlatform} に出力される
-          path: MicroMacro/build/WebGL
+          path: build/WebGL/WebGL
 
   deploy:
     name: Deploy to GitHub Pages
