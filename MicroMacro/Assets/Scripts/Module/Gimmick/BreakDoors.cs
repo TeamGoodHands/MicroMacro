@@ -10,6 +10,7 @@ namespace Module.Gimmick
     {
         [SerializeField] private DoorGimmick doorGimmick;
         [SerializeField] private Animator[] doorAnimators;
+        [SerializeField] private Collider doorCollider;
         
         private CancellationTokenSource cts;
 
@@ -41,6 +42,8 @@ namespace Module.Gimmick
                 anim.SetTrigger("BreakDoor");
                 await WaitForAnimation(anim, "BreakDoor", 0, token);
             }
+            
+            doorCollider.enabled = false;
         }
         
         private async UniTask WaitForAnimation(Animator anim, string stateName, int layerIndex, CancellationToken token)
