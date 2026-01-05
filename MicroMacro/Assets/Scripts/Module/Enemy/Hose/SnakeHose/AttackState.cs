@@ -10,51 +10,49 @@ namespace Module.Enemy.Hose.SnakeHose
         private readonly SnakeHoseTapBehaviour tapBehaviour;
         private readonly SnakeHoseParameter parameter;
         private readonly SnakeHoseCondition condition;
+        private readonly LockOnEffect lockOnEffect;
 
-        public AttackState(SnakeHoseTapBehaviour tapBehaviour, SnakeHoseParameter parameter, SnakeHoseCondition condition)
+        public AttackState(SnakeHoseTapBehaviour tapBehaviour, SnakeHoseParameter parameter, SnakeHoseCondition condition, LockOnEffect lockOnEffect)
         {
             this.tapBehaviour = tapBehaviour;
             this.parameter = parameter;
             this.condition = condition;
+            this.lockOnEffect = lockOnEffect;
         }
 
         internal override void OnEnter()
         {
-            Debug.Log("Attack");
             AttackSequence().Forget();
         }
-        
+
         private async UniTaskVoid AttackSequence()
         {
-            await tapBehaviour.LookAtPlayer(parameter.TimeToFacePlayer);
-            
+            lockOnEffect.LockOn();
+
+            await tapBehaviour.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f);
+
             await tapBehaviour.ShakeBody(parameter.ShakeTime);
+
+            lockOnEffect.LockOff();
 
             await tapBehaviour.OnWater();
 
             await UniTask.Delay(TimeSpan.FromSeconds(parameter.AttackDuration));
 
             await tapBehaviour.OffWater();
-            
+
             await tapBehaviour.ResetAngle(parameter.TimeToResetAngle);
+            Debug.Log("End Reset angle");
 
             condition.CurrentState = SnakeHoseCondition.State.Move;
         }
 
-        internal override void OnExit()
-        {
-        }
+        internal override void OnExit() { }
 
-        internal override void Update()
-        {
-        }
+        internal override void Update() { }
 
-        internal override void UpdatePhysics()
-        {
-        }
+        internal override void UpdatePhysics() { }
 
-        internal override void Dispose()
-        {
-        }
+        internal override void Dispose() { }
     }
 }

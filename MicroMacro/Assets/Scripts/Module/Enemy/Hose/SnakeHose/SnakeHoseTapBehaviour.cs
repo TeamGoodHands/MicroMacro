@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Constants;
 using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
@@ -79,6 +80,15 @@ namespace Module.Enemy.Hose
             {
                 hoseControllerWrapper.SetRotateLTrigger();
             }
+
+            if (args.CurrentStep > 0)
+            {
+                SetRapidsMode(true);
+            }
+            else
+            {
+                SetRapidsMode(false);
+            }
         }
 
         [SerializeField, ReadOnly] private float maxMultiplier = 1f;
@@ -152,7 +162,7 @@ namespace Module.Enemy.Hose
 
                 timer += Time.fixedDeltaTime;
 
-                return timer >= parameter.OnTime;
+                return timer >= parameter.OffTime;
             }, PlayerLoopTiming.FixedUpdate, cancellationToken: destroyCancellationToken);
         }
 
@@ -161,39 +171,54 @@ namespace Module.Enemy.Hose
             return rotatePivot.DOShakePosition(duration, 0.002f, 30, 90, false, true);
         }
 
-        public Tween LookAtPlayer(float time)
+        /// <summary>
+        /// 指定時間、プレイヤーの方をゆっくり向き続けます
+        /// </summary>
+        /// <param name="duration">追従する合計時間（秒）</param>
+        /// <param name="smoothSpeed">振り向く速さ（値が大きいほど速い。目安：5.0f〜10.0f）</param>
+        public async UniTask LookAtPlayerSmoothAsync(float duration, float smoothSpeed)
         {
-            // 1. ターゲットへのベクトル計算
-            Vector2 dir = (Vector2)playerTransform.position - (Vector2)rotatePivot.position;
-            // ゴールの角度（2D平面上での理想の角度）
-            float targetAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f; // オフセットは維持
+            float timeElapsed = 0f;
 
-            // 2. 【ここが新技術】「今の見た目の角度」をベクトルから逆算！
-            // eulerAngles.z は信用できないので使いません。
-            // その代わり、「今、頭（Y軸）がどっち向いてるか」から角度を割り出します。
-            // ※画像が上向きなら transform.up、右向きなら transform.right を使ってください
-            Vector3 currentUp = rotatePivot.up;
-            float currentAngle = Mathf.Atan2(currentUp.y, currentUp.x) * Mathf.Rad2Deg - 90f;
+            // MonoBehaviourに標準搭載された destroyCancellationToken を取得
+            // これにより、このコンポーネントやGameObjectが破棄されると自動でキャンセルされます
+            var token = this.destroyCancellationToken;
 
-            // 3. 「あと何度回ればいいか？」を計算
-            // Mathf.DeltaAngle が最短ルート（-180〜180）を計算してくれます
-            float deltaAngle = Mathf.DeltaAngle(currentAngle, targetAngle);
+            while (timeElapsed < duration)
+            {
+                // 1. ターゲット（ゴール）の角度を計算
+                Vector2 dir = (Vector2)playerTransform.position - (Vector2)rotatePivot.position;
+                float targetAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
 
-            // 4. ワールドZ軸（Vector3.forward）周りの回転を作成
-            // ここで Vector3.forward を指定することで、回転軸を画面に対して垂直に固定！
-            Quaternion rotationDiff = Quaternion.AngleAxis(deltaAngle, Vector3.forward);
+                // 2. 現在の見た目の角度を計算
+                Vector3 currentUp = rotatePivot.up;
+                float currentAngle = Mathf.Atan2(currentUp.y, currentUp.x) * Mathf.Rad2Deg - 90f;
 
-            // 5. 今の回転（rotatePivot.rotation）に、計算した差分を「掛け合わせ」ます
-            // ★ポイント：左から掛けることで「ワールド軸での回転」になります！
-            // これにより、オブジェクト自体が変に傾いていても、その傾きを保ったまま回ります。
-            Quaternion finalRotation = rotationDiff * rotatePivot.rotation;
+                // 3. 【新機能】補間処理
+                // 現在の角度からターゲット角度へ、時間をかけて少しずつ近づけます
+                // Mathf.LerpAngle は 360度の境目も適切に処理してくれる賢いメソッドです
+                float nextAngle = Mathf.LerpAngle(currentAngle, targetAngle, smoothSpeed * Time.deltaTime);
 
-            return rotatePivot.DORotateQuaternion(finalRotation, time);
+                // 4. 「今回動くべき量（差分）」を算出
+                // ゴールとの差ではなく、「次のフレームの理想角度」との差を使います
+                float deltaAngle = Mathf.DeltaAngle(currentAngle, nextAngle);
+
+                // 5. 回転を適用
+                Quaternion rotationDiff = Quaternion.AngleAxis(deltaAngle, Vector3.forward);
+                rotatePivot.rotation = rotationDiff * rotatePivot.rotation;
+
+                // 時間経過を加算
+                timeElapsed += Time.deltaTime;
+
+                // 次のフレームまで待機（ここでトークンを渡して安全性を担保）
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
+            }
         }
+
 
         public Tween ResetAngle(float time)
         {
-            return rotatePivot.DOLocalRotateQuaternion(defaultRotation, time);
+            return rotatePivot.DOLocalRotateQuaternion(defaultRotation, time).OnComplete(() => scaler.SetScale(0, true));
         }
 
         private void OnDrawGizmos()

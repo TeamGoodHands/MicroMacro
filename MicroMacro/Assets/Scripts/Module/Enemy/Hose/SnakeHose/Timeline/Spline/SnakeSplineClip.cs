@@ -4,20 +4,35 @@ using UnityEngine.Timeline;
 
 namespace Module.Enemy.Hose.SnakeHose.Timeline.Spline
 {
+    // イージングの種類を定義
+    public enum EasingMode
+    {
+        [Tooltip("設定どおり（S字など）。単発移動用")]
+        Default,
+        
+        [Tooltip("加速のみ（後半の減速をカット）。次のクリップへ繋ぐときに使う")]
+        CutOut, 
+        
+        [Tooltip("減速のみ（前半の加速をカット）。前のクリップから繋がるときに使う")]
+        CutIn,
+
+        [Tooltip("等速（加速も減速もしない）。連続移動の中間用")]
+        Linear
+    }
+
     [System.Serializable]
     public class SnakeSplineClip : PlayableAsset, ITimelineClipAsset
     {
-        [Tooltip("この期間中に適用するスプラインのインデックス")]
         public int splineIndex = 0;
 
-        [Header("Range")]
-        [Tooltip("開始時の距離 (m)")]
-        public float startDistance = 0f;
+        [Header("Transition Settings")]
+        [Tooltip("前後のクリップとの繋がり方")]
+        public EasingMode easingMode = EasingMode.Default;
 
-        [Tooltip("終了時の距離 (m)")]
+        [Header("Range")]
+        public float startDistance = 0f;
         public float endDistance = 10f;
 
-        // クリップをブレンド可能にする
         public ClipCaps clipCaps => ClipCaps.Blending;
 
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
@@ -28,6 +43,7 @@ namespace Module.Enemy.Hose.SnakeHose.Timeline.Spline
             behaviour.splineIndex = splineIndex;
             behaviour.startDistance = startDistance;
             behaviour.endDistance = endDistance;
+            behaviour.easingMode = easingMode; // 追加データを渡す
 
             return playable;
         }

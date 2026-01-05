@@ -7,16 +7,14 @@ namespace Module.Enemy.Hose.SnakeHose.Timeline.Spline
     {
         public override void ProcessFrame(Playable playable, FrameData info, object playerData)
         {
-            // バインドされた SnakeController を取得
             SnakeController controller = playerData as SnakeController;
             if (controller == null) return;
 
             int inputCount = playable.GetInputCount();
             
-            // ブレンド計算用
-            float totalWeight = 0f;
             int activeSplineIndex = controller.targetSplineIndex;
             float finalDistance = 0f;
+            float totalWeight = 0f;
 
             for (int i = 0; i < inputCount; i++)
             {
@@ -27,35 +25,60 @@ namespace Module.Enemy.Hose.SnakeHose.Timeline.Spline
                     ScriptPlayable<SnakeSplineBehaviour> inputPlayable = (ScriptPlayable<SnakeSplineBehaviour>)playable.GetInput(i);
                     SnakeSplineBehaviour input = inputPlayable.GetBehaviour();
 
-                    // 1. スプラインIndexの適用（支配的なクリップに従う）
                     if (weight > 0.5f)
                     {
                         activeSplineIndex = input.splineIndex;
                     }
 
-                    // 2. 進行度(0~1)の計算
+                    // --- 時間計算 ---
                     double time = inputPlayable.GetTime();
                     double duration = inputPlayable.GetDuration();
                     float t = (float)(time / duration);
 
-                    // 3. 【共通イージングの適用】
-                    // Controller側で設定した共通カーブを使って t を変換する
-                    float easedT = t;
+                    // --- イージング加工ロジック ---
+                    float adjustedT = t;
+
+                    // 共通カーブがある場合のみ計算
                     if (controller.commonEaseCurve != null && controller.commonEaseCurve.length > 0)
                     {
-                        easedT = controller.commonEaseCurve.Evaluate(t);
+                        switch (input.easingMode)
+                        {
+                            case EasingMode.Default:
+                                // そのまま (0.0 ～ 1.0)
+                                adjustedT = controller.commonEaseCurve.Evaluate(t);
+                                break;
+
+                            case EasingMode.CutOut:
+                                // 「前半 0.0～0.5」の部分を「0.0～1.0」に引き伸ばして使う
+                                // 結果：加速して最高速になった状態で終わる（減速しない）
+                                float halfT_Out = t * 0.5f; 
+                                adjustedT = controller.commonEaseCurve.Evaluate(halfT_Out) * 2.0f; 
+                                // ※カーブが(0.5, 0.5)を通る対称形であることを前提とした簡易計算
+                                break;
+
+                            case EasingMode.CutIn:
+                                // 「後半 0.5～1.0」の部分を「0.0～1.0」に割り当てて使う
+                                // 結果：最高速の状態から始まり、減速して止まる（加速しない）
+                                float halfT_In = 0.5f + (t * 0.5f);
+                                // 値も 0.5～1.0 の範囲で返ってくるので、0.0～1.0に補正
+                                float val = controller.commonEaseCurve.Evaluate(halfT_In);
+                                adjustedT = (val - 0.5f) * 2.0f;
+                                break;
+
+                            case EasingMode.Linear:
+                                // カーブ無視（等速）
+                                adjustedT = t;
+                                break;
+                        }
                     }
 
-                    // 4. 開始地点と終了地点の間を補間
-                    float calculatedDist = Mathf.Lerp(input.startDistance, input.endDistance, easedT);
+                    float calculatedDist = Mathf.Lerp(input.startDistance, input.endDistance, adjustedT);
 
-                    // ブレンド加算
                     finalDistance += calculatedDist * weight;
                     totalWeight += weight;
                 }
             }
 
-            // 値を適用
             if (totalWeight > 0.001f)
             {
                 controller.targetSplineIndex = activeSplineIndex;
