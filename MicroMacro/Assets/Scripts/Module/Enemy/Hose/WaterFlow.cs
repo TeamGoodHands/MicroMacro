@@ -6,15 +6,15 @@ using UnityEngine;
 
 namespace Module.Enemy.Hose
 {
-    public class HoseWater
+    public class WaterFlow
     {
         private readonly Scaler scaler;
         private readonly Transform waterPivot;
         private readonly Transform rotatePivot;
-        private readonly HoseParameter parameter;
+        private readonly WaterFlowParameter parameter;
         private RaycastHit hitInfo;
 
-        public HoseWater(Scaler scaler, Transform waterPivot, Transform rotatePivot, HoseParameter parameter)
+        public WaterFlow(Scaler scaler, Transform waterPivot, Transform rotatePivot, WaterFlowParameter parameter)
         {
             this.scaler = scaler;
             this.waterPivot = waterPivot;

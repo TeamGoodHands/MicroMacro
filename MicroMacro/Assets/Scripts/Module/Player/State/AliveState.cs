@@ -43,6 +43,8 @@ namespace Module.Player.State
             // 入力イベントの初期化
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
             switchEvent = InputProvider.CreateEvent(ActionGuid.Player.SwitchWeapon);
+            
+            bodyTransform.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
 
         internal override void OnEnter()
@@ -107,7 +109,7 @@ namespace Module.Player.State
 
         private void UpdateRotation()
         {
-            float angle = condition.LastSideInput.x > 0f ? -180f : 0f;
+            float angle = condition.LastSideInput.x > 0f ? 0f : 180f;
             rigidbody.rotation = Quaternion.Slerp(rigidbody.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.fixedDeltaTime);
         }
 

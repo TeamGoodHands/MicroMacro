@@ -24,6 +24,11 @@ namespace Module.Gimmick
             SendDamage(other.gameObject);
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            SendDamage(collision.gameObject);
+        }
+
         private void SendDamage(GameObject obj)
         {
             if (obj.CompareTag(Tag.Player) &&
@@ -39,10 +44,13 @@ namespace Module.Gimmick
             {
                 boxCollider = GetComponent<BoxCollider>();
             }
-            
-            Gizmos.color = new Color(1f, 0.06f, 0.1f, 0.35f);
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+
+            if (boxCollider != null)
+            {
+                Gizmos.color = new Color(1f, 0.06f, 0.1f, 0.35f);
+                Gizmos.matrix = transform.localToWorldMatrix;
+                Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+            }
         }
     }
 }

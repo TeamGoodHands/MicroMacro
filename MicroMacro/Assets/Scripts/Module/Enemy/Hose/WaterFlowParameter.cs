@@ -2,7 +2,7 @@
 
 namespace Module.Enemy.Hose
 {
-    public class HoseParameter : MonoBehaviour
+    public class WaterFlowParameter : MonoBehaviour
     {
         [SerializeField, Header("水流の力")] private Vector2 waterPower;
         [SerializeField, Header("左右に弾くときの倍率")] private float sideForceMultiplier = 0.5f;
