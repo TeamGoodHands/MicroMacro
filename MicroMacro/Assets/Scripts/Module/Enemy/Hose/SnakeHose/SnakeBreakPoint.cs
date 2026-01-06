@@ -1,4 +1,5 @@
 using System;
+using Module.Scaling;
 using UnityEngine;
 
 
@@ -8,7 +9,12 @@ namespace Module.Enemy.Hose.SnakeHose
     {
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent<WaterPusher>(out _))
+            if (!other.TryGetComponent(out WaterPusher waterPusher))
+                return;
+
+            SnakeHoseTapBehaviour snakeHoseTap = waterPusher.GetComponentInParent<SnakeHoseTapBehaviour>();
+
+            if (snakeHoseTap.IsRapid)
             {
                 Destroy(gameObject);
             }

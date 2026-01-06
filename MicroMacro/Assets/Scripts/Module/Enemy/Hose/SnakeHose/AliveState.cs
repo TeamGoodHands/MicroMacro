@@ -18,7 +18,6 @@ namespace Module.Enemy.Hose.SnakeHose
 
         private void PlayNext()
         {
-            Debug.Log($"Play {parameter.TimelineAssets[index].name}");
             director.Play(parameter.TimelineAssets[index]);
             index++;
 

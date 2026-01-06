@@ -26,6 +26,7 @@ namespace Module.Enemy.Hose
         [SerializeField] private Renderer waterRenderer;
 
         public WaterFlow WaterFlow { get; private set; }
+        public bool IsRapid => isRapids;
 
         private Transform playerTransform;
         private Vector3 waterDefaultScale;
@@ -96,7 +97,7 @@ namespace Module.Enemy.Hose
         private void FixedUpdate()
         {
             // 1. 本来伸びるべき長さ（アニメーション・スケーラー考慮）を計算
-            float lengthScale = scaler.transform.localScale.x - scalerDefaultScale.x;
+            float lengthScale = scaler.transform.localScale.y - scalerDefaultScale.y;
 
             // ターゲットとなるローカルスケール（壁がない場合の最大サイズ）
             Vector3 targetLocalScale = CalculateWaterScale(lengthScale);
@@ -108,22 +109,38 @@ namespace Module.Enemy.Hose
                 return;
             }
 
-            // 2. ローカルスケールを「ワールド空間での距離」に変換してBoxCast用の距離を算出
-            // waterPivotの親のスケールが影響するため、lossyScale比率を利用して変換係数を求める
-            // 簡易的に親のXスケールを使用（回転などが複雑でない前提）
-            float parentScaleX = waterPivot.parent != null ? waterPivot.parent.lossyScale.x : 1f;
+            // --- 【修正ここから】 ---
 
-            // BoxCastすべき距離
-            float castMaxDistance = targetLocalScale.x * parentScaleX;
+            // 水流の伸びる方向（ローカルX軸）にかかっている「親からのスケール倍率」を正しく計算する
+            float effectiveScale = 1f;
+            if (waterPivot.parent != null)
+            {
+                // 親の変換を通して、ローカルの「1単位のベクトル(1,0,0)」がワールドでどれだけの長さになるかを測る
+                // これにより、親が非一様スケール（縦横比が違う）であっても、回転後の正しい倍率が取れます
+                Vector3 worldScaleVec = waterPivot.parent.TransformVector(waterPivot.localRotation * Vector3.right);
+                effectiveScale = worldScaleVec.magnitude;
+            }
+
+            // BoxCastすべき距離（ローカルスケール × 実質倍率）
+            float castMaxDistance = targetLocalScale.x * effectiveScale;
 
             // 3. BoxCastを実行し、実際に水が到達した距離を取得
-            // HoseWater側の引数変更に対応
             bool isHit = WaterFlow.TryAddWaterForce(targetLocalScale.y, castMaxDistance, out float actualDistance);
 
             // 4. 実際の距離をローカルスケールに戻して適用
-            // 「実際の距離」を「親のスケール」で割れば、設定すべきローカルスケールになる
             Vector3 finalScale = targetLocalScale;
-            finalScale.x = actualDistance / parentScaleX;
+
+            // 0除算を防ぎつつ、正しい倍率で割ってローカルスケールに戻す
+            if (effectiveScale > 0.0001f)
+            {
+                finalScale.x = actualDistance / effectiveScale;
+            }
+            else
+            {
+                finalScale.x = 0f;
+            }
+
+            // --- 【修正ここまで】 ---
 
             // スケール適用
             waterPivot.localScale = finalScale;

@@ -42,7 +42,6 @@ namespace Module.Enemy.Hose.SnakeHose
             await tapBehaviour.OffWater();
 
             await tapBehaviour.ResetAngle(parameter.TimeToResetAngle);
-            Debug.Log("End Reset angle");
 
             condition.CurrentState = SnakeHoseCondition.State.Move;
         }
