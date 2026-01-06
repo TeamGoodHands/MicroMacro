@@ -73,7 +73,7 @@ namespace Contents.ScreenSpaceHatching
             desc.depthBufferBits = (int)DepthBits.None;
             TextureHandle commitTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSHatchingResult", false);
 
-            desc.graphicsFormat = GraphicsFormat.R16_UNorm;
+            desc.graphicsFormat = GraphicsFormat.R16_SFloat;
 
             // SSAOを書き込むための一時テクスチャを作成
             TextureHandle ssaoTarget = UniversalRenderer.CreateRenderGraphTexture(renderGraph, desc, "_SSHatchingCompute", false);
