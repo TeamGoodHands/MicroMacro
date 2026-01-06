@@ -356,6 +356,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1da435f1296d6d741982b59b3fa23015, type: 3}
+--- !u!4 &136837923 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4510400740358424880, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+  m_PrefabInstance: {fileID: 1335567258021004657}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &161898581
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4268,6 +4273,22 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6709414215055436602, guid: 1da435f1296d6d741982b59b3fa23015, type: 3}
   m_PrefabInstance: {fileID: 1169531857}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1211882105 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7967652326263750702, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+  m_PrefabInstance: {fileID: 1335567258021004657}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1230351731 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5755972296942780011, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+  m_PrefabInstance: {fileID: 1335567258021004657}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0e1e0ee42b943e28c0caca418273f90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1238883741
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4875,6 +4896,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1380220413 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 170408497964079818, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+  m_PrefabInstance: {fileID: 1335567258021004657}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1388758608
 GameObject:
   m_ObjectHideFlags: 0
@@ -5373,6 +5399,11 @@ Transform:
   - {fileID: 1169531858}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1468880468 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6906350360553152776, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+  m_PrefabInstance: {fileID: 1335567258021004657}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1492059107
 GameObject:
   m_ObjectHideFlags: 0
@@ -7820,12 +7851,32 @@ PrefabInstance:
       value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 4649474846870161140, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: waterSpeed
+      value: 2.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4649474846870161140, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
       propertyPath: scaleMultiplier
       value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 4649474846870161140, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
       propertyPath: lengthMultiplier
-      value: 40
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5429146908129495071, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: waterPivot
+      value: 
+      objectReference: {fileID: 1211882105}
+    - target: {fileID: 5429146908129495071, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: screwRenderer
+      value: 
+      objectReference: {fileID: 1380220413}
+    - target: {fileID: 5429146908129495071, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: waterRenderer
+      value: 
+      objectReference: {fileID: 1468880468}
+    - target: {fileID: 5429146908129495071, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: manualLengthOffset
+      value: 0.005
       objectReference: {fileID: 0}
     - target: {fileID: 6243971266130295138, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
       propertyPath: scaleAmount.x
@@ -7835,6 +7886,34 @@ PrefabInstance:
       propertyPath: scaleAmount.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6245690612313936137, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: snakeHoseController
+      value: 
+      objectReference: {fileID: 1230351731}
+    - target: {fileID: 6624985713913403582, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: exitPower
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6624985713913403582, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: hoseController
+      value: 
+      objectReference: {fileID: 1230351731}
+    - target: {fileID: 6624985713913403582, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: lateralDamping
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6624985713913403582, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: pushStrengthMultiplier
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6974586732422238646, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: firePoint
+      value: 
+      objectReference: {fileID: 1211882105}
+    - target: {fileID: 6974586732422238646, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
+      propertyPath: rotatePivot
+      value: 
+      objectReference: {fileID: 136837923}
     - target: {fileID: 7967652326263750702, guid: 7cebfc91f58bed34aa9b25d380d6196e, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.15609385
@@ -9558,6 +9637,8 @@ MonoBehaviour:
   waterObject: {fileID: 0}
   centeringStrength: 2
   exitPower: 0.05
+  lateralDamping: 0.1
+  pushStrengthMultiplier: 1
 --- !u!114 &9153948616647850350
 MonoBehaviour:
   m_ObjectHideFlags: 0

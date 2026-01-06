@@ -12,7 +12,7 @@ namespace Module.Enemy.Hose.SnakeHose
             if (!other.TryGetComponent(out WaterPusher waterPusher))
                 return;
 
-            SnakeHoseTapBehaviour snakeHoseTap = waterPusher.GetComponentInParent<SnakeHoseTapBehaviour>();
+            SnakeHoseController snakeHoseTap = waterPusher.GetComponentInParent<SnakeHoseController>();
 
             if (snakeHoseTap.IsRapid)
             {

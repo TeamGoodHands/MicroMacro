@@ -1,89 +1,92 @@
 using Constants;
 using Module.Player;
-using Module.Player.Component;
+using Module.Player.Component; 
 using UnityEngine;
 
 namespace Module.Enemy.Hose
 {
     public class WaterPusher : MonoBehaviour
     {
-        [SerializeField] private GameObject waterObject;
-        [SerializeField] private float centeringStrength = 5.0f; // 座標を寄せる強さ
+        [Header("References")]
+        [SerializeField] private GameObject waterObject; 
+        
+        [Header("Parameters")]
+        [SerializeField] private float centeringStrength = 5.0f; 
+        [SerializeField] private float exitPower = 1.5f;         
+        [SerializeField] private float lateralDamping = 0.1f;    
 
-        [SerializeField, Header("水を抜けたときに水流方向に吹き飛ばす強さ")]
-        private float exitPower = 1.5f;
+        // ▼ 追加: このエリア専用の押し出し倍率
+        [SerializeField, Header("水流の中にいるときの押し出し倍率")] 
+        private float pushStrengthMultiplier = 1.0f;
 
-        private Rigidbody rigidBody;
+        private SnakeHoseController hoseController;
+        private Rigidbody playerRb;
         private PlayerMovement playerMovement;
-        private WaterFlow waterFlow;
 
         private void Start()
         {
-            GameObject player = GameObject.FindWithTag(Tag.Player);
-            rigidBody = player.GetComponent<Rigidbody>();
-            playerMovement = player.GetComponent<PlayerBehaviour>().Component.PlayerMovement;
-        }
-
-        private void GetWaterFlow()
-        {
-            if (waterFlow != null)
-                return;
-            
-            if (waterObject.TryGetComponent(out IWaterFlow flow))
+            if (waterObject != null)
             {
-                waterFlow = flow.WaterFlow;
+                hoseController = waterObject.GetComponent<SnakeHoseController>();
             }
-            else
+
+            GameObject player = GameObject.FindWithTag(Tag.Player);
+            if (player != null)
             {
-                Debug.LogError("WaterPusher: Water object does not have WaterFlow component.");
+                playerRb = player.GetComponent<Rigidbody>();
+                var behaviour = player.GetComponent<PlayerBehaviour>();
+                if (behaviour != null)
+                {
+                    playerMovement = behaviour.Component.PlayerMovement;
+                }
             }
         }
 
         private void OnTriggerStay(Collider other)
         {
-            GetWaterFlow();
+            if (hoseController == null || playerRb == null) return;
             
-            if (other.gameObject.CompareTag(Tag.Handle.Player))
+            if (other.CompareTag(Tag.Handle.Player))
             {
-                ApplyWaterForce();
+                ApplyWaterControl();
             }
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.CompareTag(Tag.Handle.Player))
+            if (hoseController == null || playerMovement == null) return;
+
+            if (other.CompareTag(Tag.Handle.Player))
             {
-                Vector3 verticalForce = waterFlow.CalculateVerticalForce(true);
-                playerMovement.AddExternalForce(verticalForce * exitPower);
+                // 脱出時のブーストにも倍率を乗せるかはお好みで（今回は乗せていません）
+                Vector3 force = hoseController.Physics.CalculateForceForPusher(true);
+                playerMovement.AddExternalForce(force * exitPower);
             }
         }
 
-        private void ApplyWaterForce()
+        private void ApplyWaterControl()
         {
-            // --- 追加: 横方向の速度を殺す ---
-            // 現在の速度を、このオブジェクトのY軸（進行方向）に投影する
-            // これにより「進行方向成分」だけが残り、横ブレの速度が 0 になります
-            Vector3 velocityAlongAxis = Vector3.Project(rigidBody.linearVelocity, transform.up);
+            // 1. 横方向の速度減衰
+            Vector3 currentVel = playerRb.linearVelocity;
+            Vector3 forwardAxis = transform.up; 
+            Vector3 projectedVel = Vector3.Project(currentVel, forwardAxis);
+            
+            playerRb.linearVelocity = Vector3.Lerp(currentVel, projectedVel, lateralDamping);
 
-            // 速度を上書き（横方向の慣性を消滅させる）
-            rigidBody.linearVelocity = velocityAlongAxis;
-            // -----------------------------
+            // 2. センタリング
+            Vector3 toPlayer = playerRb.position - transform.position;
+            Vector3 axisPoint = transform.position + Vector3.Project(toPlayer, forwardAxis);
+            
+            Vector3 correctedPos = Vector3.Lerp(playerRb.position, axisPoint, centeringStrength * Time.fixedDeltaTime);
+            playerRb.MovePosition(correctedPos);
 
-            Vector3 verticalForce = waterFlow.CalculateVerticalForce(true);
-            Vector3 horizontalForce = waterFlow.CalculateHorizontalForce(true, rigidBody.position);
-
-            // --- 座標を強制的に軸へ寄せる（前回の処理） ---
-            Vector3 vectorToPlayer = rigidBody.position - transform.position;
-            Vector3 projectionOnAxis = Vector3.Project(vectorToPlayer, transform.up);
-            Vector3 targetAxisPoint = transform.position + projectionOnAxis;
-
-            Vector3 newPosition = Vector3.Lerp(rigidBody.position, targetAxisPoint, centeringStrength * Time.deltaTime);
-            rigidBody.position = newPosition;
-            // ----------------------------------------
-
-            // 最後に力を加える（これにより進行方向へは加速する）
-            Vector3 force = verticalForce + horizontalForce;
-            rigidBody.AddForce(force);
+            // 3. 推進力の付与
+            Vector3 baseForce = hoseController.Physics.CalculateForceForPusher(true);
+            
+            // ▼ 修正: ここで倍率をドンと掛け算します
+            Vector3 finalForce = baseForce * pushStrengthMultiplier;
+            
+            playerRb.AddForce(finalForce);
         }
     }
 }

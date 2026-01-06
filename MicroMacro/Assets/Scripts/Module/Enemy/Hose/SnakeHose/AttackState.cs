@@ -7,14 +7,14 @@ namespace Module.Enemy.Hose.SnakeHose
 {
     public class AttackState : HierarchicalStateMachine.State
     {
-        private readonly SnakeHoseTapBehaviour tapBehaviour;
+        private readonly SnakeHoseController controller;
         private readonly SnakeHoseParameter parameter;
         private readonly SnakeHoseCondition condition;
         private readonly LockOnEffect lockOnEffect;
 
-        public AttackState(SnakeHoseTapBehaviour tapBehaviour, SnakeHoseParameter parameter, SnakeHoseCondition condition, LockOnEffect lockOnEffect)
+        public AttackState(SnakeHoseController controller, SnakeHoseParameter parameter, SnakeHoseCondition condition, LockOnEffect lockOnEffect)
         {
-            this.tapBehaviour = tapBehaviour;
+            this.controller = controller;
             this.parameter = parameter;
             this.condition = condition;
             this.lockOnEffect = lockOnEffect;
@@ -29,19 +29,19 @@ namespace Module.Enemy.Hose.SnakeHose
         {
             lockOnEffect.LockOn();
 
-            await tapBehaviour.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f);
+            await controller.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f);
 
-            await tapBehaviour.ShakeBody(parameter.ShakeTime);
+            await controller.ShakeBody(parameter.ShakeTime);
 
             lockOnEffect.LockOff();
 
-            await tapBehaviour.OnWater();
+            await controller.OnWater();
 
             await UniTask.Delay(TimeSpan.FromSeconds(parameter.AttackDuration));
 
-            await tapBehaviour.OffWater();
+            await controller.OffWater();
 
-            await tapBehaviour.ResetAngle(parameter.TimeToResetAngle);
+            await controller.ResetAngle(parameter.TimeToResetAngle);
 
             condition.CurrentState = SnakeHoseCondition.State.Move;
         }
