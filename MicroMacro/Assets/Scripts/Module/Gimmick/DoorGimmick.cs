@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading;
+using Constants;
 using Module.Management;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Playables;
+using Module.Player;
 
 namespace Module.Gimmick
 {
@@ -14,7 +16,6 @@ namespace Module.Gimmick
     {
         [Header("Targets")]
         [SerializeField] private GameObject nuts;
-        [SerializeField] private GameObject nutsDestination; // ※今回は未使用のようですが維持
         [SerializeField] private GameObject startPoint;
         [SerializeField] private GameObject endPoint;
         
@@ -39,11 +40,18 @@ namespace Module.Gimmick
         private CancellationTokenSource cts;
         private bool isOpened;
 
-        // 元の状態を保存するための変数
+        // 元の状態保存用
         private int originalLayer;
         private float originalZ;
         
         public event Action OnArrivalDoor;
+        private PlayerBehaviour playerBehaviour;
+        
+        private 
+        void Start()
+        {
+            playerBehaviour = GameObject.FindWithTag(Tag.Player).GetComponent<PlayerBehaviour>();
+        }
       
         private void OnDestroy()
         {
@@ -88,6 +96,8 @@ namespace Module.Gimmick
                 
               //  transform.localScale = new Vector3(1f, 1f, 1f); // スケールリセット
                 
+               playerBehaviour.Component.Condition.IsPlayerLocked = true;
+              
                 // --- 回転してドアの始点へ移動 ---
                 await TurnToTargetAsync(startPoint.transform.position, rotateDuration, token);
                 // Z軸を手前にズラして手前に描画 
@@ -116,6 +126,7 @@ namespace Module.Gimmick
                     rb.linearVelocity = Vector3.zero;
                     gameObject.layer = originalLayer;
                 }
+                playerBehaviour.Component.Condition.IsPlayerLocked = false;
             }
         }
 
@@ -124,8 +135,8 @@ namespace Module.Gimmick
         /// </summary>
         private async UniTask MoveToDoorAsync(Vector3 targetPosition, CancellationToken token)
         {
+            director.Play(); 
             warmAnim.SetTrigger("BreakDoor");
-            // director.Play(); // カメラ移動開始
             
             // 時間指定なし(0f) = defaultMoveSpeedで移動
             await MoveRoutine(targetPosition, 0f, token);
