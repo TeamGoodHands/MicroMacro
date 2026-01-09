@@ -6,6 +6,7 @@ using Module.Application.SceneSwitch;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -40,6 +41,12 @@ namespace Module.UI
                 // もう一度ボタンを選択状態する
                 sceneButtons[currentIndex].Button.Select();
             }
+
+
+            if (Keyboard.current.f2Key.isPressed)
+            {
+                sceneTransition.StartTransition("WaterBoss");
+            }
         }
 
         private void RegisterSelector()
@@ -54,8 +61,9 @@ namespace Module.UI
                 // ボタンがクリックされたらシーンをロードする
                 sceneButton.Button.onClick.AddListener(async () =>
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: destroyCancellationToken);;
-                    
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: destroyCancellationToken);
+                    ;
+
                     currentIndex = buttonIndex;
                     sceneTransition.StartTransition(sceneButton.SceneName);
                 });

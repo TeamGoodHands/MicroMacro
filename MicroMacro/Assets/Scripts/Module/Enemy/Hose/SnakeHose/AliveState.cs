@@ -6,25 +6,14 @@ namespace Module.Enemy.Hose.SnakeHose
 {
     public class AliveState : HierarchicalStateMachine.State
     {
-        private readonly PlayableDirector director;
-        private readonly SnakeHoseParameter parameter;
-        private int index;
-
-        public AliveState(PlayableDirector director, SnakeHoseParameter parameter)
+        public AliveState()
         {
-            this.director = director;
-            this.parameter = parameter;
+
         }
 
         private void PlayNext()
         {
-            director.Play(parameter.TimelineAssets[index]);
-            index++;
 
-            if (index == 3)
-            {
-                index = 1;
-            }
         }
 
         internal override void OnEnter() { }
@@ -32,10 +21,7 @@ namespace Module.Enemy.Hose.SnakeHose
 
         internal override void Update()
         {
-            if (director.state == PlayState.Paused)
-            {
-                PlayNext();
-            }
+
         }
 
         internal override void UpdatePhysics() { }

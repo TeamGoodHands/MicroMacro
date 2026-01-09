@@ -7,6 +7,7 @@ public class HoseValve : MonoBehaviour
     [SerializeField] private float stepAngle = 90f;
     [SerializeField] private float duration = 0.5f;
     [SerializeField] private Color lockedColor = Color.red;
+    [SerializeField] private Transform pivot;
     [SerializeField] private Renderer valveRender;
 
     private float currentAngle = 0f;
@@ -30,7 +31,7 @@ public class HoseValve : MonoBehaviour
         Vector3 target = new Vector3(0f, nextAngle, 0f);
 
         // DOTweenで回転処理。360度を超えても正しく回るモードを指定
-        await transform.DOLocalRotate(target, duration, RotateMode.FastBeyond360)
+        await pivot.DOLocalRotate(target, duration, RotateMode.FastBeyond360)
             .ToUniTask();
 
         currentAngle = nextAngle;

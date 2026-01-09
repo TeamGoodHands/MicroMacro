@@ -18,6 +18,8 @@ namespace Module.Enemy.Hose
             public float offsetFromHead;
             [Tooltip("モデルの正面軸")]
             public Axis forwardAxis = Axis.Z;
+            [Tooltip("追加の回転オフセット (Euler Angles)")]
+            public Vector3 rotationOffset; // ★変更: Vector3で全軸対応
         }
 
         [System.Serializable]
@@ -26,6 +28,8 @@ namespace Module.Enemy.Hose
             public Transform target;
             [Tooltip("頭からの距離")]
             public float offsetFromHead;
+            [Tooltip("追加の回転オフセット (Euler Angles)")]
+            public Vector3 rotationOffset; // ★変更: Vector3で全軸対応
         }
 
         [Header("Special Attachments")]
@@ -55,30 +59,39 @@ namespace Module.Enemy.Hose
             // X軸(Vector3.right)をZ軸(Vector3.forward)に向けるための回転
             xAxisCorrection = Quaternion.FromToRotation(Vector3.forward, Vector3.right);
 
-            if (controller == null) controller = GetComponent<SnakeController>();
+            if (controller == null)
+            {
+                controller = GetComponent<SnakeController>();
+            }
 
             // Head/TailのOffset自動設定
             if (head != null && head.target != null)
             {
-                head.offsetFromHead = 0f;
+                head.offsetFromHead = controller.snakeLength;
             }
             if (tail != null && tail.target != null && controller != null)
             {
-                tail.offsetFromHead = controller.snakeLength;
+                tail.offsetFromHead = 0f;
             }
         }
 
         private void LateUpdate()
         {
-            if (controller == null) controller = GetComponent<SnakeController>();
-            if (controller.splineContainer == null) return;
+            if (controller == null)
+            {
+                controller = GetComponent<SnakeController>();
+            }
+            if (controller.splineContainer == null)
+            {
+                return;
+            }
 
             UpdateEndPoint(head);
             UpdateEndPoint(tail);
 
             if (bodyParts != null)
             {
-                foreach (var part in bodyParts)
+                foreach (BodyPartAttachment part in bodyParts)
                 {
                     UpdateBodyPart(part);
                 }
@@ -87,24 +100,47 @@ namespace Module.Enemy.Hose
 
         private void UpdateEndPoint(EndPointAttachment att)
         {
-            if (att == null || att.target == null) return;
+            if (att == null || att.target == null)
+            {
+                return;
+            }
 
-            controller.GetSampleAtOffset(att.offsetFromHead, out Vector3 pos, out Quaternion rot, out float r);
+            Vector3 pos;
+            Quaternion rot;
+            float r;
 
+            controller.GetSampleAtOffset(att.offsetFromHead, out pos, out rot, out r);
+
+            // モデルの向き補正
             Quaternion correction = Quaternion.FromToRotation(Vector3.forward, GetAxisVector(att.forwardAxis));
             
+            // ★変更: 3軸のオイラー角オフセットを適用
+            // スプラインの回転(rot)に対し、ローカルでオフセット回転を加えます
+            Quaternion offsetRot = Quaternion.Euler(att.rotationOffset);
+
             att.target.position = pos;
-            att.target.rotation = rot * Quaternion.Inverse(correction);
+            // 適用順序: スプライン回転 -> オフセット回転 -> モデル軸補正の逆
+            att.target.rotation = rot * offsetRot * Quaternion.Inverse(correction);
         }
 
         private void UpdateBodyPart(BodyPartAttachment part)
         {
-            if (part == null || part.target == null) return;
+            if (part == null || part.target == null)
+            {
+                return;
+            }
 
-            controller.GetSampleAtOffset(part.offsetFromHead, out Vector3 pos, out Quaternion rot, out float r);
+            Vector3 pos;
+            Quaternion rot;
+            float r;
+
+            controller.GetSampleAtOffset(part.offsetFromHead, out pos, out rot, out r);
+
+            // ★変更: 3軸のオイラー角オフセットを適用
+            Quaternion offsetRot = Quaternion.Euler(part.rotationOffset);
 
             part.target.position = pos;
-            part.target.rotation = rot * Quaternion.Inverse(xAxisCorrection);
+            part.target.rotation = rot * offsetRot * Quaternion.Inverse(xAxisCorrection);
         }
 
         private Vector3 GetAxisVector(Axis axis)

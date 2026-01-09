@@ -1,5 +1,37 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &91508141296209221
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8489745936210629362}
+  m_Layer: 0
+  m_Name: Valve
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8489745936210629362
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 91508141296209221}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.70708644, y: -0.0019264483, z: 0.0019213485, w: 0.7071219}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5339483655185433259}
+  m_Father: {fileID: 1339059410594960394}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &251792708238319366
 GameObject:
   m_ObjectHideFlags: 0
@@ -63,8 +95,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 311750270044564688}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5097996, y: -0.49004704, z: 0.4899905, w: 0.50977206}
-  m_LocalPosition: {x: -1938.1149, y: -11.335028, z: -58.168777}
+  m_LocalRotation: {x: 0.4350671, y: -0.57318527, z: 0.56946135, w: -0.39735258}
+  m_LocalPosition: {x: -1934.9606, y: -12.869253, z: -58.288677}
   m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -397,8 +429,6 @@ GameObject:
   - component: {fileID: 4679399535372252383}
   - component: {fileID: 1233345855957926964}
   - component: {fileID: 4156482339475806732}
-  - component: {fileID: 1373201980462465693}
-  - component: {fileID: 3882240213675844589}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -488,7 +518,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   splineContainer: {fileID: 7241227394885035941}
   targetSplineIndex: 0
-  distanceTraveled: 535.8987
+  distanceTraveled: 1
   commonEaseCurve:
     serializedVersion: 2
     m_Curve:
@@ -515,9 +545,9 @@ MonoBehaviour:
     m_RotationOrder: 4
   baseSpeed: 10
   SpeedMultiplier: 1
-  loopMovement: 1
+  loopMovement: 0
   snakeLength: 80
-  baseRadius: 1
+  baseRadius: 1.8
   widthCurve:
     serializedVersion: 2
     m_Curve:
@@ -571,23 +601,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   head:
     target: {fileID: 5737339624443027496}
-    offsetFromHead: 0
-    forwardAxis: 4
+    offsetFromHead: 80
+    forwardAxis: 1
+    rotationOffset: {x: 0, y: -60, z: 0}
   tail:
     target: {fileID: 7490062532729745716}
-    offsetFromHead: 80
+    offsetFromHead: 0
     forwardAxis: 4
+    rotationOffset: {x: 0, y: 0, z: 0}
   bodyParts:
   - target: {fileID: 5400452592304920841}
     offsetFromHead: 47
+    rotationOffset: {x: 0, y: 0, z: 0}
   - target: {fileID: 6347662213367466385}
     offsetFromHead: 55
+    rotationOffset: {x: 0, y: 0, z: 0}
   - target: {fileID: 6704545366752766772}
     offsetFromHead: 70
+    rotationOffset: {x: 0, y: 0, z: 0}
   - target: {fileID: 1339059410594960394}
     offsetFromHead: 77
+    rotationOffset: {x: 0, y: 0, z: 0}
   - target: {fileID: 6247309633432131720}
     offsetFromHead: 63.3
+    rotationOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1129225459541846420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -633,8 +670,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2099.8545, y: -12.422663, z: 0.00010681152}
+  m_Radius: 1.8
+  m_Center: {x: -2083.7202, y: 2.8485136, z: -0.031612396}
 --- !u!135 &8391071440887086317
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -654,8 +691,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2098.8572, y: -12.434101, z: 0.00009918213}
+  m_Radius: 1.8
+  m_Center: {x: -2083.233, y: 1.9717798, z: -0.05524826}
 --- !u!135 &6208517714063387076
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -675,8 +712,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2097.8525, y: -12.443396, z: 0.00009536743}
+  m_Radius: 1.8
+  m_Center: {x: -2082.7654, y: 1.0956402, z: -0.068805695}
 --- !u!135 &7813782724351729674
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -696,8 +733,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2096.857, y: -12.450136, z: 0.00008773804}
+  m_Radius: 1.8
+  m_Center: {x: -2082.313, y: 0.19895744, z: -0.069438934}
 --- !u!135 &831347279583475854
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -717,8 +754,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2095.8506, y: -12.454144, z: 0.00008010864}
+  m_Radius: 1.8
+  m_Center: {x: -2081.8936, y: -0.70616627, z: -0.05208206}
 --- !u!135 &6421508731809575666
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -738,8 +775,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2094.8533, y: -12.454958, z: 0.00007247925}
+  m_Radius: 1.8
+  m_Center: {x: -2081.5208, y: -1.6334171, z: -0.008213043}
 --- !u!135 &438508512810739311
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -759,8 +796,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2093.8503, y: -12.452156, z: 0.00006484985}
+  m_Radius: 1.8
+  m_Center: {x: -2081.233, y: -2.58498, z: 0.074394226}
 --- !u!135 &9113706706811604329
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -780,8 +817,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2092.848, y: -12.445158, z: 0.00005722046}
+  m_Radius: 1.8
+  m_Center: {x: -2081.0344, y: -3.5578175, z: 0.16562271}
 --- !u!135 &3966650018482005372
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -801,8 +838,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2091.8547, y: -12.433384, z: 0.000049591064}
+  m_Radius: 1.8
+  m_Center: {x: -2080.6538, y: -4.471798, z: 0.09899521}
 --- !u!135 &6782998437286670604
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -822,8 +859,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2090.8447, y: -12.415518, z: 0.00004196167}
+  m_Radius: 1.8
+  m_Center: {x: -2080.1375, y: -5.3155556, z: -0.05596161}
 --- !u!135 &6566453659176482194
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -843,8 +880,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2089.8472, y: -12.390783, z: 0.000030517578}
+  m_Radius: 1.8
+  m_Center: {x: -2079.8167, y: -6.2569237, z: -0.15383148}
 --- !u!135 &3693598429516612422
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -864,8 +901,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2088.8552, y: -12.357435, z: 0.000022888184}
+  m_Radius: 1.8
+  m_Center: {x: -2079.6653, y: -7.241646, z: -0.20183563}
 --- !u!135 &6984907663448486569
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -885,8 +922,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2087.8452, y: -12.311827, z: 0.000015258789}
+  m_Radius: 1.8
+  m_Center: {x: -2079.6216, y: -8.241098, z: -0.22047043}
 --- !u!135 &379078443546705739
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -906,8 +943,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2086.8423, y: -12.2505455, z: 0.0000076293945}
+  m_Radius: 1.8
+  m_Center: {x: -2079.6577, y: -9.241039, z: -0.21959305}
 --- !u!135 &1939763377624272909
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -927,8 +964,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2085.8438, y: -12.165735, z: 0.0000038146973}
+  m_Radius: 1.8
+  m_Center: {x: -2079.7595, y: -10.235922, z: -0.20484161}
 --- !u!135 &3189808962832415037
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -948,8 +985,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2084.8513, y: -12.040062, z: -0.0000038146973}
+  m_Radius: 1.8
+  m_Center: {x: -2079.9211, y: -11.222567, z: -0.17972183}
 --- !u!135 &3725986063195011542
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -969,8 +1006,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.8818, y: -11.812571, z: -0.0000076293945}
+  m_Radius: 1.8
+  m_Center: {x: -2080.1438, y: -12.197706, z: -0.14666367}
 --- !u!135 &6436303456214925218
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -990,8 +1027,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.4812, y: -11.034454, z: 0.000015258789}
+  m_Radius: 1.8
+  m_Center: {x: -2080.435, y: -13.154459, z: -0.10765457}
 --- !u!135 &8036554834537563621
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1011,8 +1048,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.436, y: -10.034315, z: 0.000038146973}
+  m_Radius: 1.8
+  m_Center: {x: -2080.8152, y: -14.0764885, z: -0.06501007}
 --- !u!135 &3002145199529155487
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1032,8 +1069,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.3872, y: -9.036768, z: 0.00005340576}
+  m_Radius: 1.8
+  m_Center: {x: -2081.34, y: -14.925497, z: -0.022769928}
 --- !u!135 &8493996238609870759
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1053,8 +1090,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.337, y: -8.035967, z: 0.00006484985}
+  m_Radius: 1.8
+  m_Center: {x: -2082.1562, y: -15.467106, z: -0.00005722046}
 --- !u!135 &724843972027171773
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1074,8 +1111,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.2869, y: -7.035019, z: 0.00007247925}
+  m_Radius: 1.8
+  m_Center: {x: -2083.0742, y: -15.849642, z: -0.000038146973}
 --- !u!135 &9130892950568210404
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1095,8 +1132,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.2375, y: -6.0347633, z: 0.000076293945}
+  m_Radius: 1.8
+  m_Center: {x: -2083.8352, y: -16.493896, z: -0.000022888184}
 --- !u!135 &2562263527058578557
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1116,8 +1153,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.19, y: -5.0352993, z: 0.00008010864}
+  m_Radius: 1.8
+  m_Center: {x: -2084.4001, y: -17.316038, z: -0.000015258789}
 --- !u!135 &8259699804093229866
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1137,8 +1174,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.1448, y: -4.036461, z: 0.00008392334}
+  m_Radius: 1.8
+  m_Center: {x: -2084.8057, y: -18.22798, z: -0.000015258789}
 --- !u!135 &1361627327252211970
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1158,8 +1195,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.1023, y: -3.0372963, z: 0.00008392334}
+  m_Radius: 1.8
+  m_Center: {x: -2085.1045, y: -19.182497, z: -0.000015258789}
 --- !u!135 &8488354477428824708
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1179,8 +1216,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.0635, y: -2.0379448, z: 0.00008010864}
+  m_Radius: 1.8
+  m_Center: {x: -2085.3381, y: -20.156374, z: -0.000022888184}
 --- !u!135 &3721988439845247627
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1200,8 +1237,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.0286, y: -1.038475, z: 0.00008010864}
+  m_Radius: 1.8
+  m_Center: {x: -2085.5364, y: -21.136194, z: -0.00002670288}
 --- !u!135 &1135346725725932882
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1221,8 +1258,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2082.9988, y: -0.03887272, z: 0.000076293945}
+  m_Radius: 1.8
+  m_Center: {x: -2085.724, y: -22.119165, z: -0.000034332275}
 --- !u!135 &7036867716791825690
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1242,8 +1279,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2082.9746, y: 0.96093655, z: 0.00007247925}
+  m_Radius: 1.8
+  m_Center: {x: -2085.9229, y: -23.100069, z: -0.000038146973}
 --- !u!135 &5617954905975934537
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1263,8 +1300,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2082.9573, y: 1.9610968, z: 0.00006866455}
+  m_Radius: 1.8
+  m_Center: {x: -2086.155, y: -24.072401, z: -0.000045776367}
 --- !u!135 &1796232237546646294
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1284,8 +1321,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2082.948, y: 2.961793, z: 0.000061035156}
+  m_Radius: 1.8
+  m_Center: {x: -2086.4475, y: -25.029661, z: -0.000049591064}
 --- !u!135 &9223232059161358464
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1305,8 +1342,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2082.949, y: 3.9631433, z: 0.00005340576}
+  m_Radius: 1.8
+  m_Center: {x: -2086.8325, y: -25.952429, z: -0.00005340576}
 --- !u!135 &1489955914192990362
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1326,8 +1363,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2082.9626, y: 4.964963, z: 0.000049591064}
+  m_Radius: 1.8
+  m_Center: {x: -2087.3484, y: -26.80639, z: -0.00005340576}
 --- !u!135 &544613003234291813
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1347,8 +1384,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2082.9927, y: 5.9661646, z: 0.00004196167}
+  m_Radius: 1.8
+  m_Center: {x: -2088.029, y: -27.535883, z: -0.000049591064}
 --- !u!135 &7646114559514798743
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1368,8 +1405,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.045, y: 6.9633865, z: 0.000034332275}
+  m_Radius: 1.8
+  m_Center: {x: -2088.8682, y: -28.070929, z: -0.000038146973}
 --- !u!135 &2772177995543943169
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1389,8 +1426,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.1296, y: 7.9605494, z: 0.000022888184}
+  m_Radius: 1.8
+  m_Center: {x: -2089.8135, y: -28.382608, z: -0.000022888184}
 --- !u!135 &1134244625846886600
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1410,8 +1447,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.2676, y: 8.948944, z: 0.000015258789}
+  m_Radius: 1.8
+  m_Center: {x: -2090.8054, y: -28.49677, z: -0.0000038146973}
 --- !u!135 &3165680744191072689
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1431,8 +1468,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2083.5212, y: 9.914324, z: 0.0000038146973}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &2826415618015899528
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1452,8 +1489,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2084.1863, y: 10.539524, z: 0.000019073486}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &5677337167314091115
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1473,8 +1510,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2085.1877, y: 10.669783, z: 0.00032806396}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &839081141378966857
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1494,8 +1531,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2086.1804, y: 10.759349, z: 0.0007209778}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4068842887168974797
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1515,8 +1552,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2087.1804, y: 10.833909, z: 0.0011405945}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &8866669396806544339
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1536,8 +1573,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2088.1855, y: 10.8993, z: 0.0015716553}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4212903043498505931
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1557,8 +1594,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2089.1907, y: 10.9579525, z: 0.002002716}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &6491684382725801391
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1578,8 +1615,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2090.1787, y: 11.010526, z: 0.0024299622}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4161843781295876739
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1599,8 +1636,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2091.1797, y: 11.059545, z: 0.0028572083}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &71641047409563498
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1620,8 +1657,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2092.1887, y: 11.105255, z: 0.0032806396}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &1832757614353574347
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1641,8 +1678,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2093.1785, y: 11.146897, z: 0.003692627}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &8524332282814553832
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1662,8 +1699,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2094.1833, y: 11.186226, z: 0.0041046143}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4870876459583196252
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1683,8 +1720,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2095.1814, y: 11.222564, z: 0.004501343}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &3171233957461696013
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1704,8 +1741,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2096.1812, y: 11.256395, z: 0.004890442}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &8905401940870447843
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1725,8 +1762,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2097.184, y: 11.287849, z: 0.0052719116}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &6662542703023730620
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1746,8 +1783,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2098.1814, y: 11.316742, z: 0.0056381226}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &2592318912748533143
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1767,8 +1804,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2099.1855, y: 11.343456, z: 0.005996704}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &7937535868500471014
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1788,8 +1825,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2100.1829, y: 11.367649, z: 0.006336212}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &2617421270490427479
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1809,8 +1846,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2101.1855, y: 11.389621, z: 0.006664276}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &5693394492001539706
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1830,8 +1867,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2102.1843, y: 11.409123, z: 0.0069770813}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &1629701402873030342
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1851,8 +1888,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2103.1855, y: 11.426237, z: 0.0072746277}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &5721532921224671600
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1872,8 +1909,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2104.186, y: 11.440832, z: 0.0075531006}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4922242801796487718
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1893,8 +1930,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2105.1865, y: 11.452818, z: 0.0078086853}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4281986843478744436
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1914,8 +1951,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2106.1877, y: 11.462086, z: 0.008049011}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &6633285673711114017
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1935,8 +1972,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2107.1882, y: 11.46846, z: 0.00825882}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &3273390645255084630
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1956,8 +1993,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2108.189, y: 11.471768, z: 0.008449554}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &8139715920456683936
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1977,8 +2014,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2109.1907, y: 11.471771, z: 0.008605957}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &3285729166950053899
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1998,8 +2035,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2110.189, y: 11.468201, z: 0.008735657}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &1162180050571985836
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2019,8 +2056,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2111.1936, y: 11.460659, z: 0.0088272095}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &5771212725684305804
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2040,8 +2077,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2112.186, y: 11.44889, z: 0.008876801}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &158546884475410564
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2061,8 +2098,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2113.1956, y: 11.431961, z: 0.008880615}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4801169885917570389
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2082,8 +2119,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2114.1924, y: 11.40965, z: 0.008834839}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &5542890420575477401
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2103,8 +2140,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2115.192, y: 11.380762, z: 0.008720398}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &1787788175377297502
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2124,8 +2161,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2116.1985, y: 11.34384, z: 0.008529663}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4154826066727701553
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2145,8 +2182,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2117.1929, y: 11.297895, z: 0.0082473755}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &109271886212347229
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2166,8 +2203,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2118.1848, y: 11.240133, z: 0.007843018}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &7461334927534605137
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2187,8 +2224,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2119.1914, y: 11.165169, z: 0.0072669983}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &1296982756310299854
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2208,8 +2245,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2120.1907, y: 11.067038, z: 0.006450653}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &5618682238958482335
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2229,8 +2266,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2121.1785, y: 10.931051, z: 0.005241394}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4687535784071642334
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2250,8 +2287,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2122.159, y: 10.706869, z: 0.0031051636}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4679399535372252383
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2271,8 +2308,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2122.8257, y: 10.06539, z: -0.0025634766}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &1233345855957926964
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2292,8 +2329,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2123.0808, y: 9.097654, z: -0.0063591003}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!135 &4156482339475806732
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2313,66 +2350,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: -2123.2532, y: 8.121536, z: -0.008415222}
---- !u!95 &1373201980462465693
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796220961031930112}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!320 &3882240213675844589
-PlayableDirector:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796220961031930112}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_PlayableAsset: {fileID: 11400000, guid: c4a853aa8b12ac041b189514b07f492b, type: 2}
-  m_InitialState: 0
-  m_WrapMode: 2
-  m_DirectorUpdateMode: 1
-  m_InitialTime: 0
-  m_SceneBindings:
-  - key: {fileID: 0}
-    value: {fileID: 1373201980462465693}
-  - key: {fileID: 0}
-    value: {fileID: 7154513030700833553}
-  - key: {fileID: 1958150566386038234, guid: e2ca0667011899549a9b4fcf03a808b2, type: 2}
-    value: {fileID: 7154513030700833553}
-  - key: {fileID: 0}
-    value: {fileID: 9045953554657986293}
-  - key: {fileID: 701804092685921916, guid: e2ca0667011899549a9b4fcf03a808b2, type: 2}
-    value: {fileID: 1834464396230366963}
-  - key: {fileID: 1958150566386038234, guid: 365b5c5630d668b41814886ea0465e77, type: 2}
-    value: {fileID: 7154513030700833553}
-  - key: {fileID: 701804092685921916, guid: 365b5c5630d668b41814886ea0465e77, type: 2}
-    value: {fileID: 1834464396230366963}
-  - key: {fileID: 1958150566386038234, guid: c4a853aa8b12ac041b189514b07f492b, type: 2}
-    value: {fileID: 7154513030700833553}
-  - key: {fileID: 701804092685921916, guid: c4a853aa8b12ac041b189514b07f492b, type: 2}
-    value: {fileID: 1834464396230366963}
-  m_ExposedReferences:
-    m_References:
-    - fcfb85d66b2c55e4dbf4dc6321816443: {fileID: 4077121214739735402}
+  m_Radius: 1.8
+  m_Center: {x: -2091, y: -28.500002, z: 0}
 --- !u!1 &1138529921928767025
 GameObject:
   m_ObjectHideFlags: 0
@@ -2414,6 +2393,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3121595971505682280}
   - component: {fileID: 7241227394885035941}
+  - component: {fileID: 4170445419913486122}
+  - component: {fileID: 5183620082454430868}
   m_Layer: 0
   m_Name: SnakeSpline
   m_TagString: Untagged
@@ -2465,8 +2446,8 @@ MonoBehaviour:
   - m_EditModeType: 1
     m_Knots:
     - Position:
-        x: -5.9799805
-        y: -4
+        x: 32.47998
+        y: -10.679999
         z: 0
       TangentIn:
         x: 0
@@ -2475,35 +2456,35 @@ MonoBehaviour:
       TangentOut:
         x: 0
         y: 0
-        z: 2.7841375
+        z: 8.730361
       Rotation:
         value:
-          x: 0.15478282
-          y: 0.69323325
-          z: -0.6743282
-          w: -0.20187002
+          x: -0.19128568
+          y: 0.6934337
+          z: -0.6718141
+          w: 0.17670727
     - Position:
-        x: -5.120117
-        y: -26.4
+        x: 36.379883
+        y: -19.400002
         z: 0
       TangentIn:
         x: 0
         y: 0
-        z: -2.8885212
+        z: -2.9314113
       TangentOut:
         x: 0
         y: 0
-        z: 2.8885212
+        z: 2.9314113
       Rotation:
         value:
-          x: -0.5181095
-          y: 0.4811409
-          z: -0.48118198
-          w: 0.5181987
+          x: -0.2251755
+          y: 0.73110723
+          z: -0.6154909
+          w: 0.18960266
     - Position:
-        x: 33.19995
-        y: -25.9
-        z: 0
+        x: 34.63745
+        y: -29.844448
+        z: -0.000061134626
       TangentIn:
         x: 0
         y: 0
@@ -2514,28 +2495,28 @@ MonoBehaviour:
         z: 5.625058
       Rotation:
         value:
-          x: -0.70697
-          y: 0.013302208
-          z: -0.013361735
-          w: 0.7069922
+          x: 0.44093361
+          y: 0.5527797
+          z: -0.552761
+          w: -0.4409846
     - Position:
-        x: 32.69995
-        y: -3.8999996
+        x: 25.699951
+        y: -42.9
         z: 0
       TangentIn:
         x: 0
         y: 0
-        z: -1.9393824
+        z: -7.472926
       TangentOut:
         x: 0
         y: 0
         z: 2.8864198
       Rotation:
         value:
-          x: 0.5580816
-          y: 0.4342179
-          z: -0.43421742
-          w: -0.55808145
+          x: -0.49933776
+          y: -0.50065136
+          z: 0.5006514
+          w: 0.49935776
     m_MetaData:
     - Mode: 3
       Tension: 0.5
@@ -2544,98 +2525,6 @@ MonoBehaviour:
     - Mode: 3
       Tension: 0.5
     - Mode: 3
-      Tension: 0.5
-    m_Closed: 1
-    m_IntData:
-      m_Data: []
-    m_FloatData:
-      m_Data: []
-    m_Float4Data:
-      m_Data: []
-    m_ObjectData:
-      m_Data: []
-  - m_EditModeType: 1
-    m_Knots:
-    - Position:
-        x: 33.19995
-        y: -144.4
-        z: 0
-      TangentIn:
-        x: 0
-        y: 0
-        z: -1.9426672
-      TangentOut:
-        x: 0
-        y: 0
-        z: 5.625058
-      Rotation:
-        value:
-          x: -0.70697
-          y: 0.013302208
-          z: -0.013361735
-          w: 0.7069922
-    - Position:
-        x: 32.69995
-        y: -3.8999996
-        z: 0
-      TangentIn:
-        x: 0
-        y: 0
-        z: -1.9393824
-      TangentOut:
-        x: 0
-        y: 0
-        z: 2.8864198
-      Rotation:
-        value:
-          x: 0.5580816
-          y: 0.4342179
-          z: -0.43421742
-          w: -0.55808145
-    - Position:
-        x: -5.9799805
-        y: -4
-        z: 0
-      TangentIn:
-        x: 0
-        y: 0
-        z: -2.2069035
-      TangentOut:
-        x: 0
-        y: 0
-        z: 2.7841375
-      Rotation:
-        value:
-          x: 0.15478282
-          y: 0.69323325
-          z: -0.6743282
-          w: -0.20187002
-    - Position:
-        x: -5.120117
-        y: -26.4
-        z: 0
-      TangentIn:
-        x: 0
-        y: 0
-        z: -2.8885212
-      TangentOut:
-        x: 0
-        y: 0
-        z: 2.8885212
-      Rotation:
-        value:
-          x: -0.5181095
-          y: 0.4811409
-          z: -0.48118198
-          w: 0.5181987
-    m_MetaData:
-    - Mode: 3
-      Tension: 0.5
-    - Mode: 3
-      Tension: 0.5
-    - Mode: 3
-      Tension: 0.5
-    - Mode: 2
       Tension: 0.5
     m_Closed: 0
     m_IntData:
@@ -2648,6 +2537,54 @@ MonoBehaviour:
       m_Data: []
   m_Knots:
     m_KnotsLink: []
+--- !u!95 &4170445419913486122
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343870820376226347}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b52708332cd90504ba1979eb47b999a0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5183620082454430868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343870820376226347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b7c089236088c94cb28d331f9ca0199, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetContainer: {fileID: 7241227394885035941}
+  KnotDataList:
+  - Position: {x: 32.47998, y: -10.679999, z: 0}
+    TangentIn: {x: 0, y: 0, z: -2.2069035}
+    TangentOut: {x: 0, y: 0, z: 8.730361}
+  - Position: {x: 36.379883, y: -19.400002, z: 0}
+    TangentIn: {x: 0, y: 0, z: -2.9314113}
+    TangentOut: {x: 0, y: 0, z: 2.9314113}
+  - Position: {x: 34.63745, y: -29.844448, z: -0.000061134626}
+    TangentIn: {x: 0, y: 0, z: -1.9426672}
+    TangentOut: {x: 0, y: 0, z: 5.625058}
+  - Position: {x: 25.699951, y: -42.9, z: 0}
+    TangentIn: {x: 0, y: 0, z: -7.472926}
+    TangentOut: {x: 0, y: 0, z: 2.8864198}
 --- !u!1 &1872082166212579482
 GameObject:
   m_ObjectHideFlags: 0
@@ -2834,9 +2771,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2536931126005351291}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.07567424, y: 0.99670535, z: 0.0030120243, w: -0.029029958}
-  m_LocalPosition: {x: -1977.8744, y: 8.121536, z: -58.177197}
-  m_LocalScale: {x: 3, y: 0.5, z: 3}
+  m_LocalRotation: {x: -0.0028977643, y: 0.015192717, z: -0.7101782, w: 0.7038521}
+  m_LocalPosition: {x: -1938.3414, y: 2.8485136, z: -58.200394}
+  m_LocalScale: {x: 5, y: 0.7, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7292099166181756993}
@@ -2944,7 +2881,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071058, y: -0.70710784, z: -0.000000080435115, w: 0.0000000033728145}
   m_LocalPosition: {x: 0, y: 0.0048, z: 0}
-  m_LocalScale: {x: 0.07449096, y: 0.0070588235, z: 0.007058821}
+  m_LocalScale: {x: 0.15609385, y: 0.0070588235, z: 0.007058821}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8780052119592151175}
@@ -2982,8 +2919,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4076236521401424399}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5101136, y: -0.48972014, z: 0.4896795, w: 0.5100709}
-  m_LocalPosition: {x: -1937.7235, y: -3.0372963, z: -58.168697}
+  m_LocalRotation: {x: -0.43010113, y: 0.5612984, z: -0.56124884, w: 0.43006614}
+  m_LocalPosition: {x: -1939.7257, y: -19.182497, z: -58.168797}
   m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3114,7 +3051,6 @@ GameObject:
   - component: {fileID: 6245690612313936137}
   - component: {fileID: 4478803654860546314}
   - component: {fileID: 9045953554657986293}
-  - component: {fileID: 1834464396230366963}
   m_Layer: 0
   m_Name: Snake
   m_TagString: Untagged
@@ -3161,8 +3097,7 @@ MonoBehaviour:
   controller: {fileID: 7154513030700833553}
   condition: {fileID: 9045953554657986293}
   parameter: {fileID: 4478803654860546314}
-  tapBehaviour: {fileID: 5755972296942780011}
-  director: {fileID: 3882240213675844589}
+  snakeHoseController: {fileID: 5755972296942780011}
   lockOnEffect: {fileID: 4064496956972904254}
 --- !u!114 &4478803654860546314
 MonoBehaviour:
@@ -3177,9 +3112,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shakeTime: 2.1
-  attackDuration: 0.4
+  attackDuration: 0.5
   timeToFacePlayer: 2.2
-  timeToResetAngle: 0.3
+  timeToResetAngle: 0.1
   timelineAssets:
   - {fileID: 11400000, guid: e2ca0667011899549a9b4fcf03a808b2, type: 2}
   - {fileID: 11400000, guid: 365b5c5630d668b41814886ea0465e77, type: 2}
@@ -3197,53 +3132,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
---- !u!114 &1834464396230366963
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4077121214739735402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Events:
-    m_Signals:
-    - {fileID: 11400000, guid: 8c3543f7573e12c46bc54e6848939201, type: 2}
-    - {fileID: 11400000, guid: 39368a4621ef57f4f957ddc01193e489, type: 2}
-    m_Events:
-    - m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 9045953554657986293}
-          m_TargetAssemblyTypeName: Module.Enemy.Hose.SnakeHose.SnakeHoseCondition,
-            Assembly-CSharp
-          m_MethodName: Attack
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-    - m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 9045953554657986293}
-          m_TargetAssemblyTypeName: Module.Enemy.Hose.SnakeHose.SnakeHoseCondition,
-            Assembly-CSharp
-          m_MethodName: Move
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
 --- !u!1 &4201261245252075662
 GameObject:
   m_ObjectHideFlags: 0
@@ -3297,7 +3185,7 @@ MonoBehaviour:
   state: 0
   isScaling: 0
   isPause: 0
-  scaleAmount: {x: 0.5, y: 0.5, z: 0.5}
+  scaleAmount: {x: 0.5, y: 1, z: 0.5}
   scaleDuration: 0.5
   lockPosition: 1
   scaleEase: 27
@@ -3382,8 +3270,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4340858067291295649}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.49473003, y: -0.5052561, z: 0.50521785, w: 0.49468526}
-  m_LocalPosition: {x: -1937.5839, y: 4.964963, z: -58.16873}
+  m_LocalRotation: {x: -0.31824213, y: 0.6314784, z: -0.6314249, w: 0.31821314}
+  m_LocalPosition: {x: -1941.9696, y: -26.80639, z: -58.168835}
   m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3529,8 +3417,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4378944561154469377}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.702676, y: 0.71151, z: 0.000019935458, w: 0.000015488966}
-  m_LocalPosition: {x: -1954.4757, y: -12.422663, z: -58.168674}
+  m_LocalRotation: {x: -0.706184, y: -0.7080283, z: 0.000000042146848, w: 0.000014140267}
+  m_LocalPosition: {x: -1945.6212, y: -28.500002, z: -58.16878}
   m_LocalScale: {x: 3, y: 0.5, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3641,11 +3529,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4616021087223144229}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.70708644, y: 0.0019264483, z: -0.0019213485, w: 0.7071219}
-  m_LocalPosition: {x: -1951.4781, y: -12.450136, z: -58.168694}
+  m_LocalRotation: {x: 0.60649365, y: -0.37637433, z: 0.37366495, w: -0.59235334}
+  m_LocalPosition: {x: -1936.9342, y: 0.19895744, z: -58.23822}
   m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8489745936210629362}
   m_Father: {fileID: 8899895483110429253}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &5632180836049630390
@@ -3789,8 +3678,8 @@ Transform:
   m_GameObject: {fileID: 5096888555552792244}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071058, y: -0.70710784, z: -0.00000008043509, w: 0.000000003372807}
-  m_LocalPosition: {x: -0, y: 0.0458, z: 0}
-  m_LocalScale: {x: 0.10806955, y: 0.013858444, z: 0.0070588207}
+  m_LocalPosition: {x: 0, y: 0.0802, z: -0}
+  m_LocalScale: {x: 0.16455749, y: 0.0065375827, z: 0.0070588207}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2810742243782343819}
@@ -3948,8 +3837,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6205625656540157098}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.70701545, y: -0.010200107, z: 0.010206238, w: 0.707051}
-  m_LocalPosition: {x: -1944.4684, y: -12.390783, z: -58.16875}
+  m_LocalRotation: {x: -0.54939896, y: 0.4684458, z: -0.41194373, w: 0.5558971}
+  m_LocalPosition: {x: -1934.4379, y: -6.2569237, z: -58.322613}
   m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4278,7 +4167,224 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waterObject: {fileID: 8248391497463963889}
   centeringStrength: 0
-  exitPower: 0.05
+  exitPower: 0.8
+  lateralDamping: 0.9
+  pushStrengthMultiplier: 10
+--- !u!1 &6810440839782627245
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2892727613537864644}
+  - component: {fileID: 7997540747282172290}
+  - component: {fileID: 6201946746425864665}
+  - component: {fileID: 7613571176475896139}
+  - component: {fileID: 6798280797955550966}
+  m_Layer: 0
+  m_Name: Capsule
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2892727613537864644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6810440839782627245}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.38, y: 4.66, z: 0}
+  m_LocalScale: {x: 0.47332, y: 7.443452, z: 0.47332}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5339483655185433259}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &7997540747282172290
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6810440839782627245}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &6201946746425864665
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6810440839782627245}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 2b9ede9e6e1a2fe41a8869f47e166730, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!136 &7613571176475896139
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6810440839782627245}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6798280797955550966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6810440839782627245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de69e7d40a2f1a748852e38b11c0cf7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stepAngle: 90
+  duration: 0.5
+  lockedColor: {r: 1, g: 0, b: 0, a: 1}
+  pivot: {fileID: 5339483655185433259}
+  valveRender: {fileID: 161054823060546612}
+--- !u!1 &6961260726948678284
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5339483655185433259}
+  - component: {fileID: 944022384990621534}
+  - component: {fileID: 161054823060546612}
+  m_Layer: 0
+  m_Name: Cylinder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5339483655185433259
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6961260726948678284}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.70710677, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 3}
+  m_LocalScale: {x: 8, y: 0.23673269, z: 8}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2892727613537864644}
+  m_Father: {fileID: 8489745936210629362}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
+--- !u!33 &944022384990621534
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6961260726948678284}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &161054823060546612
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6961260726948678284}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: e093037773db58644ba2249229cebaf0, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7158324701909899417
 GameObject:
   m_ObjectHideFlags: 0
@@ -4418,7 +4524,7 @@ Transform:
   m_GameObject: {fileID: 7927417876007124215}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: -0}
+  m_LocalPosition: {x: 0.95, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4611,6 +4717,8 @@ GameObject:
   - component: {fileID: 5755972296942780011}
   - component: {fileID: 3617038621939291426}
   - component: {fileID: 3618935592790952629}
+  - component: {fileID: 6974586732422238646}
+  - component: {fileID: 5429146908129495071}
   m_Layer: 0
   m_Name: Hose (2)
   m_TagString: Untagged
@@ -4626,14 +4734,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8248391497463963889}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -1, z: 0}
   m_LocalScale: {x: 0.6, y: 3.5, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4510037934802267614}
   m_Father: {fileID: 5737339624443027496}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4649474846870161140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4648,14 +4756,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waterPower: {x: 120, y: 40}
   sideForceMultiplier: 3
-  scaleMultiplier: 1.05
-  lengthMultiplier: 0.08
+  scaleMultiplier: 1.2
+  lengthMultiplier: 0.1
   playerMultiplier: 2
   isLooping: 0
   firstDelay: 0
-  onTime: 2
-  offTime: 2
-  waterSpeed: 3
+  onTime: 1.2
+  offTime: 1.2
+  waterSpeed: 2.3
   lookAtPlayer: 1
   screwWidth: 0.19
   defaultWaterColor: {r: 0.3137255, g: 0.6117647, b: 0.99215686, a: 1}
@@ -4674,15 +4782,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   parameter: {fileID: 4649474846870161140}
   scaler: {fileID: 6243971266130295138}
-  waterPivot: {fileID: 7967652326263750702}
-  rotatePivot: {fileID: 4510400740358424880}
-  waterHead: {fileID: 8503894651486182455}
   hoseControllerWrapper:
     target: {fileID: 6003251179268861026}
   isRapids: 0
-  screwRenderer: {fileID: 170408497964079818}
-  waterRenderer: {fileID: 8795579859751686685}
-  maxMultiplier: 1
 --- !u!65 &3617038621939291426
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4717,6 +4819,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scaler: {fileID: 6243971266130295138}
+--- !u!114 &6974586732422238646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8248391497463963889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c38c9adc8ed746aa8a40670cd02d4b38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotatePivot: {fileID: 4510400740358424880}
+  firePoint: {fileID: 7967652326263750702}
+--- !u!114 &5429146908129495071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8248391497463963889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7891209b492e4a2384ee3363a5845703, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waterPivot: {fileID: 7967652326263750702}
+  screwRenderer: {fileID: 170408497964079818}
+  waterRenderer: {fileID: 6906350360553152776}
+  manualLengthOffset: 0.01
 --- !u!1001 &210084026571993231
 PrefabInstance:
   m_ObjectHideFlags: 0
