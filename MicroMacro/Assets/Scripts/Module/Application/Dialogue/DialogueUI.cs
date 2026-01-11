@@ -13,6 +13,7 @@ namespace Module.Application.Dialogue
         [SerializeField] private GameObject dialogueWindow;
         [SerializeField] private Image characterIcon;
         [SerializeField] private TextMeshProUGUI dialogueText;
+        [SerializeField] private GameObject dialogueTextObject;
         [Header("ウィンドウ表示、非表示にかかる時間")][SerializeField] private float playBackTime = 0.3f;
         [SerializeField] [Range(0f, 1f)] private float maxSize;
         
