@@ -1,5 +1,6 @@
 using System;
 using CoreModule.AI.HSM;
+using Module.Enemy.Hose.SnakeHose.State;
 using Module.Scaling;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -16,6 +17,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private Scaler scaler;
         [SerializeField] private LockOnEffect lockOnEffect;
         [SerializeField] private Transform headTransform;
+        [SerializeField] private Animator animator;
 
         private HierarchicalStateMachine stateMachine;
 
@@ -24,11 +26,11 @@ namespace Module.Enemy.Hose.SnakeHose
             stateMachine = new HierarchicalStateMachine();
 
             stateMachine.AddState(new AliveState());
-            // stateMachine.AddState<MoveState, AliveState>(new MoveState(controller, parameter, condition));
-            stateMachine.AddState<AttackState, AliveState>(new AttackState(parameter, headTransform, snakeHoseController, scaler));
+            stateMachine.AddState<AppearState, AliveState>(new AppearState(animator, parameter, condition));
+            stateMachine.AddState<WaterBallAttackState, AliveState>(new WaterBallAttackState(parameter, headTransform, scaler));
 
-            // stateMachine.AddTransition<MoveState, AttackState>(() => condition.CurrentState == SnakeHoseCondition.State.Attack);
-            // stateMachine.AddTransition<AttackState, MoveState>(() => condition.CurrentState == SnakeHoseCondition.State.Move);
+            stateMachine.AddTransition<AppearState, WaterBallAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.WaterBallAttack);
+            // stateMachine.AddTransition<MoveState, AppearState>(() => condition.CurrentState == SnakeHoseCondition.State.WaterBallAttack);
 
             stateMachine.Start<AliveState>();
         }
@@ -41,6 +43,11 @@ namespace Module.Enemy.Hose.SnakeHose
         private void FixedUpdate()
         {
             stateMachine.UpdatePhysics();
+        }
+
+        private void OnDestroy()
+        {
+            stateMachine?.Dispose();
         }
     }
 }

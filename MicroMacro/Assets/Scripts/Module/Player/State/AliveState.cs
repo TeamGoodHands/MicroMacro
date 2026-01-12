@@ -1,6 +1,7 @@
 ﻿using CoreModule.AI.HSM;
 using CoreModule.Input;
 using Module.Player.Component;
+using Module.UI;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,7 +19,7 @@ namespace Module.Player.State
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
         private readonly PlayerRotation rotation;
-        private readonly PlayerStatus status;
+        private readonly HealthStatus status;
         private readonly WeaponSwitcher weaponSwitcher;
         private readonly PlayerControllerWrapper animatorWrapper;
 
@@ -32,7 +33,7 @@ namespace Module.Player.State
             rigidbody = component.Rigidbody;
             bodyTransform = component.BodyTransform;
             condition = component.Condition;
-            status = component.PlayerStatus;
+            status = component.HealthStatus;
             rotation = component.PlayerRotation;
             weaponSwitcher = component.WeaponSwitcher;
             animatorWrapper = component.AnimatorWrapper;

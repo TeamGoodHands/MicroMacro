@@ -6,7 +6,7 @@ namespace Module.UI
 {
     public class EnemyHpPresenter : MonoBehaviour
     {
-        [SerializeField] private EnemyStatus enemyStatus;
+        [SerializeField] private HealthStatus enemyStatus;
         [SerializeField] private HpBar hpBar;
 
         private void Start()

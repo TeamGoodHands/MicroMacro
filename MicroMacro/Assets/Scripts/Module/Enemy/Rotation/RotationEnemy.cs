@@ -1,6 +1,7 @@
 using System;
 using Constants;
 using Module.Player.Component;
+using Module.UI;
 using UnityEngine;
 
 namespace Module.Enemy.Rotation
@@ -23,7 +24,7 @@ namespace Module.Enemy.Rotation
         private void OnCollisionEnter(Collision other)
         {
             if (other.gameObject.CompareTag(Tag.Handle.Player)
-                && other.transform.root.TryGetComponent(out PlayerStatus playerStatus))
+                && other.transform.root.TryGetComponent(out HealthStatus playerStatus))
             {
                 playerStatus.Damage(1);
             }

@@ -1,6 +1,7 @@
 using System;
 using Constants;
 using Module.Player.Component;
+using Module.UI;
 using UnityEngine;
 
 namespace Module.Gimmick
@@ -32,7 +33,7 @@ namespace Module.Gimmick
         private void SendDamage(GameObject obj)
         {
             if (obj.CompareTag(Tag.Player) &&
-                obj.TryGetComponent(out PlayerStatus player))
+                obj.TryGetComponent(out HealthStatus player))
             {
                 player.Damage(maxDamage);
             }

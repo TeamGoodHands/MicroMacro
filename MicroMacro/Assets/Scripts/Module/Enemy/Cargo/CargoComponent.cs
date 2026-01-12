@@ -1,5 +1,6 @@
 ﻿using System;
 using Module.Application.Dialogue;
+using Module.UI;
 using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace Module.Enemy.Cargo
         [SerializeField] private Transform transform;
         [SerializeField] private Transform bodyTransform;
         [SerializeField] private Renderer renderer;
-        [SerializeField] private EnemyStatus status;
+        [SerializeField] private HealthStatus status;
         [SerializeField] private Rigidbody moveParent;
         [SerializeField] private CargoControllerWrapper animatorWrapper;
         [SerializeField] private CinemachineBasicMultiChannelPerlin cineMachinePerlin;
@@ -32,7 +33,7 @@ namespace Module.Enemy.Cargo
         public CargoCondition Condition => condition;
         public Transform Transform => transform;
         public Renderer Renderer => renderer;
-        public EnemyStatus Status => status;
+        public HealthStatus Status => status;
         public Rigidbody MoveParent => moveParent;
         public CargoControllerWrapper AnimatorWrapper => animatorWrapper;
         public CinemachineBasicMultiChannelPerlin CineMachinePerlin => cineMachinePerlin;

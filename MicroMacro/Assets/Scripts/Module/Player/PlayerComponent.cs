@@ -2,6 +2,7 @@
 using CoreModule.Utility;
 using Module.Player.Component;
 using Module.Gimmick;
+using Module.UI;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -16,7 +17,7 @@ namespace Module.Player
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private Transform bodyTransform;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
-        [SerializeField] private PlayerStatus playerStatus;
+        [SerializeField] private HealthStatus healthStatus;
         [SerializeField] private VisualEffect footEffect;
         [SerializeField] private VisualEffect jumpEffect;
         [SerializeField] private PlayerAnimationEventReceiver animationEventReceiver;
@@ -26,7 +27,7 @@ namespace Module.Player
         public Rigidbody Rigidbody => rigidbody;
         public Transform Transform => rigidbody.transform;
         public Transform BodyTransform => bodyTransform;
-        public PlayerStatus PlayerStatus => playerStatus;
+        public HealthStatus HealthStatus => healthStatus;
         public VisualEffect FootEffect => footEffect;
         public VisualEffect JumpEffect => jumpEffect;
         public PlayerAnimationEventReceiver AnimationEventReceiver => animationEventReceiver;

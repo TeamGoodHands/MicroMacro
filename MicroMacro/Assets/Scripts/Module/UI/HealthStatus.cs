@@ -1,23 +1,31 @@
-using System;
-using Module.Management;
+﻿using System;
+using Module.Player.Component;
 using UnityEngine;
 
-namespace Module.Player.Component
+namespace Module.UI
 {
-    public class PlayerStatus : MonoBehaviour, IDamageable
+    public class HealthStatus : MonoBehaviour, IDamageable
     {
         [SerializeField] private int maxHealth;
         [SerializeField] private int currentHealth;
 
         public event Action<int> OnDamage;
         public event Action OnDeath;
-        
+        public event Action OnReset;
+
         public int CurrentHealth => currentHealth;
         public int MaxHealth => maxHealth;
 
         private void Awake()
         {
             currentHealth = maxHealth;
+        }
+
+        public void SetHealth(int health)
+        {
+            currentHealth = health;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            SendEvent();
         }
 
         public void Damage(int damage)
@@ -29,20 +37,24 @@ namespace Module.Player.Component
             // HPが変わってなければダメージを受けていないことにする
             if (currentHealth == prevHealth)
                 return;
-            
+
+            SendEvent();
+        }
+
+        public void SendEvent()
+        {
             OnDamage?.Invoke(currentHealth);
-            SoundManager.instance.Play("プレイヤーダメージ音");
 
             if (currentHealth == 0)
             {
                 OnDeath?.Invoke();
             }
-            Debug.Log("ダメージを受けました");
         }
 
         public void Reset()
         {
             currentHealth = maxHealth;
+            OnReset?.Invoke();
         }
     }
 }

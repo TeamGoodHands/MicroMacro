@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CoreModule.ObjectPool;
+using Module.UI;
 using UnityEngine;
 
 namespace Module.Enemy.Cargo
@@ -9,7 +10,7 @@ namespace Module.Enemy.Cargo
     {
         [SerializeField] private FallObjectsSequencer sequencer1;
         [SerializeField] private FallObjectsSequencer sequencer2;
-        [SerializeField] private EnemyStatus bossStatus;
+        [SerializeField] private HealthStatus bossStatus;
 
         [SerializeField] private List<FallPattern> fallPatterns;
         [SerializeField] private GameObject projectileObjectPrefab;

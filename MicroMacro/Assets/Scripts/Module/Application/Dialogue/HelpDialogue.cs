@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using Module.Player.Component;
+using Module.UI;
 
 namespace Module.Application.Dialogue
 {
@@ -16,7 +17,7 @@ namespace Module.Application.Dialogue
         [SerializeField] private SectionGate entrance;
         [SerializeField] private SectionGate exit;
         [SerializeField] private GameObject player;
-        [SerializeField] private PlayerStatus playerStatus;
+        [SerializeField] private HealthStatus healthStatus;
         [SerializeField] private DialogueManager dialogueManager;
         
         private float elapsedTime;
@@ -30,13 +31,13 @@ namespace Module.Application.Dialogue
         {
              entrancePos = entrancePivot.transform.position;
              exitPos = exitPivot.transform.position;
-             if (playerStatus == null)
+             if (healthStatus == null)
              {
                  Debug.LogError("PlayerStatusが設定されていません。");
                  return;
              }
 
-             playerStatus.OnDeath  += OnDeath;
+             healthStatus.OnDeath  += OnDeath;
              entrance.OnPlayerExit += OnPlayerExit;
              exit.OnPlayerExit     += OnPlayerExit;
         }
@@ -44,7 +45,7 @@ namespace Module.Application.Dialogue
         {
             entrance.OnPlayerExit -= OnPlayerExit;
             exit.OnPlayerExit     -= OnPlayerExit;
-            playerStatus.OnDeath  -= OnDeath;
+            healthStatus.OnDeath  -= OnDeath;
         }
         
         /// <summary>

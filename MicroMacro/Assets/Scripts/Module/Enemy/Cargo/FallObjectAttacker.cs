@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Management;
 using Module.Scaling;
+using Module.UI;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -157,7 +158,7 @@ namespace Module.Enemy.Cargo
             if (scaler.CurrentStep > 0)
             {
                 int damage = scaler.CurrentStep;
-                target.GetComponent<EnemyStatus>().Damage(damage);
+                target.GetComponent<HealthStatus>().Damage(damage);
                 SoundManager.instance.Play("打撃1");
             }
         }

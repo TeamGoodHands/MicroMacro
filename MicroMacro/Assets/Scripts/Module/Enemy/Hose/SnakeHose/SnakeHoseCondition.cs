@@ -7,26 +7,16 @@ namespace Module.Enemy.Hose.SnakeHose
     {
         public enum State
         {
-            Move,
-            Attack
+            Appear,
+            WaterBallAttack
         }
 
-        [SerializeField, ReadOnly] private State currentState = State.Move;
+        [SerializeField, ReadOnly] private State currentState = State.Appear;
 
         public State CurrentState
         {
             get => currentState;
             set => currentState = value;
-        }
-        
-        public void Attack()
-        {
-            CurrentState = State.Attack;
-        }
-
-        public void Move()
-        {
-            CurrentState = State.Move;
         }
     }
 }
