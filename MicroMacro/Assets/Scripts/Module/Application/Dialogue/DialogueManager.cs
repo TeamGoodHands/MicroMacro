@@ -17,6 +17,11 @@ namespace Module.Application.Dialogue
         private readonly Queue<DialogueItem> dialogueQueue = new Queue<DialogueItem>();
         private bool isDisplaying;
         private bool isClearRequested = false;
+        
+        private void HandlePlayerOnDeath()
+        {
+            AbortDialogue(isImmediate: true);
+        }
 
         private void Awake()
         {
@@ -26,14 +31,14 @@ namespace Module.Application.Dialogue
                 return;
             }
 
-            playerStatus.OnDeath += () => AbortDialogue(isImmediate: true);
+            playerStatus.OnDeath += HandlePlayerOnDeath;
         }
-        
+
         private void OnDestroy()
         {
             if (playerStatus != null)
             {
-                playerStatus.OnDeath -= () => AbortDialogue(isImmediate: true);
+                playerStatus.OnDeath -= HandlePlayerOnDeath;
             }
         }
 

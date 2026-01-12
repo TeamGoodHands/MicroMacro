@@ -66,7 +66,8 @@ namespace Module.Application.Dialogue
         /// </summary>
         public async UniTask ShowDialogueAsync(DialogueItem item)
         {
-            if (item == null) return;
+            if (item == null)
+                return;
 
             // 前の処理をキャンセル
             CancelCurrentProcess();
@@ -80,6 +81,9 @@ namespace Module.Application.Dialogue
             // プロセッサでページ分割
             List<string> pages = textProcessor.SplitTextToPages(item.Text, maxCharsPerPage, maxOverrunChars);
 
+            if (pages.Count == 0)
+                return;
+            
             // 最初のページをセットし、文字数0（透明）にしておく
             currentText.text = pages[0];
             currentText.maxVisibleCharacters = 0;
@@ -183,7 +187,9 @@ namespace Module.Application.Dialogue
             for (int i = 1; i <= totalLength; i++)
             {
                 currentText.maxVisibleCharacters = i;
-                if (token.IsCancellationRequested) return;
+                
+                if (token.IsCancellationRequested) 
+                    return;
 
                 // 現在の文字を取得
                 char currentChar = text[i - 1];
@@ -199,6 +205,9 @@ namespace Module.Application.Dialogue
         public async UniTask HideAsync()
         {
             CancelCurrentProcess();
+            
+            cts = new CancellationTokenSource();
+            var token = cts.Token;
 
             if (currentBubble == null || !currentBubble.gameObject.activeSelf) return;
 
@@ -206,8 +215,8 @@ namespace Module.Application.Dialogue
             await currentBubble.rectTransform
                 .DOScale(Vector3.zero, animationDuration)
                 .SetEase(Ease.InBack)
-                .ToUniTask();
-
+                .ToUniTask(cancellationToken: token);
+            
             currentBubble.gameObject.SetActive(false);
         }
         
