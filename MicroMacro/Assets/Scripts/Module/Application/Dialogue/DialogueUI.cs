@@ -25,9 +25,13 @@ namespace Module.Application.Dialogue
         [Header("ページ送り時の待機時間")][SerializeField] private float pageAutoAdvanceDelay = 0.1f; 
         [Header("ページ分割時に許容する最大超過文字数")] [SerializeField] private int maxOverrunChars = 5;
         
-        // 各吹き出しの初期スケールを保持
+        // 各吹き出しの初期スケールと位置を保持（アニメーションで使用)
         private Vector3 fuguDefaultScale;
         private Vector3 playerDefaultScale;
+        
+        private Vector2 fuguDefaultPos;
+        private Vector2 playerDefaultPos;
+        private Vector2 currentTargetPos; 
         
         // 現在操作中のオブジェクト
         private Image currentBubble;
@@ -41,6 +45,9 @@ namespace Module.Application.Dialogue
             // 初期スケールを個別に保存 現状同じ値
             fuguDefaultScale = fuguSpeechBubble.rectTransform.localScale;
             playerDefaultScale = playerSpeechBubble.rectTransform.localScale;
+            
+            fuguDefaultPos = fuguSpeechBubble.rectTransform.anchoredPosition;
+            playerDefaultPos = playerSpeechBubble.rectTransform.anchoredPosition;
             
             InitializeBubble(fuguSpeechBubble);
             InitializeBubble(playerSpeechBubble);
@@ -78,6 +85,9 @@ namespace Module.Application.Dialogue
             currentBubble.gameObject.SetActive(true);
             await PlayOpenAnimationAsync(token);
             
+            // ふわふわ浮かす
+            StartFloatingAnimation();
+            
             // ページごとにタイプライター演出を実行
             for (int i = 0; i < pages.Count; i++)
             {
@@ -105,27 +115,50 @@ namespace Module.Application.Dialogue
         {
             if (isFugu)
             {
-                CloseBubbleImmediate(playerSpeechBubble);
+                CloseSpeechBubble(playerSpeechBubble);
                 currentBubble = fuguSpeechBubble;
-                currentText = fuguText;
-                currentTargetScale = fuguDefaultScale;
+                currentText   = fuguText;
+                
+                currentTargetScale = fuguDefaultScale; 
+                currentTargetPos   = fuguDefaultPos;
             }
             else
             {
-                CloseBubbleImmediate(fuguSpeechBubble);
+                CloseSpeechBubble(fuguSpeechBubble);
                 currentBubble = playerSpeechBubble;
-                currentText = playerText;
+                currentText   = playerText;
+                
                 currentTargetScale = playerDefaultScale;
+                currentTargetPos   = playerDefaultPos; 
             }
         }
 
-        private void CloseBubbleImmediate(Image speechBubble)
+        // 即閉じ
+        private void CloseSpeechBubble(Image speechBubble)
         {
             if (speechBubble.gameObject.activeSelf)
             {
                 speechBubble.gameObject.SetActive(false);
                 speechBubble.rectTransform.localScale = Vector3.zero;
             }
+        }
+        
+        private void StartFloatingAnimation()
+        {
+            // 多重起動防止 & 位置リセット
+            currentBubble.rectTransform.DOKill();
+            currentBubble.rectTransform.anchoredPosition = currentTargetPos;
+
+            // 上下にふわふわさせる
+            // Y座標を +10 くらい移動させて戻す
+            float floatingRange = 10f; 
+            float cycleDuration = 1.0f;
+
+            currentBubble.rectTransform
+                .DOAnchorPosY(currentTargetPos.y + floatingRange, cycleDuration)
+                .SetEase(Ease.InOutSine) // ゆったりした動き
+                .SetLoops(-1, LoopType.Yoyo) // 無限往復
+                .SetLink(currentBubble.gameObject);
         }
 
         private async UniTask PlayOpenAnimationAsync(CancellationToken token)
@@ -150,10 +183,10 @@ namespace Module.Application.Dialogue
                 currentText.maxVisibleCharacters = i;
                 if (token.IsCancellationRequested) return;
 
-                // 現在表示された文字を取得
+                // 現在の文字を取得
                 char currentChar = text[i - 1];
 
-                // 句読点判定：句読点なら長く待つ、それ以外は通常の速度
+                // 句読点なら長く待つ、それ以外は通常の速度
                 bool isPunctuation = IsPunctuation(currentChar);
                 float waitTime = isPunctuation ? punctuationDelay : textSpeed;
 
