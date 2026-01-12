@@ -77,8 +77,9 @@ namespace Module.Application.Dialogue
                     break;
 
                 DialogueItem currentItem = dialogueQueue.Dequeue();
-                dialogueUI.Display(currentItem);
-
+                
+                await dialogueUI.ShowDialogueAsync(currentItem);
+                
                 await UniTask.Delay(TimeSpan.FromSeconds(currentItem.DisplayTime),
                     cancellationToken: this.GetCancellationTokenOnDestroy());
             }
@@ -86,7 +87,7 @@ namespace Module.Application.Dialogue
             // isClearRequestedがtrueまたはqueueが空でwindowを閉じる
             if (isClearRequested || dialogueQueue.Count == 0)
             {
-                await dialogueUI.HideAsync(this.GetCancellationTokenOnDestroy());
+                await dialogueUI.HideAsync();
             }
 
             isDisplaying     = false;

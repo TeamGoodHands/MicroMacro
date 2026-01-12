@@ -5,120 +5,152 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+
 namespace Module.Application.Dialogue
 {
-     public class DialogueUI : MonoBehaviour
+    public class DialogueUI : MonoBehaviour
     {
+        [Header("References")]
         [SerializeField] private Image fuguSpeechBubble;
         [SerializeField] private Image playerSpeechBubble;
         [SerializeField] private TextMeshProUGUI fuguText;
         [SerializeField] private TextMeshProUGUI playerText;
-        [Header("ウィンドウ表示、非表示にかかる時間")][SerializeField] private float playBackTime = 0.3f;
-        [SerializeField] [Range(0f, 1f)] private float maxSize;
+
+        [Header("Settings")]
+        [SerializeField] private float animationDuration = 0.3f;
+        [SerializeField] private float textSpeed = 0.05f;
+
+        // 各吹き出しの初期スケール
+        private Vector3 fuguDefaultScale;
+        private Vector3 playerDefaultScale;
         
-        private TextMeshProUGUI activeText;
-        private Image activeSpeechBubble;
-        private Vector3 defaultScale;
-        
+        // 現在操作中のオブジェクト
+        private Image currentBubble;
+        private TextMeshProUGUI currentText;
+        private Vector3 currentTargetScale;
+
+        private CancellationTokenSource cts;
+
         private void Awake()
         {
-            defaultScale = fuguSpeechBubble.rectTransform.localScale;
+            // 初期スケールを個別に保存 現状同じなので片方でも問題ない
+            fuguDefaultScale = fuguSpeechBubble.rectTransform.localScale;
+            playerDefaultScale = playerSpeechBubble.rectTransform.localScale;
             
-            fuguSpeechBubble.rectTransform.localScale = Vector3.zero;
-            playerSpeechBubble.rectTransform.localScale = Vector3.zero;
-            
-            fuguSpeechBubble.gameObject.SetActive(false);
-            playerSpeechBubble.gameObject.SetActive(false);
+            InitializeBubble(fuguSpeechBubble);
+            InitializeBubble(playerSpeechBubble);
         }
 
-        public void Display(DialogueItem item)
+        private void InitializeBubble(Image bubble)
         {
-            if (item == null)
-            {
-                Debug.LogError("itemの取得及びセリフ表示に失敗しました。");
-                return;
-            }
+            bubble.rectTransform.localScale = Vector3.zero;
+            bubble.gameObject.SetActive(false);
+        }
+
+        public async UniTask ShowDialogueAsync(DialogueItem item)
+        {
+            if (item == null) return;
+
+            // 前の処理をキャンセル
+            CancelCurrentProcess();
+
+            cts = new CancellationTokenSource();
+            var token = cts.Token;
             
-            SwitchSpeechBubble(item.isFuguDialogue);
+            // 操作対象を決定
+            SetupActiveObjects(item.isFuguDialogue);
+
+            // 表示する前にテキストをセットし、見えないようにしておく(0文字)
+            currentText.text = item.Text;
+            currentText.maxVisibleCharacters = 0;
             
-            // TODO: コルーチンで一文字ずつ表示実装    
-            PrintDialogue(item.Text); 
-            DialogueAnimation(true, item.isFuguDialogue);
-           
+            currentBubble.gameObject.SetActive(true);
+            await PlayOpenAnimationAsync(token);
+            
+            // タイプライター演出開始
+            await PlayTypewriterEffectAsync(item.Text, token);
         }
         
-        /// <summary>
-        /// フグのセリフかプレイヤーのセリフかによって吹き出しの画像と位置が変わるので、切り替え可能に
-        /// </summary>
-        private void SwitchSpeechBubble(bool isFugu)
+        private void SetupActiveObjects(bool isFugu)
         {
             if (isFugu)
             {
-                if (activeSpeechBubble == fuguSpeechBubble)
-                    return;
-                
-                activeSpeechBubble = fuguSpeechBubble;
-                activeText = fuguText;
-                Debug.Log("Call SwitchSpeechBubble: isFugu = " + isFugu);
-                fuguSpeechBubble.gameObject.SetActive(true);
-                playerSpeechBubble.gameObject.SetActive(false);
+                CloseBubbleImmediate(playerSpeechBubble);
+                currentBubble = fuguSpeechBubble;
+                currentText = fuguText;
+                currentTargetScale = fuguDefaultScale;
             }
             else
             {
-                if (activeSpeechBubble == playerSpeechBubble)
-                    return;
+                CloseBubbleImmediate(fuguSpeechBubble);
+                currentBubble = playerSpeechBubble;
+                currentText = playerText;
+                currentTargetScale = playerDefaultScale;
+            }
+        }
+
+        private void CloseBubbleImmediate(Image speechBubble)
+        {
+            if (speechBubble.gameObject.activeSelf)
+            {
+                speechBubble.gameObject.SetActive(false);
+                speechBubble.rectTransform.localScale = Vector3.zero;
+            }
+        }
+
+        private async UniTask PlayOpenAnimationAsync(CancellationToken token)
+        {
+            var rect = currentBubble.rectTransform;
+            rect.localScale = Vector3.zero;
+
+            await rect.DOScale(currentTargetScale, animationDuration)
+                .SetEase(Ease.OutBack)
+                .ToUniTask(cancellationToken: token);
+        }
+
+        private async UniTask PlayTypewriterEffectAsync(string text, CancellationToken token)
+        {
+            // ここでのテキストセットは念のため残しても良いが、
+            // ShowDialogueAsyncですでに行っているのでループ処理だけでOK。
+            
+            int totalLength = text.Length;
+
+            for (int i = 0; i <= totalLength; i++)
+            {
+                currentText.maxVisibleCharacters = i;
+                if (token.IsCancellationRequested) return;
                 
-                activeSpeechBubble = playerSpeechBubble;
-                activeText = playerText;
-                
-                fuguSpeechBubble.gameObject.SetActive(false);
-                playerSpeechBubble.gameObject.SetActive(true);
+                await UniTask.Delay(TimeSpan.FromSeconds(textSpeed), cancellationToken: token);
             }
         }
 
-        private void DialogueAnimation(bool isOpen, bool isFugu)
+        public async UniTask HideAsync()
         {
-            // TODO: フグのセリフは右下から左上、プレイヤーのセリフは左下から右上にアニメーションさせたい。閉じる際はその逆
-            if (isOpen)
+            CancelCurrentProcess();
+
+            if (currentBubble == null || !currentBubble.gameObject.activeSelf) return;
+
+            await currentBubble.rectTransform
+                .DOScale(Vector3.zero, animationDuration)
+                .SetEase(Ease.InBack)
+                .ToUniTask();
+
+            currentBubble.gameObject.SetActive(false);
+        }
+
+        private void CancelCurrentProcess()
+        {
+            if (cts != null)
             {
-                if (isFugu)
-                    fuguSpeechBubble.rectTransform.DOScale(defaultScale, playBackTime);
-                else
-                    playerSpeechBubble.rectTransform.DOScale(defaultScale, playBackTime);
-            }
-            else
-            {
-                if (isFugu)
-                    fuguSpeechBubble.rectTransform.DOScale(Vector3.zero, playBackTime);
-                else
-                    playerSpeechBubble.rectTransform.DOScale(Vector3.zero, playBackTime);
+                cts.Cancel();
+                cts.Dispose();
+                cts = null;
             }
         }
 
-        public async UniTask HideAsync(CancellationToken cancellationToken)
+        private void OnDestroy()
         {
-            bool isFugu = GetActiveImageIsFugu();
-            DialogueAnimation(false, isFugu);
-                    
-            // アニメーション終了まで待機
-            await UniTask.Delay(TimeSpan.FromSeconds(playBackTime), cancellationToken: cancellationToken);
-
-            // オブジェクト破棄後等でなければ実行
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                activeSpeechBubble.gameObject.SetActive(false);
-            }
+            CancelCurrentProcess();
         }
-        
-        private void PrintDialogue(string text)
-        {
-            activeText.text = text;
-        }
-        
-        private bool GetActiveImageIsFugu()
-        {
-            return activeSpeechBubble == fuguSpeechBubble;
-        }
-
     }
 }
