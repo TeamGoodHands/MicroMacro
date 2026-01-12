@@ -12,10 +12,35 @@ namespace Module.Application.Dialogue
     public class DialogueManager : MonoBehaviour
     {
         [SerializeField] private DialogueUI dialogueUI;
+        [SerializeField] private PlayerStatus playerStatus;
     
         private readonly Queue<DialogueItem> dialogueQueue = new Queue<DialogueItem>();
         private bool isDisplaying;
         private bool isClearRequested = false;
+        
+        private void HandlePlayerOnDeath()
+        {
+            AbortDialogue(isImmediate: true);
+        }
+
+        private void Awake()
+        {
+            if (playerStatus == null)
+            {
+                Debug.LogError("[DialogueManager] PlayerStatusが設定されていません。");
+                return;
+            }
+
+            playerStatus.OnDeath += HandlePlayerOnDeath;
+        }
+
+        private void OnDestroy()
+        {
+            if (playerStatus != null)
+            {
+                playerStatus.OnDeath -= HandlePlayerOnDeath;
+            }
+        }
 
 
         // 念のためセリフ単体のEnqueueも外部から呼び出し可能に。
@@ -77,8 +102,9 @@ namespace Module.Application.Dialogue
                     break;
 
                 DialogueItem currentItem = dialogueQueue.Dequeue();
-                dialogueUI.Display(currentItem);
-
+                
+                await dialogueUI.ShowDialogueAsync(currentItem);
+                
                 await UniTask.Delay(TimeSpan.FromSeconds(currentItem.DisplayTime),
                     cancellationToken: this.GetCancellationTokenOnDestroy());
             }
@@ -86,11 +112,35 @@ namespace Module.Application.Dialogue
             // isClearRequestedがtrueまたはqueueが空でwindowを閉じる
             if (isClearRequested || dialogueQueue.Count == 0)
             {
-                await dialogueUI.HideAsync(this.GetCancellationTokenOnDestroy());
+                await dialogueUI.HideAsync();
             }
 
             isDisplaying     = false;
             isClearRequested = false;
+        }
+
+        /// <summary>
+        /// 現在のセリフを強制終了
+        /// </summary>
+        /// <param name="isImmediate">trueならアニメーションなしで即消し（死亡時など）</param>
+        public void AbortDialogue(bool isImmediate = false)
+        {
+            // 待機中のセリフをすべて破棄
+            ClearQueue();
+            
+            isClearRequested = true;
+            isDisplaying = false; 
+
+            // UI側に閉じる命令を出す
+            if (isImmediate)
+            {
+                dialogueUI.HideImmediate();
+            }
+            else
+            {
+                // asyncメソッドを同期メソッドから呼ぶのでForgetする
+                dialogueUI.HideAsync().Forget();
+            }
         }
     }
 }

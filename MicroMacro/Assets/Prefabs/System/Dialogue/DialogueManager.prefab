@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4348744578973123278}
   - component: {fileID: 3005088918196492960}
   - component: {fileID: 4831846750489956391}
+  - component: {fileID: 7657718999245723556}
   m_Layer: 0
   m_Name: DialogueManager
   m_TagString: Untagged
@@ -45,7 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a73df721fe754f7aa55fa1cae6112b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueUI: {fileID: 0}
+  dialogueUI: {fileID: 7657718999245723556}
+  playerStatus: {fileID: 0}
 --- !u!114 &4831846750489956391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,3 +63,25 @@ MonoBehaviour:
   dialogues: []
   delayTime: 0.3
   dialogueManager: {fileID: 3005088918196492960}
+--- !u!114 &7657718999245723556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7526978658220422608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c440c317aad64d83ace49b8b1a417d8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fuguSpeechBubble: {fileID: 0}
+  playerSpeechBubble: {fileID: 0}
+  fuguText: {fileID: 0}
+  playerText: {fileID: 0}
+  animationDuration: 0.3
+  textSpeed: 0.08
+  punctuationDelay: 0.5
+  maxCharsPerPage: 20
+  pageAutoAdvanceDelay: 0.1
+  maxOverrunChars: 5

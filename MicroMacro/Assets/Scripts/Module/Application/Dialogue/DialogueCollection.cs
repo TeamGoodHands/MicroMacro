@@ -10,7 +10,7 @@ namespace Module.Application.Dialogue
         public string EntryName;     // 登録名
         public string Text;          // セリフ
         public float  DisplayTime;   // 表示時間
-        public Sprite characterIcon;  
+        public bool   isFuguDialogue; // フグのセリフかどうか
     }
     
     // 右クリックから作成できるように
