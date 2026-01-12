@@ -12,10 +12,30 @@ namespace Module.Application.Dialogue
     public class DialogueManager : MonoBehaviour
     {
         [SerializeField] private DialogueUI dialogueUI;
+        [SerializeField] private PlayerStatus playerStatus;
     
         private readonly Queue<DialogueItem> dialogueQueue = new Queue<DialogueItem>();
         private bool isDisplaying;
         private bool isClearRequested = false;
+
+        private void Awake()
+        {
+            if (playerStatus == null)
+            {
+                Debug.LogError("[DialogueManager] PlayerStatusが設定されていません。");
+                return;
+            }
+
+            playerStatus.OnDeath += () => AbortDialogue(isImmediate: true);
+        }
+        
+        private void OnDestroy()
+        {
+            if (playerStatus != null)
+            {
+                playerStatus.OnDeath -= () => AbortDialogue(isImmediate: true);
+            }
+        }
 
 
         // 念のためセリフ単体のEnqueueも外部から呼び出し可能に。
@@ -92,6 +112,30 @@ namespace Module.Application.Dialogue
 
             isDisplaying     = false;
             isClearRequested = false;
+        }
+
+        /// <summary>
+        /// 現在のセリフを強制終了
+        /// </summary>
+        /// <param name="isImmediate">trueならアニメーションなしで即消し（死亡時など）</param>
+        public void AbortDialogue(bool isImmediate = false)
+        {
+            // 待機中のセリフをすべて破棄
+            ClearQueue();
+            
+            isClearRequested = true;
+            isDisplaying = false; 
+
+            // UI側に閉じる命令を出す
+            if (isImmediate)
+            {
+                dialogueUI.HideImmediate();
+            }
+            else
+            {
+                // asyncメソッドを同期メソッドから呼ぶのでForgetする
+                dialogueUI.HideAsync().Forget();
+            }
         }
     }
 }

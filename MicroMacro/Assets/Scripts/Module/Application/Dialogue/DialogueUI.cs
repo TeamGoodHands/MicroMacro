@@ -39,6 +39,8 @@ namespace Module.Application.Dialogue
         private Vector3 currentTargetScale;
         
         private CancellationTokenSource cts;
+        
+        private readonly DialogueTextProcessor textProcessor = new DialogueTextProcessor();
 
         private void Awake()
         {
@@ -75,8 +77,8 @@ namespace Module.Application.Dialogue
             // 操作対象を決定（フグorプレイヤー）
             SetupActiveObjects(item.isFuguDialogue);
 
-            // テキストをページ分割（長文対応）
-            List<string> pages = SplitTextToPages(item.Text, maxCharsPerPage);
+            // プロセッサでページ分割
+            List<string> pages = textProcessor.SplitTextToPages(item.Text, maxCharsPerPage, maxOverrunChars);
 
             // 最初のページをセットし、文字数0（透明）にしておく
             currentText.text = pages[0];
@@ -186,78 +188,12 @@ namespace Module.Application.Dialogue
                 // 現在の文字を取得
                 char currentChar = text[i - 1];
 
-                // 句読点なら長く待つ、それ以外は通常の速度
-                bool isPunctuation = IsPunctuation(currentChar);
+                // 句読点なら待機時間を長くする
+                bool isPunctuation = textProcessor.IsPunctuation(currentChar);
                 float waitTime = isPunctuation ? punctuationDelay : textSpeed;
 
                 await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: token);
             }
-        }
-
-        /// <summary>
-        /// 文字列をページ分割する。
-        /// 区切りがいい（句読点がある）なら多少超過しても許容するように。
-        /// </summary>
-        private List<string> SplitTextToPages(string text, int maxChars)
-        {
-            var list = new List<string>();
-            int currentPos = 0;
-
-            while (currentPos < text.Length)
-            {
-                // 残りの文字数がmaxChars以下なら、すべて追加して終了
-                if (text.Length - currentPos <= maxChars)
-                {
-                    list.Add(text.Substring(currentPos));
-                    break;
-                }
-
-                // 基本の分割位置
-                int splitLength = maxChars;
-                
-                // 超過を許容して区切り文字（句読点など）を探す
-                // maxCharsの位置から、maxOverrunChars分だけ先をチェック
-                bool foundSplitChar = false;
-                for (int offset = 0; offset <= maxOverrunChars; offset++)
-                {
-                    int checkIndex = currentPos + maxChars + offset;
-
-                    // テキストの範囲外ならループ終了
-                    if (checkIndex >= text.Length) break;
-
-                    // 区切り文字が見つかったら、そこで切る（その文字を含めるため +1）
-                    if (IsSplitPosition(text[checkIndex]))
-                    {
-                        splitLength = maxChars + offset + 1;
-                        foundSplitChar = true;
-                        break;
-                    }
-                }
-                
-                // ここで句読点の直前に改ページみたいな、「手前」を探す処理を入れても良い。
-
-                list.Add(text.Substring(currentPos, splitLength));
-                currentPos += splitLength;
-            }
-
-            return list;
-        }
-
-        /// <summary>
-        /// 句読点の判定
-        /// </summary>
-        private bool IsPunctuation(char c)
-        {
-            return "、。！？!?,.".IndexOf(c) >= 0;
-        }
-        
-        /// <summary>
-        /// 区切りが良い文字かどうか判定（ページ切り替え時の判断）
-        /// </summary>
-        private bool IsSplitPosition(char c)
-        {
-            // 句読点、感嘆符、スペース、閉じ括弧などを区切りとみなす
-            return "、。！？!?,. 　」』)".IndexOf(c) >= 0;
         }
 
         public async UniTask HideAsync()
@@ -273,6 +209,29 @@ namespace Module.Application.Dialogue
                 .ToUniTask();
 
             currentBubble.gameObject.SetActive(false);
+        }
+        
+        /// <summary>
+        /// アニメーションなしで即非表示するメソッド。(死亡時やシーン遷移用)
+        /// </summary>
+        public void HideImmediate()
+        {
+            CancelCurrentProcess(); // タスクキャンセル
+
+            // アニメーション待機せずに即非表示
+            if (fuguSpeechBubble != null) 
+            {
+                fuguSpeechBubble.gameObject.SetActive(false);
+                fuguSpeechBubble.rectTransform.DOKill(); // 動いているTweenも殺す
+            }
+        
+            if (playerSpeechBubble != null) 
+            {
+                playerSpeechBubble.gameObject.SetActive(false);
+                playerSpeechBubble.rectTransform.DOKill();
+            }
+        
+            currentBubble = null;
         }
 
         private void CancelCurrentProcess()
