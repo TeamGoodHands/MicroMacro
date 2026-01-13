@@ -5,14 +5,11 @@ using UnityEngine.Splines;
 [ExecuteAlways]
 public class SplineHandleAnimator : MonoBehaviour
 {
-    [SerializeField]
-    private SplineContainer targetContainer;
+    [SerializeField] private SplineContainer targetContainer;
 
-    [SerializeField, HideInInspector]
-    private Transform handlesRoot;
+    [SerializeField, HideInInspector] private Transform handlesRoot;
 
-    [SerializeField, HideInInspector]
-    private List<Transform> knotHandles = new List<Transform>();
+    [SerializeField, HideInInspector] private List<Transform> knotHandles = new List<Transform>();
 
     // 無限ループ（ハンドル動かす→スプライン更新→検知→ハンドル動かす...）防止用フラグ
     private bool _isUpdatingHandles = false;
@@ -41,10 +38,14 @@ public class SplineHandleAnimator : MonoBehaviour
     // Splineツールで操作した時に呼ばれます
     private void OnSplineChanged(Spline spline, int index, SplineModification modification)
     {
+        Debug.Log($"{spline.GetHashCode()} == {targetContainer?.Spline.GetHashCode()}");
         // 自分がSplineに書き込んでいる最中なら無視（自作自演を防ぐ）
         if (_isUpdatingSpline) return;
 
-        if (targetContainer == null || spline != targetContainer.Spline) return;
+        if (targetContainer == null || spline != targetContainer.Spline)
+        {
+            return;
+        }
 
         // Spline -> ハンドル への同期を実行
         SyncSplineToHandles();
@@ -89,7 +90,7 @@ public class SplineHandleAnimator : MonoBehaviour
     {
         if (targetContainer == null || knotHandles == null) return;
         Spline spline = targetContainer.Spline;
-        
+
         // 数が合わない時は同期できません（Setupし直してください）
         if (spline.Count != knotHandles.Count) return;
 
@@ -102,7 +103,7 @@ public class SplineHandleAnimator : MonoBehaviour
                 if (handle == null) continue;
 
                 BezierKnot knot = spline[i];
-                
+
                 // Splineツールで動かした位置を、ハンドルに反映させます
                 if (handle.localPosition != (Vector3)knot.Position)
                 {
@@ -152,6 +153,7 @@ public class SplineHandleAnimator : MonoBehaviour
             handle.transform.localPosition = knot.Position;
             knotHandles.Add(handle.transform);
         }
+
         Debug.Log("ハンドルを再生成しました。");
     }
 }

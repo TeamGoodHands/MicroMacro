@@ -43,13 +43,7 @@ namespace Module.Enemy.Hose
         {
             // すでにメッシュがある場合は使い回す（メモリリーク防止）
             MeshFilter mf = GetComponent<MeshFilter>();
-            if (mf.sharedMesh != null)
-            {
-                mesh = mf.sharedMesh; 
-                // 頂点数が変わる設定変更時は作り直す必要があるが、簡易版としてクリア
-                mesh.Clear();
-            }
-            else
+            if (mesh == null)
             {
                 mesh = new Mesh();
                 mesh.name = "SnakeMesh";
