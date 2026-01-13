@@ -11,9 +11,9 @@ namespace Module.Enemy.Hose.SnakeHose.State
         private readonly SnakeHoseParameter parameter;
         private readonly SnakeHoseCondition condition;
 
-        public AppearState(Animator animator, SnakeHoseParameter parameter, SnakeHoseCondition condition)
+        public AppearState(SnakeHoseComponents components, SnakeHoseParameter parameter, SnakeHoseCondition condition)
         {
-            this.animator = animator;
+            this.animator = components.Animator;
             this.parameter = parameter;
             this.condition = condition;
         }

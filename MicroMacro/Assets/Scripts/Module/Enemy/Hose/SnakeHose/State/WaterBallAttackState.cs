@@ -2,7 +2,10 @@
 using System.Threading;
 using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Module.Scaling;
+using Module.UI;
+using Unity.Cinemachine;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -11,20 +14,40 @@ namespace Module.Enemy.Hose.SnakeHose
     public class WaterBallAttackState : HierarchicalStateMachine.State
     {
         private readonly SnakeHoseParameter parameter;
+        private readonly SnakeHoseCondition condition;
         private readonly Transform transform;
+        private readonly Transform bodyBone;
         private readonly Scaler scaler;
+        private readonly HealthStatus healthStatus;
         private readonly AutoShuffleBag shootRandomBag = new AutoShuffleBag(0, 2);
 
-        public WaterBallAttackState(SnakeHoseParameter parameter, Transform transform, Scaler scaler)
+        private CancellationTokenSource damageCanceller = new CancellationTokenSource();
+        private int raptureIndex;
+
+        public WaterBallAttackState(SnakeHoseParameter parameter, SnakeHoseComponents components, SnakeHoseCondition condition)
         {
             this.parameter = parameter;
-            this.transform = transform;
-            this.scaler = scaler;
+            this.condition = condition;
+            this.transform = components.HeadTransform;
+            this.bodyBone = components.BodyTransform;
+            healthStatus = components.HealthStatus;
+            this.scaler = components.Scaler;
         }
 
         internal override void OnEnter()
         {
-            PatrolRandomlyAsync(parameter.AttackHeight, CancellationToken).Forget();
+            CancellationTokenSource source = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, damageCanceller.Token);
+            PatrolRandomlyAsync(parameter.AttackHeight, source.Token).Forget();
+
+            scaler.OnScaleCompleted += HandleScale;
+        }
+
+        private void HandleScale(ScaleEventArgs args)
+        {
+            if (args.CurrentStep == scaler.MinStep)
+            {
+                ApplyDamage().Forget();
+            }
         }
 
         /// <summary>
@@ -83,6 +106,44 @@ namespace Module.Enemy.Hose.SnakeHose
             localScale.y -= Mathf.Abs(scaler.CurrentStep) * parameter.HoseMovementScaleOffset;
             localScale.z -= Mathf.Abs(scaler.CurrentStep) * parameter.HoseMovementScaleOffset;
             childTransform.localScale = localScale;
+        }
+
+        private async UniTask ApplyDamage()
+        {
+            damageCanceller.Cancel();
+            damageCanceller.Dispose();
+
+            Vector3 bodyScale = bodyBone.localScale;
+            await bodyBone.DOScale(bodyScale * 1.5f, parameter.DamageScaleDuration);
+
+            Transform rapture = parameter.Raptures[raptureIndex++];
+            Vector3 raptureScale = rapture.localScale;
+            rapture.localScale = new Vector3(raptureScale.x, 0f, raptureScale.z);
+            rapture.gameObject.SetActive(true);
+
+            rapture.DOScale(raptureScale, 0.5f).SetEase(Ease.OutBack);
+            bodyBone.localScale = bodyScale;
+            scaler.SetScale(0, true);
+
+            await transform.DOShakePosition(1f, 0.1f, 30, 90, false, false);
+
+            healthStatus.Damage(1);
+            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
+
+
+            condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
+            return;
+
+            if (raptureIndex >= parameter.Raptures.Length)
+            {
+                condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
+            }
+            else
+            {
+                damageCanceller = new CancellationTokenSource();
+                CancellationTokenSource source = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, damageCanceller.Token);
+                PatrolRandomlyAsync(parameter.AttackHeight, source.Token).Forget();
+            }
         }
 
         internal override void OnExit()

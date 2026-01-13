@@ -8,21 +8,25 @@ namespace Module.UI
     {
         [SerializeField] private int maxHealth;
         [SerializeField] private int currentHealth;
+        [SerializeField] private int previousHealth;
 
         public event Action<int> OnDamage;
         public event Action OnDeath;
         public event Action OnReset;
 
+        public int PreviousHealth => previousHealth;
         public int CurrentHealth => currentHealth;
         public int MaxHealth => maxHealth;
 
         private void Awake()
         {
             currentHealth = maxHealth;
+            previousHealth = currentHealth;
         }
 
         public void SetHealth(int health)
         {
+            previousHealth = currentHealth;
             currentHealth = health;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
             SendEvent();
@@ -30,12 +34,12 @@ namespace Module.UI
 
         public void Damage(int damage)
         {
-            int prevHealth = currentHealth;
+            previousHealth = currentHealth;
             currentHealth -= damage;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
             // HPが変わってなければダメージを受けていないことにする
-            if (currentHealth == prevHealth)
+            if (currentHealth == previousHealth)
                 return;
 
             SendEvent();
@@ -54,6 +58,7 @@ namespace Module.UI
         public void Reset()
         {
             currentHealth = maxHealth;
+            previousHealth = currentHealth;
             OnReset?.Invoke();
         }
     }

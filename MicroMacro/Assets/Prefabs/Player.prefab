@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shootPower: 20
   shootRadius: 0.3
-  shootInterval: 0.25
+  shootInterval: 0.3
   maxAdditionalSpeed: 4
   poolAmount: 8
   macroBulletPrefab: {fileID: 3385789982444698467, guid: e4614154faec2d741b6cf8c09ff6702f, type: 3}
@@ -497,7 +497,7 @@ MonoBehaviour:
     bodyTransform: {fileID: 2961559038811739485}
     playerAnimatorController:
       target: {fileID: 4194661040851927661}
-    playerStatus: {fileID: 0}
+    healthStatus: {fileID: 2442710487458977504}
     footEffect: {fileID: 686470580480340073}
     jumpEffect: {fileID: 2272225563884257619}
     animationEventReceiver: {fileID: 6908053370077398370}
@@ -668,6 +668,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 1
   currentHealth: 0
+  previousHealth: 0
 --- !u!114 &7053001633326182298
 MonoBehaviour:
   m_ObjectHideFlags: 0

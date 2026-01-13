@@ -1,11 +1,28 @@
 ﻿using CoreModule.AI.HSM;
+using UnityEngine;
 
 namespace Module.Enemy.Hose.SnakeHose
 {
     public class BeamAttackState : HierarchicalStateMachine.State
     {
+        private readonly SnakeHoseComponents components;
+        private readonly SnakeHoseParameter parameter;
+        private readonly SnakeHoseCondition condition;
+
+        private static readonly int AttackModeHash = Animator.StringToHash("AttackMode");
+
+        public BeamAttackState(SnakeHoseComponents components, SnakeHoseParameter parameter, SnakeHoseCondition condition)
+        {
+            this.components = components;
+            this.parameter = parameter;
+            this.condition = condition;
+        }
+
         internal override void OnEnter()
         {
+            components.BeamAttackCamera.Priority = 1000;
+            components.Animator.enabled = true;
+            components.Animator.SetInteger(AttackModeHash, 1);
         }
 
         internal override void OnExit()

@@ -47,13 +47,14 @@ namespace Module.UI
 
         private void OnDamage(int damage)
         {
-            int index = healthStatus.CurrentHealth;
-
-            // とりあえず仮で点滅させる
-            healthImage[index].DOFade(0f, 0.1f).SetLoops(5, LoopType.Yoyo).OnComplete(() =>
+            int delta = healthStatus.PreviousHealth - healthStatus.CurrentHealth;
+            for (int i = 0; i < delta; i++)
             {
-                healthImage[index].color = Color.clear;
-            }).SetUpdate(true);
+                int index = healthStatus.CurrentHealth + i;
+
+                // とりあえず仮で点滅させる
+                healthImage[index].DOFade(0f, 0.1f).SetLoops(5, LoopType.Yoyo).OnComplete(() => { healthImage[index].color = Color.clear; }).SetUpdate(true);
+            }
         }
 
         private void Reset()

@@ -8,7 +8,8 @@ namespace Module.Enemy.Hose.SnakeHose
         public enum State
         {
             Appear,
-            WaterBallAttack
+            WaterBallAttack,
+            BeamAttack
         }
 
         [SerializeField, ReadOnly] private State currentState = State.Appear;

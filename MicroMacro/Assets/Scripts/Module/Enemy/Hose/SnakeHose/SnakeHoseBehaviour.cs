@@ -10,14 +10,9 @@ namespace Module.Enemy.Hose.SnakeHose
 {
     public class SnakeHoseBehaviour : MonoBehaviour
     {
-        [SerializeField] private SnakeController controller;
         [SerializeField] private SnakeHoseCondition condition;
         [SerializeField] private SnakeHoseParameter parameter;
-        [SerializeField] private SnakeHoseController snakeHoseController;
-        [SerializeField] private Scaler scaler;
-        [SerializeField] private LockOnEffect lockOnEffect;
-        [SerializeField] private Transform headTransform;
-        [SerializeField] private Animator animator;
+        [SerializeField] private SnakeHoseComponents components;
 
         private HierarchicalStateMachine stateMachine;
 
@@ -26,11 +21,12 @@ namespace Module.Enemy.Hose.SnakeHose
             stateMachine = new HierarchicalStateMachine();
 
             stateMachine.AddState(new AliveState());
-            stateMachine.AddState<AppearState, AliveState>(new AppearState(animator, parameter, condition));
-            stateMachine.AddState<WaterBallAttackState, AliveState>(new WaterBallAttackState(parameter, headTransform, scaler));
+            stateMachine.AddState<AppearState, AliveState>(new AppearState(components, parameter, condition));
+            stateMachine.AddState<WaterBallAttackState, AliveState>(new WaterBallAttackState(parameter, components, condition));
+            stateMachine.AddState<BeamAttackState, AliveState>(new BeamAttackState(components, parameter, condition));
 
             stateMachine.AddTransition<AppearState, WaterBallAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.WaterBallAttack);
-            // stateMachine.AddTransition<MoveState, AppearState>(() => condition.CurrentState == SnakeHoseCondition.State.WaterBallAttack);
+            stateMachine.AddTransition<WaterBallAttackState, BeamAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.BeamAttack);
 
             stateMachine.Start<AliveState>();
         }
