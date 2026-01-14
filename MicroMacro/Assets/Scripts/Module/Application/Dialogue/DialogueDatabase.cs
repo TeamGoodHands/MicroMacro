@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEngine.PlayerLoop;
 
 namespace Module.Application.Dialogue
 {
@@ -64,12 +62,6 @@ namespace Module.Application.Dialogue
            if (string.IsNullOrWhiteSpace(item.Text))
            {
                Debug.LogError("セリフが空欄です。");
-               return false;
-           }
-
-           if (item.characterIcon == null)
-           {
-               Debug.LogError("キャラクターアイコンが設定されていません");
                return false;
            }
 

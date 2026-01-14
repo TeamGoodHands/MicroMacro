@@ -8,7 +8,7 @@ namespace Module.Gimmick
 {
     public class ScaleFall : MonoBehaviour
     {
-        [SerializeField] private LineRenderer lineRenderer;
+        [SerializeField] private GameObject rope;
         
         [SerializeField] private Scaler scaler;
         [SerializeField] private HingeJoint joint;
@@ -38,7 +38,7 @@ namespace Module.Gimmick
 
         private void FallObject()
         {
-            lineRenderer.enabled = false;
+            Destroy(rope);
             Destroy(joint);
             // Jointが有効な状態でfreezeすると固まるので落下時に設定
             rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY |
