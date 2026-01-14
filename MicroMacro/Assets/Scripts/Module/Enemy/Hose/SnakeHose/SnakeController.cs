@@ -20,8 +20,6 @@ namespace Module.Enemy.Hose.SnakeHose
         [Tooltip("すべてのTimelineクリップに適用される共通のイージング設定。\n直線(Linear)なら等速、S字なら加減速します。")]
         public AnimationCurve commonEaseCurve = AnimationCurve.Linear(0, 0, 1, 1); // ★追加: 共通設定
 
-        public float baseSpeed = 5.0f;
-        public float SpeedMultiplier = 1.0f;
         public bool loopMovement = true;
 
         [Header("Shape Data")]

@@ -38,7 +38,6 @@ public class SplineHandleAnimator : MonoBehaviour
     // Splineツールで操作した時に呼ばれます
     private void OnSplineChanged(Spline spline, int index, SplineModification modification)
     {
-        Debug.Log($"{spline.GetHashCode()} == {targetContainer?.Spline.GetHashCode()}");
         // 自分がSplineに書き込んでいる最中なら無視（自作自演を防ぐ）
         if (_isUpdatingSpline) return;
 
