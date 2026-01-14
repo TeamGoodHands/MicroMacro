@@ -82,7 +82,7 @@ namespace Module.Gimmick
         private void SwitchPlatformLayer(bool isEnabled)
         {
             // 貫通可能なオブジェクトのレイヤーを切り替える
-            gameObject.layer = isEnabled ? Layer.Default : Layer.ThroughPlatform;
+            gameObject.layer = isEnabled ? Layer.WaterOnly : Layer.ThroughPlatform;
         }
 
         /// <summary>

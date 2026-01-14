@@ -9,7 +9,8 @@ namespace Module.Enemy.Hose.SnakeHose
         {
             Appear,
             WaterBallAttack,
-            BeamAttack
+            BeamAttack,
+            SmashAttack
         }
 
         [SerializeField, ReadOnly] private State currentState = State.Appear;

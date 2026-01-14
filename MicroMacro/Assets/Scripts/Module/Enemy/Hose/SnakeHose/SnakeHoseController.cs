@@ -12,18 +12,16 @@ namespace Module.Enemy.Hose
     [RequireComponent(typeof(WaterVisualSystem))]
     public class SnakeHoseController : MonoBehaviour, IWaterFlow
     {
-        [Header("Settings")]
-        [SerializeField] private WaterFlowParameter parameter;
+        [Header("Settings")] [SerializeField] private WaterFlowParameter parameter;
         [SerializeField] private Scaler scaler;
         [SerializeField] private HoseControllerWrapper hoseControllerWrapper;
 
-        [Header("State")]
-        [SerializeField] private bool isRapids; 
+        [Header("State")] [SerializeField] private bool isRapids;
 
         public WaterFlowParameter Parameter => parameter;
         public WaterPhysicsSystem Physics => physicsSystem;
         public bool IsRapid => isRapids;
-        public WaterFlow WaterFlow => null; 
+        public WaterFlow WaterFlow => null;
 
         private WaterPhysicsSystem physicsSystem;
         private WaterVisualSystem visualSystem;
@@ -71,7 +69,7 @@ namespace Module.Enemy.Hose
         private void FixedUpdate()
         {
             physicsSystem.RunPhysics(CurrentIntensity, playerTransform);
-            
+
             // 【変更点】
             // ここでの自動追従（parameter.LookAtPlayer チェック）は削除しました。
             // 必要な場合は LookAtPlayerSmoothAsync を呼んで制御します。
@@ -141,7 +139,7 @@ namespace Module.Enemy.Hose
 
         public UniTask OffWater()
         {
-             return OffWater(this.destroyCancellationToken);
+            return OffWater(this.destroyCancellationToken);
         }
 
         public async UniTask OffWater(CancellationToken token)
@@ -155,6 +153,12 @@ namespace Module.Enemy.Hose
                 timer += Time.deltaTime;
                 await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
+
+            CurrentIntensity = 0f;
+        }
+
+        public void OffWaterImmediately()
+        {
             CurrentIntensity = 0f;
         }
 
@@ -166,7 +170,7 @@ namespace Module.Enemy.Hose
         public Tween ResetAngle(float time)
         {
             return physicsSystem.ResetAngle(time)
-                .OnComplete(() => 
+                .OnComplete(() =>
                 {
                     if (scaler != null) scaler.SetScale(0, true);
                 });

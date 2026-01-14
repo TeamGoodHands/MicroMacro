@@ -121,6 +121,7 @@ GameObject:
   - component: {fileID: 5262607359382873473}
   - component: {fileID: 6655456681368356369}
   - component: {fileID: 724971444395527943}
+  - component: {fileID: 8545904215611533484}
   m_Layer: 0
   m_Name: ChildSnake
   m_TagString: Untagged
@@ -165,6 +166,9 @@ MonoBehaviour:
   bodyBone: {fileID: 3679538523541408007}
   scaler: {fileID: 4314446513419840308}
   healthStatus: {fileID: 724971444395527943}
+  controller: {fileID: 1136360478008010506}
+  parameter: {fileID: 8545904215611533484}
+  lockOnEffect: {fileID: 3946330318597717363}
   targets:
   - {x: -2095.41, y: -3.64, z: 0}
   destroyPosition: {x: 0, y: 0, z: 0}
@@ -186,6 +190,22 @@ MonoBehaviour:
   maxHealth: 2
   currentHealth: 0
   previousHealth: 0
+--- !u!114 &8545904215611533484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 236504167136325208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78b8fdbf464d4f089fdc6ae96da0d88e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeToFacePlayer: 1
+  shakeTime: 1
+  attackDuration: 1
+  timeToResetAngle: 1
 --- !u!1 &294013385575498149
 GameObject:
   m_ObjectHideFlags: 0

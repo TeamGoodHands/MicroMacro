@@ -1,4 +1,5 @@
 ﻿using System;
+using Module.Enemy.Hose.ChildSnake;
 using Module.Scaling;
 using Module.UI;
 using Unity.Cinemachine;
@@ -18,6 +19,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private LockOnEffect lockOnEffect;
         [SerializeField] private HealthStatus healthStatus;
         [SerializeField] private CinemachineCamera beamAttackCamera;
+        [SerializeField] private ChildSnakeBehaviour[] children;
         [SerializeField] private Animator animator;
 
         public Transform HeadTransform => headTransform;
@@ -26,6 +28,7 @@ namespace Module.Enemy.Hose.SnakeHose
         public SnakeController Controller => controller;
         public SnakeHoseController SnakeHoseController => snakeHoseController;
         public CinemachineCamera BeamAttackCamera => beamAttackCamera;
+        public ChildSnakeBehaviour[] Children => children;
         public HealthStatus HealthStatus => healthStatus;
         public Scaler Scaler => scaler;
         public LockOnEffect LockOnEffect => lockOnEffect;

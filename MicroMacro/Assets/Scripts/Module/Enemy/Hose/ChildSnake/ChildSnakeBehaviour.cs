@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Module.Enemy.Hose.SnakeHose;
 using Module.Scaling;
 using Module.UI;
 using UnityEngine;
@@ -14,15 +15,20 @@ namespace Module.Enemy.Hose.ChildSnake
         [SerializeField] private Transform bodyBone;
         [SerializeField] private Scaler scaler;
         [SerializeField] private HealthStatus healthStatus;
+        [SerializeField] private SnakeHoseController controller;
+        [SerializeField] private ChildSnakeParameter parameter;
+        [SerializeField] private LockOnEffect lockOnEffect;
         [SerializeField] private Vector3[] targets;
         [SerializeField] private Vector3 destroyPosition;
         [SerializeField] private Transform[] raptures;
+
+        public event Action OnDeath;
 
         private CancellationTokenSource damageCanceller;
         private CancellationTokenSource canceller;
         private int raptureIndex;
 
-        private void Start()
+        public void Appear()
         {
             damageCanceller = new CancellationTokenSource();
             canceller = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken, damageCanceller.Token);
@@ -42,11 +48,13 @@ namespace Module.Enemy.Hose.ChildSnake
         private async UniTaskVoid AppearAsync()
         {
             await transform.DOLocalMove(targets[0], 2f).SetEase(Ease.OutBack);
-            PatrolRandomlyAsync().Forget();
+            await UniTask.Delay(TimeSpan.FromSeconds(parameter.FirstDelay));
+            PatrolRandomlyAsync(damageCanceller.Token).Forget();
         }
 
         private async UniTask ApplyDamage()
         {
+            ResetEffect();
             damageCanceller.Cancel();
             damageCanceller.Dispose();
 
@@ -75,19 +83,50 @@ namespace Module.Enemy.Hose.ChildSnake
             {
                 damageCanceller = new CancellationTokenSource();
                 canceller = CancellationTokenSource.CreateLinkedTokenSource(canceller.Token, damageCanceller.Token);
-                PatrolRandomlyAsync().Forget();
+                PatrolRandomlyAsync(damageCanceller.Token).Forget();
             }
         }
 
-        private async UniTaskVoid PatrolRandomlyAsync()
+        private async UniTaskVoid PatrolRandomlyAsync(CancellationToken token)
         {
-            
+            while (!token.IsCancellationRequested)
+            {
+                int targetIndex = UnityEngine.Random.Range(1, targets.Length);
+                await transform
+                    .DOLocalMove(targets[targetIndex], 1.5f)
+                    .SetEase(Ease.OutBack)
+                    .WithCancellation(token);
+
+                await controller.LookAtPlayerSmoothAsync(1f, 1f, token);
+
+                lockOnEffect.LockOn();
+
+                await controller.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f, token);
+
+                await controller.ShakeBody(parameter.ShakeTime).WithCancellation(token);
+
+                lockOnEffect.LockOff();
+
+                await controller.OnWater(token);
+
+                await UniTask.Delay(TimeSpan.FromSeconds(parameter.AttackDuration), cancellationToken: token);
+
+                await controller.OffWater(token);
+
+                await controller.ResetAngle(parameter.TimeToResetAngle).WithCancellation(token);
+            }
+        }
+
+        private void ResetEffect()
+        {
+            lockOnEffect.LockOff();
+            controller.OffWaterImmediately();
         }
 
         private async UniTaskVoid DestroyAsync()
         {
-            Debug.Log("Destroy");
             await transform.DOLocalMove(destroyPosition, 1f);
+            OnDeath?.Invoke();
             Destroy(gameObject);
         }
     }

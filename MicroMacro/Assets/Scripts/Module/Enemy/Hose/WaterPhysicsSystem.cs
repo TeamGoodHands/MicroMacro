@@ -77,7 +77,7 @@ namespace Module.Enemy.Hose
                               Layer.Mask.IgnoreRaycast | Layer.Mask.WaterOnly);
 
             // ▼【修正】方向を up (Y軸) から right (X軸) に変更！
-            bool isHitting = Physics.BoxCast(firePoint.position, halfExtents, firePoint.right, out hitInfo, firePoint.rotation, maxDist, layerMask);
+            bool isHitting = Physics.BoxCast(firePoint.position, halfExtents, firePoint.right, out hitInfo, firePoint.rotation, maxDist, layerMask, QueryTriggerInteraction.Ignore);
 
             if (isHitting)
             {
