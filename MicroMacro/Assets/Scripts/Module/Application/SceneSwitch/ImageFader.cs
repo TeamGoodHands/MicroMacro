@@ -79,9 +79,9 @@ namespace Module.Application.SceneSwitch
         }
 
         /// <summary>
-        /// フェード終了時にα値が 0 = フェードイン終了 
+        /// 大体フェード完了したらtrueを返す
         /// </summary>
-        public bool IsFadeInComplete() => fadeState == FadeState.None && img.color.a < 0.01;
+        public bool IsFadeInComplete() => fadeState == FadeState.FadingIn && img.color.a < 0.55f;
         public bool IsFadeOutComplete() => fadeState == FadeState.None && img.color.a >= 1;
         public bool IsFading() => fadeState != FadeState.None;
 
