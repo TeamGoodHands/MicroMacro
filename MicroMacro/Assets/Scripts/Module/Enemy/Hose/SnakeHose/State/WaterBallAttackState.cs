@@ -136,9 +136,6 @@ namespace Module.Enemy.Hose.SnakeHose
             await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
 
 
-            condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
-            return;
-
             if (raptureIndex >= parameter.Raptures.Length)
             {
                 condition.CurrentState = SnakeHoseCondition.State.BeamAttack;

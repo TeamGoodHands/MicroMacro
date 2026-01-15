@@ -11,7 +11,8 @@ public class WaterBall : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag(Tag.Player) && other.gameObject.TryGetComponent(out PlayerBehaviour behaviour))
+        if (other.gameObject.CompareTag(Tag.Player) &&
+            other.gameObject.TryGetComponent(out PlayerBehaviour behaviour))
         {
             behaviour.Component.PlayerMovement.AddExternalForce(-Vector3.right * bounceForce);
         }

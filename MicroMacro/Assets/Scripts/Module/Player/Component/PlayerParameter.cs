@@ -27,6 +27,7 @@ namespace Module.Player.Component
         [SerializeField, Header("着地判定距離")] private float checkGroundDistance;
         [SerializeField, Header("空中状態から着地判定を開始する時間")] private float groundInterval;
         [SerializeField, Header("ジャンプの頂点に来た時に停止するフレーム数")] private int topStopFrameCount;
+        [SerializeField, Header("無敵時間")] private int invincibleTime;
 
         [Header("回転")]
         [SerializeField, Header("縦方向へのデッドゾーン")] private float verticalDeadZone;
@@ -61,6 +62,7 @@ namespace Module.Player.Component
         public float VerticalValidAngle => verticalValidAngle;
         public float RotationSpeed => rotationSpeed;
         public float VerticalLookSpeed => verticalLookSpeed;
+        public float InvincibleTime => invincibleTime;
         public IReadOnlyList<AbstractWeapon> Weapons => weapons;
         public float FootstepSoundInterval => footstepSoundInterval;
         public float FootstepSoundSpeed => footstepSoundSpeed;

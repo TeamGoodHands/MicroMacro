@@ -394,8 +394,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  baseSpeed: 10
-  SpeedMultiplier: 1
   loopMovement: 0
   snakeLength: 80
   baseRadius: 1.8
@@ -2947,13 +2945,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d99fa4673f696f947839029f70f4c1f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 7154513030700833553}
   condition: {fileID: 9045953554657986293}
   parameter: {fileID: 4478803654860546314}
-  snakeHoseController: {fileID: 5755972296942780011}
-  scaler: {fileID: 6243971266130295138}
-  lockOnEffect: {fileID: 4064496956972904254}
-  headTransform: {fileID: 4868052665611648565}
+  components:
+    headTransform: {fileID: 0}
+    neckTransform: {fileID: 0}
+    bodyTransform: {fileID: 0}
+    controller: {fileID: 0}
+    snakeHoseController: {fileID: 0}
+    scaler: {fileID: 0}
+    lockOnEffect: {fileID: 0}
+    healthStatus: {fileID: 0}
+    beamAttackCamera: {fileID: 0}
+    children: []
+    animator: {fileID: 0}
 --- !u!114 &4478803654860546314
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2966,16 +2971,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78468761299d4becb9ff7cedb283899b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  appearDuration: 3
   attackHeight:
   - {x: 32.30981, y: -36}
   - {x: 32.30981, y: -39}
   - {x: 32.30981, y: -42.22}
-  waterBallShootPower: 12
+  raptures: []
+  waterBallShootPower: 10
   hoseMovementBaseSpeed: 10
   hoseMovementSpeedMultiplier: 0.2
   hoseMovementScaleOffset: 0.07
-  hoseShootInterval: 1
+  hoseShootInterval: 1.5
   hoseShootIntervalOffset: 0.075
+  damageScaleDuration: 0.8
   waterBallPrefab: {fileID: 1994662582468630986, guid: f029e70bc6f2ebc48b9a87d1ec555244, type: 3}
   shootPivot: {fileID: 6673645545920239820}
 --- !u!114 &9045953554657986293

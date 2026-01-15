@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Enemy.Hose.SnakeHose;
+using Module.Management;
 using Module.Scaling;
 using Module.UI;
 using UnityEngine;
@@ -70,6 +71,8 @@ namespace Module.Enemy.Hose.ChildSnake
             bodyBone.localScale = bodyScale;
             scaler.SetScale(0, true);
 
+            SoundManager.instance.Play("打撃6");
+
             await transform.DOShakePosition(1f, 0.1f, 30, 90, false, false);
 
             healthStatus.Damage(1);
@@ -99,11 +102,17 @@ namespace Module.Enemy.Hose.ChildSnake
 
                 await controller.LookAtPlayerSmoothAsync(1f, 1f, token);
 
+                if (token.IsCancellationRequested)
+                    return;
+
                 lockOnEffect.LockOn();
 
                 await controller.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f, token);
 
                 await controller.ShakeBody(parameter.ShakeTime).WithCancellation(token);
+
+                if (token.IsCancellationRequested)
+                    return;
 
                 lockOnEffect.LockOff();
 

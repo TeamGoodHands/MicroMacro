@@ -1,5 +1,8 @@
-﻿using CoreModule.AI.HSM;
+﻿using System;
+using Constants;
+using CoreModule.AI.HSM;
 using CoreModule.Input;
+using Cysharp.Threading.Tasks;
 using Module.Player.Component;
 using Module.UI;
 using PropertyGenerator.Generated;
@@ -44,7 +47,7 @@ namespace Module.Player.State
             // 入力イベントの初期化
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
             switchEvent = InputProvider.CreateEvent(ActionGuid.Player.SwitchWeapon);
-            
+
             bodyTransform.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
 
@@ -57,12 +60,21 @@ namespace Module.Player.State
 
             switchEvent.Started += OnSwitchWeapon;
             status.OnDamage += OnDamaged;
+
+            PlayInvincibleTime().Forget();
         }
 
         internal override void OnExit()
         {
             switchEvent.Started -= OnSwitchWeapon;
             status.OnDamage -= OnDamaged;
+        }
+
+        private async UniTaskVoid PlayInvincibleTime()
+        {
+            transform.gameObject.layer = Layer.Invincible;
+            await UniTask.Delay(TimeSpan.FromSeconds(parameter.InvincibleTime), cancellationToken: CancellationToken);
+            transform.gameObject.layer = Layer.Player;
         }
 
         private void OnDamaged(int damage)
