@@ -4,67 +4,67 @@ using UnityEngine;
 
 public class Transparencysystem : MonoBehaviour
 {
-    [SerializeField] private Transform player; //ƒvƒŒƒCƒ„[‚Ìæ“¾
-    [SerializeField] private LayerMask FadeLayer;// ÀsƒŒƒCƒ„[‚ğİ’è
-    [SerializeField] private string fadeTag = "FadeObj";//‰B‚·‚×‚«‚à‚Ì‚Ìƒ^ƒO‚ğİ’è
-    [SerializeField] private float transparentAlpha = 0.1f; // ”¼“§–¾‚É‚·‚éÛ‚ÌƒAƒ‹ƒtƒ@’li0 = Š®‘S“§–¾, 1 = •s“§–¾j
-    [SerializeField] private float fadeDuration = 1.0f; // ƒtƒF[ƒh‚É‚©‚¯‚éŠÔi•bj
-    private HashSet<Renderer> fadingRenderers = new HashSet<Renderer>();//ƒtƒF[ƒh’†‚ÌƒŒƒ“ƒ_ƒ‰[‚ğ’ÇÕ
-    private Renderer currentRenderer = null; // Œ»İ”¼“§–¾‚É‚µ‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚ÌŠi”[êŠ
-    private Material[] originalMaterials = null; // Œ³‚Ìƒ}ƒeƒŠƒAƒ‹‚Ì•Û‘¶êŠ
+    [SerializeField] private Transform player; //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å–å¾—
+    [SerializeField] private LayerMask FadeLayer;// å®Ÿè¡Œãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’è¨­å®š
+    [SerializeField] private string fadeTag = "FadeObj";//éš ã™ã¹ãã‚‚ã®ã®ã‚¿ã‚°ã‚’è¨­å®š
+    [SerializeField] private float transparentAlpha = 0.1f; // åŠé€æ˜ã«ã™ã‚‹éš›ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤ï¼ˆ0 = å®Œå…¨é€æ˜, 1 = ä¸é€æ˜ï¼‰
+    [SerializeField] private float fadeDuration = 1.0f; // ãƒ•ã‚§ãƒ¼ãƒ‰ã«ã‹ã‘ã‚‹æ™‚é–“ï¼ˆç§’ï¼‰
+    private HashSet<Renderer> fadingRenderers = new HashSet<Renderer>();//ãƒ•ã‚§ãƒ¼ãƒ‰ä¸­ã®ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼ã‚’è¿½è·¡
+    private Renderer currentRenderer = null; // ç¾åœ¨åŠé€æ˜ã«ã—ã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ ¼ç´å ´æ‰€
+    private Material[] originalMaterials = null; // å…ƒã®ãƒãƒ†ãƒªã‚¢ãƒ«ã®ä¿å­˜å ´æ‰€
 
     void Update()
-    {   //–Ú•W‚©‚çn“_‚ğˆø‚¢‚Ä–Úw‚·Œü‚«‚ğŒˆ‚ß‚é
+    {   //ç›®æ¨™ã‹ã‚‰å§‹ç‚¹ã‚’å¼•ã„ã¦ç›®æŒ‡ã™å‘ãã‚’æ±ºã‚ã‚‹
         Vector3 _Playerps = (player.transform.position - this.transform.position);
-        //Rey‚Ì‹­‚³‚ğ”’l‰»
+        //Reyã®å¼·ã•ã‚’æ•°å€¤åŒ–
         float ReyMG = _Playerps.magnitude;
-        //Ray‚ğ‰Â‹‰»
+        //Rayã‚’å¯è¦–åŒ–
         Debug.DrawRay(this.transform.position, _Playerps, Color.red, 1);
-@@@  // Raycast‚ÅƒJƒƒ‰‚ÆƒvƒŒƒCƒ„[‚ÌŠÔ‚É‚ ‚éƒIƒuƒWƒFƒNƒg‚ğŒŸo
+ã€€ã€€ã€€  // Raycastã§ã‚«ãƒ¡ãƒ©ã¨ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®é–“ã«ã‚ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¤œå‡º
         if (Physics.Raycast(transform.position, _Playerps.normalized, out RaycastHit hit, ReyMG, FadeLayer))
         {
-            // ƒ^ƒO‚ªˆê’v‚·‚éƒIƒuƒWƒFƒNƒg‚Ì‚İ‘ÎÛ
+            // ã‚¿ã‚°ãŒä¸€è‡´ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã¿å¯¾è±¡
             if (hit.collider.CompareTag(fadeTag))
             {
-                Renderer rend = hit.collider.GetComponent<Renderer>();//ÚG‚µ‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚ÌƒRƒ‰ƒCƒ_[‚ğæ“¾
+                Renderer rend = hit.collider.GetComponent<Renderer>();//æ¥è§¦ã—ã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’å–å¾—
 
-                // V‚µ‚¢ƒIƒuƒWƒFƒNƒg‚É“–‚½‚Á‚½ê‡‚Ì‚İˆ—
+                // æ–°ã—ã„ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å½“ãŸã£ãŸå ´åˆã®ã¿å‡¦ç†
                 if (rend != null && rend != currentRenderer)
                 {
-                    Debug.Log("“§‚©‚µÀs");
+                    Debug.Log("é€ã‹ã—å®Ÿè¡Œ");
                     if (currentRenderer != null) 
                     {
                         StartCoroutine(MakeTransparent(currentRenderer, 1.0f, resetAfter: true)); 
                     } 
-                    // ‘O‚ÌƒIƒuƒWƒFƒNƒg‚ğŒ³‚É–ß‚· 
+                    // å‰ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å…ƒã«æˆ»ã™ 
                     Material[] mats = rend.materials;
                     originalMaterials = new Material[mats.Length];
                     for (int i = 0; i < mats.Length; i++)
                     {
-                        originalMaterials[i] = new Material(mats[i]); // V‚µ‚¢ƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬
+                        originalMaterials[i] = new Material(mats[i]); // æ–°ã—ã„ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œæˆ
                     }
                     currentRenderer = rend;
-                    StartCoroutine(MakeTransparent(rend, transparentAlpha));//“§–¾‰»ˆ—
+                    StartCoroutine(MakeTransparent(rend, transparentAlpha));//é€æ˜åŒ–å‡¦ç†
                 }
-                return;//‚±‚±‚Å‚¨‚í‚è
+                return;//ã“ã“ã§ãŠã‚ã‚Š
             }
         }
 
-        //‰½‚à‚È‚©‚Á‚½‚ç–ß‚·B
+        //ä½•ã‚‚ãªã‹ã£ãŸã‚‰æˆ»ã™ã€‚
         if (currentRenderer != null) 
         {
             StartCoroutine(MakeTransparent(currentRenderer, 1.0f, resetAfter: true)); 
             currentRenderer = null;
             originalMaterials = null; 
         }
-        Debug.Log("Š´’mƒiƒV");
+        Debug.Log("æ„ŸçŸ¥ãƒŠã‚·");
     }
 
-    IEnumerator MakeTransparent(Renderer rend, float targetAlpha, bool resetAfter = false)//“§–¾‰»ˆ—
+    IEnumerator MakeTransparent(Renderer rend, float targetAlpha, bool resetAfter = false)//é€æ˜åŒ–å‡¦ç†
     {
-        // ‚·‚Å‚ÉƒtƒF[ƒh’†‚È‚çƒXƒLƒbƒv
+        // ã™ã§ã«ãƒ•ã‚§ãƒ¼ãƒ‰ä¸­ãªã‚‰ã‚¹ã‚­ãƒƒãƒ—
         if (fadingRenderers.Contains(rend)) yield break; 
-        fadingRenderers.Add(rend); // •`‰æƒ‚[ƒh‚ğTransparent‚Éİ’è
+        fadingRenderers.Add(rend); // æç”»ãƒ¢ãƒ¼ãƒ‰ã‚’Transparentã«è¨­å®š
         foreach (Material mat in rend.materials) 
         { 
             mat.SetFloat("_Mode", 3); 
@@ -86,12 +86,12 @@ public class Transparencysystem : MonoBehaviour
             }
             elapsed += Time.deltaTime; yield return null; 
         } 
-        // ÅI“I‚ÈƒAƒ‹ƒtƒ@‚ğİ’è
+        // æœ€çµ‚çš„ãªã‚¢ãƒ«ãƒ•ã‚¡ã‚’è¨­å®š
         foreach (Material mat in rend.materials) 
         {
             Color color = mat.color; color.a = targetAlpha; mat.color = color; 
         } 
-        // Š®‘S‚ÉŒ³‚É–ß‚µ‚½ê‡Aƒ}ƒeƒŠƒAƒ‹‚ğ•œŒ³
+        // å®Œå…¨ã«å…ƒã«æˆ»ã—ãŸå ´åˆã€ãƒãƒ†ãƒªã‚¢ãƒ«ã‚’å¾©å…ƒ
         if (resetAfter && originalMaterials != null) 
         {
             rend.materials = originalMaterials;

@@ -3,6 +3,7 @@ using System.Threading;
 using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Module.Management;
 using Module.Scaling;
 using Module.UI;
 using Unity.Cinemachine;
@@ -125,7 +126,11 @@ namespace Module.Enemy.Hose.SnakeHose
             bodyBone.localScale = bodyScale;
             scaler.SetScale(0, true);
 
+            
+            SoundManager.instance.Play("打撃6");
+            
             await transform.DOShakePosition(1f, 0.1f, 30, 90, false, false);
+            
 
             healthStatus.Damage(1);
             await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);

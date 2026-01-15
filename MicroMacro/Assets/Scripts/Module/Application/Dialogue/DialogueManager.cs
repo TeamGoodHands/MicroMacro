@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Module.Player.Component;
+using Module.UI;
 
 namespace Module.Application.Dialogue
 {
@@ -12,7 +13,7 @@ namespace Module.Application.Dialogue
     public class DialogueManager : MonoBehaviour
     {
         [SerializeField] private DialogueUI dialogueUI;
-        [SerializeField] private PlayerStatus playerStatus;
+        [SerializeField] private HealthStatus playerStatus;
     
         private readonly Queue<DialogueItem> dialogueQueue = new Queue<DialogueItem>();
         private bool isDisplaying;
