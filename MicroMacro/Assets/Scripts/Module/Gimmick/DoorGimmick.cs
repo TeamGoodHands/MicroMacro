@@ -36,6 +36,8 @@ namespace Module.Gimmick
         // 2Dゲームで手前に表示するためにZ軸をどれだけマイナスするか（-1f 〜 -5fくらい?）
         [SerializeField] private float frontOffsetZ = -2.0f;
         
+        [SerializeField] private bool isCameraMoveEnabled = false;
+        
         // キャンセル用トークンソース（連打されたときに前の処理を止めるため）
         private CancellationTokenSource cts;
         private bool isOpened;
@@ -135,7 +137,9 @@ namespace Module.Gimmick
         /// </summary>
         private async UniTask MoveToDoorAsync(Vector3 targetPosition, CancellationToken token)
         {
-            director.Play(); 
+            if (isCameraMoveEnabled)
+                director.Play(); 
+            
             warmAnim.SetTrigger("BreakDoor");
             
             // 時間指定なし(0f) = defaultMoveSpeedで移動

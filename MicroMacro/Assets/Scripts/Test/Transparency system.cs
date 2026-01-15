@@ -4,67 +4,66 @@ using UnityEngine;
 
 public class Transparencysystem : MonoBehaviour
 {
-    [SerializeField] private Transform player; //ƒvƒŒƒCƒ„[‚Ìæ“¾
-    [SerializeField] private LayerMask FadeLayer;// ÀsƒŒƒCƒ„[‚ğİ’è
-    [SerializeField] private string fadeTag = "FadeObj";//‰B‚·‚×‚«‚à‚Ì‚Ìƒ^ƒO‚ğİ’è
-    [SerializeField] private float transparentAlpha = 0.1f; // ”¼“§–¾‚É‚·‚éÛ‚ÌƒAƒ‹ƒtƒ@’li0 = Š®‘S“§–¾, 1 = •s“§–¾j
-    [SerializeField] private float fadeDuration = 1.0f; // ƒtƒF[ƒh‚É‚©‚¯‚éŠÔi•bj
-    private HashSet<Renderer> fadingRenderers = new HashSet<Renderer>();//ƒtƒF[ƒh’†‚ÌƒŒƒ“ƒ_ƒ‰[‚ğ’ÇÕ
-    private Renderer currentRenderer = null; // Œ»İ”¼“§–¾‚É‚µ‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚ÌŠi”[êŠ
-    private Material[] originalMaterials = null; // Œ³‚Ìƒ}ƒeƒŠƒAƒ‹‚Ì•Û‘¶êŠ
+    [SerializeField] private Transform player; //ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½Ìæ“¾
+    [SerializeField] private LayerMask FadeLayer;// ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½İ’ï¿½
+    [SerializeField] private string fadeTag = "FadeObj";//ï¿½Bï¿½ï¿½ï¿½×‚ï¿½ï¿½ï¿½ï¿½Ì‚Ìƒ^ï¿½Oï¿½ï¿½İ’ï¿½
+    [SerializeField] private float transparentAlpha = 0.1f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½ï¿½Û‚ÌƒAï¿½ï¿½ï¿½tï¿½@ï¿½lï¿½i0 = ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½ï¿½, 1 = ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½j
+    [SerializeField] private float fadeDuration = 1.0f; // ï¿½tï¿½Fï¿½[ï¿½hï¿½É‚ï¿½ï¿½ï¿½ï¿½éï¿½Ôiï¿½bï¿½j
+    private HashSet<Renderer> fadingRenderers = new HashSet<Renderer>();//ï¿½tï¿½Fï¿½[ï¿½hï¿½ï¿½ï¿½Ìƒï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½[ï¿½ï¿½Çï¿½
+    private Renderer currentRenderer = null; // ï¿½ï¿½ï¿½İ”ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ÌŠiï¿½[ï¿½êŠ
+    private Material[] originalMaterials = null; // ï¿½ï¿½ï¿½Ìƒ}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ì•Û‘ï¿½ï¿½êŠ
 
     void Update()
-    {   //–Ú•W‚©‚çn“_‚ğˆø‚¢‚Ä–Úw‚·Œü‚«‚ğŒˆ‚ß‚é
+    {   //ï¿½Ú•Wï¿½ï¿½ï¿½ï¿½nï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä–Úwï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
         Vector3 _Playerps = (player.transform.position - this.transform.position);
-        //Rey‚Ì‹­‚³‚ğ”’l‰»
+        //Reyï¿½Ì‹ï¿½ï¿½ï¿½ï¿½ğ”’lï¿½ï¿½
         float ReyMG = _Playerps.magnitude;
-        //Ray‚ğ‰Â‹‰»
-        Debug.DrawRay(this.transform.position, _Playerps, Color.red, 1);
-@@@  // Raycast‚ÅƒJƒƒ‰‚ÆƒvƒŒƒCƒ„[‚ÌŠÔ‚É‚ ‚éƒIƒuƒWƒFƒNƒg‚ğŒŸo
+        //Rayï¿½ï¿½ï¿½Âï¿½ï¿½ï¿½
+        Debug.DrawRay(this.transform.position, _Playerps, Color.red, 1); 
+        // Raycastï¿½ÅƒJï¿½ï¿½ï¿½ï¿½ï¿½Æƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ÌŠÔ‚É‚ï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½o
         if (Physics.Raycast(transform.position, _Playerps.normalized, out RaycastHit hit, ReyMG, FadeLayer))
         {
-            // ƒ^ƒO‚ªˆê’v‚·‚éƒIƒuƒWƒFƒNƒg‚Ì‚İ‘ÎÛ
+            // ï¿½^ï¿½Oï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½Ì‚İ‘Îï¿½
             if (hit.collider.CompareTag(fadeTag))
             {
-                Renderer rend = hit.collider.GetComponent<Renderer>();//ÚG‚µ‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚ÌƒRƒ‰ƒCƒ_[‚ğæ“¾
+                Renderer rend = hit.collider.GetComponent<Renderer>();//ï¿½ÚGï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ÌƒRï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½ï¿½ï¿½æ“¾
 
-                // V‚µ‚¢ƒIƒuƒWƒFƒNƒg‚É“–‚½‚Á‚½ê‡‚Ì‚İˆ—
+                // ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚İï¿½ï¿½ï¿½
                 if (rend != null && rend != currentRenderer)
                 {
-                    Debug.Log("“§‚©‚µÀs");
+                    Debug.Log("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½s");
                     if (currentRenderer != null) 
                     {
                         StartCoroutine(MakeTransparent(currentRenderer, 1.0f, resetAfter: true)); 
                     } 
-                    // ‘O‚ÌƒIƒuƒWƒFƒNƒg‚ğŒ³‚É–ß‚· 
+                    // ï¿½Oï¿½ÌƒIï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½É–ß‚ï¿½ 
                     Material[] mats = rend.materials;
                     originalMaterials = new Material[mats.Length];
                     for (int i = 0; i < mats.Length; i++)
                     {
-                        originalMaterials[i] = new Material(mats[i]); // V‚µ‚¢ƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬
+                        originalMaterials[i] = new Material(mats[i]); // ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½ì¬
                     }
                     currentRenderer = rend;
-                    StartCoroutine(MakeTransparent(rend, transparentAlpha));//“§–¾‰»ˆ—
+                    StartCoroutine(MakeTransparent(rend, transparentAlpha));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 }
-                return;//‚±‚±‚Å‚¨‚í‚è
+                return;//ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½
             }
         }
 
-        //‰½‚à‚È‚©‚Á‚½‚ç–ß‚·B
+        //ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½ï¿½B
         if (currentRenderer != null) 
         {
             StartCoroutine(MakeTransparent(currentRenderer, 1.0f, resetAfter: true)); 
             currentRenderer = null;
             originalMaterials = null; 
         }
-        Debug.Log("Š´’mƒiƒV");
     }
 
-    IEnumerator MakeTransparent(Renderer rend, float targetAlpha, bool resetAfter = false)//“§–¾‰»ˆ—
+    IEnumerator MakeTransparent(Renderer rend, float targetAlpha, bool resetAfter = false)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     {
-        // ‚·‚Å‚ÉƒtƒF[ƒh’†‚È‚çƒXƒLƒbƒv
+        // ï¿½ï¿½ï¿½Å‚Éƒtï¿½Fï¿½[ï¿½hï¿½ï¿½ï¿½È‚ï¿½Xï¿½Lï¿½bï¿½v
         if (fadingRenderers.Contains(rend)) yield break; 
-        fadingRenderers.Add(rend); // •`‰æƒ‚[ƒh‚ğTransparent‚Éİ’è
+        fadingRenderers.Add(rend); // ï¿½`ï¿½æƒ‚ï¿½[ï¿½hï¿½ï¿½Transparentï¿½Éİ’ï¿½
         foreach (Material mat in rend.materials) 
         { 
             mat.SetFloat("_Mode", 3); 
@@ -86,12 +85,12 @@ public class Transparencysystem : MonoBehaviour
             }
             elapsed += Time.deltaTime; yield return null; 
         } 
-        // ÅI“I‚ÈƒAƒ‹ƒtƒ@‚ğİ’è
+        // ï¿½ÅIï¿½Iï¿½ÈƒAï¿½ï¿½ï¿½tï¿½@ï¿½ï¿½İ’ï¿½
         foreach (Material mat in rend.materials) 
         {
             Color color = mat.color; color.a = targetAlpha; mat.color = color; 
         } 
-        // Š®‘S‚ÉŒ³‚É–ß‚µ‚½ê‡Aƒ}ƒeƒŠƒAƒ‹‚ğ•œŒ³
+        // ï¿½ï¿½ï¿½Sï¿½ÉŒï¿½ï¿½É–ß‚ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Aï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ğ•œŒï¿½
         if (resetAfter && originalMaterials != null) 
         {
             rend.materials = originalMaterials;

@@ -17,7 +17,8 @@ namespace LevelEditor.Editor
             Event e = Event.current;
             
             // ctrl + shift + 左クリック
-            if (e.type == EventType.MouseDown && e.button == 0 && e.shift)
+            if (e.type == EventType.MouseDown && e.button == 0 &&
+                e.shift && e.control)  
             {
                 TeleportPlayer(e.mousePosition);
             }
