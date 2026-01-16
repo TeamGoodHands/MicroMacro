@@ -64,6 +64,8 @@ jobs:
           unityVersion: 6000.0.34f1
           allowDirtyBuild: true
           buildName: ${{ env.BUILD_NAME }}
+          # ログを強制的にファイル出力（エラー特定用）
+          customParameters: -logFile build.log
 
       # 成果物のアップロード
       - name: Output Build Artifact
@@ -72,36 +74,18 @@ jobs:
           name: Build-Windows-${{ env.BUILD_NAME }}
           path: build/${{ matrix.targetPlatform }}
 
-      # --- ここから通知＆エラー処理 ---
-
-      # 成功時のDiscord通知
-      - name: Discord Notification (Success)
-        if: success()
-        uses: Ilshidur/action-discord@master
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      # Discord通知（成功・失敗を自動判定）
+      - name: Discord Notification
+        if: always()
+        uses: sarisia/actions-status-discord@v1
         with:
-          args: |
-            ✅ **Build Success!**
-            **Project:** MicroMacro (Windows)
-            **Version:** ${{ env.BUILD_NAME }}
-            **Commit:** `${{ env.COMMIT_HASH }}`
-            
-            📥 [Download Artifacts Here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-      # 失敗時のDiscord通知
-      - name: Discord Notification (Failure)
-        if: failure()
-        uses: Ilshidur/action-discord@master
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        with:
-          args: |
-            ❌ **Build Failed...**
-            **Project:** MicroMacro (Windows)
-            **Commit:** `${{ env.COMMIT_HASH }}`
-            
-            🔍 [Check Logs Here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "Windows Build Status"
+          description: |
+            Build: ${{ env.BUILD_NAME }}
+            Commit: ${{ env.COMMIT_HASH }}
+          color: 0x00ff00 
+          url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       # 失敗時のみエラーログをアップロード
       - name: Upload Error Logs
@@ -109,6 +93,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Error-Logs-${{ env.BUILD_NAME }}
-          path: |
-            **/*.log
-            **/*Editor.log
+          path: build.log
