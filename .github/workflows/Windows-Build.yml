@@ -1,64 +1,114 @@
 name: Windows-Build
 on:
-  pull_request:        # mainにプルリクor手動で実行
-    branches: develop  
-  workflow_dispatch:  {}    
+  pull_request:
+    branches: develop
+  workflow_dispatch: {}
 
 jobs:
-  Unity-Build:          # checkout->cache->build->uploadの順番
-    name: Build for ${{ matrix.targetPlatform }}
-    runs-on: ${{ matrix.os }}
-    strategy: 
-      fail-fast: false  # 途中で失敗してもその先をキャンセルしない
+  Unity-Build:
+    name: Build for Windows
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
       matrix:
-        unity-editor-version: [6000.0.34f1]
-        root-project-path:    [MicroMacro]
-        os:                   [windows-latest]
-        buildName:            [MicroMacro_BuildData]
         targetPlatform:
-          - StandaloneWindows64     
-          
-    steps:                     
-      # Checkout  データ取得
+          - StandaloneWindows64
+
+    steps:
+      # ディスク容量確保（ビルドエラー防止）
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           lfs: true
-      
-      # Cache   Libraryを一時的に別の場所に保管して高速化する
+
+      # バージョン情報の生成（日付 ＋ 最新のコミットID）
+      - name: Set Version Variables
+        id: version
+        run: |
+          echo "BUILD_DATE=$(date +'%Y-%m-%d_%H%M')" >> $GITHUB_ENV
+          echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "BUILD_NAME=MicroMacro_$(date +'%Y-%m-%d_%H%M')_$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      # キャッシュ（manifest.jsonの変更を検知して更新）
       - name: Cache Library
         uses: actions/cache@v4
         with:
           path: MicroMacro/Library
-          key:  Library-${{ matrix.targetPlatform }}
-          restore-keys: Library-
-          
-      # WindowsBuild
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('MicroMacro/Packages/manifest.json') }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
+            Library-
+
+      # Unityビルド実行
       - name: Run the Windows Build
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_LICENSE:  ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL:    ${{ secrets.UNITY_EMAIL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-          projectPath:    ${{ matrix.root-project-path }}
-          unityVersion:   ${{ matrix.unity-editor-version }}
-          allowDirtyBuild: true         
-                                                
-      # Google Driveへアップロード
-#      - name: Upload to Google Drive
-#        uses: Jumbo810/Upload_Github_Artifacts_TO_GDrive@v2.3.1
-#        with:
-#          target: ${{ matrix.buildName }}.zip
-#          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
-#          parent_folder_id: ${{ secrets.GDRIVE_FOLDER_ID }}
-#          name: ${{ matrix.buildName }}
-          
-      # Output
+          projectPath: MicroMacro
+          unityVersion: 6000.0.34f1
+          allowDirtyBuild: true
+          buildName: ${{ env.BUILD_NAME }}
+
+      # 成果物のアップロード
       - name: Output Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.buildName }}
+          name: Build-Windows-${{ env.BUILD_NAME }}
+          path: build/${{ matrix.targetPlatform }}
 
-          path: build/${{ matrix.targetPlatform }}    
+      # --- ここから通知＆エラー処理 ---
+
+      # 成功時のDiscord通知
+      - name: Discord Notification (Success)
+        if: success()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            ✅ **Build Success!**
+            **Project:** MicroMacro (Windows)
+            **Version:** ${{ env.BUILD_NAME }}
+            **Commit:** `${{ env.COMMIT_HASH }}`
+            
+            📥 [Download Artifacts Here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+      # 失敗時のDiscord通知
+      - name: Discord Notification (Failure)
+        if: failure()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: |
+            ❌ **Build Failed...**
+            **Project:** MicroMacro (Windows)
+            **Commit:** `${{ env.COMMIT_HASH }}`
+            
+            🔍 [Check Logs Here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+      # 失敗時のみエラーログをアップロード
+      - name: Upload Error Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Error-Logs-${{ env.BUILD_NAME }}
+          path: |
+            **/*.log
+            **/*Editor.log
