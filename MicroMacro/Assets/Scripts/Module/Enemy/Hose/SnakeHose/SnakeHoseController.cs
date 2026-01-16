@@ -43,7 +43,6 @@ namespace Module.Enemy.Hose
                 playerTransform = playerObj.transform;
             }
 
-            physicsSystem.Initialize(parameter, scaler);
             visualSystem.Initialize(parameter, scaler);
             visualSystem.SetRapidsMode(isRapids);
 

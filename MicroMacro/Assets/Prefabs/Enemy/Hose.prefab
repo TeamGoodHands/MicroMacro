@@ -368,6 +368,7 @@ GameObject:
   - component: {fileID: 9153948616478439091}
   - component: {fileID: 5718002603898001750}
   - component: {fileID: 467150982580827256}
+  - component: {fileID: 2451721608057127733}
   m_Layer: 0
   m_Name: Hose
   m_TagString: Untagged
@@ -473,6 +474,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a92d67a2631be414082d183221fdc78d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scaler: {fileID: 126177941347024555}
+--- !u!114 &2451721608057127733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2947332812029785437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c38c9adc8ed746aa8a40670cd02d4b38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotatePivot: {fileID: 7097995719670352940}
+  firePoint: {fileID: 8285137654200784058}
+  parameter: {fileID: 120949696596305902}
   scaler: {fileID: 126177941347024555}
 --- !u!1 &3288105089009256120
 GameObject:
@@ -695,9 +712,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffba30533d411634591722b3b6f9204a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hoseBehaviour: {fileID: 9153948616478439091}
+  physicsSystem: {fileID: 2451721608057127733}
   centeringStrength: 5
   exitPower: 1.5
+  lateralDamping: 0.1
+  pushStrengthMultiplier: 1
 --- !u!1 &4321702044997124520
 GameObject:
   m_ObjectHideFlags: 0

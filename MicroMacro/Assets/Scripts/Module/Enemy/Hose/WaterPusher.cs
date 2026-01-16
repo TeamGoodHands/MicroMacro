@@ -8,7 +8,7 @@ namespace Module.Enemy.Hose
     public class WaterPusher : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private GameObject waterObject; 
+        [SerializeField] private WaterPhysicsSystem physicsSystem; 
         
         [Header("Parameters")]
         [SerializeField] private float centeringStrength = 5.0f; 
@@ -19,17 +19,11 @@ namespace Module.Enemy.Hose
         [SerializeField, Header("水流の中にいるときの押し出し倍率")] 
         private float pushStrengthMultiplier = 1.0f;
 
-        private SnakeHoseController hoseController;
         private Rigidbody playerRb;
         private PlayerMovement playerMovement;
 
         private void Start()
         {
-            if (waterObject != null)
-            {
-                hoseController = waterObject.GetComponent<SnakeHoseController>();
-            }
-
             GameObject player = GameObject.FindWithTag(Tag.Player);
             if (player != null)
             {
@@ -44,7 +38,7 @@ namespace Module.Enemy.Hose
 
         private void OnTriggerStay(Collider other)
         {
-            if (hoseController == null || playerRb == null) return;
+            if (playerRb == null) return;
             
             if (other.CompareTag(Tag.Handle.Player))
             {
@@ -54,12 +48,12 @@ namespace Module.Enemy.Hose
 
         private void OnTriggerExit(Collider other)
         {
-            if (hoseController == null || playerMovement == null) return;
+            if (playerMovement == null) return;
 
             if (other.CompareTag(Tag.Handle.Player))
             {
                 // 脱出時のブーストにも倍率を乗せるかはお好みで（今回は乗せていません）
-                Vector3 force = hoseController.Physics.CalculateForceForPusher(true);
+                Vector3 force = physicsSystem.CalculateForceForPusher(true);
                 playerMovement.AddExternalForce(force * exitPower);
             }
         }
@@ -81,7 +75,7 @@ namespace Module.Enemy.Hose
             playerRb.MovePosition(correctedPos);
 
             // 3. 推進力の付与
-            Vector3 baseForce = hoseController.Physics.CalculateForceForPusher(true);
+            Vector3 baseForce = physicsSystem.CalculateForceForPusher(true);
             
             // ▼ 修正: ここで倍率をドンと掛け算します
             Vector3 finalForce = baseForce * pushStrengthMultiplier;

@@ -10,9 +10,9 @@ namespace Module.Enemy.Hose
     {
         [SerializeField] private Transform rotatePivot;
         [SerializeField] private Transform firePoint;   // WaterPivot
+        [SerializeField] private WaterFlowParameter parameter;
+        [SerializeField] private Scaler scaler;
         
-        private WaterFlowParameter parameter;
-        private Scaler scaler;
         private float currentHitDistance;
         private RaycastHit hitInfo;
         
@@ -23,11 +23,8 @@ namespace Module.Enemy.Hose
 
         public float CurrentHitDistance => currentHitDistance;
 
-        public void Initialize(WaterFlowParameter param, Scaler scl)
+        public void Start()
         {
-            this.parameter = param;
-            this.scaler = scl;
-
             // 初期スケールを記録
             if (firePoint != null)
             {
