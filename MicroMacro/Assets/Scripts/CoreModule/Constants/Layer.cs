@@ -23,6 +23,7 @@ namespace Constants
 		public const int BulletOnly = 13;
 		public const int WaterOnly = 14;
 		public const int IgnoreHit = 15;
+		public const int Invincible = 16;
 		public const int FadeLayer = 27;
 		
 		public sealed class Mask
@@ -43,6 +44,7 @@ namespace Constants
 			public const int BulletOnly = 8192;
 			public const int WaterOnly = 16384;
 			public const int IgnoreHit = 32768;
+			public const int Invincible = 65536;
 			public const int FadeLayer = 134217728;
 		}
 	}

@@ -1,6 +1,7 @@
 ﻿using System;
 using Constants;
 using Module.Player.Component;
+using Module.UI;
 using UnityEngine;
 
 namespace Module.Enemy.Cargo
@@ -26,7 +27,7 @@ namespace Module.Enemy.Cargo
                 return;
 
             if (other.gameObject.CompareTag(Tag.Handle.Player) &&
-                other.gameObject.TryGetComponent(out PlayerStatus playerStatus))
+                other.gameObject.TryGetComponent(out HealthStatus playerStatus))
             {
                 playerStatus.Damage(1);
                 doAttack = false;

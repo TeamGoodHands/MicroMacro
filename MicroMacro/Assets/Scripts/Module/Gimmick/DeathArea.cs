@@ -1,6 +1,7 @@
 using System;
 using Constants;
 using Module.Player.Component;
+using Module.UI;
 using UnityEngine;
 
 namespace Module.Gimmick
@@ -24,10 +25,15 @@ namespace Module.Gimmick
             SendDamage(other.gameObject);
         }
 
+        private void OnCollisionEnter(Collision collision)
+        {
+            SendDamage(collision.gameObject);
+        }
+
         private void SendDamage(GameObject obj)
         {
             if (obj.CompareTag(Tag.Player) &&
-                obj.TryGetComponent(out PlayerStatus player))
+                obj.TryGetComponent(out HealthStatus player))
             {
                 player.Damage(maxDamage);
             }
@@ -39,10 +45,13 @@ namespace Module.Gimmick
             {
                 boxCollider = GetComponent<BoxCollider>();
             }
-            
-            Gizmos.color = new Color(1f, 0.06f, 0.1f, 0.35f);
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+
+            if (boxCollider != null)
+            {
+                Gizmos.color = new Color(1f, 0.06f, 0.1f, 0.35f);
+                Gizmos.matrix = transform.localToWorldMatrix;
+                Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+            }
         }
     }
 }

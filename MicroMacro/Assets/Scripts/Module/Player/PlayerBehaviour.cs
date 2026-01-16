@@ -1,4 +1,5 @@
-﻿using CoreModule.AI.HSM;
+﻿using System;
+using CoreModule.AI.HSM;
 using Module.Player.State;
 using UnityEngine;
 
@@ -33,8 +34,8 @@ namespace Module.Player
             stateMachine.AddTransition<InAirState, GroundState>(() => component.Condition.IsGround == true);
             stateMachine.AddTransition<AliveState, LockState>(() => component.Condition.IsPlayerLocked == true);
             stateMachine.AddTransition<LockState, AliveState>(() => component.Condition.IsPlayerLocked == false);
-            stateMachine.AddTransition<AliveState, DeathState>(() => component.PlayerStatus.CurrentHealth == 0);
-            stateMachine.AddTransition<DeathState, AliveState>(() => component.PlayerStatus.CurrentHealth > 0);
+            stateMachine.AddTransition<AliveState, DeathState>(() => component.HealthStatus.CurrentHealth == 0);
+            stateMachine.AddTransition<DeathState, AliveState>(() => component.HealthStatus.CurrentHealth > 0);
             stateMachine.AddTransition<GroundState, RideState>(() => component.Condition.IsRiding == true);
             stateMachine.AddTransition<RideState, GroundState>(() => component.Condition.IsRiding == false);
 

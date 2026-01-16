@@ -2,6 +2,7 @@ using System;
 using Constants;
 using Cysharp.Threading.Tasks;
 using Module.Player.Component;
+using Module.UI;
 using UnityEngine;
 
 namespace Module.Application.Respawn
@@ -33,7 +34,7 @@ namespace Module.Application.Respawn
         private void SendDamage(GameObject obj)
         {
             if (obj.CompareTag(Tag.Player) &&
-                obj.TryGetComponent(out PlayerStatus player))
+                obj.TryGetComponent(out HealthStatus player))
             {
                 player.Damage(1);
                 Respawn().Forget();

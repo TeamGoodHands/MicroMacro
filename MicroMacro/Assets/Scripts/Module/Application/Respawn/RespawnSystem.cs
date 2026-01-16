@@ -4,6 +4,7 @@ using Constants;
 using Cysharp.Threading.Tasks;
 using Module.Player;
 using Module.Player.Component;
+using Module.UI;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ namespace Module.Application.Respawn
 
         private Vector3 spawnPosition;
         private PlayerBehaviour playerBehaviour;
-        private PlayerStatus playerStatus;
+        private HealthStatus healthStatus;
         private Vector3 forcedPosition;
         private bool isForceCamera;
 
@@ -32,8 +33,8 @@ namespace Module.Application.Respawn
             spawnPosition = playerBehaviour.transform.position;
 
             // 死亡時のリスポーンイベントを登録
-            playerStatus = playerObject.GetComponent<PlayerStatus>();
-            playerStatus.OnDeath += Respawn;
+            healthStatus = playerObject.GetComponent<HealthStatus>();
+            healthStatus.OnDeath += Respawn;
 
             // チェックポイントを登録
             checkPoints = FindObjectsByType<CheckPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -74,7 +75,7 @@ namespace Module.Application.Respawn
 
             // 座標とHPをリセット
             playerBehaviour.transform.position = spawnPosition;
-            playerStatus.Reset();
+            healthStatus.Reset();
 
             forcedPosition = playerBehaviour.transform.position;
             isForceCamera = true;

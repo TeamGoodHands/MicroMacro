@@ -23,7 +23,8 @@ Shader "TransparentUnlit"
             {
                 "LightMode"="SketchOutlineTransparentPrepass"
             }
-            ZWrite On Cull Back
+            ZWrite On
+            Cull Back
 
             HLSLPROGRAM
             #pragma vertex   dn_vert

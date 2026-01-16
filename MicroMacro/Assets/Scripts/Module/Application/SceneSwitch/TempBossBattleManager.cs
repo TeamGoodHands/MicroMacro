@@ -3,6 +3,7 @@ using CoreModule.Input;
 using UnityEngine;
 using Module.Enemy;
 using Cysharp.Threading.Tasks;
+using Module.UI;
 using UnityEngine.InputSystem;
 
 namespace Module.Application.SceneSwitch
@@ -10,7 +11,7 @@ namespace Module.Application.SceneSwitch
     
     public class TempBossBattleManager : MonoBehaviour
     {
-        [SerializeField] private EnemyStatus enemyStatus;
+        [SerializeField] private HealthStatus enemyStatus;
 
         [SerializeField] private FadeAndSceneTransition sceneManager;
         private void Start()

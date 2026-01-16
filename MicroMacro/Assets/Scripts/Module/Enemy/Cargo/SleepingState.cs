@@ -73,7 +73,7 @@ namespace Module.Enemy.Cargo
 
             component.AnimatorWrapper.SetAngryTrigger();
 
-            component.Status.SetHealth(component.Status.MaxHealth);
+            component.Status.Reset();
             component.BossCamera.Priority = -1;
             component.NearInEnemyCamera.Priority = 100;
 

@@ -1,6 +1,7 @@
 using Constants;
 using Module.Application.SceneSwitch;
 using Module.Player.Component;
+using Module.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,7 +12,7 @@ namespace Module.Management
     /// </summary>
     public class Players : MonoBehaviour
     {
-        private PlayerStatus playerStatus;
+        private HealthStatus playerStatus;
         [SerializeField] private FadeAndSceneTransition sceneTransition;
 
         private static int deathCount;
@@ -24,7 +25,7 @@ namespace Module.Management
 
         private void Start()
         {
-            playerStatus = GameObject.FindWithTag(Tag.Player).GetComponent<PlayerStatus>();
+            playerStatus = GameObject.FindWithTag(Tag.Player).GetComponent<HealthStatus>();
             playerStatus.OnDeath += OnPlayerDeath;
         }
 

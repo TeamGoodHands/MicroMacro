@@ -115,7 +115,8 @@ namespace Module.Scaling
                             transform.localPosition = currentPosition + args.PositionOffset * progress;
                         }
                     }, 1f, args.Duration)
-                .SetEase(scaleEase, 3f);
+                .SetEase(scaleEase, 3f)
+                .SetLink(gameObject);
         }
 
         private ScalerArgs CalculateScaleArgs(Vector3 currentPosition, Vector3 scaleOffset)

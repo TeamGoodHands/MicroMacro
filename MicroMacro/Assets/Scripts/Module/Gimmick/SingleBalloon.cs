@@ -3,6 +3,7 @@ using Constants;
 using Cysharp.Threading.Tasks;
 using Module.Player.Component;
 using Module.Scaling;
+using Module.UI;
 using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -156,7 +157,7 @@ namespace Module.Gimmick
             if (playerObject == null)
                 return;
 
-            if (playerObject.TryGetComponent<PlayerStatus>(out var playerStatus))
+            if (playerObject.TryGetComponent<HealthStatus>(out var playerStatus))
             {
                 // 確実に死亡させる（RespawnSystemはPlayerStatus.OnDeathを購読している）
                 int killDamage = Mathf.Max(1, playerStatus.CurrentHealth);

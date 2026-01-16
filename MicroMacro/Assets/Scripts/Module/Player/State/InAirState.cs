@@ -46,7 +46,7 @@ namespace Module.Player.State
         internal override void OnEnter()
         {
             isTopStop = false;
-            topStopFrameCount = 0;
+            topStopFrameCount = condition.Direction.y < 0f ? parameter.TopStopFrameCount : 0; // 下入力がある場合は頂点停止を無効化
 
             jumpEvent.Canceled += CancelJump;
         }

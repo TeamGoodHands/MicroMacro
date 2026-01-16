@@ -1,6 +1,10 @@
-﻿using CoreModule.AI.HSM;
+﻿using System;
+using Constants;
+using CoreModule.AI.HSM;
 using CoreModule.Input;
+using Cysharp.Threading.Tasks;
 using Module.Player.Component;
+using Module.UI;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,7 +22,7 @@ namespace Module.Player.State
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
         private readonly PlayerRotation rotation;
-        private readonly PlayerStatus status;
+        private readonly HealthStatus status;
         private readonly WeaponSwitcher weaponSwitcher;
         private readonly PlayerControllerWrapper animatorWrapper;
 
@@ -32,7 +36,7 @@ namespace Module.Player.State
             rigidbody = component.Rigidbody;
             bodyTransform = component.BodyTransform;
             condition = component.Condition;
-            status = component.PlayerStatus;
+            status = component.HealthStatus;
             rotation = component.PlayerRotation;
             weaponSwitcher = component.WeaponSwitcher;
             animatorWrapper = component.AnimatorWrapper;
@@ -43,6 +47,8 @@ namespace Module.Player.State
             // 入力イベントの初期化
             moveEvent = InputProvider.CreateEvent(ActionGuid.Player.Move);
             switchEvent = InputProvider.CreateEvent(ActionGuid.Player.SwitchWeapon);
+
+            bodyTransform.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
         }
 
         internal override void OnEnter()
@@ -54,12 +60,21 @@ namespace Module.Player.State
 
             switchEvent.Started += OnSwitchWeapon;
             status.OnDamage += OnDamaged;
+
+            PlayInvincibleTime().Forget();
         }
 
         internal override void OnExit()
         {
             switchEvent.Started -= OnSwitchWeapon;
             status.OnDamage -= OnDamaged;
+        }
+
+        private async UniTaskVoid PlayInvincibleTime()
+        {
+            transform.gameObject.layer = Layer.Invincible;
+            await UniTask.Delay(TimeSpan.FromSeconds(parameter.InvincibleTime), cancellationToken: CancellationToken);
+            transform.gameObject.layer = Layer.Player;
         }
 
         private void OnDamaged(int damage)
@@ -107,7 +122,7 @@ namespace Module.Player.State
 
         private void UpdateRotation()
         {
-            float angle = condition.LastSideInput.x > 0f ? -180f : 0f;
+            float angle = condition.LastSideInput.x > 0f ? 0f : 180f;
             rigidbody.rotation = Quaternion.Slerp(rigidbody.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.fixedDeltaTime);
         }
 

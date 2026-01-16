@@ -45,12 +45,12 @@ namespace Module.Player.Component
         public void Switch()
         {
             // テストプレイ期間中は無効化
-            /*weapons[currentIndex].OnDisabled();
+            weapons[currentIndex].OnDisabled();
 
             // インデックスをループして進める
             currentIndex = (currentIndex + 1) % weapons.Count;
 
-            weapons[currentIndex].OnEnabled();*/
+            weapons[currentIndex].OnEnabled();
         }
 
         public void Destroy()

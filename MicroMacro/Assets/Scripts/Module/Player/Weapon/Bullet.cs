@@ -21,8 +21,7 @@ namespace Module.Player.Weapon
         [SerializeField] private float effectXOffset;
         [SerializeField] private float disappearDelay;
 
-        [Header("加わる重力の強さ")]
-        [SerializeField] private float gravityScale;
+        [Header("加わる重力の強さ")] [SerializeField] private float gravityScale;
 
         public event Action OnHit;
         private Camera mainCamera;
@@ -49,8 +48,12 @@ namespace Module.Player.Weapon
         public void Shoot(Vector2 force, bool isVertical)
         {
             this.isVertical = isVertical;
-            trailEffect.gameObject.SetActive(true);
-            trailEffect.Play();
+            if (trailEffect != null)
+            {
+                trailEffect.gameObject.SetActive(true);
+                trailEffect.Play();
+            }
+
             rigBody.AddForce(force, ForceMode.Impulse);
         }
 
@@ -114,10 +117,13 @@ namespace Module.Player.Weapon
             var sparkRotation = isVertical ? new Vector2(90f, 0f) : new Vector2(0f, 90f);
 
             hitEffect.SetVector2("SparkRotation", sparkRotation);
-
             hitEffect.Play();
-            trailEffect.Stop();
-            trailEffect.gameObject.SetActive(false);
+
+            if (trailEffect != null)
+            {
+                trailEffect.Stop();
+                trailEffect.gameObject.SetActive(false);
+            }
 
             await UniTask.Delay(TimeSpan.FromSeconds(disappearDelay), cancellationToken: destroyCancellationToken);
         }

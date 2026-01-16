@@ -25,6 +25,7 @@ namespace CoreModule.AI.HSM
         private readonly Dictionary<Type, State> states = new();
         private readonly Dictionary<Type, StateGroup> stateGroups = new();
         private readonly Dictionary<Type, Dictionary<Type, Func<bool>>> transitions = new();
+        
 
         public HierarchicalStateMachine()
         {

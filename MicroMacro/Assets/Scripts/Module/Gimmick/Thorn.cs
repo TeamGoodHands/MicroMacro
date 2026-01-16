@@ -1,6 +1,7 @@
 using System;
 using Constants;
 using Module.Player.Component;
+using Module.UI;
 using UnityEngine;
 
 namespace Module.Gimmick
@@ -13,7 +14,7 @@ namespace Module.Gimmick
 
         private void OnCollisionEnter(Collision other)
         {
-            if (other.gameObject.CompareTag(Tag.Handle.Player) && other.gameObject.TryGetComponent<PlayerStatus>(out var playerStatus))
+            if (other.gameObject.CompareTag(Tag.Handle.Player) && other.gameObject.TryGetComponent<HealthStatus>(out var playerStatus))
             {
                 int hpBefore = playerStatus.CurrentHealth;
                 playerStatus.Damage(damage);
