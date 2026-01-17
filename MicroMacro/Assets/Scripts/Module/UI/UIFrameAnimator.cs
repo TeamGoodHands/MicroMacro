@@ -6,20 +6,18 @@ using System.Collections.Generic;
 
 namespace Module.UI
 {
-    /// <summary>
-    /// Image画像をパラパラ漫画のように切り替えるコンポーネント
-    /// </summary>
     [RequireComponent(typeof(Image))]
     public class UIFrameAnimator : MonoBehaviour
     {
         [SerializeField] private Image targetImage;
-        
-        // デフォルトで再生したい場合用（インスペクタで設定）
         [SerializeField] private Sprite[] defaultSprites;
-        [SerializeField] private float fps = 3f; // 1秒間に切り替わる回数
+        [SerializeField] private float fps = 3f;
 
         private CancellationTokenSource cts;
         private bool isPlaying = false;
+        
+        // 現在再生中のスプライトリストを保持
+        private Sprite[] currentSprites; 
 
         private void Awake()
         {
@@ -39,37 +37,44 @@ namespace Module.UI
             Stop();
         }
 
-        /// <summary>
-        /// アニメーションを再生する（外部から呼ぶ）
-        /// </summary>
         public void Play(Sprite[] sprites, float frameRate = -1)
         {
-            // 同じアニメーション中なら何もしないチェックを入れても良いが、
-            // ここでは切り替えを優先してリセットする
-            Stop();
-
             if (sprites == null || sprites.Length == 0) return;
 
+            //  既に同じアニメーションが再生中なら何もしない（リセット防止）
+            if (isPlaying && currentSprites == sprites) 
+            {
+                // FPSだけ変更したい場合はここで処理してもいいが、今回は割愛
+                return;
+            }
+
+            // 違うアニメなら停止して新しく再生
+            Stop();
+
+            currentSprites = sprites; // 記録
+            
             float currentFps = (frameRate > 0) ? frameRate : fps;
             cts = new CancellationTokenSource();
             
-            // 非同期ループ開始
             PlayLoopAsync(sprites, currentFps, cts.Token).Forget();
         }
 
         public void Stop()
         {
+            // キャンセル命令
             cts?.Cancel();
             cts?.Dispose();
             cts = null;
+
+            // 状態のリセット
             isPlaying = false;
+            currentSprites = null;
         }
 
         private async UniTaskVoid PlayLoopAsync(Sprite[] sprites, float frameRate, CancellationToken token)
         {
             isPlaying = true;
             int index = 0;
-            // FPSから待機時間を計算 (例: 3fps = 0.33秒待機)
             float waitTime = 1f / frameRate;
 
             try
@@ -81,20 +86,28 @@ namespace Module.UI
                         targetImage.sprite = sprites[index];
                     }
 
-                    // 次の画像へ（ループ）
                     index = (index + 1) % sprites.Length;
-
-                    // 待機 (Time.timeScaleの影響を受けるようにDelayType.DeltaTimeを指定)
                     await UniTask.Delay(System.TimeSpan.FromSeconds(waitTime), DelayType.DeltaTime, cancellationToken: token);
                 }
             }
             catch (System.OperationCanceledException)
             {
-                // 停止処理
+                // キャンセル時は何もしない
             }
             finally
             {
-                isPlaying = false;
+          
+                // 「今動いているcts」が「自分のtoken」と一致する場合のみリセット
+                // (Play()でStop()が呼ばれた場合、ctsは既にnullか新しいものになっているため、
+                //  ここでリセット処理は走らず、新しいアニメーションの状態が守られる)
+        
+                if (cts != null && cts.Token == token)
+                {
+                    isPlaying = false;
+                    currentSprites = null;
+                    cts?.Dispose();
+                    cts = null;
+                }
             }
         }
     }

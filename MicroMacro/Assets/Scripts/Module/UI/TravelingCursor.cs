@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using DG.Tweening;
-using Cysharp.Threading.Tasks; // 追加
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace Module.UI
 {
-    [RequireComponent(typeof(UIFrameAnimator))] // アニメーター必須
+    [RequireComponent(typeof(UIFrameAnimator))]
     public class TravelingCursor : MonoBehaviour
     {
         [Header("移動設定")]
@@ -15,8 +15,8 @@ namespace Module.UI
         [SerializeField] private Ease moveEase = Ease.OutExpo;
 
         [Header("アニメーション設定")]
-        [SerializeField] private Sprite[] idleSprites;   // 待機中のパラパラ画像
-        [SerializeField] private Sprite[] movingSprites; // 移動中のパラパラ画像
+        [SerializeField] private Sprite[] idleSprites;
+        [SerializeField] private Sprite[] movingSprites;
         [SerializeField] private float animationFps = 4f;
 
         [Header("オプション")]
@@ -24,6 +24,8 @@ namespace Module.UI
 
         private UIFrameAnimator animator;
         private GameObject lastTargetObject;
+        
+        private CancellationTokenSource moveSequenceCts;
 
         private void Awake()
         {
@@ -32,8 +34,13 @@ namespace Module.UI
 
         private void Start()
         {
-            // 最初は待機アニメ
             animator.Play(idleSprites, animationFps);
+        }
+
+        private void OnDestroy()
+        {
+            moveSequenceCts?.Cancel();
+            moveSequenceCts?.Dispose();
         }
 
         private void Update()
@@ -51,11 +58,18 @@ namespace Module.UI
                 if (currentSelected.GetComponent<ButtonAnimBase>() == null) return;
             }
 
-            // 非同期で移動処理を開始
-            MoveSequenceAsync(currentSelected).Forget();
+            // 古い移動シーケンスをキャンセル
+            // ここでDispose()してしまうと、直後の非同期処理内で
+            // トークンチェックした時にエラーになることがあるため、Cancelのみ行い、
+            // DisposeはGCに任せるか、確実に終わったタイミングで行うのが安全。
+            moveSequenceCts?.Cancel();
+            moveSequenceCts = new CancellationTokenSource();
+
+            // 新しい移動を開始
+            MoveSequenceAsync(currentSelected, moveSequenceCts.Token).Forget();
         }
 
-        private async UniTaskVoid MoveSequenceAsync(GameObject target)
+        private async UniTaskVoid MoveSequenceAsync(GameObject target, CancellationToken token)
         {
             var targetRect = target.GetComponent<RectTransform>();
             if (targetRect == null) return;
@@ -63,16 +77,28 @@ namespace Module.UI
             // 移動アニメーションに切り替え
             animator.Play(movingSprites, animationFps);
             
+            // 古いTweenをキル
             cursorRectTransform.DOKill();
-            await cursorRectTransform.DOMove(targetRect.position, moveDuration)
-                .SetEase(moveEase)
-                .SetLink(gameObject)
-                .ToUniTask(); // UniTaskで待機可能にする
+            
+            try 
+            {
+                // 移動開始
+                await cursorRectTransform.DOMove(targetRect.position, moveDuration)
+                    .SetEase(moveEase)
+                    .SetLink(gameObject)
+                    .ToUniTask(cancellationToken: token); 
+                
+                // キャンセルされていたら「待機アニメ」には移行させない
+                if (token.IsCancellationRequested) 
+                    return;
 
-            //  移動が終わったら待機アニメーションに戻す
-            // (移動中に別のターゲットに移った場合、この処理はキャンセルされないが、
-            //  次のMoveSequenceAsyncが即座に上書きするので問題ない)
-            animator.Play(idleSprites, animationFps);
+                // 正常に完走した（キャンセルされていない）場合のみ、待機アニメに戻す
+                animator.Play(idleSprites, animationFps);
+            }
+            catch (System.OperationCanceledException)
+            {
+                // キャンセル時は何もしない（次のアニメーションが既に再生されているため）
+            }
         }
     }
 }
