@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using Module.Management;
 
 namespace Module.UI
 {
@@ -11,10 +12,16 @@ namespace Module.UI
     {
         [Header("最初に選択状態にしたいボタン")]
         [SerializeField] private GameObject firstSelectButton;
+        [Header("開始時に再生するサウンド")]
+        [SerializeField] private string soundNameOnEnabled = null;
 
         private void OnEnable()
         {
             SelectFirstButton();
+            if (!string.IsNullOrEmpty(soundNameOnEnabled))
+            {
+                SoundManager.instance.Play(soundNameOnEnabled);
+            }
         }
 
         private void SelectFirstButton()
