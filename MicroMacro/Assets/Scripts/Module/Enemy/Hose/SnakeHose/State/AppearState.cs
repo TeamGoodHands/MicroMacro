@@ -7,7 +7,6 @@ using DG.Tweening;
 using Module.Management;
 using Module.Player.Component;
 using Unity.Cinemachine;
-using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Module.Enemy.Hose.SnakeHose.State
