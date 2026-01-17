@@ -22,10 +22,6 @@ Shader "Custom/UnlitNoDepthNormal"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseColor;
-            CBUFFER_END
-
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -37,12 +33,13 @@ Shader "Custom/UnlitNoDepthNormal"
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
             };
-            
+
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
-            
+
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
+                float4 _BaseColor;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
