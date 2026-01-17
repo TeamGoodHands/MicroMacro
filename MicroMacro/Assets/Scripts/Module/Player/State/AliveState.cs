@@ -3,6 +3,7 @@ using Constants;
 using CoreModule.AI.HSM;
 using CoreModule.Input;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Module.Player.Component;
 using Module.UI;
 using PropertyGenerator.Generated;
@@ -21,6 +22,7 @@ namespace Module.Player.State
         private readonly Transform bodyTransform;
         private readonly PlayerParameter parameter;
         private readonly PlayerCondition condition;
+        private readonly SkinnedMeshRenderer meshRenderer;
         private readonly PlayerRotation rotation;
         private readonly HealthStatus status;
         private readonly WeaponSwitcher weaponSwitcher;
@@ -38,6 +40,7 @@ namespace Module.Player.State
             condition = component.Condition;
             status = component.HealthStatus;
             rotation = component.PlayerRotation;
+            meshRenderer = component.MeshRenderer;
             weaponSwitcher = component.WeaponSwitcher;
             animatorWrapper = component.AnimatorWrapper;
 
@@ -53,6 +56,9 @@ namespace Module.Player.State
 
         internal override void OnEnter()
         {
+            rigidbody.linearVelocity = Vector2.zero;
+            condition.ExternalForce = Vector2.zero;
+
             // はじめは右を向いているとする
             condition.Direction = Vector2.right;
             condition.LastSideInput = Vector2.right;
@@ -60,8 +66,6 @@ namespace Module.Player.State
 
             switchEvent.Started += OnSwitchWeapon;
             status.OnDamage += OnDamaged;
-
-            PlayInvincibleTime().Forget();
         }
 
         internal override void OnExit()
@@ -70,12 +74,6 @@ namespace Module.Player.State
             status.OnDamage -= OnDamaged;
         }
 
-        private async UniTaskVoid PlayInvincibleTime()
-        {
-            transform.gameObject.layer = Layer.Invincible;
-            await UniTask.Delay(TimeSpan.FromSeconds(parameter.InvincibleTime), cancellationToken: CancellationToken);
-            transform.gameObject.layer = Layer.Player;
-        }
 
         private void OnDamaged(int damage)
         {

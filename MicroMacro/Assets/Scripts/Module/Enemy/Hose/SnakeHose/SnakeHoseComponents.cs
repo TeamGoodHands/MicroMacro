@@ -2,6 +2,7 @@
 using Module.Enemy.Hose.ChildSnake;
 using Module.Scaling;
 using Module.UI;
+using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -11,27 +12,33 @@ namespace Module.Enemy.Hose.SnakeHose
     public class SnakeHoseComponents 
     {
         [SerializeField] private Transform headTransform;
-        [SerializeField] private Transform neckTransform;
         [SerializeField] private Transform bodyTransform;
-        [SerializeField] private SnakeController controller;
-        [SerializeField] private SnakeHoseController snakeHoseController;
+        [SerializeField] private Transform splineTransform;
         [SerializeField] private Scaler scaler;
-        [SerializeField] private LockOnEffect lockOnEffect;
         [SerializeField] private HealthStatus healthStatus;
+        [SerializeField] private LockOnEffect lockOnEffect;
+        [SerializeField] private SnakeHoseController controller;
         [SerializeField] private CinemachineCamera beamAttackCamera;
+        [SerializeField] private CinemachineCamera nearInCamera;
+        [SerializeField] private CinemachineCamera waterBallAttackCamera;
         [SerializeField] private ChildSnakeBehaviour[] children;
         [SerializeField] private Animator animator;
+        [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private SnakeGripControllerWrapper gripControllerWrapper;
 
         public Transform HeadTransform => headTransform;
-        public Transform NeckTransform => neckTransform;
         public Transform BodyTransform => bodyTransform;
-        public SnakeController Controller => controller;
-        public SnakeHoseController SnakeHoseController => snakeHoseController;
+        public Transform SplineTranform => splineTransform;
         public CinemachineCamera BeamAttackCamera => beamAttackCamera;
+        public CinemachineCamera NearInCamera => nearInCamera;
+        public CinemachineCamera WaterBallAttackCamera => waterBallAttackCamera;
         public ChildSnakeBehaviour[] Children => children;
         public HealthStatus HealthStatus => healthStatus;
-        public Scaler Scaler => scaler;
         public LockOnEffect LockOnEffect => lockOnEffect;
+        public SnakeGripControllerWrapper GripControllerWrapper => gripControllerWrapper;
+        public Scaler Scaler => scaler;
         public Animator Animator => animator;
+        public CanvasGroup HpBarCanvasGroup => canvasGroup;
+        public SnakeHoseController Controller => controller;
     }
 }

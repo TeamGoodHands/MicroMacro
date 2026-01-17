@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Constants;
 using Cysharp.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Module.Enemy.Hose
     {
         [Header("Settings")] [SerializeField] private WaterFlowParameter parameter;
         [SerializeField] private Scaler scaler;
-        [SerializeField] private HoseControllerWrapper hoseControllerWrapper;
+        [SerializeField] private SnakeGripControllerWrapper gripControllerWrapper;
 
         [Header("State")] [SerializeField] private bool isRapids;
 
@@ -28,6 +29,7 @@ namespace Module.Enemy.Hose
         private Transform playerTransform;
 
         public float CurrentIntensity { get; private set; } = 0f;
+        public event Action<bool> OnWaterStateChanged;
 
         private void Awake()
         {
@@ -68,20 +70,12 @@ namespace Module.Enemy.Hose
         private void FixedUpdate()
         {
             physicsSystem.RunPhysics(CurrentIntensity, playerTransform);
-
-            // 【変更点】
-            // ここでの自動追従（parameter.LookAtPlayer チェック）は削除しました。
-            // 必要な場合は LookAtPlayerSmoothAsync を呼んで制御します。
         }
 
         private void OnScaleStarted(ScaleEventArgs args)
         {
-            int direction = (args.CurrentStep - args.PreviousStep) > 0 ? 1 : -1;
-            if (direction > 0) hoseControllerWrapper.SetRotateRTrigger();
-            else hoseControllerWrapper.SetRotateLTrigger();
-
-            isRapids = args.CurrentStep > 0;
-            visualSystem.SetRapidsMode(isRapids);
+            // isRapids = args.CurrentStep > 0;
+            // visualSystem.SetRapidsMode(isRapids);
         }
 
         // --- Async Methods ---
@@ -125,6 +119,11 @@ namespace Module.Enemy.Hose
 
         public async UniTask OnWater(CancellationToken token)
         {
+            OnWaterStateChanged?.Invoke(true);
+            
+            gripControllerWrapper.SetPushTrigger();
+            gripControllerWrapper.IsLock = true;
+            
             float timer = 0f;
             while (timer < parameter.OnTime && !token.IsCancellationRequested)
             {
@@ -143,6 +142,10 @@ namespace Module.Enemy.Hose
 
         public async UniTask OffWater(CancellationToken token)
         {
+            OnWaterStateChanged?.Invoke(false);
+            
+            gripControllerWrapper.IsLock = false;
+            
             float timer = 0f;
             while (timer < parameter.OffTime && !token.IsCancellationRequested)
             {
@@ -158,6 +161,8 @@ namespace Module.Enemy.Hose
 
         public void OffWaterImmediately()
         {
+            gripControllerWrapper.IsLock = false;
+            OnWaterStateChanged?.Invoke(false);
             CurrentIntensity = 0f;
         }
 
@@ -168,11 +173,7 @@ namespace Module.Enemy.Hose
 
         public Tween ResetAngle(float time)
         {
-            return physicsSystem.ResetAngle(time)
-                .OnComplete(() =>
-                {
-                    if (scaler != null) scaler.SetScale(0, true);
-                });
+            return physicsSystem.ResetAngle(time);
         }
     }
 }

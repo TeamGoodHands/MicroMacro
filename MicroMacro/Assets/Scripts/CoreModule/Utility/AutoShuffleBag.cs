@@ -56,7 +56,7 @@ public class AutoShuffleBag
     /// <summary>
     /// 内部リストを再充填します
     /// </summary>
-    private void Refill()
+    public void Refill()
     {
         availableNumbers.Clear();
 

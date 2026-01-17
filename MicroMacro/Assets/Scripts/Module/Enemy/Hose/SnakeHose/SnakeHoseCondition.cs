@@ -14,11 +14,18 @@ namespace Module.Enemy.Hose.SnakeHose
         }
 
         [SerializeField, ReadOnly] private State currentState = State.Appear;
+        [SerializeField, ReadOnly] private Vector3 defaultPosition;
 
         public State CurrentState
         {
             get => currentState;
             set => currentState = value;
+        }
+
+        public Vector3 DefaultPosition
+        {
+            get => defaultPosition;
+            set => defaultPosition = value;
         }
     }
 }

@@ -3,23 +3,32 @@ using Constants;
 using Module.Player;
 using UnityEngine;
 
-public class WaterBall : MonoBehaviour
+namespace Module.Enemy.Hose.SnakeHose
 {
-    [SerializeField] private Rigidbody rigidBody;
-    [SerializeField] private float bounceForce = 55f;
-    [SerializeField] private Vector2 acceleration;
-
-    private void OnTriggerEnter(Collider other)
+    public class WaterBall : MonoBehaviour
     {
-        if (other.gameObject.CompareTag(Tag.Player) &&
-            other.gameObject.TryGetComponent(out PlayerBehaviour behaviour))
+        [SerializeField] private Rigidbody rigidBody;
+        [SerializeField] private float bounceForce = 55f;
+        [SerializeField] private float destroyDelay = 5f;
+        [SerializeField] private Vector2 acceleration;
+
+        private void Start()
         {
-            behaviour.Component.PlayerMovement.AddExternalForce(-Vector3.right * bounceForce);
+            Destroy(gameObject, destroyDelay);
         }
-    }
 
-    private void FixedUpdate()
-    {
-        rigidBody.AddForce(acceleration * Time.fixedDeltaTime, ForceMode.Acceleration);
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject.CompareTag(Tag.Player) &&
+                other.gameObject.TryGetComponent(out PlayerBehaviour behaviour))
+            {
+                behaviour.Component.PlayerMovement.AddExternalForce(-Vector3.right * bounceForce);
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            rigidBody.AddForce(acceleration * Time.fixedDeltaTime, ForceMode.Acceleration);
+        }
     }
 }

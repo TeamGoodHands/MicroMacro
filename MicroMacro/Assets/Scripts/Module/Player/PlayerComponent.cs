@@ -17,6 +17,7 @@ namespace Module.Player
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private Transform bodyTransform;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
+        [SerializeField] private SkinnedMeshRenderer meshRenderer;
         [SerializeField] private HealthStatus healthStatus;
         [SerializeField] private VisualEffect footEffect;
         [SerializeField] private VisualEffect jumpEffect;
@@ -28,6 +29,7 @@ namespace Module.Player
         public Transform Transform => rigidbody.transform;
         public Transform BodyTransform => bodyTransform;
         public HealthStatus HealthStatus => healthStatus;
+        public SkinnedMeshRenderer MeshRenderer => meshRenderer;
         public VisualEffect FootEffect => footEffect;
         public VisualEffect JumpEffect => jumpEffect;
         public PlayerAnimationEventReceiver AnimationEventReceiver => animationEventReceiver;

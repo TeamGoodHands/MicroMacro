@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-437115119760239326
+--- !u!114 &-9079208158414992194
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,13 +20,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ScalerHose
-  m_Shader: {fileID: 4800000, guid: 917f1e10769acdd4ba1d9da2e8a4c6ee, type: 3}
+  m_Name: "\u30DE\u30C6\u30EA\u30A2\u30EB"
+  m_Shader: {fileID: 4800000, guid: e861b9dadb6be804bb0532f9269d5faa, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords:
+  m_ValidKeywords:
   - _RECEIVE_DECALS
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -39,8 +39,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 4eac25a0b1c0ec547bbc4ee627216d14, type: 3}
-        m_Scale: {x: 1, y: 5.42}
+        m_Texture: {fileID: 2800000, guid: 657fed7e7979945418a6d743b21c9abc, type: 3}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
@@ -63,7 +63,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 657fed7e7979945418a6d743b21c9abc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -116,16 +116,17 @@ Material:
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _FresnelPower: 0.2
-    - _GlossMapScale: 0
-    - _Glossiness: 0
-    - _GlossyReflections: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
     - _Metallic: 0
+    - _Mode: 0
     - _NoisePower: 0
     - _NoiseScale: 1
     - _OcclusionStrength: 1
     - _OutlineStencilComp: 8
     - _OutlineWidth: 0
-    - _Parallax: 0.005
+    - _Parallax: 0.02
     - _QueueOffset: 0
     - _ReceiveDecals: 1
     - _ReceiveShadows: 1
@@ -136,7 +137,8 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _UseVertexColorOutline: 0
+    - _UVSec: 0
+    - _UseVertexColorOutline: 1
     - _WavePower: 0.05
     - _WaveSpeed: 7
     - _WorkflowMode: 1
@@ -149,7 +151,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FresnelColor: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.22745098}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

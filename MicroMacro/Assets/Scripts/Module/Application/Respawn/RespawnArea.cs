@@ -10,53 +10,58 @@ namespace Module.Application.Respawn
     public class RespawnArea : MonoBehaviour
     {
         [SerializeField] private float respawnTime = 1f;
-        private BoxCollider boxCollider;
         private Transform playerTransform;
+        private HealthStatus healthStatus;
+        private PlayerCondition playerCondition;
         private Vector3 spawnPosition;
+        private bool isWaitingRespawn;
 
         private void Start()
         {
-            playerTransform = GameObject.FindWithTag(Tag.Player).transform;
+            GameObject playerObject = GameObject.FindWithTag(Tag.Player);
+            playerTransform = playerObject.transform;
+            healthStatus = playerObject.GetComponent<HealthStatus>();
+            playerCondition = playerObject.GetComponent<PlayerCondition>();
             spawnPosition = playerTransform.localPosition;
-        }
-
-        private void OnValidate()
-        {
-            boxCollider = GetComponent<BoxCollider>();
         }
 
         private void OnTriggerEnter(Collider other)
         {
+            if (isWaitingRespawn)
+                return;
+
+            // ダメージを与える
+            SendDamage(other.gameObject);
+        }
+        
+        private void OnCollisionEnter(Collision other)
+        {
+            if (isWaitingRespawn)
+                return;
+
             // ダメージを与える
             SendDamage(other.gameObject);
         }
 
         private void SendDamage(GameObject obj)
         {
-            if (obj.CompareTag(Tag.Player) &&
-                obj.TryGetComponent(out HealthStatus player))
+            if (obj.CompareTag(Tag.Player))
             {
-                player.Damage(1);
+                healthStatus.Damage(1);
+                playerCondition.IsPlayerLocked = true;
                 Respawn().Forget();
             }
         }
 
         private async UniTaskVoid Respawn()
         {
+            isWaitingRespawn = true;
+
             await UniTask.Delay(TimeSpan.FromSeconds(respawnTime), cancellationToken: destroyCancellationToken);
+
+            playerCondition.IsPlayerLocked = false;
             playerTransform.localPosition = spawnPosition;
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (boxCollider == null)
-            {
-                boxCollider = GetComponent<BoxCollider>();
-            }
-
-            Gizmos.color = new Color(1f, 0.06f, 0.1f, 0.35f);
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+            isWaitingRespawn = false;
         }
     }
 }
