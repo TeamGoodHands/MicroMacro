@@ -68,11 +68,17 @@ namespace Module.Player.Weapon
 
         private void OnMacroShoot(InputAction.CallbackContext _)
         {
+            if (condition.IsPlayerLocked)
+                return;
+
             Shoot(macroBulletPool, true);
         }
 
         private void OnMicroShoot(InputAction.CallbackContext _)
         {
+            if (condition.IsPlayerLocked)
+                return;
+
             Shoot(microBulletPool, false);
         }
 

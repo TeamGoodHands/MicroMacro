@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 namespace Module.Application.SceneSwitch
 {
     
-    public class TempBossBattleManager : MonoBehaviour
+    public class BossBattleManager : MonoBehaviour
     {
         [SerializeField] private HealthStatus enemyStatus;
 

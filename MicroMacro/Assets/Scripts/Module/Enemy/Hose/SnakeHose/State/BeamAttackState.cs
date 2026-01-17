@@ -1,6 +1,7 @@
 ﻿using System;
 using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Module.Enemy.Hose.ChildSnake;
 using UnityEngine;
 
@@ -24,11 +25,8 @@ namespace Module.Enemy.Hose.SnakeHose
 
         internal override void OnEnter()
         {
-            components.BeamAttackCamera.Priority = 1000;
-            components.Animator.enabled = true;
-            components.Animator.SetInteger(AttackModeHash, 1);
-
-            AppearChildren().Forget();
+            components.HeadTransform.DOMove(condition.DefaultPosition, 0.5f).SetEase(Ease.InOutSine);
+            PrepareMove().Forget();
         }
 
         private async UniTaskVoid AppearChildren()
@@ -42,6 +40,18 @@ namespace Module.Enemy.Hose.SnakeHose
             }
         }
 
+        private async UniTaskVoid PrepareMove()
+        {
+            await components.SplineTranform.DOLocalMove(parameter.DefaultPosition, 1f);
+
+            components.BeamAttackCamera.Priority = 1000;
+            components.Animator.enabled = true;
+            components.Animator.Play("PrepareBeam");
+            // components.Animator.SetInteger(AttackModeHash, 1);
+
+            AppearChildren().Forget();
+        }
+
         private void HandleDeath()
         {
             deathCount++;
@@ -52,12 +62,20 @@ namespace Module.Enemy.Hose.SnakeHose
             }
         }
 
-        internal override void OnExit() { }
+        internal override void OnExit()
+        {
+        }
 
-        internal override void Update() { }
+        internal override void Update()
+        {
+        }
 
-        internal override void UpdatePhysics() { }
+        internal override void UpdatePhysics()
+        {
+        }
 
-        internal override void Dispose() { }
+        internal override void Dispose()
+        {
+        }
     }
 }

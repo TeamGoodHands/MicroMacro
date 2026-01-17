@@ -20,7 +20,6 @@ namespace Module.Enemy.Hose.ChildSnake
         [SerializeField] private ChildSnakeParameter parameter;
         [SerializeField] private LockOnEffect lockOnEffect;
         [SerializeField] private Vector3[] targets;
-        [SerializeField] private Vector3 destroyPosition;
         [SerializeField] private Transform[] raptures;
 
         public event Action OnDeath;
@@ -28,9 +27,12 @@ namespace Module.Enemy.Hose.ChildSnake
         private CancellationTokenSource damageCanceller;
         private CancellationTokenSource canceller;
         private int raptureIndex;
+        private Vector3 destroyPosition;
 
         public void Appear()
         {
+            destroyPosition = transform.localPosition;
+
             damageCanceller = new CancellationTokenSource();
             canceller = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken, damageCanceller.Token);
             AppearAsync().Forget();
@@ -60,14 +62,14 @@ namespace Module.Enemy.Hose.ChildSnake
             damageCanceller.Dispose();
 
             Vector3 bodyScale = bodyBone.localScale;
-            await bodyBone.DOScale(bodyScale * 1.5f, 1f);
+            await bodyBone.DOScale(bodyScale * 2.5f, 1f);
 
             Transform rapture = raptures[raptureIndex++];
             Vector3 raptureScale = rapture.localScale;
             rapture.localScale = new Vector3(raptureScale.x, 0f, raptureScale.z);
             rapture.gameObject.SetActive(true);
 
-            rapture.DOScale(raptureScale, 0.5f).SetEase(Ease.OutBack);
+            _ = rapture.DOScale(raptureScale, 0.5f).SetEase(Ease.OutBack);
             bodyBone.localScale = bodyScale;
             scaler.SetScale(0, true);
 
@@ -102,19 +104,19 @@ namespace Module.Enemy.Hose.ChildSnake
 
                 await controller.LookAtPlayerSmoothAsync(1f, 1f, token);
 
-                if (token.IsCancellationRequested)
+                if (token.IsCancellationRequested || this == null)
                     return;
 
-                lockOnEffect.LockOn();
+                lockOnEffect?.LockOn();
 
                 await controller.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f, token);
 
                 await controller.ShakeBody(parameter.ShakeTime).WithCancellation(token);
 
-                if (token.IsCancellationRequested)
+                if (token.IsCancellationRequested || this == null)
                     return;
 
-                lockOnEffect.LockOff();
+                lockOnEffect?.LockOff();
 
                 await controller.OnWater(token);
 

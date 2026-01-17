@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shootPower: 20
   shootRadius: 0.3
-  shootInterval: 0.25
+  shootInterval: 0.3
   maxAdditionalSpeed: 4
   poolAmount: 8
   macroBulletPrefab: {fileID: 3385789982444698467, guid: e4614154faec2d741b6cf8c09ff6702f, type: 3}
@@ -498,6 +498,7 @@ MonoBehaviour:
     bodyTransform: {fileID: 2961559038811739485}
     playerAnimatorController:
       target: {fileID: 4194661040851927661}
+    meshRenderer: {fileID: 6504133217659516712}
     healthStatus: {fileID: 4655134646782657460}
     footEffect: {fileID: 686470580480340073}
     jumpEffect: {fileID: 2272225563884257619}
@@ -559,6 +560,7 @@ MonoBehaviour:
   checkGroundDistance: 1.3
   groundInterval: 0.18
   topStopFrameCount: 4
+  invincibleTime: 1.8
   verticalDeadZone: 0.5
   verticalValidAngle: 30
   rotationSpeed: 30
@@ -667,7 +669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c63629630b64f498833117abc6479e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 6
+  maxHealth: 1
   currentHealth: 0
   previousHealth: 0
 --- !u!114 &8282863451046264571
@@ -1902,6 +1904,14 @@ PrefabInstance:
     - target: {fileID: 3144316744896002559, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
       propertyPath: m_Name
       value: SpeechBubble
+      objectReference: {fileID: 0}
+    - target: {fileID: 6871758782991513441, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_SortingOrder
+      value: 70
+      objectReference: {fileID: 0}
+    - target: {fileID: 6871758782991513441, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 988679891
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
