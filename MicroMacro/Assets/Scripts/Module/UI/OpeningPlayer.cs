@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using CoreModule.Input;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -13,8 +14,12 @@ namespace Module.UI
 {
     public class OpeningPlayer : MonoBehaviour
     {
-        [SerializeField, Header("スキップ文字を表示するまでの時間")] private float showSkipDelay = 5f;
-        [SerializeField, Header("スキップ文字を表示するフェード時間")] private float showSkipFadeDuration = 2f;
+        [SerializeField, Header("スキップ文字を表示するまでの時間")]
+        private float showSkipDelay = 5f;
+
+        [SerializeField, Header("スキップ文字を表示するフェード時間")]
+        private float showSkipFadeDuration = 2f;
+
         [SerializeField, Header("スキップ長押し速度")] private float skipHoldSpeed = 2f;
         [SerializeField, Header("長押しの巻き戻し速度")] private float skipHoldBackwardsSpeed = 1f;
 
@@ -22,6 +27,7 @@ namespace Module.UI
         [SerializeField] private CanvasGroup skipGroup;
         [SerializeField] private Image skipSlider;
         [SerializeField] private FadeAndSceneTransition sceneTransition;
+        [SerializeField] private string videoFileName;
 
         private InputEvent submitEvent;
         private bool isSkipping;
@@ -29,6 +35,12 @@ namespace Module.UI
 
         private void Start()
         {
+            // URL指定
+            videoPlayer.source = VideoSource.Url;
+
+            // StreamingAssetsフォルダ配下のパスの動画をURLとして指定する
+            videoPlayer.url = Path.Combine(UnityEngine.Application.streamingAssetsPath, videoFileName);
+
             // Videoプレイヤーの準備完了を待つ
             videoPlayer.prepareCompleted += OnPrepareCompleted;
             videoPlayer.Prepare();
@@ -77,7 +89,7 @@ namespace Module.UI
         {
             if (!videoPlayer.isPlaying)
                 return;
-            
+
             float speed = isSkipping ? skipHoldSpeed : skipHoldBackwardsSpeed;
 
             skipProgress += Time.deltaTime * speed;
