@@ -129,15 +129,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1592406762943537048, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 106.79
+      value: 109.25
       objectReference: {fileID: 0}
     - target: {fileID: 1592406762943537048, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: m_SizeDelta.y
       value: 130.3
       objectReference: {fileID: 0}
     - target: {fileID: 1592406762943537048, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 3.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1592406762943537048, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 5.5
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 2978087463547377366, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: normalSprites.Array.size
@@ -171,6 +175,14 @@ PrefabInstance:
       propertyPath: 'clearedSprites.Array.data[2]'
       value: 
       objectReference: {fileID: 21300000, guid: b2450aee1ccbb844d90783e139c36556, type: 3}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetAnimator
+      value: 
+      objectReference: {fileID: 1845232112}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetRectTransform
+      value: 
+      objectReference: {fileID: 1845232111}
     - target: {fileID: 5342548556460863024, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: nextSceneName
       value: WaterBoss
@@ -541,6 +553,14 @@ PrefabInstance:
       propertyPath: 'clearedSprites.Array.data[2]'
       value: 
       objectReference: {fileID: 21300000, guid: 114937eca84038e459b2fac16f6e7a8c, type: 3}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetAnimator
+      value: 
+      objectReference: {fileID: 1845232112}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetRectTransform
+      value: 
+      objectReference: {fileID: 1845232111}
     - target: {fileID: 5342548556460863024, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: transitionHandler
       value: 
@@ -1036,6 +1056,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firstSelectButton: {fileID: 268773277}
+  soundNameOnEnabled: 
 --- !u!1001 &1011997778
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2450,6 +2471,14 @@ PrefabInstance:
       propertyPath: 'clearedSprites.Array.data[2]'
       value: 
       objectReference: {fileID: 21300000, guid: 97afde3f27a6e654aacc6a6568091031, type: 3}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetAnimator
+      value: 
+      objectReference: {fileID: 1845232112}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetRectTransform
+      value: 
+      objectReference: {fileID: 1845232111}
     - target: {fileID: 5319803602815583824, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: m_text
       value: "\u30BF\u30A4\u30C8\u30EB\u3078"
@@ -2924,6 +2953,14 @@ PrefabInstance:
       propertyPath: 'clearedSprites.Array.data[2]'
       value: 
       objectReference: {fileID: 21300000, guid: 4de60e2829387f249b6035518a4aa176, type: 3}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetAnimator
+      value: 
+      objectReference: {fileID: 1845232112}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetRectTransform
+      value: 
+      objectReference: {fileID: 1845232111}
     - target: {fileID: 5342548556460863024, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: nextSceneName
       value: Boss2
@@ -3249,7 +3286,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1592406762943537048, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.3
+      value: 6.3
       objectReference: {fileID: 0}
     - target: {fileID: 2978087463547377366, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: normalSprites.Array.size
@@ -3283,6 +3320,14 @@ PrefabInstance:
       propertyPath: 'clearedSprites.Array.data[2]'
       value: 
       objectReference: {fileID: 21300000, guid: 6fd1eec821399624880688205cc5a409, type: 3}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetAnimator
+      value: 
+      objectReference: {fileID: 1845232112}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetRectTransform
+      value: 
+      objectReference: {fileID: 1845232111}
     - target: {fileID: 5342548556460863024, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: nextSceneName
       value: 2-1
@@ -3689,6 +3734,14 @@ PrefabInstance:
       propertyPath: 'clearedSprites.Array.data[2]'
       value: 
       objectReference: {fileID: 21300000, guid: 97afde3f27a6e654aacc6a6568091031, type: 3}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetAnimator
+      value: 
+      objectReference: {fileID: 1845232112}
+    - target: {fileID: 3167410653177254597, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
+      propertyPath: targetRectTransform
+      value: 
+      objectReference: {fileID: 1845232111}
     - target: {fileID: 5342548556460863024, guid: ed4d1cde66e258a4c9ee0491f57dba92, type: 3}
       propertyPath: nextSceneName
       value: 1-1Ver3

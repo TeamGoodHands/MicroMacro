@@ -26,6 +26,9 @@ namespace Module.UI
         private GameObject lastTargetObject;
         
         private CancellationTokenSource moveSequenceCts;
+        
+        // 追加: 外部から制御するための停止フラグ
+        private bool isPaused = false;
 
         private void Awake()
         {
@@ -43,8 +46,24 @@ namespace Module.UI
             moveSequenceCts?.Dispose();
         }
 
+        // 追加: 外部からカーソルの動きを制御するメソッド
+        public void SetPaused(bool paused)
+        {
+            isPaused = paused;
+            
+            if (isPaused)
+            {
+                // 停止時は現在のアニメーションやTweenも止める
+                moveSequenceCts?.Cancel();
+                cursorRectTransform.DOKill();
+            }
+        }
+
         private void Update()
         {
+            // 追加: ポーズ中は処理しない
+            if (isPaused) return;
+
             if (EventSystem.current == null) return;
             GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
 
@@ -59,9 +78,6 @@ namespace Module.UI
             }
 
             // 古い移動シーケンスをキャンセル
-            // ここでDispose()してしまうと、直後の非同期処理内で
-            // トークンチェックした時にエラーになることがあるため、Cancelのみ行い、
-            // DisposeはGCに任せるか、確実に終わったタイミングで行うのが安全。
             moveSequenceCts?.Cancel();
             moveSequenceCts = new CancellationTokenSource();
 
@@ -88,16 +104,13 @@ namespace Module.UI
                     .SetLink(gameObject)
                     .ToUniTask(cancellationToken: token); 
                 
-                // キャンセルされていたら「待機アニメ」には移行させない
-                if (token.IsCancellationRequested) 
-                    return;
+                if (token.IsCancellationRequested) return;
 
-                // 正常に完走した（キャンセルされていない）場合のみ、待機アニメに戻す
                 animator.Play(idleSprites, animationFps);
             }
             catch (System.OperationCanceledException)
             {
-                // キャンセル時は何もしない（次のアニメーションが既に再生されているため）
+                // キャンセル時は何もしない
             }
         }
     }

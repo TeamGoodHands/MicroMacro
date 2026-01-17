@@ -229,6 +229,7 @@ GameObject:
   - component: {fileID: 2978087463547377366}
   - component: {fileID: 5342548556460863024}
   - component: {fileID: 6334975897751310730}
+  - component: {fileID: 3167410653177254597}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -426,3 +427,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 002d322b4184487089986e01f7c92137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3167410653177254597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7367057226484303291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9640547027c1448bb59d82e318114155, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRectTransform: {fileID: 0}
+  targetAnimator: {fileID: 0}
+  duration: 1.3
+  startRadius: 100
+  rotations: 2
+  moveEase: 4
+  effectSprites: []
+  fps: 2
+  onComplete:
+    m_PersistentCalls:
+      m_Calls: []
