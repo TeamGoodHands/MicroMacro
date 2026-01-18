@@ -129,9 +129,6 @@ namespace Module.Application.SceneSwitch
              
             InputSystem.actions.Enable();
             isSceneTransitioning = false;
-             
-            if (Time.timeScale == 0)
-                Time.timeScale = 1;  // ポーズ画面から遷移した際（念のため）
         }
     }
 }

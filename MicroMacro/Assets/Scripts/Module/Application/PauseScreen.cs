@@ -10,29 +10,32 @@ namespace Module.Application
 {
     public class PauseScreen : MonoBehaviour
     {
-        [SerializeField] private CanvasGroup pauseCanvasGroup;
         [SerializeField] private FadeAndSceneTransition sceneManager;
-        [SerializeField] private GameObject pauseScreenUI; // ポーズメニューのUIパネル
-        [SerializeField] private Button resumeButton;      // 再開
-        [SerializeField] private Button restartButton;     // やり直し
-        [SerializeField] private Button stageSelectButton; // ステージセレクトへ戻る
-        [SerializeField] private Button titleButton;       // タイトルへ戻る
-        [SerializeField] private Button feedbackButton;    // アンケート画面
+        [SerializeField] private GameObject pauseScreenUI; 
+        [SerializeField] private Button resumeButton;      
+        [SerializeField] private Button restartButton;     
+        [SerializeField] private Button stageSelectButton; 
+        [SerializeField] private Button titleButton;       
+        [SerializeField] private Button feedbackButton;    
         
         private bool isPaused = false;
+        private bool isTransitioning = false; 
         private InputEvent pauseEvent;
         private InputActionMap playerInput;
         
         private void Start()
         {
-            // 各ボタンにリスナーを追加
+            if (sceneManager == null)
+            {
+                sceneManager = FindAnyObjectByType<FadeAndSceneTransition>();
+            }
+            
             resumeButton.onClick.AddListener(ResumeGame);
             restartButton.onClick.AddListener(RestartLevel);
             stageSelectButton.onClick.AddListener(ReturnToStageSelect);
             titleButton.onClick.AddListener(ReturnToTitle);
             feedbackButton.onClick.AddListener(Feedback);
             
-            // ポーズメニューを非表示にする
             pauseScreenUI.SetActive(false);
 
             pauseEvent = InputProvider.CreateEvent(ActionGuid.UI.Pause);
@@ -40,10 +43,10 @@ namespace Module.Application
             
             pauseEvent.Started += OnTogglePause;
         }
+
         private void OnDestroy()
         {
-            if (pauseEvent == null)
-                return;
+            if (pauseEvent == null) return;
             
             pauseEvent.Started -= OnTogglePause;
             resumeButton.onClick.RemoveListener(ResumeGame);
@@ -55,24 +58,16 @@ namespace Module.Application
 
         public bool IsPaused
         {
-            private set { isPaused = value; }
             get { return isPaused; }
-        }
-
-        /// <summary>
-        /// ボタンやスライダーを全部無効化する関数（連打対策）
-        /// </summary>
-        private void SetInputActive(bool active)
-        {
-            if (pauseCanvasGroup != null)
-            {
-                pauseCanvasGroup.interactable = active;
-                pauseCanvasGroup.blocksRaycasts = active;
-            }
+            private set { isPaused = value; }
         }
         
+        // InputSystemのコールバック
         public void OnTogglePause(InputAction.CallbackContext _)
         { 
+            // 遷移中は操作を受け付けない
+            if (isTransitioning) return;
+
             if (isPaused)
             {
                 ResumeGame();
@@ -85,9 +80,10 @@ namespace Module.Application
         
         public void PauseGame()
         {
-            playerInput.Disable();  // プレイヤーの入力切っておく
+            if (isTransitioning) return;
+
+            playerInput.Disable();
             pauseScreenUI.SetActive(true);
-            resumeButton.Select();
             SoundManager.instance.Play("ポーズを開く");
             Time.timeScale = 0f; 
             IsPaused = true;
@@ -95,6 +91,8 @@ namespace Module.Application
         
         public void ResumeGame()
         {
+            if (isTransitioning) return;
+
             pauseScreenUI.SetActive(false);
             SoundManager.instance.Play("ボタン決定");
             playerInput.Enable();
@@ -104,28 +102,36 @@ namespace Module.Application
 
         public void ReturnToStageSelect()
         {
-            SetInputActive(false);
+            if (isTransitioning) return; // 連打防止
+            isTransitioning = true;
+            
             Time.timeScale = 1f; 
             sceneManager.StartTransition("StageSelect");
         }
 
         public void ReturnToTitle()
         {
-            SetInputActive(false);
+            if (isTransitioning) return;
+            isTransitioning = true;
+
             Time.timeScale = 1f; 
             sceneManager.StartTransition("Title");
         }
 
         public void RestartLevel()
         {
-            SetInputActive(false);
+            if (isTransitioning) return;
+            isTransitioning = true;
+
             Time.timeScale = 1f; 
             sceneManager.StartTransition(SceneManager.GetActiveScene().name);
         }
 
         public void Feedback()
         {
-            SetInputActive(false);
+            if (isTransitioning) return;
+            isTransitioning = true;
+
             Time.timeScale = 1f; 
             sceneManager.StartTransition("Feedback");
         }

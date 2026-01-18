@@ -86,6 +86,7 @@ namespace Module.UI
                     .SetDelay(delay)
                     .SetEase(easeType)
                     .SetLink(gameObject)
+                    .SetUpdate(true) // ポーズ中も稼働
                     .ToUniTask(cancellationToken: cts.Token);
             }
             catch (System.OperationCanceledException)
