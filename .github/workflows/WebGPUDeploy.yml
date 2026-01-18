@@ -2,7 +2,10 @@ name: WebGPU Build and Deploy to Github Pages
 
 on:
   push:
-    branches: ["release"]
+    branches:
+      - release
+  pull_request:
+    branches: ["develop"]
   workflow_dispatch: {}
 
 permissions:
@@ -72,6 +75,18 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/WebGL/WebGL
+
+      - name: Discord Notification
+        if: always()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "WebGPU Build Status"
+          description: |
+            Build: ${{ env.BUILD_NAME }}
+            Commit: ${{ env.COMMIT_HASH }}
+          color: 0x00ff00 
+          url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   deploy:
     name: Deploy to GitHub Pages
