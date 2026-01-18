@@ -1,8 +1,10 @@
 name: WebGPU Build and Deploy to Github Pages
 
 on:
-  push:
-    branches: ["release"]
+  # developへのプルリクエストで実行
+  pull_request:
+    branches: ["develop"]
+  # 手動実行
   workflow_dispatch: {}
 
 permissions:
@@ -34,6 +36,14 @@ jobs:
         with:
           lfs: true
 
+      # バージョン情報の生成（通知用）
+      - name: Set Version Variables
+        id: version
+        run: |
+          echo "BUILD_DATE=$(date +'%Y-%m-%d_%H%M')" >> $GITHUB_ENV
+          echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "BUILD_NAME=MicroMacro_WebGPU_$(date +'%Y-%m-%d_%H%M')" >> $GITHUB_ENV
+
       # Cache
       - name: Cache Library
         uses: actions/cache@v4
@@ -57,26 +67,61 @@ jobs:
           unityVersion: 6000.1.2f1
           allowDirtyBuild: true
           buildsPath: build
+          # ログをファイル出力（エラーログ回収用）
+          customParameters: -logFile build.log
 
+      # デバッグ用: ファイル一覧確認
       - name: Debug - List files
         run: ls -R
 
-      #  所有権を修正してから.nojekyllを作成（これが無いとUnityのファイルが無視されて404になる）
+      # 所有権を修正してから.nojekyllを作成（これが無いとUnityのファイルが無視されて404になる）
       - name: Fix Permissions & Create .nojekyll
+        if: always() # ビルド失敗時も念の為実行してログの権限などを整える
         run: |
-          sudo chown -R $USER:$USER build
-          touch build/WebGL/WebGL/.nojekyll
+          sudo chown -R $USER:$USER .
+          # ビルド成功時のみ .nojekyll 作成を試みる
+          if [ -d "build/WebGL/WebGL" ]; then
+            touch build/WebGL/WebGL/.nojekyll
+          fi
 
-      # Upload 
+      # Upload Pages Artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/WebGL/WebGL
 
+      # --- 通知＆エラー処理 ---
+
+      # Discord通知
+      - name: Discord Notification
+        if: always()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "WebGPU Build Status"
+          description: |
+            Build: ${{ env.BUILD_NAME }}
+            Commit: ${{ env.COMMIT_HASH }}
+          color: 0x00ff00 
+          url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      # 失敗時のみエラーログをアップロード
+      - name: Upload Error Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Error-Logs-WebGPU-${{ env.COMMIT_HASH }}
+          path: build.log
+
   deploy:
     name: Deploy to GitHub Pages
     needs: Unity-Build
     runs-on: ubuntu-latest
+    
+    # プルリクエスト等の場合でもデプロイして良いか注意が必要です
+    # developへのPRのたびにPagesが更新されます
+    if: success()
+    
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
