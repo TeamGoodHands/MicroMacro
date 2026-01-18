@@ -1,6 +1,7 @@
 using System;
 using Constants;
 using Cysharp.Threading.Tasks;
+using Module.Management;
 using Module.Player.Component;
 using Module.Scaling;
 using Module.UI;
@@ -69,11 +70,14 @@ namespace Module.Gimmick
         {
             rigidBody.isKinematic = false;
             balloonCamera.Priority = 1000;
+            
+            SoundManager.instance.Play("風の音");
         }
 
         private void OnDismount()
         {
             balloonCamera.Priority = 0;
+            SoundManager.instance.StopPlay("風の音");
         }
 
         private void FixedUpdate()
@@ -110,6 +114,7 @@ namespace Module.Gimmick
         {
             if (CanDamage())
             {
+                SoundManager.instance.Play("衝突音2");
                 Damage(other);
                 lastBounceTime = Time.time;
             }

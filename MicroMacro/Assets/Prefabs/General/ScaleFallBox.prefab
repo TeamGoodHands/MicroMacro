@@ -283,6 +283,9 @@ PrefabInstance:
       addedObject: {fileID: 7227655991574279620}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1704971640144265732, guid: a5e6d23981e80f64095307d2e3d981d1, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 8183617034246529162}
+    - targetCorrespondingSourceObject: {fileID: 1704971640144265732, guid: a5e6d23981e80f64095307d2e3d981d1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4073081222215854267}
   m_SourcePrefab: {fileID: 100100000, guid: a5e6d23981e80f64095307d2e3d981d1, type: 3}
@@ -296,6 +299,21 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1704971640144265732, guid: a5e6d23981e80f64095307d2e3d981d1, type: 3}
   m_PrefabInstance: {fileID: 624255850743927848}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8183617034246529162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2233939140282881580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9baef60b0238c384680b444823d97075, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundName: "\u885D\u7A81\u97F3"
+  velocityThreshold: 10
+  cooldownSeconds: 0.1
 --- !u!59 &4073081222215854267
 HingeJoint:
   m_ObjectHideFlags: 0

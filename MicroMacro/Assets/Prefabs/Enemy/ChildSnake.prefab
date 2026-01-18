@@ -643,6 +643,7 @@ MonoBehaviour:
   scaleAmountSplash: 0.2
   waterSplash: {fileID: 6312348567970273975}
   waterParticle: {fileID: 3231828277725231351}
+  waterSound: {fileID: 8612694719633324140}
   splashByScale: 0
 --- !u!1 &834341726078357121
 GameObject:
@@ -3923,6 +3924,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7400714086719759854}
+  - component: {fileID: 8612694719633324140}
   m_Layer: 0
   m_Name: "WaterPivot(\u30C7\u30D5\u30A9\u30EB\u30C8\u306E\u9577\u3055)"
   m_TagString: Untagged
@@ -3949,6 +3951,22 @@ Transform:
   - {fileID: 1488496861945102202}
   m_Father: {fileID: 399514353592563914}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+--- !u!114 &8612694719633324140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9059566597508929826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5d9884ae18746b479437a62129ffc1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  areaSoundName: "\u6C34\u6D41\u306E\u97F3"
+  areaRadius: 35.9
+  isPlaying: 0
+  startDelay: 1
 --- !u!1 &9065382245449988253
 GameObject:
   m_ObjectHideFlags: 0

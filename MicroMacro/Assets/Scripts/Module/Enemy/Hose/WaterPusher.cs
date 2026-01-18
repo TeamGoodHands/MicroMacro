@@ -1,4 +1,6 @@
+using System;
 using Constants;
+using Module.Management;
 using Module.Player;
 using Module.Player.Component;
 using UnityEngine;
@@ -36,6 +38,14 @@ namespace Module.Enemy.Hose
                     playerMovement = behaviour.Component.PlayerMovement;
                 }
             }
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (Time.timeSinceLevelLoad < 1.0f)
+                return;
+            
+            SoundManager.instance.Play("バシャン");
         }
 
         private void OnTriggerStay(Collider other)
