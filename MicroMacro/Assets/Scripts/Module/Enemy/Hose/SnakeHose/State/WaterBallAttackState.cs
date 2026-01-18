@@ -46,9 +46,6 @@ namespace Module.Enemy.Hose.SnakeHose
 
         internal override void OnEnter()
         {
-            condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
-            return;
-            
             CancellationTokenSource source = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, damageCanceller.Token);
             PatrolRandomlyAsync(parameter.AttackHeight, source.Token).Forget();
 
@@ -195,6 +192,7 @@ namespace Module.Enemy.Hose.SnakeHose
 
         private void ShootWaterBall()
         {
+            SoundManager.instance.Play("水球発射");
             gripControllerWrapper.SetPushTrigger();
 
             GameObject waterBall = Object.Instantiate(parameter.WaterBallPrefab, parameter.ShootPivot.position, Quaternion.identity);

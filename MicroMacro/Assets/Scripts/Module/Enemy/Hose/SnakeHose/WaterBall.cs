@@ -1,5 +1,6 @@
 using System;
 using Constants;
+using Module.Management;
 using Module.Player;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ namespace Module.Enemy.Hose.SnakeHose
                 other.gameObject.TryGetComponent(out PlayerBehaviour behaviour))
             {
                 behaviour.Component.PlayerMovement.AddExternalForce(-Vector3.right * bounceForce);
+                SoundManager.instance.Play("バシャン");
             }
         }
 

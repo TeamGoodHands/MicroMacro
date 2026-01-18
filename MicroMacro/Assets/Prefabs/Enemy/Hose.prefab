@@ -369,6 +369,7 @@ GameObject:
   - component: {fileID: 5718002603898001750}
   - component: {fileID: 467150982580827256}
   - component: {fileID: 2451721608057127733}
+  - component: {fileID: 3124022371731885553}
   m_Layer: 0
   m_Name: Hose
   m_TagString: Untagged
@@ -491,6 +492,22 @@ MonoBehaviour:
   firePoint: {fileID: 8285137654200784058}
   parameter: {fileID: 120949696596305902}
   scaler: {fileID: 126177941347024555}
+--- !u!114 &3124022371731885553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2947332812029785437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5d9884ae18746b479437a62129ffc1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  areaSoundName: "\u6C34\u6D41\u306E\u97F3"
+  areaRadius: 24
+  isPlaying: 0
+  startDelay: 1
 --- !u!1 &3288105089009256120
 GameObject:
   m_ObjectHideFlags: 0
@@ -897,6 +914,7 @@ MonoBehaviour:
   scaleAmountSplash: 0.2
   waterSplash: {fileID: 4009482690533683673}
   waterParticle: {fileID: 5171641423853274827}
+  waterSound: {fileID: 3124022371731885553}
   splashByScale: 1
 --- !u!1 &6118533337501776021
 GameObject:

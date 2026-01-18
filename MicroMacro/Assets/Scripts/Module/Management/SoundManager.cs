@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Collections;
 using UnityEngine.Audio;
+using Cysharp.Threading.Tasks;
 
 namespace Module.Management
 {
     public class SoundManager : MonoBehaviour
     {
-        
         [Serializable]
         public class BGMData
         {
-            public string    name; 
+            public string    name;
             public AudioClip audioClip;
             [Range(0f, 1f)]
             public float     volume;
@@ -24,31 +23,30 @@ namespace Module.Management
             public string    name;
             public AudioClip audioClip;
             [HideInInspector]
-            public float     playedTime;  // 前回再生した時間 ※publicじゃないと動かないかも
+            public float     playedTime;
             [Range(0f, 1f)]
             public float     volume;
         }
-        
+
         [Serializable]
         private class AudioMixerGroups
         {
             public AudioMixerGroup BGM;
             public AudioMixerGroup SE;
         }
+        
         [SerializeField] private AudioMixerGroups audioMixerGroups;
 
         [SerializeField] private BGMData[] bgmDatas;
         [SerializeField] private SEData[]  SEDatas;
         [Header("一度再生してから、次再生出来るまでの間隔(秒)")]
-        [SerializeField] private　float playableDistance = 0.2f;
-        
-        //別名(name)をキーとした管理用Dictionary
+        [SerializeField] private float playableDistance = 0.2f;
+
         private Dictionary<string, BGMData> BGMDictionary = new Dictionary<string, BGMData>();
         private Dictionary<string, SEData> SEDictionary = new Dictionary<string, SEData>();
-        
+
         public static SoundManager instance = null;
-        
-        //AudioSource（スピーカー）を同時に鳴らしたい音の数だけ用意
+
         private AudioSource[] audioSourceList = new AudioSource[10];
 
         private void SetInstance()
@@ -56,60 +54,84 @@ namespace Module.Management
             if (instance == null)
             {
                 instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
             }
         }
+
         private void Awake()
         {
+            SetInstance();
+            
+            if (instance != this)
+                return;
+
             for (int i = 0; i < audioSourceList.Length; i++)
             {
-                audioSourceList[i] = gameObject.AddComponent<AudioSource>();
+                audioSourceList[i] = CreateNewAudioSourceGameObject();
             }
-            
-            //それぞれDictionaryにセット
+
             foreach (BGMData bgmData in bgmDatas)
             {
-                BGMDictionary.Add(bgmData.name, bgmData);
+                if (!BGMDictionary.ContainsKey(bgmData.name))
+                    BGMDictionary.Add(bgmData.name, bgmData);
             }
 
             foreach (SEData SEData in SEDatas)
             {
-                SEDictionary.Add(SEData.name, SEData);
+                if (!SEDictionary.ContainsKey(SEData.name))
+                    SEDictionary.Add(SEData.name, SEData);
             }
-            
-            SetInstance();
         }
 
-        /// <summary>
-        /// 未使用のAudioSourceの取得 全て使用中ならnull
-        /// </summary>
+        private AudioSource CreateNewAudioSourceGameObject()
+        {
+            GameObject obj = new GameObject("AudioSourceObj");
+            obj.transform.SetParent(transform);
+            AudioSource source = obj.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            
+            return source;
+        }
+
         private AudioSource GetUnusedAudioSource(AudioClip clip)
         {
-         
-            // すでに同じclipが入ったAudioSourceがあるならそれで再生
-            foreach (var audioSource in audioSourceList)
-            {
-                if (audioSource.clip == clip)
-                {
-                    return audioSource;
-                }
-            }
-            foreach (var audioSource in audioSourceList)
+            foreach (AudioSource audioSource in audioSourceList)
             {
                 if (audioSource.isPlaying == false)
                     return audioSource;
             }
+
             return null; 
         }
-        
-        private void PlayBGM(AudioClip bgm, float volume)
+
+        /// <summary>
+        /// BGM再生処理
+        /// </summary>
+        /// <returns>再生に使用したAudioSource</returns>
+        private AudioSource PlayBGM(AudioClip bgm, float volume, Vector3 position, bool is3D)
         {
-            // 同時に鳴らす場合を考慮して毎回変数生成する(必要ないかも)
             AudioSource audioSource = GetUnusedAudioSource(bgm);
 
             if (audioSource == null)
             {
-                Debug.Log("BGM play failed");
-                return;
+                Debug.Log("BGM play failed: No unused AudioSource found.");
+                
+                return null;
+            }
+
+            if (is3D)
+            {
+                audioSource.transform.position = position;
+                audioSource.spatialBlend = 1f;
+            }
+            else
+            {
+                audioSource.transform.localPosition = Vector3.zero;
+                audioSource.spatialBlend = 0f;
             }
 
             audioSource.volume = volume;
@@ -117,17 +139,34 @@ namespace Module.Management
             audioSource.clip = bgm;
             audioSource.outputAudioMixerGroup = audioMixerGroups.BGM;
             audioSource.Play();
+            
+            return audioSource;
         }
 
-        private void PlaySE(AudioClip clip, float volume)
+        /// <summary>
+        /// SE再生処理
+        /// </summary>
+        /// <returns>再生に使用したAudioSource</returns>
+        private AudioSource PlaySE(AudioClip clip, float volume, Vector3 position, bool is3D)
         {
-            // 同時に鳴らす場合を考慮して毎回変数生成する(必要ないかも)
             AudioSource audioSource = GetUnusedAudioSource(clip);
 
             if (audioSource == null)
             {
-                Debug.Log("SE play failed");
-                return;
+                Debug.Log("SE play failed: No unused AudioSource found.");
+                
+                return null;
+            }
+
+            if (is3D)
+            {
+                audioSource.transform.position = position;
+                audioSource.spatialBlend = 1f;
+            }
+            else
+            {
+                audioSource.transform.localPosition = Vector3.zero;
+                audioSource.spatialBlend = 0f;
             }
 
             audioSource.volume = volume;
@@ -136,136 +175,103 @@ namespace Module.Management
             audioSource.clip = clip;
             audioSource.outputAudioMixerGroup = audioMixerGroups.SE;
             audioSource.PlayOneShot(clip);
+            
+            return audioSource;
+        }
+
+        // --- Public Play Methods ---
+
+        /// <summary>
+        /// 名前を指定して再生
+        /// </summary>
+        /// <returns>再生中のAudioSource（失敗時はnull）</returns>
+        public AudioSource Play(string name)
+        {
+            return PlayInternal(name, 1.0f, Vector3.zero, false);
+        }
+
+        public AudioSource Play(string name, float volume)
+        {
+            return PlayInternal(name, volume, Vector3.zero, false);
+        }
+
+        public AudioSource PlayAtPoint(string name, Vector3 position, float volume = 1.0f)
+        {
+            return PlayInternal(name, volume, position, true);
         }
 
         /// <summary>
-        /// これを再生したいタイミングで呼び出す。名前を指定してBGM、SE一覧から検索、再生。
+        /// 内部再生処理。AudioSourceを返すように変更
         /// </summary>
-        /// <param name="name">AudioClipの名前でなく登録した別名</param>
-        public void Play(string name)
+        private AudioSource PlayInternal(string name, float volumeRate, Vector3 position, bool is3D)
         {
             if (string.IsNullOrEmpty(name))
             {
                 Debug.LogWarning("再生名が null/空文字です。");
-                return;
+                
+                return null;
             }
 
-            // それぞれの管理用Dictionaryから別名で検索、一致したら再生
             if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
             {
-                PlayBGM(bgmData.audioClip, bgmData.volume);
+                return PlayBGM(bgmData.audioClip, bgmData.volume * volumeRate, position, is3D);
             }
             else if (SEDictionary.TryGetValue(name, out SEData seData))
             {
                 if (Time.realtimeSinceStartup - seData.playedTime < playableDistance)
                 {
-                    Debug.Log("まだ再生できません。");
-                    return;
+                    return null;
                 }
                 
-                seData.playedTime = Time.realtimeSinceStartup; 　//次回用に今回の再生時間の保持 
-                PlaySE(seData.audioClip, seData.volume);
+                seData.playedTime = Time.realtimeSinceStartup;
+                
+                return PlaySE(seData.audioClip, seData.volume * volumeRate, position, is3D);
             }
             else
             {
-                Debug.LogWarning("その別名は登録されていません:{name}");
-            }
-        }
-
-        public void Play(string name, float volume)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                Debug.LogWarning("再生名が null/空文字です。");
-                return;
-            }
-
-            volume = Mathf.Clamp01(volume);
-            
-            // それぞれの管理用Dictionaryから別名で検索、一致したら再生
-            if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
-            {
-                PlayBGM(bgmData.audioClip, volume);
-            }
-            else if (SEDictionary.TryGetValue(name, out SEData seData))
-            {
-                if (Time.realtimeSinceStartup - seData.playedTime < playableDistance)
-                {
-                    Debug.Log("まだ再生できません。");
-                    return;
-                }
+                Debug.LogWarning($"その別名は登録されていません: {name}");
                 
-                seData.playedTime = Time.realtimeSinceStartup; 　//次回用に今回の再生時間の保持 
-                PlaySE(seData.audioClip, volume);
-            }
-            else
-            {
-                Debug.LogWarning("その別名は登録されていません:{name}");
+                return null;
             }
         }
+
+        // --- Stop Methods ---
 
         /// <summary>
-        /// nameのAudioClipを使っているAudioSourceの取得
+        /// 名前指定で停止（従来の互換性用）
         /// </summary>
-        /// <param name="name"></param>
-        private AudioSource GetUsingAudioSource(string name)
-        {
-        
-            if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
-            {
-                for (int i = 0; i < audioSourceList.Length; i++)
-                {
-                    if (audioSourceList[i].clip == bgmData.audioClip)
-                        return audioSourceList[i];
-                }
-            }
-            else if (SEDictionary.TryGetValue(name, out SEData seData))
-            {
-                for (int i = 0; i < audioSourceList.Length; i++)
-                {
-                    if (audioSourceList[i].clip == seData.audioClip)
-                        return audioSourceList[i];
-                }
-            }
-            
-            Debug.LogError("オーディオソースの取得に失敗しました。");
-            return null;
-        }
-
-        public bool GetIsPlaying(string name)
-        {
-            AudioSource audioSource =  GetUsingAudioSource(name);
-            if (audioSource == null)
-            {
-             //   Debug.Log("そのクリップは再生されていません");
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
         public void StopPlay(string name)
         {
-            AudioSource audioSource =  GetUsingAudioSource(name);
+            AudioSource audioSource = GetUsingAudioSource(name);
 
             if (audioSource == null)
-            { 
-                // Debug.Log("そのクリップは再生されていません");
                 return;
-            }
-            if (audioSource.isPlaying)
+
+            audioSource.Stop();
+        }
+
+        /// <summary>
+        /// 【新規追加】AudioSourceのハンドルを直接指定して停止
+        /// Play関数の戻り値をここに渡してください
+        /// </summary>
+        public void Stop(AudioSource source)
+        {
+            if (source == null)
+                return;
+
+            // すでに止まっている、または破棄されている場合のチェック
+            if (source.isPlaying)
             {
-                audioSource.Stop();
+                source.Stop();
             }
         }
 
         /// <summary>
-        /// 今流している音をすべて止める
+        /// 全停止
         /// </summary>
         public void StopAllSound()
         {
-            foreach (var audioSource in audioSourceList)
+            foreach (AudioSource audioSource in audioSourceList)
             {
                 if (audioSource.isPlaying)
                 {
@@ -273,19 +279,58 @@ namespace Module.Management
                 }
             }
         }
+
+        // --- Helper ---
+
+        private AudioSource GetUsingAudioSource(string name)
+        {
+            AudioClip targetClip = null;
+
+            if (BGMDictionary.TryGetValue(name, out BGMData bgmData))
+            {
+                targetClip = bgmData.audioClip;
+            }
+            else if (SEDictionary.TryGetValue(name, out SEData seData))
+            {
+                targetClip = seData.audioClip;
+            }
+
+            if (targetClip == null)
+            {
+                Debug.LogError("クリップが見つかりません。");
+                
+                return null;
+            }
+
+            foreach (AudioSource audioSource in audioSourceList)
+            {
+                if (audioSource.clip == targetClip && audioSource.isPlaying)
+                    return audioSource;
+            }
+            
+            return null;
+        }
         
-        /// <summary>
-        /// 普通の関数を作って外部から呼び出しをしやすく
-        /// </summary>
+        // --- Delay Play ---
+
         public void DelayPlay(string name, float DelayTime)
         {
-            StartCoroutine(DelayPlayProcess(name, DelayTime));
+            DelayPlayAsync(name, DelayTime, Vector3.zero, false).Forget();
         }
-        private IEnumerator DelayPlayProcess(string name, float DelayTime)
+
+        public void DelayPlayAtPoint(string name, float DelayTime, Vector3 position)
         {
-            // 遅延かけて再生
-            yield return new WaitForSeconds(DelayTime);
-            Play(name);
+            DelayPlayAsync(name, DelayTime, position, true).Forget();
+        }
+
+        private async UniTaskVoid DelayPlayAsync(string name, float DelayTime, Vector3 position, bool is3D)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(DelayTime), ignoreTimeScale: false);
+            
+            if (this == null) 
+                return;
+
+            PlayInternal(name, 1.0f, position, is3D);
         }
     }
 }

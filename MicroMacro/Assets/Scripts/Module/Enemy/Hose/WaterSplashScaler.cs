@@ -1,4 +1,6 @@
 using System;
+using DG.Tweening;
+using Module.Management;
 using Module.Scaling;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -14,10 +16,12 @@ namespace Module.Enemy.Hose
         [SerializeField] private float scaleAmountSplash;
         [SerializeField] private VisualEffect waterSplash;
         [SerializeField] private VisualEffect waterParticle;
+        [SerializeField] private AreaSoundManager waterSound;
         [SerializeField] private bool splashByScale;
 
         private static readonly int ScaleId = Shader.PropertyToID("Scale");
         private IWaterFlow waterFlow;
+        private Tween soundTween;
 
         private void Start()
         {
@@ -31,17 +35,23 @@ namespace Module.Enemy.Hose
                 waterSplash.Stop();
                 waterParticle.Stop();
             }
+            else
+            {
+                waterSound.Volume = 1.0f;
+            }
         }
 
         private void UpdateWaterSplashState(WaterState state)
         {
-            Debug.Log(state);
             if (state == WaterState.Pushing)
             {
                 headObject.SetActive(true);
                 bodyObject.SetActive(true);
                 waterSplash.Play();
                 waterParticle.Play();
+
+                soundTween?.Kill();
+                soundTween = DOTween.To(() => waterSound.Volume, x => waterSound.Volume = x, 1.0f, 0.5f);
             }
             else if (state == WaterState.Ending)
             {
@@ -52,6 +62,9 @@ namespace Module.Enemy.Hose
             {
                 headObject.SetActive(false);
                 bodyObject.SetActive(false);
+                
+                soundTween?.Kill();
+                soundTween = DOTween.To(() => waterSound.Volume, x => waterSound.Volume = x, 0.0f, 0.5f);
             }
         }
 
