@@ -151,7 +151,6 @@ namespace Module.Enemy.Hose
         public Vector3 CalculateForceForPusher(bool isPlayer)
         {
             float playerMult = isPlayer ? parameter.PlayerMultiplier : 1f;
-            // ▼【修正】ここも right (X軸) に統一
             return firePoint.right * (parameter.WaterPower.y * playerMult);
         }
 

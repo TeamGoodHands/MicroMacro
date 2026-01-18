@@ -24,16 +24,19 @@ namespace Module.Enemy.Hose
         [SerializeField] private Renderer waterRenderer;
 
         public WaterFlow WaterFlow { get; private set; }
+        public event Action<WaterState> OnWaterStateChanged;
 
         private Transform playerTransform;
         private Vector3 waterDefaultScale;
         private Vector3 scalerDefaultScale;
-        private float scaleMultiplier = 1f;
+
+        public float CurrentIntensity { get; private set; } = 1f;
+        private WaterState waterState;
 
         private static readonly int WaterThresholdId = Shader.PropertyToID("_WaterThreshold");
         private static readonly int MainColor = Shader.PropertyToID("_MainColor");
 
-        private void Start()
+        private void Awake()
         {
             // プレイヤーのTransformを取得する
             playerTransform = GameObject.FindWithTag(Tag.Player).transform;
@@ -94,13 +97,13 @@ namespace Module.Enemy.Hose
             if (!parameter.IsLooping)
             {
                 // BoxCastの結果を待たずに、単純に伸びようとする（壁に当たれば視覚的に縮むだけ）
-                scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime;
-                scaleMultiplier = Mathf.Clamp(scaleMultiplier, 0, 1f); // maxMultiplierによる制限はBoxCast後に行うためここでは1f上限
+                CurrentIntensity += parameter.WaterSpeed * Time.fixedDeltaTime;
+                CurrentIntensity = Mathf.Clamp(CurrentIntensity, 0, 1f); // maxMultiplierによる制限はBoxCast後に行うためここでは1f上限
             }
 
             // ターゲットとなるローカルスケール（壁がない場合の最大サイズ）
             Vector3 targetLocalScale = CalculateWaterScale(lengthScale);
-            targetLocalScale.x *= scaleMultiplier;
+            targetLocalScale.x *= CurrentIntensity;
 
             if (scaler.CurrentStep == scaler.MinStep)
             {
@@ -144,34 +147,59 @@ namespace Module.Enemy.Hose
 
                 void AddWaterSpeed(int direction)
                 {
-                    scaleMultiplier += parameter.WaterSpeed * Time.fixedDeltaTime * direction;
-                    scaleMultiplier = Mathf.Clamp(scaleMultiplier, 0, maxMultiplier);
+                    CurrentIntensity += parameter.WaterSpeed * Time.fixedDeltaTime * direction;
+                    CurrentIntensity = Mathf.Clamp(CurrentIntensity, 0, maxMultiplier);
 
                     timer += Time.fixedDeltaTime;
                 }
 
+                SetWaterState(WaterState.Pushing);
                 // 水の柱をだんだん長くする
                 await UniTask.WaitUntil(() =>
                 {
                     AddWaterSpeed(1);
 
+                    if (CurrentIntensity == 1f)
+                    {
+                        SetWaterState(WaterState.Pushed);
+                    }
+
                     return timer >= parameter.OnTime;
                 }, PlayerLoopTiming.FixedUpdate, cancellationToken: destroyCancellationToken);
 
+                SetWaterState(WaterState.Pushed);
+
                 timer = 0f;
 
+                SetWaterState(WaterState.Ending);
                 // 水の柱をだんだん短くする
                 await UniTask.WaitUntil(() =>
                 {
                     AddWaterSpeed(-1);
 
+                    if (CurrentIntensity == 0f)
+                    {
+                        SetWaterState(WaterState.End);
+                    }
+
                     return timer >= parameter.OffTime;
                 }, PlayerLoopTiming.FixedUpdate, cancellationToken: destroyCancellationToken);
+
+                SetWaterState(WaterState.End);
 
                 if (parameter.LookAtPlayer)
                 {
                     await LookAt(playerTransform.position, 0.5f);
                 }
+            }
+        }
+
+        private void SetWaterState(WaterState state)
+        {
+            if (waterState != state)
+            {
+                waterState = state;
+                OnWaterStateChanged?.Invoke(state);
             }
         }
 

@@ -637,10 +637,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scaler: {fileID: 5066453956393051646}
-  snakeHoseController: {fileID: 380999055279285835}
+  headObject: {fileID: 1974532023747378760}
+  bodyObject: {fileID: 7088757360191704229}
+  waterFlowObject: {fileID: 8929894722611337532}
   scaleAmountSplash: 0.2
   waterSplash: {fileID: 6312348567970273975}
   waterParticle: {fileID: 3231828277725231351}
+  splashByScale: 0
 --- !u!1 &834341726078357121
 GameObject:
   m_ObjectHideFlags: 0
@@ -801,7 +804,7 @@ Transform:
   m_GameObject: {fileID: 2747711457732783179}
   serializedVersion: 2
   m_LocalRotation: {x: 0.020321123, y: 0.020769758, z: -0.7443043, w: 0.66720825}
-  m_LocalPosition: {x: 7.996338, y: -2.2128258, z: -0.46567798}
+  m_LocalPosition: {x: 7.996338, y: -2.2128248, z: -0.46567798}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -982,7 +985,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4355559555245533031}
   - component: {fileID: 4337961364788373598}
-  - component: {fileID: 1817413573567271067}
   - component: {fileID: 4478741031657399871}
   m_Layer: 0
   m_Name: PointB
@@ -1028,18 +1030,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1817413573567271067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3010006200812392801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e6cc6ebc3ca24340a422729165c0302, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &4478741031657399871
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1750,7 +1740,7 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.4
-  m_Center: {x: 1981.2443, y: 29.997978, z: 63.10751}
+  m_Center: {x: 1981.2445, y: 29.997978, z: 63.10751}
 --- !u!135 &6307742044575261707
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1834,7 +1824,7 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.4
-  m_Center: {x: 1981.2399, y: 26.019962, z: 63.09094}
+  m_Center: {x: 1981.2401, y: 26.019962, z: 63.09094}
 --- !u!135 &8209000176889767735
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2086,7 +2076,7 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.4
-  m_Center: {x: 1979.2347, y: 14.187038, z: 63.09968}
+  m_Center: {x: 1979.2347, y: 14.18704, z: 63.09968}
 --- !u!135 &2047475691352050245
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3512,10 +3502,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsSystem: {fileID: 1905288937061615032}
+  waterFlowObject: {fileID: 8929894722611337532}
   centeringStrength: 0
   exitPower: 0.8
   lateralDamping: 0.9
-  pushStrengthMultiplier: 10
 --- !u!1 &7360813033898661547
 GameObject:
   m_ObjectHideFlags: 0
@@ -3656,7 +3646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 523a35f50ef24e8fa798b5957091d3c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waterPower: {x: 120, y: 40}
+  waterPower: {x: 5, y: 0.1}
   sideForceMultiplier: 3
   scaleMultiplier: 1.2
   lengthMultiplier: 0.1
@@ -3718,6 +3708,8 @@ MonoBehaviour:
   scaler: {fileID: 5066453956393051646}
   gripControllerWrapper:
     target: {fileID: 1655612345853102594}
+  waterPivot: {fileID: 7400714086719759854}
+  rotatePivot: {fileID: 399514353592563914}
   isRapids: 0
 --- !u!114 &8051928820252242080
 MonoBehaviour:
@@ -3850,7 +3842,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7967518645860171406}
   - component: {fileID: 2036471776648989630}
-  - component: {fileID: 8562689480012031853}
   - component: {fileID: 1068047131835368746}
   m_Layer: 0
   m_Name: PointA
@@ -3868,7 +3859,7 @@ Transform:
   m_GameObject: {fileID: 9032072272287312116}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5115586, y: -0.50301856, z: -0.4906821, w: 0.49448082}
-  m_LocalPosition: {x: 8.804199, y: -5.4844933, z: -0.5029516}
+  m_LocalPosition: {x: 8.804199, y: -5.484494, z: -0.5029516}
   m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3896,18 +3887,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8562689480012031853
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9032072272287312116}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e6cc6ebc3ca24340a422729165c0302, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &1068047131835368746
 Rigidbody:
   m_ObjectHideFlags: 0

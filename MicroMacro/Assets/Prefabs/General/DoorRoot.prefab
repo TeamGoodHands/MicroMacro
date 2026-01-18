@@ -53,6 +53,7 @@ MonoBehaviour:
   doorAnimators:
   - {fileID: 1368020351263136368}
   - {fileID: 8747525533261265646}
+  doorCollider: {fileID: 0}
 --- !u!65 &5966441898393824645
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -188,6 +189,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: door1125
       objectReference: {fileID: 0}
+    - target: {fileID: 4807943940248225747, guid: 7f48d7f6789989b469d8a591efc39731, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6f37769cb8e0abe46bd909423c47b3db, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -280,6 +285,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: door1125 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4807943940248225747, guid: 7f48d7f6789989b469d8a591efc39731, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6f37769cb8e0abe46bd909423c47b3db, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

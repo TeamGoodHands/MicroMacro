@@ -713,10 +713,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   physicsSystem: {fileID: 2451721608057127733}
+  waterFlowObject: {fileID: 2947332812029785437}
   centeringStrength: 5
   exitPower: 1.5
   lateralDamping: 0.1
-  pushStrengthMultiplier: 1
 --- !u!1 &4321702044997124520
 GameObject:
   m_ObjectHideFlags: 0
@@ -891,9 +891,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scaler: {fileID: 126177941347024555}
+  headObject: {fileID: 4512156413393385466}
+  bodyObject: {fileID: 4282620610566101156}
+  waterFlowObject: {fileID: 2947332812029785437}
   scaleAmountSplash: 0.2
   waterSplash: {fileID: 4009482690533683673}
   waterParticle: {fileID: 5171641423853274827}
+  splashByScale: 1
 --- !u!1 &6118533337501776021
 GameObject:
   m_ObjectHideFlags: 0

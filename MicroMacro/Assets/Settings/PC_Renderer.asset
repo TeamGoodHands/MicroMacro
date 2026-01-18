@@ -41,50 +41,34 @@ MonoBehaviour:
   m_Name: ScreenSpaceHatchingFeature
   m_EditorClassIdentifier: 
   m_Active: 1
-  settings:
-    OcclusionSampleLength: 4
-    OcclusionMinDistance: 0
-    OcclusionMaxDistance: 89.2
-    OcclusionBias: 0.35
-    OcclusionStrength: 1.62
-    OcclusionPower: 0.6
-    OcclusionDifferenceThreshold: 20
-    BlendStep: 0.87
-    BlendPower: 2.79
-    HatchScale: 4.51
-    FrontHatchOffset: -0.035
-    BackHatchOffset: -0.004
-    HatchOffsetBorder: 0.0056
-    BlurKernelRadius: 5
-    CrossPatternTexture: {fileID: 2800000, guid: 171cea23cfdea7d4bb041284a3c8ff5f, type: 3}
-    ssaoShader: {fileID: 4800000, guid: aa54c93f5f2b0e145bc0b9cec9bf5edc, type: 3}
-    generateSamplingPoint: 0
-    samplingRotations:
-    - 0.44863215
-    - 0.7880028
-    - 1.3636658
-    - 1.5895679
-    - 2.5003145
-    - 2.7306647
-    - 3.6461077
-    - 4.085023
-    - 4.2969294
-    - 5.1759677
-    - 5.3832164
-    - 6.25248
-    samplingLength:
-    - 0.15176778
-    - 0.22315453
-    - 0.32348752
-    - 0.39603037
-    - 0.4551406
-    - 0.5324319
-    - 0.5780827
-    - 0.65080273
-    - 0.74473387
-    - 0.7924064
-    - 0.9011187
-    - 0.98992014
+  SSHatchingShader: {fileID: 4800000, guid: aa54c93f5f2b0e145bc0b9cec9bf5edc, type: 3}
+  generateSamplingPoints: 0
+  samplingRotations:
+  - 0.4514643
+  - 0.67175925
+  - 1.3228385
+  - 1.8190985
+  - 2.5242364
+  - 2.753992
+  - 3.5765
+  - 4.128316
+  - 4.2693467
+  - 4.7541313
+  - 5.7432833
+  - 6.0280952
+  samplingLength:
+  - 0.11328096
+  - 0.24413693
+  - 0.30877233
+  - 0.36417663
+  - 0.4520049
+  - 0.523663
+  - 0.60653853
+  - 0.666471
+  - 0.73643464
+  - 0.8069572
+  - 0.8812866
+  - 0.97278345
 --- !u!114 &-3803944856254396364
 MonoBehaviour:
   m_ObjectHideFlags: 0

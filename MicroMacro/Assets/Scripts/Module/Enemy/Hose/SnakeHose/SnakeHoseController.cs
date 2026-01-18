@@ -16,25 +16,30 @@ namespace Module.Enemy.Hose
         [Header("Settings")] [SerializeField] private WaterFlowParameter parameter;
         [SerializeField] private Scaler scaler;
         [SerializeField] private SnakeGripControllerWrapper gripControllerWrapper;
+        [SerializeField] private Transform waterPivot;
+        [SerializeField] private Transform rotatePivot;
 
         [Header("State")] [SerializeField] private bool isRapids;
 
         public WaterFlowParameter Parameter => parameter;
         public WaterPhysicsSystem Physics => physicsSystem;
         public bool IsRapid => isRapids;
-        public WaterFlow WaterFlow => null;
+        public WaterFlow WaterFlow { get; private set; } 
 
         private WaterPhysicsSystem physicsSystem;
         private WaterVisualSystem visualSystem;
         private Transform playerTransform;
 
         public float CurrentIntensity { get; private set; } = 0f;
-        public event Action<bool> OnWaterStateChanged;
+        public event Action<WaterState> OnWaterStateChanged;
+        private WaterState waterState;
 
         private void Awake()
         {
             physicsSystem = GetComponent<WaterPhysicsSystem>();
             visualSystem = GetComponent<WaterVisualSystem>();
+            
+            WaterFlow = new WaterFlow(scaler, waterPivot, rotatePivot, parameter);
         }
 
         private void Start()
@@ -112,58 +117,71 @@ namespace Module.Enemy.Hose
             }
         }
 
-        public UniTask OnWater()
-        {
-            return OnWater(this.destroyCancellationToken);
-        }
-
         public async UniTask OnWater(CancellationToken token)
         {
-            OnWaterStateChanged?.Invoke(true);
-            
+            SetWaterState(WaterState.Pushing);
+
             gripControllerWrapper.SetPushTrigger();
             gripControllerWrapper.IsLock = true;
-            
+
             float timer = 0f;
             while (timer < parameter.OnTime && !token.IsCancellationRequested)
             {
                 CurrentIntensity += parameter.WaterSpeed * Time.deltaTime;
                 CurrentIntensity = Mathf.Clamp01(CurrentIntensity);
 
+                if (CurrentIntensity == 1f)
+                {
+                    SetWaterState(WaterState.Pushed);
+                }
+
                 timer += Time.deltaTime;
                 await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
-        }
 
-        public UniTask OffWater()
-        {
-            return OffWater(this.destroyCancellationToken);
+            SetWaterState(WaterState.Pushed);
         }
 
         public async UniTask OffWater(CancellationToken token)
         {
-            OnWaterStateChanged?.Invoke(false);
-            
+            OnWaterStateChanged?.Invoke(WaterState.Ending);
+
             gripControllerWrapper.IsLock = false;
-            
+
             float timer = 0f;
             while (timer < parameter.OffTime && !token.IsCancellationRequested)
             {
                 CurrentIntensity -= parameter.WaterSpeed * Time.deltaTime;
                 CurrentIntensity = Mathf.Clamp01(CurrentIntensity);
 
+                if (CurrentIntensity == 0f)
+                {
+                    SetWaterState(WaterState.End);
+                }
+
                 timer += Time.deltaTime;
                 await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
 
             CurrentIntensity = 0f;
+            SetWaterState(WaterState.End);
         }
 
         public void OffWaterImmediately()
         {
             gripControllerWrapper.IsLock = false;
-            OnWaterStateChanged?.Invoke(false);
+            OnWaterStateChanged?.Invoke(WaterState.Ending);
+            OnWaterStateChanged?.Invoke(WaterState.End);
             CurrentIntensity = 0f;
+        }
+
+        private void SetWaterState(WaterState state)
+        {
+            if (waterState != state)
+            {
+                waterState = state;
+                OnWaterStateChanged?.Invoke(state);
+            }
         }
 
         public Tween ShakeBody(float duration)

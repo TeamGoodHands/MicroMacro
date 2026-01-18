@@ -48,7 +48,7 @@ MonoBehaviour:
   shootRadius: 0.3
   shootInterval: 0.3
   maxAdditionalSpeed: 4
-  poolAmount: 8
+  poolAmount: 16
   macroBulletPrefab: {fileID: 3385789982444698467, guid: e4614154faec2d741b6cf8c09ff6702f, type: 3}
   microBulletPrefab: {fileID: 3385789982444698467, guid: 5791b206a6adba544a85465757f187f7, type: 3}
 --- !u!1 &127289384313703267
@@ -1512,7 +1512,7 @@ Transform:
   m_GameObject: {fileID: 7908936843681310842}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0.652, y: -0.61, z: 0}
+  m_LocalPosition: {x: 0.108, y: -0.61, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1901,6 +1901,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 432911419514619282, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 432911419514619282, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 432911419514619282, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 92.23938
+      objectReference: {fileID: 0}
+    - target: {fileID: 432911419514619282, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -136.325
+      objectReference: {fileID: 0}
     - target: {fileID: 3144316744896002559, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
       propertyPath: m_Name
       value: SpeechBubble
@@ -1912,6 +1928,22 @@ PrefabInstance:
     - target: {fileID: 6871758782991513441, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
       propertyPath: m_SortingLayerID
       value: 988679891
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260379116319634057, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_Pivot.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260379116319634057, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260379116319634057, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -61.7157
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260379116319634057, guid: 71f449282a456bb4a9914dca7ee44f1c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -175.87476
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

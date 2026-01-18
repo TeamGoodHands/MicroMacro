@@ -48,7 +48,7 @@ namespace Module.Enemy.Hose
                 if (hitInfo.rigidbody != null)
                 {
                     // 水の力を加える
-                    ApplyWaterForce(hitPoint);
+                    ApplyWaterForceAtPosition(hitInfo.rigidbody, hitPoint);
                 }
             }
             else
@@ -56,7 +56,7 @@ namespace Module.Enemy.Hose
                 actualDistance = maxDistance + radius;
             }
 
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
+#if UNITY_EDITOR
             // デバッグ表示
             UGizmos.DrawBoxCast(position, halfExtents, rotatePivot.up, rotatePivot.rotation, actualDistance, isObjectHit, hitInfo);
 #endif
@@ -64,15 +64,26 @@ namespace Module.Enemy.Hose
             return isObjectHit;
         }
 
-        private void ApplyWaterForce(Vector3 hitPoint)
+        public void ApplyWaterForceAtPosition(Rigidbody rigidbody, Vector3 hitPoint, bool isPlayerHit = false)
         {
             // 縦方向と横方向の力を計算する
-            Vector3 verticalForce = CalculateVerticalForce(false);
-            Vector3 horizontalForce = CalculateHorizontalForce(false, hitInfo.rigidbody.position);
+            Vector3 verticalForce = CalculateVerticalForce(isPlayerHit);
+            Vector3 horizontalForce = CalculateHorizontalForce(isPlayerHit, rigidbody.position);
             Vector3 force = verticalForce + horizontalForce;
 
             // 衝突したポイントに力を加える
-            hitInfo.rigidbody.AddForceAtPosition(force, hitPoint);
+            rigidbody.AddForceAtPosition(force, hitPoint);
+        }
+
+        public void ApplyWaterForce(Rigidbody rigidbody, bool isPlayerHit, ForceMode forceMode)
+        {
+            // 縦方向と横方向の力を計算する
+            Vector3 verticalForce = CalculateVerticalForce(isPlayerHit);
+            Vector3 horizontalForce = CalculateHorizontalForce(isPlayerHit, rigidbody.position);
+            Vector3 force = verticalForce + horizontalForce;
+
+            // 衝突したポイントに力を加える
+            rigidbody.AddForce(force, forceMode);
         }
 
         public Vector3 CalculateVerticalForce(bool isPlayerHit)
