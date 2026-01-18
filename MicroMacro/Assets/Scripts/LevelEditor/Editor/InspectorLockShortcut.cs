@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class InspectorLockShortcut
 {
-    // ショートカットキーの設定 (例: Ctrl + Q)
-    [MenuItem("Tools/Toggle Inspector Lock %q")]
+    // ショートカットキーの設定 (Windows: Ctrl + W)
+    [MenuItem("Tools/Toggle Inspector Lock %w")]
     static void ToggleLock()
     {
         // 現在アクティブなエディタ（インスペクター）のロック状態を反転
