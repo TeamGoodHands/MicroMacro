@@ -1,0 +1,98 @@
+using System;
+using Constants;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using Module.Application.SceneSwitch;
+using Module.Management;
+using Module.Player;
+using Module.Player.Component;
+using Module.Scaling;
+using PropertyGenerator.Generated;
+using Unity.Cinemachine;
+using UnityEngine;
+using UnityEngine.VFX;
+
+namespace Module.Gimmick
+{
+    public class StageGoal : MonoBehaviour
+    {
+        [SerializeField] private Scaler scaler;
+        [SerializeField] private VisualEffect splashEffect;
+        [SerializeField] private Transform bodyTransform;
+        [SerializeField] private GoalAnimatorWrapper animatorWrapper;
+        [SerializeField] private CinemachineCamera goalCamera;
+        [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
+        [SerializeField] private GameObject avoidAreaCamera;
+
+        private PlayerControllerWrapper playerController;
+        private PlayerCondition playerCondition;
+        private PlayBGM playBGM;
+
+        private void Start()
+        {
+            scaler.OnScaleStarted += OnScaleStarted;
+
+            GameObject playerObject = GameObject.FindWithTag(Tag.Player);
+            PlayerBehaviour playerBehaviour = playerObject.GetComponent<PlayerBehaviour>();
+            playerController = playerBehaviour.Component.AnimatorWrapper;
+            playerCondition = playerBehaviour.Component.Condition;
+        }
+
+        private void OnScaleStarted(ScaleEventArgs args)
+        {
+            if (args.CurrentStep == args.PreviousStep)
+                return;
+
+            int step = args.CurrentStep - args.PreviousStep;
+
+            animatorWrapper.Scale += step;
+
+            if (step > 0)
+            {
+                SoundManager.instance.Play("ボス拡大");
+            }
+
+            if (animatorWrapper.Scale == 3)
+            {
+                DestroyGoal().Forget();
+            }
+        }
+
+        private async UniTaskVoid DestroyGoal()
+        {
+            SoundManager.instance.Play("ボスカタカタ");
+            await bodyTransform.DOShakePosition(3f, strength: 0.003f, vibrato: 40).WithCancellation(this.GetCancellationTokenOnDestroy());
+
+            SoundManager.instance.Play("ボス爆発");
+            splashEffect.Play();
+
+            await transform.DOScale(Vector3.zero, 0.4f).SetEase(Ease.InBack).WithCancellation(this.GetCancellationTokenOnDestroy());
+
+            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            CinemachineCore.SoloCamera = null;
+            goalCamera.Priority = 10000;
+            playerCondition.IsPlayerLocked = true;
+
+            if (avoidAreaCamera != null)
+            {
+                avoidAreaCamera.SetActive(false);
+            }
+
+            playBGM = FindAnyObjectByType<PlayBGM>();
+            playBGM.BGMSource.DOFade(0f, 0.5f);
+            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            SoundManager.instance.Play("クリア短め");
+
+            await UniTask.Delay(TimeSpan.FromSeconds(3.2f), cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            playerController.Animator.SetLayerWeight(1, 0);
+            playerController.Yay = true;
+
+            await UniTask.Delay(TimeSpan.FromSeconds(2.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            fadeAndSceneTransition.StartTransition();
+        }
+    }
+}

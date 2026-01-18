@@ -19,6 +19,7 @@ namespace PropertyGenerator.Generated
 		private static readonly int ShotDownProperty = Animator.StringToHash("ShotDown");
 		private static readonly int IsDeathProperty = Animator.StringToHash("IsDeath");
 		private static readonly int DamagedProperty = Animator.StringToHash("Damaged");
+		private static readonly int YayProperty = Animator.StringToHash("Yay");
 		[SerializeField] private Animator target;
 		public Animator Animator => target;
 		
@@ -70,6 +71,12 @@ namespace PropertyGenerator.Generated
 		public void SetDamagedTrigger()
 		{
 			target.SetTrigger(DamagedProperty);
+		}
+		
+		public bool Yay
+		{
+			get => target.GetBool(YayProperty);
+			set => target.SetBool(YayProperty, value);
 		}
 	}
 }
