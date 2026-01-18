@@ -2,7 +2,10 @@ name: WebGPU Build and Deploy to Github Pages
 
 on:
   push:
-    branches: ["release"]
+    branches:
+      - release
+  pull_request:
+    branches: ["develop"]
   workflow_dispatch: {}
 
 permissions:
