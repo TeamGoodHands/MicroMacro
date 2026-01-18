@@ -2,40 +2,41 @@
 using UnityEngine.EventSystems; 
 using DG.Tweening;             
 using Cysharp.Threading.Tasks; 
-using System.Threading;        
+using System.Threading;
+using UnityEngine.Serialization;
 
 namespace Module.UI
 {
     public class SlideButtonAnim : ButtonAnimBase
     {
-        [SerializeField]　private RectTransform rectTransform;
+        [SerializeField] private RectTransform rectTransform;
 
         [Header("スライド設定 (DOTween)")]
+        [Tooltip("移動距離（画像の向きに合わせて移動します）")]
         [SerializeField] private float slideDistance = 30f;
+        
+        [Tooltip("動き始める前の待機時間（秒）")]
+        [SerializeField] private float delay = 0f;
+        
         [Tooltip("アニメーションにかかる時間（秒）")]
-        [SerializeField] private float duration = 0.2f;         // 速度ではなく時間で指定するのがDOTween
-        [SerializeField] private Ease easeType = Ease.OutQuad;  // 動きの緩急を決める設定（Out～系は最初早く最後に減速） 
+        [SerializeField] private float duration = 0.2f;
+        [SerializeField] private Ease easeType = Ease.OutQuad;
 
         private Vector2 originalPosition;
-
-        // キャンセル制御用
         private CancellationTokenSource cts;
 
         void Awake()
         {
+            if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
             originalPosition = rectTransform.anchoredPosition;
         }
         
         void OnEnable()
         {
-            // 有効化されたときに位置を即座に戻す（前回の動きが残らないように）
             rectTransform.anchoredPosition = originalPosition;
             
-            // 内部的に選ばれてるならボタンならアニメーション開幕再生
             if (EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject)
             {
-                // 親クラスの OnSelect を呼ぶことで、
-                // 「isSelectedの更新」と「OnActiveの実行」を同時に
                 OnSelect(null); 
             }
         }
@@ -48,44 +49,47 @@ namespace Module.UI
 
         protected override void OnActive()
         {
-            // 右の位置を計算して非同期実行
-            Vector2 target = originalPosition + new Vector2(slideDistance, 0);
-            MoveToTargetAsync(target).Forget();
+            // 画像にとっての右方向を計算
+            Vector3 direction = rectTransform.localRotation * Vector3.right;
+
+            // 方向ベクトルに距離を掛けて、移動量(オフセット)を算出
+            Vector2 offset = (Vector2)(direction * slideDistance);
+
+            // 元の位置に足す
+            Vector2 target = originalPosition + offset;
+
+            // 出現時は startDelay を適用する
+            MoveToTargetAsync(target, delay).Forget();
         }
 
         protected override void OnInactive()
         {
-            // 元の位置へ非同期実行
-            MoveToTargetAsync(originalPosition).Forget();
+            // 元に戻す
+            MoveToTargetAsync(originalPosition, delay).Forget();
         }
 
-        private async UniTaskVoid MoveToTargetAsync(Vector2 target)
+        // オプションでディレイも可能
+        private async UniTaskVoid MoveToTargetAsync(Vector2 target, float delay)
         {
-            // 既に破棄処理が始まっていたら何もしない（エラー防止の念押し）
             if (this == null || gameObject == null) return;
             
-            // これをやらないと、マウスを高速で出し入れした時に挙動がおかしくなる
             cts?.Cancel();
             cts?.Dispose();
             cts = new CancellationTokenSource();
 
-            // 新しい動きを始める前に、今の動きを止める
-            // (SetLinkしていても、上書き時はKillしておくと安全)
             rectTransform.DOKill();
 
             try
             {
-                // DOTweenを実行し、UniTaskで待機する
-                // .ToUniTask にトークンを渡すと、cts.Cancel() が呼ばれたら即座に停止する
+                // SetDelayを追加して待機時間を反映
                 await rectTransform.DOAnchorPos(target, duration)
+                    .SetDelay(delay)
                     .SetEase(easeType)
-                    .SetLink(gameObject) // GameObjectが破棄されたらTweenも自動破棄する
+                    .SetLink(gameObject)
                     .ToUniTask(cancellationToken: cts.Token);
             }
             catch (System.OperationCanceledException)
             {
-                // キャンセルされた（＝逆方向のアニメーションが始まった）場合は
-                // 例外をつぶして終了
             }
         }
     }
