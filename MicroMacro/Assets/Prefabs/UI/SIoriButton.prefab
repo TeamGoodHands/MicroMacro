@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: 2600189250067881527}
   - component: {fileID: 1970929979783715322}
   - component: {fileID: 36397963048028992}
+  - component: {fileID: 4927854252854589654}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -238,8 +239,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rectTransform: {fileID: 1202184113884019569}
   slideDistance: 70
+  delay: 0
   duration: 0.2
   easeType: 6
+--- !u!114 &4927854252854589654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6584901516983688637}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50a643fa5e6848be86631087d9f279a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextSceneName: 
+  transitionHandler: {fileID: 0}
+  submitSeName: 
+  selectSeName: 
 --- !u!1 &7319566325392821819
 GameObject:
   m_ObjectHideFlags: 0

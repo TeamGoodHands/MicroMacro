@@ -5,6 +5,10 @@ using Module.Management;
 using Module.Application.SceneSwitch; 
 namespace Module.UI
 {
+    
+    /// <summary>
+    /// ボタン決定とセレクトのサウンドのみ行うことも可能なシーン遷移ボタン
+    /// </summary>
     [RequireComponent(typeof(Button))]
     public class SceneTransitionButton : MonoBehaviour, ISelectHandler
     {
@@ -23,6 +27,7 @@ namespace Module.UI
         [SerializeField] private string selectSeName = ""; // 初期値は空
 
         private Button button;
+        private bool isFirstSelect = true;
 
         private void Start()
         {
@@ -34,12 +39,19 @@ namespace Module.UI
             {
                 transitionHandler = FindAnyObjectByType<FadeAndSceneTransition>();
             }
+            
+            isFirstSelect = false;
         }
         
         private void OnSubmit()
         {
             // 決定音
             PlaySound(submitSeName);
+            if (string.IsNullOrEmpty(nextSceneName))
+            {
+                Debug.Log("SceneTransitionButton: nextSceneNameが設定されていません。");
+                return;
+            }
 
             // シーン遷移
             if (transitionHandler != null)
@@ -54,6 +66,10 @@ namespace Module.UI
         
         public void OnSelect(BaseEventData eventData)
         {
+            // 最初の選択時（シーン切り替わった瞬間）は音を鳴らさない
+            if (isFirstSelect)
+                return;
+            
             // 選択音再生
             PlaySound(selectSeName);
         }

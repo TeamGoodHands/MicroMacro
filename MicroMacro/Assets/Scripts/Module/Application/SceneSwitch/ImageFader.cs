@@ -121,7 +121,9 @@ namespace Module.Application.SceneSwitch
                 onComplete?.Invoke();
             }
 
-            timer += Time.deltaTime;
+            // 多少フリーズしても良いように最大値を設定
+            float dt = Mathf.Min(Time.unscaledDeltaTime, 0.1f);
+            timer += dt;
         }
    
         private void OnFadeInComplete()

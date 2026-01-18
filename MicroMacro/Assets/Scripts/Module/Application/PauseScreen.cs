@@ -25,6 +25,11 @@ namespace Module.Application
         
         private void Start()
         {
+            if (sceneManager == null)
+            {
+                sceneManager = FindAnyObjectByType<FadeAndSceneTransition>();
+            }
+            
             // 各ボタンにリスナーを追加
             resumeButton.onClick.AddListener(ResumeGame);
             restartButton.onClick.AddListener(RestartLevel);
@@ -87,7 +92,6 @@ namespace Module.Application
         {
             playerInput.Disable();  // プレイヤーの入力切っておく
             pauseScreenUI.SetActive(true);
-            resumeButton.Select();
             SoundManager.instance.Play("ポーズを開く");
             Time.timeScale = 0f; 
             IsPaused = true;
