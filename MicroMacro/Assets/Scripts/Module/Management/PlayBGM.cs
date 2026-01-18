@@ -8,11 +8,13 @@ namespace Module.Management
         [Header("再生するBGM")]
         [SerializeField] private string BGM_name;
 
+        public AudioSource BGMSource;
+
         private void Start()
         {
             if (!string.IsNullOrEmpty(BGM_name))
             {
-                SoundManager.instance.Play(BGM_name);
+                BGMSource = SoundManager.instance.Play(BGM_name);
             }
         }
     }
