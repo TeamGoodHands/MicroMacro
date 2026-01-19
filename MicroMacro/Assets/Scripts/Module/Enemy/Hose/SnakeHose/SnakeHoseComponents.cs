@@ -21,6 +21,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private CinemachineCamera beamAttackCamera;
         [SerializeField] private CinemachineCamera nearInCamera;
         [SerializeField] private CinemachineCamera waterBallAttackCamera;
+        [SerializeField] private ClearPlayer clearPlayer;
         [SerializeField] private ChildSnakeBehaviour[] children;
         [SerializeField] private Animator animator;
         [SerializeField] private CanvasGroup canvasGroup;
@@ -32,6 +33,7 @@ namespace Module.Enemy.Hose.SnakeHose
         public CinemachineCamera BeamAttackCamera => beamAttackCamera;
         public CinemachineCamera NearInCamera => nearInCamera;
         public CinemachineCamera WaterBallAttackCamera => waterBallAttackCamera;
+        public ClearPlayer ClearPlayer => clearPlayer;
         public ChildSnakeBehaviour[] Children => children;
         public HealthStatus HealthStatus => healthStatus;
         public LockOnEffect LockOnEffect => lockOnEffect;

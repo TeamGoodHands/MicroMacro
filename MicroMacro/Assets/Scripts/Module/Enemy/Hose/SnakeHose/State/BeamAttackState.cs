@@ -25,6 +25,8 @@ namespace Module.Enemy.Hose.SnakeHose
 
         internal override void OnEnter()
         {
+
+            
             components.HeadTransform.DOMove(condition.DefaultPosition, 0.5f).SetEase(Ease.InOutSine);
             PrepareMove().Forget();
         }

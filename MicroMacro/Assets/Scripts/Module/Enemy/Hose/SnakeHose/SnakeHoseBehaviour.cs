@@ -24,9 +24,11 @@ namespace Module.Enemy.Hose.SnakeHose
             stateMachine.AddState<AppearState, AliveState>(new AppearState(components, parameter, condition));
             stateMachine.AddState<WaterBallAttackState, AliveState>(new WaterBallAttackState(parameter, components, condition));
             stateMachine.AddState<BeamAttackState, AliveState>(new BeamAttackState(components, parameter, condition));
+            stateMachine.AddState<SmashAttackState, AliveState>(new SmashAttackState(components, parameter, condition));
 
             stateMachine.AddTransition<AppearState, WaterBallAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.WaterBallAttack);
             stateMachine.AddTransition<WaterBallAttackState, BeamAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.BeamAttack);
+            stateMachine.AddTransition<BeamAttackState, SmashAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.SmashAttack);
 
             stateMachine.Start<AliveState>();
         }
