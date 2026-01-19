@@ -16,6 +16,7 @@ namespace Module.Enemy.Hose.ChildSnake
         [SerializeField] private Transform bodyBone;
         [SerializeField] private Scaler scaler;
         [SerializeField] private HealthStatus healthStatus;
+        [SerializeField] private HealthStatus bossHealthStatus;
         [SerializeField] private SnakeHoseController controller;
         [SerializeField] private ChildSnakeParameter parameter;
         [SerializeField] private LockOnEffect lockOnEffect;
@@ -78,6 +79,7 @@ namespace Module.Enemy.Hose.ChildSnake
             await transform.DOShakePosition(1f, 0.1f, 30, 90, false, false);
 
             healthStatus.Damage(1);
+            bossHealthStatus.Damage(1);
             await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: destroyCancellationToken);
 
             if (raptureIndex >= raptures.Length)

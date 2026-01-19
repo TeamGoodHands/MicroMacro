@@ -14,6 +14,7 @@ namespace Module.Player.Weapon
         [SerializeField] private float shootPower;
         [SerializeField] private float shootRadius;
         [SerializeField] private float shootInterval;
+        [SerializeField] private float minSpeed;
         [SerializeField] private float maxAdditionalSpeed;
         [SerializeField] private int poolAmount;
 
@@ -134,6 +135,12 @@ namespace Module.Player.Weapon
             // プレイヤーの速度を足して発射
             Vector2 dirVelocity = GetDirectedVelocity(condition.Direction, playerRigBody.linearVelocity, maxAdditionalSpeed);
             Vector2 bulletForce = condition.Direction * shootPower + dirVelocity + condition.ExternalWeaponForce;
+
+            if (Vector2.Dot(bulletForce, condition.Direction) < 0f || bulletForce.magnitude < minSpeed)
+            {
+                bulletForce = condition.Direction * minSpeed;
+            }
+
             bullet.Shoot(bulletForce, condition.Direction.y != 0f);
             lastShootTime = Time.time;
 
