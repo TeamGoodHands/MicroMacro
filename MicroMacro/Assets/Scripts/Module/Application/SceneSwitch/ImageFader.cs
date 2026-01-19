@@ -1,29 +1,27 @@
-﻿using System.Collections;
-using UnityEngine;
-using UnityEngine.Serialization;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace Module.Application.SceneSwitch
 {
+    [RequireComponent(typeof(Image))] // Image必須にする
     public class ImageFader : MonoBehaviour, IFadeHandler
     {
-      
         private Image img = null;
         private float timer = 0.0f;
         private FadeState fadeState = FadeState.None;
         
         private enum FadeState { None, FadingIn, FadingOut }
+
         [Header("フェード処理にかかる時間")]
         [SerializeField] private float fadeDuration = 1.0f; 
 
         private void Awake()
         {
             img = GetComponent<Image>();
-            if (img == null)
-            {
-                Debug.LogError("ImageComponentがnullです");
-                return;
-            }
+            
+            // 念のための初期化：最初は透明かつ操作可能にしておく
+            // これがないと、Prefab保存時にraycastTargetがtrueだとゲーム開始時に操作できなくなる
+            SetImageProperties(0, false); 
             
             if (!img.enabled)
                 img.enabled = true;
@@ -33,12 +31,12 @@ namespace Module.Application.SceneSwitch
         {
             if (fadeState == FadeState.FadingIn)
             {
-                // タイマーが進むにつれα値が1から0に(透明に)
+                // 1 -> 0 (透明へ)
                 UpdateFade(1 - GetFadeProgress(), OnFadeInComplete);
             }
             else if (fadeState == FadeState.FadingOut)
             {
-                // タイマーが進むにつれα値が0から1に(暗く)
+                // 0 -> 1 (暗転へ)
                 UpdateFade(GetFadeProgress(), OnFadeOutComplete);
             }
         }
@@ -50,91 +48,93 @@ namespace Module.Application.SceneSwitch
 
             fadeState = FadeState.FadingIn;
             ResetTimer();
-            SetImageProperties(1, true);  // 開始時は真っ黒
+            // フェードイン中も操作させたくない場合は true
+            SetImageProperties(1, true);
         }
 
         public void StartFadeOut()
         {
-            // フェードアウト中or完了している場合
             if (fadeState == FadeState.FadingOut)
                 return;
             
+            // フェード開始した瞬間から入力をブロックする
+            // 透明度(alpha)に関わらずRaycastTargetをtrueにすることで、
+            // このImageより奥にあるボタンへのクリックを遮断
+            img.raycastTarget = true;
+
     #if UNITY_EDITOR
-            Debug.Log("フェードアウト開始");
+            Debug.Log("フェードアウト開始：入力ロック有効");
     #endif
 
             if (fadeState == FadeState.FadingIn)
             {
-                // フェードイン中にフェードアウトが呼ばれた場合、
-                // 進行度を引き継いでスムーズに移行
+                // フェードイン中に割り込まれた場合は時間を反転してスムーズに移行
                 timer = fadeDuration - timer;
             }
             else
             {
                 ResetTimer();
-                SetImageProperties(0,true);
+                // まだ透明(0)だが、raycastTargetはtrue(操作不能)にする
+                SetImageProperties(0, true);
             }
 
             fadeState = FadeState.FadingOut;
         }
 
-        /// <summary>
-        /// 大体フェード完了したらtrueを返す
-        /// </summary>
-        public bool IsFadeInComplete() => fadeState == FadeState.FadingIn && img.color.a < 0.55f;
-        public bool IsFadeOutComplete() => fadeState == FadeState.None && img.color.a >= 1;
+        public bool IsFadeInComplete() => fadeState == FadeState.FadingIn && img.color.a < 0.05f; // 閾値を少し緩めに
+        public bool IsFadeOutComplete() => fadeState == FadeState.None && img.color.a >= 0.95f;
         public bool IsFading() => fadeState != FadeState.None;
 
-        /// <summary>
-        /// フェード中の進行率を計算する(0～1)
-        /// </summary>
         private float GetFadeProgress()
         {
-            if (fadeDuration <= 0f) // NaN対策 0秒の時はフェードなし
-                return 1f;
-            
+            if (fadeDuration <= 0f) return 1f;
             return Mathf.Clamp01(timer / fadeDuration);
         }
 
         private void ResetTimer() => timer = 0.0f;
 
         /// <summary>
-        /// Imageのプロパティ一括設定 徐々にalpha値変化させる
+        /// Imageのプロパティ設定
         /// </summary>
+        /// <param name="alpha">透明度</param>
+        /// <param name="raycastTarget">trueならクリックを吸う（後ろのボタンを押せなくする）</param>
         private void SetImageProperties(float alpha, bool raycastTarget)
         {
-            img.color = new Color(0, 0, 0, alpha);
+            if(img == null) return;
+
+            var c = img.color;
+            img.color = new Color(c.r, c.g, c.b, alpha);
             img.raycastTarget = raycastTarget;
         }
 
-        /// <summary>
-        /// フェードの更新 完了したらイベント呼ぶ
-        /// </summary>
-        /// <param name="alpha">進捗</param>
         private void UpdateFade(float alpha, System.Action onComplete)
         {
-            // α値を更新
-            img.color = new Color(img.color.r, img.color.g, img.color.b, alpha);
+            // アルファ値のみ更新（raycastTargetは状態遷移時のみ触る）
+            var c = img.color;
+            img.color = new Color(c.r, c.g, c.b, alpha);
 
             if (timer >= fadeDuration)
             {
                 onComplete?.Invoke();
             }
 
-            // 多少フリーズしても良いように最大値を設定
             float dt = Mathf.Min(Time.unscaledDeltaTime, 0.1f);
             timer += dt;
         }
    
         private void OnFadeInComplete()
         {
-            SetImageProperties(0,  false);
+            // フェードイン完了＝画面が見えた状態
+            // ここでようやく操作ロックを解除する
+            SetImageProperties(0, false);
             fadeState = FadeState.None;
         }
         
         private void OnFadeOutComplete()
         {
-            SetImageProperties(1,  true);
+            // フェードアウト完了＝真っ暗
+            // 操作ロックは継続(true)
+            SetImageProperties(1, true);
             fadeState = FadeState.None;
         }
     }
