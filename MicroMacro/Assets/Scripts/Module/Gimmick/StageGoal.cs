@@ -63,12 +63,13 @@ namespace Module.Gimmick
             SoundManager.instance.Play("ボスカタカタ");
             await bodyTransform.DOShakePosition(3f, strength: 0.003f, vibrato: 40).WithCancellation(this.GetCancellationTokenOnDestroy());
 
+            Time.timeScale = 0.5f;
             SoundManager.instance.Play("ボス爆発");
             splashEffect.Play();
 
-            await transform.DOScale(Vector3.zero, 0.4f).SetEase(Ease.InBack).WithCancellation(this.GetCancellationTokenOnDestroy());
+            await transform.DOScale(Vector3.zero, 0.4f).SetEase(Ease.InBack).SetUpdate(true).WithCancellation(this.GetCancellationTokenOnDestroy());
 
-            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy(), ignoreTimeScale: true);
 
             CinemachineCore.SoloCamera = null;
             goalCamera.Priority = 10000;
@@ -81,7 +82,9 @@ namespace Module.Gimmick
 
             playBGM = FindAnyObjectByType<PlayBGM>();
             playBGM.BGMSource.DOFade(0f, 0.5f);
-            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy(), ignoreTimeScale: true);
+
+            Time.timeScale = 1f;
 
             SoundManager.instance.Play("クリア短め");
 
