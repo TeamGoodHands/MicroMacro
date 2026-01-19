@@ -130,7 +130,9 @@ namespace Module.Enemy.Hose.SnakeHose
 
             targetPosition = waypoints[second];
 
-            await MoveToTargetAsync(targetPosition, parameter.HoseMovementBaseSpeed * 2f, token);
+            await MoveToTargetAsync(targetPosition, parameter.HoseMovementBaseSpeed, token);
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(parameter.ShootDelay), cancellationToken: token);
 
             ShootWaterBall();
         }

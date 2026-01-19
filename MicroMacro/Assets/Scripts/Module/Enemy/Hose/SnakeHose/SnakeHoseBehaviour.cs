@@ -20,7 +20,7 @@ namespace Module.Enemy.Hose.SnakeHose
         {
             stateMachine = new HierarchicalStateMachine();
 
-            stateMachine.AddState(new AliveState());
+            stateMachine.AddState(new AliveState(components, parameter));
             stateMachine.AddState<AppearState, AliveState>(new AppearState(components, parameter, condition));
             stateMachine.AddState<WaterBallAttackState, AliveState>(new WaterBallAttackState(parameter, components, condition));
             stateMachine.AddState<BeamAttackState, AliveState>(new BeamAttackState(components, parameter, condition));

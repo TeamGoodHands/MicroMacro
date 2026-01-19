@@ -92,7 +92,6 @@ namespace Module.Application
 
             bgmFadeTween?.Kill();
             bgmFadeTween = audioMixer.DOFadeVolume("BGM", 0.5f, 1f).SetUpdate(true);
-            Debug.Log("PauseGame called");
 
             playerInput.Disable();
             pauseScreenUI.SetActive(true);
@@ -107,7 +106,6 @@ namespace Module.Application
 
             bgmFadeTween?.Kill();
             bgmFadeTween = audioMixer.DOFadeVolume("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume), 1f).SetUpdate(true);
-            Debug.Log("ResumeGame called");
 
             pauseScreenUI.SetActive(false);
             SoundManager.instance.Play("ポーズ閉じる");

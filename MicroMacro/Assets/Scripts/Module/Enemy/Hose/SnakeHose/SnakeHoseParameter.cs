@@ -23,6 +23,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private float hoseShootDelay = 0.4f;
         [SerializeField] private float damageScaleDuration = 0.8f;
         [SerializeField] private float shakeTime = 1f;
+        [SerializeField] private Color damageAdditionalColor = Color.white;
         [SerializeField] private GameObject waterBallPrefab;
         [SerializeField] private Transform shootPivot;
 
@@ -41,5 +42,6 @@ namespace Module.Enemy.Hose.SnakeHose
         public float DamageScaleDuration => damageScaleDuration;
         public float ShootDelay => hoseShootDelay;
         public float ShakeTime => shakeTime;
+        public Color DamageAdditionalColor => damageAdditionalColor;
     }
 }
