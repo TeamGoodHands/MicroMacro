@@ -212,7 +212,7 @@ namespace Module.Enemy.Hose.SnakeHose
         {
             lockOnEffect.LockOff();
             controller.OffWaterImmediately();
-            
+
             damageCanceller.Cancel();
             damageCanceller.Dispose();
 
@@ -240,6 +240,8 @@ namespace Module.Enemy.Hose.SnakeHose
 
             if (raptureIndex >= parameter.Raptures.Length)
             {
+                lockOnEffect.LockOff();
+                controller.OffWaterImmediately();
                 condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
             }
             else

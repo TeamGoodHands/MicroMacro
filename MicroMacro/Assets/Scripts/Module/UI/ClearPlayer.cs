@@ -21,7 +21,7 @@ namespace Module.UI
         [SerializeField] private PlayableDirector playableDirector;
         [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
         [SerializeField] private CinemachineCamera clearCamera;
-        [SerializeField] private GameObject bossObject;
+        [SerializeField] private GameObject[] disableObjects;
 
         private Vector3 spawnPosition;
         private Transform playerTransform;
@@ -45,7 +45,10 @@ namespace Module.UI
             videoPlayer.Play();
             clearImage.color = Color.clear;
             
-            bossObject.SetActive(false);
+            foreach (GameObject disableObject in disableObjects)
+            {
+                disableObject.SetActive(false);
+            }
 
             playerTransform.localPosition = spawnPosition;
             playerTransform.localRotation = Quaternion.identity;
