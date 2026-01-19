@@ -102,14 +102,14 @@ namespace Module.Enemy.Hose.ChildSnake
                     .SetEase(Ease.OutBack)
                     .WithCancellation(token);
 
-                await controller.LookAtPlayerSmoothAsync(1f, 1f, token);
+                // await controller.LookAtPlayerSmoothAsync(1f, 1f, token);
 
                 if (token.IsCancellationRequested || this == null)
                     return;
 
                 lockOnEffect?.LockOn();
 
-                await controller.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f, token);
+                // await controller.LookAtPlayerSmoothAsync(parameter.TimeToFacePlayer, 4f, token);
 
                 await controller.ShakeBody(parameter.ShakeTime).WithCancellation(token);
 
