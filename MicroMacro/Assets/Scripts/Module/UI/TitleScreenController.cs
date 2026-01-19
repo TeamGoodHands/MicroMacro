@@ -12,7 +12,7 @@ namespace Module.UI
         [SerializeField] private FadeAndSceneTransition sceneTransition;
         
         [Header("遷移先")]
-        [SerializeField] private string firstStageSceneName = "StageSelect"; // 最初からでもセレクトへ？あるいは1-1？
+        [SerializeField] private string firstStageSceneName = "StageSelect"; 
 
         private void Start()
         {
@@ -31,7 +31,7 @@ namespace Module.UI
         {
             // データを消して新規開始
             SaveManager.Instance.DeleteSave();
-            sceneTransition.StartTransition(firstStageSceneName);
+            sceneTransition.StartTransition("Opening");
         }
 
         private void OnContinueClicked()

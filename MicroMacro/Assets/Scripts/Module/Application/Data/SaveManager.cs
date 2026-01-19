@@ -9,7 +9,7 @@ namespace Module.Application.Data
 
         private const string SAVE_KEY = "MicroMacro_SaveData";
         private SaveData currentData;
-
+        
         private void Awake()
         {
             if (Instance == null)

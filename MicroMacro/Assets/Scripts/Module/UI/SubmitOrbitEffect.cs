@@ -43,6 +43,7 @@ namespace Module.UI
         [SerializeField] private UnityEvent onComplete;
 
         private CancellationTokenSource cts;
+        private bool hasStarted = false;
 
         private void OnDestroy()
         {
@@ -57,8 +58,11 @@ namespace Module.UI
                 Debug.LogWarning("SubmitOrbitEffect: Target is not assigned.");
                 return;
             }
+            if (hasStarted)
+                return;
 
             PlayOrbitEffectAsync().Forget();
+            hasStarted = true;
         }
 
         private async UniTaskVoid PlayOrbitEffectAsync()
