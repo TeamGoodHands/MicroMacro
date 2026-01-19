@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Module.Application.Data; // 追加
+using Module.Application.Data; 
 
 namespace Module.Application.SceneSwitch
 {

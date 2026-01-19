@@ -11,6 +11,8 @@ using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.VFX;
+using Module.Application.Data; 
+
 
 namespace Module.Gimmick
 {
@@ -23,6 +25,9 @@ namespace Module.Gimmick
         [SerializeField] private CinemachineCamera goalCamera;
         [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
         [SerializeField] private GameObject avoidAreaCamera;
+        [Header("このステージのID (例: 1-1)")]
+        [SerializeField] private string currentStageId;
+        
 
         private PlayerControllerWrapper playerController;
         private PlayerCondition playerCondition;
@@ -95,7 +100,23 @@ namespace Module.Gimmick
 
             await UniTask.Delay(TimeSpan.FromSeconds(2.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
 
-            fadeAndSceneTransition.StartTransition();
+            BackToStageSelect();
+        }
+        
+        private void BackToStageSelect()
+        {
+            if (SaveManager.Instance != null && !string.IsNullOrEmpty(currentStageId))
+            {
+                SaveManager.Instance.SetStageCleared(currentStageId);
+            }
+            else
+            {
+                Debug.LogWarning("SaveManagerが無いか、StageIDが空です");
+            }
+
+            // ステージセレクト画面へ戻る
+            if (fadeAndSceneTransition != null)
+             fadeAndSceneTransition.StartTransition("StageSelect");
         }
     }
 }
