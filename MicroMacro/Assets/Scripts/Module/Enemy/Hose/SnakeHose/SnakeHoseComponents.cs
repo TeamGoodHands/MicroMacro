@@ -25,6 +25,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private ChildSnakeBehaviour[] children;
         [SerializeField] private Animator animator;
         [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private Renderer bodyRenderer;
         [SerializeField] private SnakeGripControllerWrapper gripControllerWrapper;
 
         public Transform HeadTransform => headTransform;
@@ -40,6 +41,7 @@ namespace Module.Enemy.Hose.SnakeHose
         public SnakeGripControllerWrapper GripControllerWrapper => gripControllerWrapper;
         public Scaler Scaler => scaler;
         public Animator Animator => animator;
+        public Renderer BodyRenderer => bodyRenderer;
         public CanvasGroup HpBarCanvasGroup => canvasGroup;
         public SnakeHoseController Controller => controller;
     }
