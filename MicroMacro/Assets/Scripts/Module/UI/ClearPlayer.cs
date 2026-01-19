@@ -44,7 +44,7 @@ namespace Module.UI
 
             videoPlayer.Play();
             clearImage.color = Color.clear;
-            
+
             foreach (GameObject disableObject in disableObjects)
             {
                 disableObject.SetActive(false);
@@ -55,8 +55,7 @@ namespace Module.UI
             animatorTransform.localEulerAngles = new Vector3(0f, 180f, 0f);
             animatorTransform.localScale = Vector3.one;
 
-            await UniTask.WaitWhile(() => videoPlayer.isPlaying, cancellationToken: destroyCancellationToken);
-
+            await UniTask.WaitWhile(IsPlaying, cancellationToken: destroyCancellationToken);
 
             await DOTween
                 .To(() => videoPlayer.targetCameraAlpha, x => videoPlayer.targetCameraAlpha = x, 0f, 1f)
@@ -73,6 +72,11 @@ namespace Module.UI
             await UniTask.Delay(TimeSpan.FromSeconds(9f), cancellationToken: destroyCancellationToken);
 
             fadeAndSceneTransition.StartTransition();
+        }
+
+        private bool IsPlaying()
+        {
+            return videoPlayer.frame < ((long)videoPlayer.frameCount - 1);
         }
     }
 }

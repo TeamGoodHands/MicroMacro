@@ -63,7 +63,7 @@ namespace Module.UI
             // 動画再生
             videoPlayer.Play();
 
-            await UniTask.WaitWhile(() => videoPlayer.isPlaying, cancellationToken: destroyCancellationToken);
+            await UniTask.WaitWhile(IsPlaying, cancellationToken: destroyCancellationToken);
 
             Unbind();
 
@@ -85,9 +85,14 @@ namespace Module.UI
             _ = skipGroup.DOFade(1f, showSkipFadeDuration);
         }
 
+        private bool IsPlaying()
+        {
+            return videoPlayer.frame < ((long)videoPlayer.frameCount - 1);
+        }
+
         private void Update()
         {
-            if (!videoPlayer.isPlaying)
+            if (!IsPlaying())
                 return;
 
             float speed = isSkipping ? skipHoldSpeed : skipHoldBackwardsSpeed;

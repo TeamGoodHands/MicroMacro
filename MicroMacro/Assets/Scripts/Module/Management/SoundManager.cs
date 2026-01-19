@@ -47,7 +47,7 @@ namespace Module.Management
 
         public static SoundManager instance = null;
 
-        private AudioSource[] audioSourceList = new AudioSource[10];
+        private AudioSource[] audioSourceList = new AudioSource[24];
 
         private void SetInstance()
         {
