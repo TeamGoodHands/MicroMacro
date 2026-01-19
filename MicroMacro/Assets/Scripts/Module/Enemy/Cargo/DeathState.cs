@@ -1,7 +1,10 @@
 ﻿using System;
 using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using Module.Management;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Module.Enemy.Cargo
 {
@@ -28,9 +31,10 @@ namespace Module.Enemy.Cargo
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f), cancellationToken: CancellationToken);
 
             Time.timeScale = 0.3f;
-            
-            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
-            
+
+            component.BGMSource.DOFade(0f, 0.4f);
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: CancellationToken);
+
             Time.timeScale = 1f;
         }
 

@@ -18,9 +18,7 @@ namespace Module.UI
         [SerializeField] private string videoName;
         [SerializeField] private VideoPlayer videoPlayer;
         [SerializeField] private Image clearImage;
-        [SerializeField] private PlayableDirector playableDirector;
-        [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
-        [SerializeField] private CinemachineCamera clearCamera;
+        [SerializeField] private BossGoalPlayer bossGoalPlayer;
         [SerializeField] private GameObject[] disableObjects;
 
         private Vector3 spawnPosition;
@@ -60,18 +58,8 @@ namespace Module.UI
             await DOTween
                 .To(() => videoPlayer.targetCameraAlpha, x => videoPlayer.targetCameraAlpha = x, 0f, 1f)
                 .SetLink(videoPlayer.gameObject);
-
-            clearCamera.Priority = 10000;
-
-            await UniTask.Delay(TimeSpan.FromSeconds(0.8f), cancellationToken: destroyCancellationToken);
-
-            SoundManager.instance.Play("クリア長め");
-
-            playableDirector.Play();
-
-            await UniTask.Delay(TimeSpan.FromSeconds(9f), cancellationToken: destroyCancellationToken);
-
-            fadeAndSceneTransition.StartTransition();
+            
+            bossGoalPlayer.Play().Forget();
         }
 
         private bool IsPlaying()

@@ -57,7 +57,7 @@ namespace Module.Enemy.Cargo
                 out RaycastHit hitInfo,
                 Quaternion.identity,
                 castDistance,
-                Layer.Mask.Enemy,
+                Layer.Mask.WaterOnly,
                 QueryTriggerInteraction.Ignore);
 
             return (hit, hitInfo.collider?.gameObject);

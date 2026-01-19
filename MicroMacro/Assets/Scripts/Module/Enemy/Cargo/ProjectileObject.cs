@@ -1,8 +1,5 @@
 using System;
-using Constants;
-using Module.Scaling;
-using UnityEngine;
-using UnityEngine.UIElements;
+using DG.Tweening;
 
 namespace Module.Enemy.Cargo
 {
@@ -19,7 +16,7 @@ namespace Module.Enemy.Cargo
         private float timeScale;
         private float elapsed;
         private float flightTime;
-        
+
         public event Action OnArrived;
 
         public float LocalTimeScale
@@ -90,6 +87,11 @@ namespace Module.Enemy.Cargo
                 Stop();
                 OnArrived?.Invoke();
             }
+        }
+
+        public void Disable()
+        {
+            transform.DOScale(0f, 0.3f).OnComplete(() => { gameObject.SetActive(false); });
         }
     }
 }
