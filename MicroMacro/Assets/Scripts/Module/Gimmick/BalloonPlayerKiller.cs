@@ -8,9 +8,11 @@ namespace Module.Gimmick
     public class BalloonPlayerKiller : MonoBehaviour
     {
         [SerializeField] private SingleBalloon balloon;
+        [SerializeField] private VehicleRider vehicleRider;
 
         private int balloonHealth;
         private bool balloonIsDead;
+        private bool wasRidden;
         private HealthStatus playerHealthStatus;
 
         private void Start()
@@ -18,11 +20,17 @@ namespace Module.Gimmick
             balloon.OnReset += OnBalloonReset;
             playerHealthStatus = GameObject.FindWithTag(Tag.Player).GetComponent<HealthStatus>();
             playerHealthStatus.OnDeath += OnPlayerDeath;
+            vehicleRider.OnRide += OnRide;
+        }
+
+        private void OnRide()
+        {
+            wasRidden = true;
         }
 
         private void OnPlayerDeath()
         {
-            if (balloonIsDead)
+            if (balloonIsDead || !wasRidden)
                 return;
 
             KillBalloon();
