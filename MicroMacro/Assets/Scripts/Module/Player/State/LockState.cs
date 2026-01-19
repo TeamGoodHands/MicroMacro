@@ -13,12 +13,14 @@ namespace Module.Player.State
         private readonly Rigidbody rigidbody;
         private readonly PlayerControllerWrapper animatorWrapper;
         private readonly PlayerCondition condition;
+        private readonly PlayerParameter parameter;
 
         public LockState(PlayerComponent component)
         {
             rigidbody = component.Rigidbody;
             condition = component.Condition;
             animatorWrapper = component.AnimatorWrapper;
+            parameter = component.Parameter;
         }
 
         internal override void OnEnter()
@@ -42,6 +44,9 @@ namespace Module.Player.State
 
         internal override void UpdatePhysics()
         {
+            Vector3 velocity = rigidbody.linearVelocity;
+            velocity.y += parameter.GravityOnDown;
+            rigidbody.linearVelocity = velocity;
         }
 
         internal override void Dispose()
