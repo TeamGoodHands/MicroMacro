@@ -27,13 +27,14 @@ namespace Module.Gimmick
 
         [SerializeField, Header("壁に当たったときに反発する力")]
         private float bouncePower;
-        
-        [SerializeField, Header("連続で衝突する間隔")]
-        private float bounceInterval = 0.5f;
+
+        [SerializeField, Header("連続で衝突する間隔")] private float bounceInterval = 0.5f;
 
         [SerializeField] private VehicleRider vehicleRider;
         [SerializeField] private Scaler scaler;
         [SerializeField] private Collider scalerCollider;
+        [SerializeField] private Collider bodyCollider;
+        [SerializeField] private Collider bouncerCollider;
         [SerializeField] private Rigidbody rigidBody;
         [SerializeField] private CinemachineCamera balloonCamera;
         [SerializeField] private VisualEffect fluffSplash;
@@ -41,7 +42,8 @@ namespace Module.Gimmick
         [SerializeField] private BalloonControllerWrapper balloonControllerWrapper;
 
         public int HealthPoint { get; private set; }
-        
+        public event Action OnReset;
+
         private Vector3 initialPosition;
         private float lastBounceTime;
 
@@ -69,7 +71,8 @@ namespace Module.Gimmick
         {
             rigidBody.isKinematic = false;
             balloonCamera.Priority = 1000;
-            
+            CinemachineCore.SoloCamera = null;
+
             SoundManager.instance.Play("風の音");
         }
 
@@ -101,7 +104,7 @@ namespace Module.Gimmick
             velocity.y = Mathf.Clamp(velocity.y, -maxSpeed.y, maxSpeed.y);
             rigidBody.linearVelocity = velocity;
         }
-        
+
         private bool CanDamage()
         {
             return vehicleRider.IsRiding &&
@@ -147,15 +150,23 @@ namespace Module.Gimmick
             rigidBody.linearVelocity = Vector3.zero;
             vehicleRider.Dismount();
             vehicleRider.enabled = false;
-            
-            await UniTask.Yield();
-            
+
             KillPlayer();
 
-            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: destroyCancellationToken);
+            await UniTask.Delay(TimeSpan.FromSeconds(2f), cancellationToken: destroyCancellationToken);
 
             ResetBalloon();
             vehicleRider.enabled = true;
+        }
+
+        public void BeFree()
+        {
+            scalerCollider.enabled = false;
+            bodyCollider.enabled = false;
+            bouncerCollider.enabled = false;
+
+            vehicleRider.Dismount();
+            vehicleRider.enabled = false;
         }
 
         private void KillPlayer()
@@ -180,6 +191,7 @@ namespace Module.Gimmick
 
             // 位置・回転・スケールを初期値へ
             rigidBody.position = initialPosition;
+            transform.position = initialPosition;
 
             // 速度リセット
             rigidBody.linearVelocity = Vector3.zero;
@@ -199,6 +211,8 @@ namespace Module.Gimmick
             {
                 scaler.ResetScale();
             }
+
+            OnReset?.Invoke();
         }
     }
 }
