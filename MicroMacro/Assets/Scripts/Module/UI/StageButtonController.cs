@@ -1,29 +1,36 @@
 ﻿using UnityEngine;
 using Module.UI;
+using Module.Application.Data; // SaveManagerのnamespaceを追加
 
 public class StageButtonController : MonoBehaviour
 {
-    [SerializeField] private int stageId; // ステージIDなど
+    [Header("ステージID設定 (例: 1-1, Boss)")]
+    [SerializeField] private string stageId; // intからstringに変更して拡張性確保
     [SerializeField] private UIFrameAnimator frameAnimator;
 
     [Header("画像リソース")]
-    [SerializeField] private Sprite[] normalSprites;  // 未クリア時の画像セット
-    [SerializeField] private Sprite[] clearedSprites; // クリア時の画像セット
+    [SerializeField] private Sprite[] normalSprites;  
+    [SerializeField] private Sprite[] clearedSprites; 
 
     void Start()
     {
-        // ここでセーブデータを確認するイメージ
-        // bool isCleared = SaveManager.IsStageCleared(stageId); 
-        bool isCleared = false; // 仮
+        // SaveManagerが存在しない場合の安全策
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogWarning("SaveManager not found. Playing normal animation.");
+            frameAnimator.Play(normalSprites, 3f);
+            return;
+        }
+
+        // セーブデータを確認
+        bool isCleared = SaveManager.Instance.IsStageCleared(stageId); 
 
         if (isCleared)
         {
-            // クリア済みの画像を再生
             frameAnimator.Play(clearedSprites, 3f);
         }
         else
         {
-            // 通常の画像を再生
             frameAnimator.Play(normalSprites, 3f);
         }
     }
