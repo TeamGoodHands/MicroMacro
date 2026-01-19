@@ -179,6 +179,9 @@ namespace Module.Enemy.Boomerang
 
         public void Catch()
         {
+            if (destroyCancellationToken.IsCancellationRequested)
+                return;
+            
             CheckBoomerangHit();
 
             // 回転アニメ停止
@@ -265,11 +268,14 @@ namespace Module.Enemy.Boomerang
 
         public async UniTaskVoid Throw()
         {
+            if (destroyCancellationToken.IsCancellationRequested)
+                return;
+            
             // TransformSyncer の位置をまず確定させる
             capTransformSyncer.UpdateManual();
 
             // 次フレームまで待つ → Unity の Transform 更新完了を待つ
-            await UniTask.Yield();
+            await UniTask.Yield(destroyCancellationToken);
 
             PrepareBeforeThrow();
             InitializeFlightParameters();
@@ -278,6 +284,9 @@ namespace Module.Enemy.Boomerang
 
         private void PrepareBeforeThrow()
         {
+            if (boomerang == null)
+                return;
+            
             // 縮小状態に戻す
             boomerang.SetScaleImmediate(0, true);
 
