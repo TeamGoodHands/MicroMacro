@@ -95,13 +95,13 @@ namespace Module.Enemy.Cargo
             _ = component.HpBarCanvasGroup.DOFade(1f, 2f);
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.8f));
-            
+
             component.DialogueManager.Enqueue("Boss_1_3");
             component.DialogueManager.Enqueue("Boss_1_4");
-            
+
             await UniTask.Delay(TimeSpan.FromSeconds(6f));
-            
-            SoundManager.instance.Play("Boss2");
+
+            component.BGMSource = SoundManager.instance.Play("Boss2");
 
             component.Condition.SwitchState(CargoCondition.State.BackAttack);
         }
@@ -116,11 +116,17 @@ namespace Module.Enemy.Cargo
             component.Status.OnDamage -= OnDamage;
         }
 
-        internal override void Update() { }
+        internal override void Update()
+        {
+        }
 
-        internal override void LateUpdate() { }
+        internal override void LateUpdate()
+        {
+        }
 
-        internal override void UpdatePhysics() { }
+        internal override void UpdatePhysics()
+        {
+        }
 
         internal override void Dispose()
         {

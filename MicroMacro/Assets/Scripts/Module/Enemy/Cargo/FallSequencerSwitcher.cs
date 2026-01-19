@@ -18,6 +18,7 @@ namespace Module.Enemy.Cargo
         public FallObjectsSequencer Current;
         private ObjectPool<ProjectileObjectCache> fallObjectPool;
         private int currentFallPointPatternIndex = 0;
+        private event Action OnDeath;
 
         private void Awake()
         {
@@ -27,7 +28,10 @@ namespace Module.Enemy.Cargo
             {
                 GameObject obj = Instantiate(projectileObjectPrefab, ObjectPool.Root, true);
                 obj.SetActive(false);
-                return new ProjectileObjectCache(obj.GetComponent<ProjectileObject>());
+
+                ProjectileObject projectileObject = obj.GetComponent<ProjectileObject>();
+                OnDeath += projectileObject.Disable;
+                return new ProjectileObjectCache(projectileObject);
             }, item =>
             {
                 item.Obj.transform.SetPositionAndRotation(item.DefaultPos, Quaternion.identity);
@@ -40,18 +44,17 @@ namespace Module.Enemy.Cargo
                 item.Scaler.ResetScale();
 
                 item.Obj.gameObject.SetActive(false);
-            }, item =>
-            {
-                item.Effector.enabled = true;
-            }, 16);
+            }, item => { item.Effector.enabled = true; }, 16);
 
             sequencer1.SetPool(fallObjectPool);
             sequencer2.SetPool(fallObjectPool);
         }
 
+
         private void HandleDeath()
         {
             Current?.Cancel();
+            OnDeath?.Invoke();
         }
 
         public void Switch()

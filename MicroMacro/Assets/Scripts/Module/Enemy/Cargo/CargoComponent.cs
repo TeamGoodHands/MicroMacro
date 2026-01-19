@@ -29,6 +29,8 @@ namespace Module.Enemy.Cargo
         [SerializeField] private NoiseSettings moveNoise;
         [SerializeField] private DialogueManager dialogueManager;
 
+        public AudioSource BGMSource { get; set; }
+
         public CargoParameter Parameter => parameter;
         public CargoCondition Condition => condition;
         public Transform Transform => transform;

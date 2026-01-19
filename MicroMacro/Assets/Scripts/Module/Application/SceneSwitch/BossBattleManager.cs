@@ -12,8 +12,8 @@ namespace Module.Application.SceneSwitch
     public class BossBattleManager : MonoBehaviour
     {
         [SerializeField] private HealthStatus enemyStatus;
-
-        [SerializeField] private FadeAndSceneTransition sceneManager;
+        [SerializeField] private BossGoalPlayer bossGoalPlayer;
+        
         private void Start()
         {
             enemyStatus.OnDeath += OnDeath;
@@ -33,11 +33,7 @@ namespace Module.Application.SceneSwitch
         {
             await UniTask.Delay(TimeSpan.FromSeconds(4f));
 
-            if (sceneManager != null)
-            {
-                Debug.Log("ボス戦をクリアしました");
-                sceneManager.StartTransition();
-            }
+            bossGoalPlayer.Play().Forget();
         }
     }
 }
