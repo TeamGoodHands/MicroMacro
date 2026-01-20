@@ -24,20 +24,13 @@ namespace Module.UI
         [Header("移動先シーン")]
         [SerializeField] private string nextSceneName = "StageSelect";
 
-        private PlayerCondition playerCondition;
 
         private void Start()
         {
-            playerCondition = GameObject.FindWithTag(Tag.Player).GetComponent<PlayerCondition>();
         }
 
         public async UniTaskVoid Play()
         {
-            if (lockPlayer)
-            {
-                playerCondition.IsPlayerLocked = true;
-            }
-
             clearCamera.Priority = 10000;
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.8f), cancellationToken: destroyCancellationToken);

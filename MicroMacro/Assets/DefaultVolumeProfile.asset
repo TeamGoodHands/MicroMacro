@@ -215,6 +215,65 @@ MonoBehaviour:
   gain:
     m_OverrideState: 1
     m_Value: {x: 1, y: 1, z: 1, w: 0}
+--- !u!114 &-2811389027159831359
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1d345120762e704cbdf01c0557f17dc, type: 3}
+  m_Name: ScreenSpaceHatchingVolume
+  m_EditorClassIdentifier: 
+  active: 1
+  OcclusionLength:
+    m_OverrideState: 1
+    m_Value: 1
+  MinDistance:
+    m_OverrideState: 1
+    m_Value: 0
+  MaxDistance:
+    m_OverrideState: 1
+    m_Value: 5
+  OcclusionBias:
+    m_OverrideState: 1
+    m_Value: 0.001
+  Strength:
+    m_OverrideState: 1
+    m_Value: 1
+  OcclusionPower:
+    m_OverrideState: 1
+    m_Value: 1
+  OcclusionThreshold:
+    m_OverrideState: 1
+    m_Value: 20
+  BlendStep:
+    m_OverrideState: 1
+    m_Value: 0.5
+  BlendPower:
+    m_OverrideState: 1
+    m_Value: 1
+  HatchScale:
+    m_OverrideState: 1
+    m_Value: 1
+  FrontOffset:
+    m_OverrideState: 1
+    m_Value: 1
+  BackOffset:
+    m_OverrideState: 1
+    m_Value: 1
+  OffsetBorder:
+    m_OverrideState: 1
+    m_Value: 0.5
+  BlurRadius:
+    m_OverrideState: 1
+    m_Value: 6
+  CrossPattern:
+    m_OverrideState: 1
+    m_Value: {fileID: 0}
+    dimension: 1
 --- !u!114 &-2177317286135309374
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -293,6 +352,7 @@ MonoBehaviour:
   - {fileID: 6391825017712023669}
   - {fileID: 842040600173994648}
   - {fileID: -5824470574681490548}
+  - {fileID: -2811389027159831359}
 --- !u!114 &699126238382305765
 MonoBehaviour:
   m_ObjectHideFlags: 3

@@ -48,8 +48,8 @@ namespace Module.Application
             playerInput = InputProvider.GetActionMap(ActionGuid.Player.MapId);
 
             pauseEvent.Started += OnTogglePause;
-            
-            audioMixer.GetFloat("BGM", out defaultVolume) ;
+
+            audioMixer.GetFloat("BGM", out defaultVolume);
         }
 
         private void OnDestroy()
@@ -119,6 +119,9 @@ namespace Module.Application
             if (isTransitioning) return; // 連打防止
             isTransitioning = true;
 
+            bgmFadeTween?.Kill();
+            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
+
             Time.timeScale = 1f;
             sceneManager.StartTransition("StageSelect");
         }
@@ -127,6 +130,9 @@ namespace Module.Application
         {
             if (isTransitioning) return;
             isTransitioning = true;
+
+            bgmFadeTween?.Kill();
+            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
 
             Time.timeScale = 1f;
             sceneManager.StartTransition("Title");
@@ -137,6 +143,9 @@ namespace Module.Application
             if (isTransitioning) return;
             isTransitioning = true;
 
+            bgmFadeTween?.Kill();
+            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
+
             Time.timeScale = 1f;
             sceneManager.StartTransition(SceneManager.GetActiveScene().name);
         }
@@ -145,6 +154,9 @@ namespace Module.Application
         {
             if (isTransitioning) return;
             isTransitioning = true;
+
+            bgmFadeTween?.Kill();
+            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
 
             Time.timeScale = 1f;
             sceneManager.StartTransition("Feedback");
