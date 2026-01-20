@@ -14,19 +14,15 @@ namespace Module.Gimmick
 {
     public class SingleBalloon : MonoBehaviour
     {
-        [SerializeField, Header("スケール量に対するY軸の力")]
-        private float forceMultiplier;
+        [SerializeField, Header("スケール量に対するY軸の力")] private float forceMultiplier;
 
-        [SerializeField, Header("スケールを変更した瞬間に発生するY軸の力")]
-        private float forceMultiplierOnScale;
+        [SerializeField, Header("スケールを変更した瞬間に発生するY軸の力")] private float forceMultiplierOnScale;
 
-        [SerializeField, Header("X軸方向の移動スピード")]
-        private float moveSpeed;
+        [SerializeField, Header("X軸方向の移動スピード")] private float moveSpeed;
 
         [SerializeField, Header("最大スピード")] private Vector2 maxSpeed;
 
-        [SerializeField, Header("壁に当たったときに反発する力")]
-        private float bouncePower;
+        [SerializeField, Header("壁に当たったときに反発する力")] private float bouncePower;
 
         [SerializeField, Header("連続で衝突する間隔")] private float bounceInterval = 0.5f;
 
@@ -46,6 +42,7 @@ namespace Module.Gimmick
 
         private Vector3 initialPosition;
         private float lastBounceTime;
+        private bool isDead;
 
         private void Start()
         {
@@ -78,7 +75,11 @@ namespace Module.Gimmick
 
         private void OnDismount()
         {
-            balloonCamera.Priority = 0;
+            if (!isDead)
+            {
+                balloonCamera.Priority = 0;
+            }
+
             SoundManager.instance.StopPlay("風の音");
         }
 
@@ -147,6 +148,7 @@ namespace Module.Gimmick
 
         public async UniTaskVoid KillBalloon()
         {
+            isDead = true;
             rigidBody.linearVelocity = Vector3.zero;
             vehicleRider.Dismount();
             vehicleRider.enabled = false;
@@ -212,6 +214,7 @@ namespace Module.Gimmick
                 scaler.ResetScale();
             }
 
+            isDead = false;
             OnReset?.Invoke();
         }
     }

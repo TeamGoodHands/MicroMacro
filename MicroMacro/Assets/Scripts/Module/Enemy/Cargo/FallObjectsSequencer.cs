@@ -151,7 +151,7 @@ namespace Module.Enemy.Cargo
 
         private async UniTask DoShake(ProjectileObjectCache cache, float duration)
         {
-            _ = cache.Obj.transform.DOShakePosition(duration, 0.1f, 30, 90, false, false);
+            _ = cache.Obj.transform.DOShakePosition(duration, 0.1f, 30, 90, false, false).WithCancellation(destroyCancellationToken);
 
             await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: destroyCancellationToken);
         }

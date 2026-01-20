@@ -128,7 +128,12 @@ namespace Module.Enemy.Cargo
 
             if (scaler.CurrentStep > 0)
             {
-                await transform.DOShakePosition(0.25f, 0.1f, 30, 90, false, false);
+                await transform.DOShakePosition(0.25f, 0.1f, 30, 90, false, false).WithCancellation(destroyCancellationToken);
+            }
+
+            if (destroyCancellationToken.IsCancellationRequested)
+            {
+                return;
             }
 
             isPlaying = false;

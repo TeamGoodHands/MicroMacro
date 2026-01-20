@@ -36,7 +36,7 @@ namespace Module.Management
             if (deathCount == 1)
             {
                 // 今はとりあえずシーンを読み込み直す
-                sceneTransition.StartTransitionSame();
+                sceneTransition.StartTransition("StageSelect");
             }
             else
             {
