@@ -33,8 +33,6 @@ namespace Module.Gimmick
         private PlayerControllerWrapper playerController;
         private PlayerCondition playerCondition;
         private PlayBGM playBGM;
-        
-        private DialogueManager dialogueManager;
 
         private void Start()
         {
@@ -44,7 +42,6 @@ namespace Module.Gimmick
             PlayerBehaviour playerBehaviour = playerObject.GetComponent<PlayerBehaviour>();
             playerController = playerBehaviour.Component.AnimatorWrapper;
             playerCondition = playerBehaviour.Component.Condition;
-            dialogueManager = FindAnyObjectByType<DialogueManager>();
         }
 
         private void OnScaleStarted(ScaleEventArgs args)

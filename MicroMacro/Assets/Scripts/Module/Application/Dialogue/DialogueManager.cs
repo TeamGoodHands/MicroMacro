@@ -127,7 +127,7 @@ namespace Module.Application.Dialogue
         public void AbortDialogue(bool isImmediate = false)
         {
             // 待機中のセリフをすべて破棄
-            ClearQueue();
+            /*ClearQueue();
             
             isClearRequested = true;
             isDisplaying = false; 
@@ -141,7 +141,7 @@ namespace Module.Application.Dialogue
             {
                 // asyncメソッドを同期メソッドから呼ぶのでForgetする
                 dialogueUI.HideAsync().Forget();
-            }
+            }*/
         }
     }
 }
