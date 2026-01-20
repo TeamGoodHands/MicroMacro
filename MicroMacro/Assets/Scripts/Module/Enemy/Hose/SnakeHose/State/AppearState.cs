@@ -54,11 +54,11 @@ namespace Module.Enemy.Hose.SnakeHose.State
 
         private async void WaitToNextStateAsync()
         {
+            playerCondition.IsPlayerLocked = true;
+            
             await UniTask.Delay(System.TimeSpan.FromSeconds(parameter.AppearDuration), cancellationToken: CancellationToken);
 
             nearInCamera.Priority = 1000;
-            
-            playerCondition.IsPlayerLocked = true;
 
             await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
 

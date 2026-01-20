@@ -33,7 +33,7 @@ namespace Module.Application.Respawn
             // ダメージを与える
             SendDamage(other.gameObject);
         }
-        
+
         private void OnCollisionEnter(Collision other)
         {
             if (isWaitingRespawn)
@@ -45,7 +45,7 @@ namespace Module.Application.Respawn
 
         private void SendDamage(GameObject obj)
         {
-            if (obj.CompareTag(Tag.Player))
+            if (obj.CompareTag(Tag.Player) && !playerCondition.IsPlayerLocked)
             {
                 healthStatus.Damage(1);
                 playerCondition.IsPlayerLocked = true;
