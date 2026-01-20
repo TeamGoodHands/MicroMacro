@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4158781998187424435}
   - component: {fileID: 1282837960839078284}
-  - component: {fileID: 5811483503015301262}
   m_Layer: 0
   m_Name: SoundManager
   m_TagString: Untagged
@@ -137,11 +136,11 @@ MonoBehaviour:
   - name: "\u30DC\u30BF\u30F3\u6C7A\u5B9A"
     audioClip: {fileID: 8300000, guid: 74b57a173ba2d0546b1fc9b12bef6268, type: 3}
     playedTime: 0
-    volume: 0.3
+    volume: 0.25
   - name: "\u30DC\u30BF\u30F3\u30BB\u30EC\u30AF\u30C8"
     audioClip: {fileID: 8300000, guid: e234b320bfb65814ab09544fd0b54a5c, type: 3}
     playedTime: 0
-    volume: 0.2
+    volume: 0.15
   - name: "\u30DD\u30FC\u30BA\u3092\u958B\u304F"
     audioClip: {fileID: 8300000, guid: df051a469f28e84478bdeb658105be84, type: 3}
     playedTime: 0
@@ -205,11 +204,11 @@ MonoBehaviour:
   - name: "\u30B9\u30C6\u30FC\u30B8\u6C7A\u5B9A"
     audioClip: {fileID: 8300000, guid: ffec2ab687b9651489bbc081f591c4db, type: 3}
     playedTime: 0
-    volume: 0.2
+    volume: 0.16
   - name: "\u30B9\u30C6\u30FC\u30B8\u9078\u629E"
     audioClip: {fileID: 8300000, guid: df2f9b9f1469f4a46934a048d1e9ca40, type: 3}
     playedTime: 0
-    volume: 0.2
+    volume: 0.1
   - name: "\u30DD\u30FC\u30BA\u958B\u304F"
     audioClip: {fileID: 8300000, guid: e12cbc13aa689264bba8ee1d5fb24fd7, type: 3}
     playedTime: 0
@@ -219,17 +218,3 @@ MonoBehaviour:
     playedTime: 0
     volume: 0.2
   playableDistance: 0.01
---- !u!114 &5811483503015301262
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3222653385049864835}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 336bab10e1a448e8a4bfd5352768ea3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BGM_name: 1-1
-  BGMSource: {fileID: 0}

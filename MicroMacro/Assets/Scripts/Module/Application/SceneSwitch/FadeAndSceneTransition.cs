@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using CoreModule.Input;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using Module.Management;
 using UnityEngine.EventSystems; 
 
 namespace Module.Application.SceneSwitch
@@ -104,6 +105,8 @@ namespace Module.Application.SceneSwitch
             // フェードアウト完了待ち
             await UniTask.WaitUntil(() => fadeHandler.IsFadeOutComplete(), cancellationToken: token);
             
+            SoundManager.instance.StopAllSound();
+
             // LoadSceneMode.Singleは現在のシーンを自動アンロードしてくれる
             // .ToUniTask() をつけることで await できるようになる
             await SceneManager.LoadSceneAsync(nextSceneName, LoadSceneMode.Single).ToUniTask(cancellationToken: token);
