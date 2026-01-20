@@ -3,6 +3,7 @@ using System.Threading;
 using CoreModule.Utility;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Module.Management;
 using Module.Scaling;
 using PropertyGenerator.Generated;
 using UnityEngine;
@@ -153,6 +154,8 @@ namespace Module.Enemy.Boomerang
 
         private void OnDamage(int damage)
         {
+            SoundManager.instance.Play("打撃1");
+
             // 敵本体を揺らす
             transform.DOShakePosition(
                 damageShakeDuration,
@@ -181,7 +184,7 @@ namespace Module.Enemy.Boomerang
         {
             if (destroyCancellationToken.IsCancellationRequested)
                 return;
-            
+
             CheckBoomerangHit();
 
             // 回転アニメ停止
@@ -270,7 +273,7 @@ namespace Module.Enemy.Boomerang
         {
             if (destroyCancellationToken.IsCancellationRequested)
                 return;
-            
+
             // TransformSyncer の位置をまず確定させる
             capTransformSyncer.UpdateManual();
 
@@ -286,7 +289,7 @@ namespace Module.Enemy.Boomerang
         {
             if (boomerang == null)
                 return;
-            
+
             // 縮小状態に戻す
             boomerang.SetScaleImmediate(0, true);
 
