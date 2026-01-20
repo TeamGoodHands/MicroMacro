@@ -3,6 +3,7 @@ using CoreModule.Input;
 using CoreModule.ObjectPool;
 using Module.Management;
 using Module.Player.Component;
+using Module.UI;
 using PropertyGenerator.Generated;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -22,6 +23,7 @@ namespace Module.Player.Weapon
         [SerializeField] private GameObject microBulletPrefab;
 
         private PlayerCondition condition;
+        private HealthStatus healthStatus;
         private PlayerControllerWrapper animatorWrapper;
         private Rigidbody playerRigBody;
         private ObjectPool<GameObject> macroBulletPool;
@@ -34,6 +36,7 @@ namespace Module.Player.Weapon
         public override void Initialize(PlayerComponent component)
         {
             condition = component.Condition;
+            healthStatus = component.HealthStatus;
             playerRigBody = component.Rigidbody;
             animatorWrapper = component.AnimatorWrapper;
 
@@ -69,7 +72,7 @@ namespace Module.Player.Weapon
 
         private void OnMacroShoot(InputAction.CallbackContext _)
         {
-            if (condition.IsPlayerLocked)
+            if (condition.IsPlayerLocked || healthStatus.CurrentHealth <= 0f)
                 return;
 
             Shoot(macroBulletPool, true);
@@ -77,7 +80,7 @@ namespace Module.Player.Weapon
 
         private void OnMicroShoot(InputAction.CallbackContext _)
         {
-            if (condition.IsPlayerLocked)
+            if (condition.IsPlayerLocked || healthStatus.CurrentHealth <= 0f)
                 return;
 
             Shoot(microBulletPool, false);
