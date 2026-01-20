@@ -33,7 +33,7 @@ namespace Module.Enemy.Cargo
 
             player = GameObject.FindWithTag(Tag.Player).GetComponent<Rigidbody>();
             sequencerSwitcher = Object.FindAnyObjectByType<FallSequencerSwitcher>();
-            cargoShaderWrapper = new CargoShaderWrapper(component.Renderer.sharedMaterial);
+            cargoShaderWrapper = new CargoShaderWrapper(component.Renderer.material);
             perlin = component.CineMachinePerlin;
         }
 

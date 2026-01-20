@@ -142,7 +142,7 @@ namespace Module.Enemy.Cargo
 
         private void PlayImpactEffect()
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f, Layer.Mask.Enemy))
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f, Layer.Mask.WaterOnly))
             {
                 if (scaler.CurrentStep > 0)
                 {
