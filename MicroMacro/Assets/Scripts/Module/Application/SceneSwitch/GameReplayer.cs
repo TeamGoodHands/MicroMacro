@@ -7,6 +7,7 @@ namespace Module.Application.SceneSwitch
     public class GameReplayer : MonoBehaviour
     {
         [SerializeField] private FadeAndSceneTransition sceneTransition;
+        [SerializeField] private string nextSceneName;
         private HealthStatus playerHealthStatus;
     
         private void Start()
@@ -17,8 +18,7 @@ namespace Module.Application.SceneSwitch
 
         private void OnPlayerDeath()
         {
-            Debug.Log("プレイヤーが死亡しました。ゲームをリプレイします。");
-            sceneTransition.StartTransitionSame();
+            sceneTransition.StartTransition(nextSceneName);
         }
     }
 }
