@@ -11,7 +11,8 @@ using PropertyGenerator.Generated;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.VFX;
-using Module.Application.Data; 
+using Module.Application.Data;
+using Module.Application.Dialogue;
 
 
 namespace Module.Gimmick
@@ -32,6 +33,8 @@ namespace Module.Gimmick
         private PlayerControllerWrapper playerController;
         private PlayerCondition playerCondition;
         private PlayBGM playBGM;
+        
+        private DialogueManager dialogueManager;
 
         private void Start()
         {
@@ -41,6 +44,7 @@ namespace Module.Gimmick
             PlayerBehaviour playerBehaviour = playerObject.GetComponent<PlayerBehaviour>();
             playerController = playerBehaviour.Component.AnimatorWrapper;
             playerCondition = playerBehaviour.Component.Condition;
+            dialogueManager = FindAnyObjectByType<DialogueManager>();
         }
 
         private void OnScaleStarted(ScaleEventArgs args)
@@ -65,6 +69,8 @@ namespace Module.Gimmick
 
         private async UniTaskVoid DestroyGoal()
         {
+            dialogueManager.AbortDialogue(false);
+            
             SoundManager.instance.Play("ボスカタカタ");
             await bodyTransform.DOShakePosition(3f, strength: 0.003f, vibrato: 40).WithCancellation(this.GetCancellationTokenOnDestroy());
 
