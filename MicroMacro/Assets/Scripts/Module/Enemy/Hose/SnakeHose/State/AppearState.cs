@@ -75,7 +75,7 @@ namespace Module.Enemy.Hose.SnakeHose.State
 
             nearInCamera.Priority = 100;
             waterBallAttackCamera.Priority = 1000;
-            _ = components.HpBarCanvasGroup.DOFade(1f, 2f);
+            _ = components.HpBarCanvasGroup.DOFade(1f, 2f).SetLink(components.HpBarCanvasGroup.gameObject);
             
             playerCondition.IsPlayerLocked = false;
 

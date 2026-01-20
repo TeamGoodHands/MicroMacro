@@ -52,7 +52,7 @@ namespace Module.UI
             int index = healthStatus.CurrentHealth;
 
             // とりあえず仮で点滅させる
-            healthImage[index].DOFade(0f, 0.1f).SetLoops(5, LoopType.Yoyo).OnComplete(() =>
+            healthImage[index].DOFade(0f, 0.1f).SetLink(gameObject).SetLoops(5, LoopType.Yoyo).OnComplete(() =>
             {
                 healthImage[index].color = Color.clear;
 

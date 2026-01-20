@@ -51,8 +51,8 @@ namespace Module.Enemy.Hose.ChildSnake
 
         private async UniTaskVoid AppearAsync()
         {
-            await transform.DOLocalMove(targets[0], 2f).SetEase(Ease.OutBack);
-            await UniTask.Delay(TimeSpan.FromSeconds(parameter.FirstDelay));
+            await transform.DOLocalMove(targets[0], 2f).SetEase(Ease.OutBack).WithCancellation(destroyCancellationToken);
+            await UniTask.Delay(TimeSpan.FromSeconds(parameter.FirstDelay), cancellationToken: destroyCancellationToken);
             PatrolRandomlyAsync(damageCanceller.Token).Forget();
         }
 
@@ -124,6 +124,9 @@ namespace Module.Enemy.Hose.ChildSnake
 
                 await UniTask.Delay(TimeSpan.FromSeconds(parameter.AttackDuration), cancellationToken: token);
 
+                if (token.IsCancellationRequested || this == null)
+                    return;
+
                 await controller.OffWater(token);
 
                 await controller.ResetAngle(parameter.TimeToResetAngle).WithCancellation(token);
@@ -138,7 +141,12 @@ namespace Module.Enemy.Hose.ChildSnake
 
         private async UniTaskVoid DestroyAsync()
         {
-            await transform.DOLocalMove(destroyPosition, 1f);
+            await transform.DOLocalMove(destroyPosition, 1f).WithCancellation(destroyCancellationToken);
+
+            if (destroyCancellationToken.IsCancellationRequested)
+                return;
+
+
             OnDeath?.Invoke();
             Destroy(gameObject);
         }

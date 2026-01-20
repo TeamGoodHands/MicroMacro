@@ -226,14 +226,14 @@ namespace Module.Enemy.Hose.SnakeHose
             rapture.localScale = new Vector3(raptureScale.x, 0f, raptureScale.z);
             rapture.gameObject.SetActive(true);
 
-            _ = rapture.DOScale(raptureScale, 0.5f).SetEase(Ease.OutBack);
+            _ = rapture.DOScale(raptureScale, 0.5f).SetEase(Ease.OutBack).WithCancellation(CancellationToken);
             bodyBone.localScale = bodyScale;
             scaler.SetScale(0, true);
 
 
             SoundManager.instance.Play("打撃6");
 
-            await transform.DOShakePosition(1f, 0.1f, 30, 90, false, false);
+            await transform.DOShakePosition(1f, 0.1f, 30, 90, false, false).WithCancellation(CancellationToken);
 
 
             healthStatus.Damage(1);
