@@ -69,7 +69,7 @@ namespace Module.Gimmick
 
         private async UniTaskVoid DestroyGoal()
         {
-            dialogueManager.AbortDialogue(false);
+          //  dialogueManager.AbortDialogue(false);
             
             SoundManager.instance.Play("ボスカタカタ");
             await bodyTransform.DOShakePosition(3f, strength: 0.003f, vibrato: 40).WithCancellation(this.GetCancellationTokenOnDestroy());
