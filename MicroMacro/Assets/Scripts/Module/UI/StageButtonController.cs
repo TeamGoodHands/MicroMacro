@@ -11,6 +11,8 @@ public class StageButtonController : MonoBehaviour
     [Header("画像リソース")]
     [SerializeField] private Sprite[] normalSprites;  
     [SerializeField] private Sprite[] clearedSprites; 
+    
+    public string StageId => stageId;
 
     void Start()
     {

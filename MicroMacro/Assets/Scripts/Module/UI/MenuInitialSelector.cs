@@ -14,7 +14,7 @@ namespace Module.UI
         [SerializeField] private GameObject firstSelectButton;
         [Header("開始時に再生するサウンド")]
         [SerializeField] private string soundNameOnEnabled = null;
-
+        
         private void OnEnable()
         {
             SelectFirstButton();

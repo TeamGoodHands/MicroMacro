@@ -6,10 +6,11 @@ namespace Module.Application.Data
     public class SaveManager : MonoBehaviour
     {
         public static SaveManager Instance { get; private set; }
+        public string LatestClearedStageId { get; set; } = null;
 
         private const string SAVE_KEY = "MicroMacro_SaveData";
         private SaveData currentData;
-        
+
         private void Awake()
         {
             if (Instance == null)
@@ -83,6 +84,8 @@ namespace Module.Application.Data
         public void SetStageCleared(string stageId)
         {
             if (currentData == null) currentData = new SaveData();
+            
+            LatestClearedStageId = stageId;
 
             if (!currentData.clearedStageIds.Contains(stageId))
             {
