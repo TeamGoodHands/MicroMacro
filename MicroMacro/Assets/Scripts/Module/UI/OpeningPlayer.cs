@@ -4,7 +4,6 @@ using CoreModule.Input;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Application.SceneSwitch;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
