@@ -1,7 +1,6 @@
 using System;
 using Constants;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Module.Level

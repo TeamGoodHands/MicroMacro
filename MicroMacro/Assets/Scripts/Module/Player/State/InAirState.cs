@@ -4,7 +4,6 @@ using CoreModule.Input;
 using CoreModule.Utility;
 using Module.Player.Component;
 using PropertyGenerator.Generated;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 

@@ -15,14 +15,6 @@ namespace Module.Management
         private HealthStatus playerStatus;
         [SerializeField] private FadeAndSceneTransition sceneTransition;
 
-        private static int deathCount;
-
-        [RuntimeInitializeOnLoadMethod]
-        private static void Init()
-        {
-            deathCount = 0;
-        }
-
         private void Start()
         {
             playerStatus = GameObject.FindWithTag(Tag.Player).GetComponent<HealthStatus>();
@@ -31,18 +23,7 @@ namespace Module.Management
 
         private void OnPlayerDeath()
         {
-            deathCount++;
-
-            if (deathCount == 1)
-            {
-                // 今はとりあえずシーンを読み込み直す
-                sceneTransition.StartTransition("StageSelect");
-            }
-            else
-            {
-                deathCount = 0;
-                sceneTransition.StartTransition("Feedback");
-            }
+            sceneTransition.StartTransition("StageSelect");
         }
     }
 }

@@ -3,7 +3,6 @@ using Constants;
 using CoreModule.Utility;
 using Cysharp.Threading.Tasks;
 using Module.Scaling;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
 
