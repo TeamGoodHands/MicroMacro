@@ -20,6 +20,8 @@ Shader "EnvironmentShader"
         }
 
 
+
+
         Pass
         {
             Name "DepthNormals"
@@ -139,7 +141,7 @@ Shader "EnvironmentShader"
         Pass
         {
             Name "ForwardLit"
-            
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -149,6 +151,7 @@ Shader "EnvironmentShader"
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma instancing_options renderinglayer
 
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -213,28 +216,13 @@ Shader "EnvironmentShader"
                 Light mainLight = GetMainLight(shadowCoord);
                 half shadowAttention = mainLight.shadowAttenuation;
 
-                // 影の特定のグラデーション部分を抽出
-
-                float innerMask = 1.0 - saturate((shadowAttention - 0.45) / 1e-5);
-                // return float4(innerMask, innerMask, innerMask, 1);
-
-                float edgeMask = saturate((shadowAttention - 0.45) * 5) * (1 - saturate((shadowAttention - 0.6) * 5));
-                shadowAttention -= edgeMask * 0.5;
-
-                float noise = SAMPLE_TEXTURE2D(_NoiseMap, sampler_NoiseMap, IN.noiseUv).r;
-                noise -= _NoisePower;
-                noise = saturate(noise);
-
-                // return float4(noise, noise, noise, 1);
-
-                shadowAttention += innerMask * noise;
+                shadowAttention += 0.5;
 
                 float3 shadowColor = lerp(color.xyz, _ShadowColor.xyz, _ShadowColor.a);
                 color.xyz = lerp(shadowColor, color.xyz, shadowAttention);
 
                 return color;
             }
-            
             ENDHLSL
         }
     }
