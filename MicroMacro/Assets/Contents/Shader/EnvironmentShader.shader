@@ -141,6 +141,11 @@ Shader "EnvironmentShader"
         Pass
         {
             Name "ForwardLit"
+            
+           Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
 
             HLSLPROGRAM
             #pragma vertex vert
