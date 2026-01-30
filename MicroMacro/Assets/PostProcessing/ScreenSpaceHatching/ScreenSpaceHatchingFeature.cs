@@ -1,3 +1,4 @@
+using PostProcessing.ScreenSpaceHatching;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -9,7 +10,9 @@ namespace Contents.ScreenSpaceHatching
         public Shader SSHatchingShader;
         public bool generateSamplingPoints;
         private Material hatchingMaterial;
+        private ScreenSpaceHatchingPrepass hatchingPrepass;
         private ScreenSpaceHatchingPass hatchingPass;
+        private ScreenSpaceHatchingPrepass.OutlineSharedData outlineSharedData;
 
         private const int SamplingCount = 12;
         [SerializeField, HideInInspector] private float[] samplingRotations = new float[SamplingCount];
@@ -25,8 +28,11 @@ namespace Contents.ScreenSpaceHatching
             {
                 Debug.LogWarning("SSHatching shader is missing.");
             }
+            
+            outlineSharedData = new ScreenSpaceHatchingPrepass.OutlineSharedData();
 
-            hatchingPass = new ScreenSpaceHatchingPass(hatchingMaterial);
+            hatchingPrepass = new ScreenSpaceHatchingPrepass(outlineSharedData);
+            hatchingPass = new ScreenSpaceHatchingPass(hatchingMaterial, outlineSharedData);
         }
 
         private void GenerateSamplingData()
@@ -55,6 +61,8 @@ namespace Contents.ScreenSpaceHatching
 
             if (volume == null || volume.IsActive() == false)
                 return;
+            
+            renderer.EnqueuePass(hatchingPrepass);
 
             GenerateSamplingData();
             hatchingPass.Setup(volume,samplingRotations, samplingLength);

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using PostProcessing.ScreenSpaceHatching;
+using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
@@ -30,13 +31,17 @@ namespace Contents.ScreenSpaceHatching
         private static readonly int backOffsetID = Shader.PropertyToID("_BackHatchOffset");
         private static readonly int offsetBorderID = Shader.PropertyToID("_HatchOffsetBorder");
         private static readonly int crossPatternID = Shader.PropertyToID("_CrossHatchPatternTexture");
+        private static readonly int cutoutTextureID = Shader.PropertyToID("_CutOutTexture");
+        
+        private readonly ScreenSpaceHatchingPrepass.OutlineSharedData outlineData;
         
         private float[] samplingRotations;
         private float[] samplingLengths;
 
-        public ScreenSpaceHatchingPass(Material material)
+        public ScreenSpaceHatchingPass(Material material, ScreenSpaceHatchingPrepass.OutlineSharedData outlineData )
         {
             this.material = material;
+            this.outlineData = outlineData;
             this.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
         }
         
@@ -158,14 +163,18 @@ namespace Contents.ScreenSpaceHatching
                 passData.Volume = volumeSettings;
                 passData.Source = resourceData.activeColorTexture;
                 passData.Destination = finalTarget;
+                
                 builder.UseTexture(passData.Source, AccessFlags.Read);
                 builder.UseTexture(vBlurTarget, AccessFlags.Read);
                 builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
+                builder.UseTexture(outlineData.PrepassTexture, AccessFlags.Read);
                 builder.SetRenderAttachment(passData.Destination, 0);
+                
                 builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
                 {
                     data.Material.SetTexture(blurResultTextureID, vBlurTarget);
                     data.Material.SetTexture(crossPatternID, data.Volume.CrossPattern.value);
+                    data.Material.SetTexture(cutoutTextureID, outlineData.PrepassTexture);
                     data.Material.SetFloat(blendStepID, data.Volume.BlendStep.value);
                     data.Material.SetFloat(blendPowerID, data.Volume.BlendPower.value);
                     data.Material.SetFloat(hatchScaleID, data.Volume.HatchScale.value);

@@ -40,7 +40,9 @@ namespace Module.Scaling
                 defaultWaveSpeed = scalerShaderWrapper.WaveSpeed;
                 defaultWavePower = scalerShaderWrapper.WavePower;
 
-                scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never;
+                scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Always;
+                scalerShaderWrapper.OutlineColor = profile.DefaultOutlineColor;
+                scalerShaderWrapper.OutlineWidth = profile.DefaultOutlineWidth;
             }
             catch (Exception e)
             {
@@ -130,7 +132,7 @@ namespace Module.Scaling
             sequence.Append(DOTween.To(() => progress, value =>
             {
                 scalerShaderWrapper.FresnelColor = Color.Lerp(Color.clear, fresnelColor, value);
-                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(0f, profile.OutlineWidth, value);
+                scalerShaderWrapper.OutlineWidth = Mathf.Lerp(profile.DefaultOutlineWidth, profile.OutlineWidth, value);
                 progress = value;
             }, 1f, profile.OutlineTweenTime));
 
@@ -146,12 +148,16 @@ namespace Module.Scaling
             sequence.Append(DOTween.To(() => progress, value =>
                 {
                     scalerShaderWrapper.FresnelColor = Color.Lerp(fresnelColor, Color.clear, value);
-                    scalerShaderWrapper.OutlineWidth = Mathf.Lerp(profile.OutlineWidth, 0f, value);
+                    scalerShaderWrapper.OutlineWidth = Mathf.Lerp(profile.OutlineWidth, profile.DefaultOutlineWidth, value);
                     progress = value;
                 }, 1f, profile.OutlineDisappearTime))
                 .SetEase(Ease.InSine);
 
-            sequence.AppendCallback(() => { scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Never; });
+            sequence.AppendCallback(() =>
+            {
+                scalerShaderWrapper.OutlineStencilComp = (float)CompareFunction.Always;
+                scalerShaderWrapper.OutlineColor = profile.DefaultOutlineColor;
+            });
 
             return sequence;
         }
@@ -184,8 +190,8 @@ namespace Module.Scaling
 
         private void ResetMaterial()
         {
-            scalerShaderWrapper.OutlineWidth = 0f;
-            scalerShaderWrapper.FresnelColor = Color.clear;
+            scalerShaderWrapper.OutlineWidth = profile.DefaultOutlineWidth;
+            scalerShaderWrapper.FresnelColor = profile.DefaultOutlineColor;
             scalerShaderWrapper.WaveSpeed = defaultWaveSpeed;
             scalerShaderWrapper.WavePower = defaultWavePower;
         }

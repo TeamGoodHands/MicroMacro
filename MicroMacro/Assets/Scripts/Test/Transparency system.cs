@@ -1,101 +1,104 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Threading;
+using Constants;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class Transparencysystem : MonoBehaviour
+// CancellationTokenのために必要です
+
+namespace Test
 {
-    [SerializeField] private Transform player; //�v���C���[�̎擾
-    [SerializeField] private LayerMask FadeLayer;// ���s���C���[��ݒ�
-    [SerializeField] private string fadeTag = "FadeObj";//�B���ׂ����̂̃^�O��ݒ�
-    [SerializeField] private float transparentAlpha = 0.1f; // �������ɂ���ۂ̃A���t�@�l�i0 = ���S����, 1 = �s�����j
-    [SerializeField] private float fadeDuration = 1.0f; // �t�F�[�h�ɂ����鎞�ԁi�b�j
-    private HashSet<Renderer> fadingRenderers = new HashSet<Renderer>();//�t�F�[�h���̃����_���[��ǐ�
-    private Renderer currentRenderer = null; // ���ݔ������ɂ��Ă���I�u�W�F�N�g�̊i�[�ꏊ
-    private Material[] originalMaterials = null; // ���̃}�e���A���̕ۑ��ꏊ
-
-    void Update()
-    {   //�ڕW����n�_�������Ėڎw�����������߂�
-        Vector3 _Playerps = (player.transform.position - this.transform.position);
-        //Rey�̋����𐔒l��
-        float ReyMG = _Playerps.magnitude;
-        //Ray������
-        Debug.DrawRay(this.transform.position, _Playerps, Color.red, 1); 
-        // Raycast�ŃJ�����ƃv���C���[�̊Ԃɂ���I�u�W�F�N�g�����o
-        if (Physics.Raycast(transform.position, _Playerps.normalized, out RaycastHit hit, ReyMG, FadeLayer))
-        {
-            // �^�O����v����I�u�W�F�N�g�̂ݑΏ�
-            if (hit.collider.CompareTag(fadeTag))
-            {
-                Renderer rend = hit.collider.GetComponent<Renderer>();//�ڐG���Ă���I�u�W�F�N�g�̃R���C�_�[���擾
-
-                // �V�����I�u�W�F�N�g�ɓ��������ꍇ�̂ݏ���
-                if (rend != null && rend != currentRenderer)
-                {
-                    Debug.Log("���������s");
-                    if (currentRenderer != null) 
-                    {
-                        StartCoroutine(MakeTransparent(currentRenderer, 1.0f, resetAfter: true)); 
-                    } 
-                    // �O�̃I�u�W�F�N�g�����ɖ߂� 
-                    Material[] mats = rend.materials;
-                    originalMaterials = new Material[mats.Length];
-                    for (int i = 0; i < mats.Length; i++)
-                    {
-                        originalMaterials[i] = new Material(mats[i]); // �V�����C���X�^���X���쐬
-                    }
-                    currentRenderer = rend;
-                    StartCoroutine(MakeTransparent(rend, transparentAlpha));//����������
-                }
-                return;//�����ł����
-            }
-        }
-
-        //�����Ȃ�������߂��B
-        if (currentRenderer != null) 
-        {
-            StartCoroutine(MakeTransparent(currentRenderer, 1.0f, resetAfter: true)); 
-            currentRenderer = null;
-            originalMaterials = null; 
-        }
-    }
-
-    IEnumerator MakeTransparent(Renderer rend, float targetAlpha, bool resetAfter = false)//����������
+    public class TransparencySystem : MonoBehaviour
     {
-        // ���łɃt�F�[�h���Ȃ�X�L�b�v
-        if (fadingRenderers.Contains(rend)) yield break; 
-        fadingRenderers.Add(rend); // �`�惂�[�h��Transparent�ɐݒ�
-        foreach (Material mat in rend.materials) 
-        { 
-            mat.SetFloat("_Mode", 3); 
-            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha); 
-            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha); 
-            mat.SetInt("_ZWrite", 0); mat.DisableKeyword("_ALPHATEST_ON"); 
-            mat.EnableKeyword("_ALPHABLEND_ON"); 
-            mat.DisableKeyword("_ALPHAPREMULTIPLY_ON"); 
-            mat.renderQueue = 3000; 
-        }
-        float elapsed = 0f; float startAlpha = rend.material.color.a; 
-        while (elapsed < fadeDuration) 
+        [SerializeField] private MeshRenderer targetMeshRenderer;
+
+        [SerializeField, Tooltip("透明化にかかる時間（秒）")]
+        private float fadeDuration = 0.5f;
+        [SerializeField]
+        private float fadeAlpha = 0.3f;
+
+        private Color originalColor;
+        private Color transparentColor;
+        private CancellationTokenSource cancellationTokenSource;
+
+        private int colorPropertyID = Shader.PropertyToID("_BaseColor");
+
+        private void Awake()
         {
-            float t = elapsed / fadeDuration;
-            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, t); 
-            foreach (Material mat in rend.materials) 
+            if (targetMeshRenderer == null)
+                return;
+
+            originalColor = targetMeshRenderer.material.GetColor(colorPropertyID);
+            // アルファ値を0.5にして半透明の目標色を作成
+            transparentColor = new Color(originalColor.r, originalColor.g, originalColor.b, fadeAlpha);
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!other.CompareTag(Tag.Handle.Player))
+                return;
+
+            // 前の処理があればキャンセルし、新しいトークンを発行
+            RefreshCancellationToken();
+            // じわじわと透明色へ
+            FadeTransparencyAsync(transparentColor, cancellationTokenSource.Token).Forget();
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (!other.CompareTag(Tag.Handle.Player))
+                return;
+
+            // 前の処理があればキャンセルし、新しいトークンを発行
+            RefreshCancellationToken();
+            // じわじわと元の色へ
+            FadeTransparencyAsync(originalColor, cancellationTokenSource.Token).Forget();
+        }
+
+        // キャンセレーショントークンを更新するメソッド
+        private void RefreshCancellationToken()
+        {
+            if (cancellationTokenSource != null)
             {
-                Color color = mat.color; color.a = newAlpha; mat.color = color; 
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource.Dispose();
             }
-            elapsed += Time.deltaTime; yield return null; 
-        } 
-        // �ŏI�I�ȃA���t�@��ݒ�
-        foreach (Material mat in rend.materials) 
-        {
-            Color color = mat.color; color.a = targetAlpha; mat.color = color; 
-        } 
-        // ���S�Ɍ��ɖ߂����ꍇ�A�}�e���A���𕜌�
-        if (resetAfter && originalMaterials != null) 
-        {
-            rend.materials = originalMaterials;
+
+            cancellationTokenSource = new CancellationTokenSource();
         }
-        fadingRenderers.Remove(rend); 
+
+        private async UniTaskVoid FadeTransparencyAsync(Color targetColor, CancellationToken token)
+        {
+            float elapsedTime = 0f;
+            Color startColor = targetMeshRenderer.material.GetColor(colorPropertyID);
+
+            while (elapsedTime < fadeDuration)
+            {
+                // 処理の途中でキャンセル要求が来ていないかチェック
+                if (token.IsCancellationRequested)
+                    return;
+
+                elapsedTime += Time.deltaTime;
+                // 時間経過に応じて、開始色から目標色へ徐々に変化（線形補間）
+                float t = Mathf.Clamp01(elapsedTime / fadeDuration);
+                targetMeshRenderer.material.SetColor(colorPropertyID, Color.Lerp(startColor, targetColor, t));
+
+                // 次のフレームまで待機
+                await UniTask.Yield();
+            }
+
+            // ループ終了後、念のため最終的な色を確実に設定（キャンセルされていなければ）
+            if (!token.IsCancellationRequested)
+                targetMeshRenderer.material.SetColor(colorPropertyID, targetColor);
+        }
+
+        // オブジェクトが破棄される際にも確実にキャンセル処理を行う
+        private void OnDestroy()
+        {
+            if (cancellationTokenSource != null)
+            {
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource.Dispose();
+            }
+        }
     }
-    
 }

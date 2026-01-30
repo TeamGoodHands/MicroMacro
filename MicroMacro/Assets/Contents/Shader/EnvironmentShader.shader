@@ -3,6 +3,7 @@ Shader "EnvironmentShader"
     Properties
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
+        _Saturation("Saturation", Range(0,2)) = 1
         _BaseColor("Base Color", Color) = (1,1,1,1)
         _NoiseMap("Noise Map", 2D) = "white"{}
         _NoiseScale("Noise Scale",Float) = 1
@@ -141,8 +142,8 @@ Shader "EnvironmentShader"
         Pass
         {
             Name "ForwardLit"
-            
-           Tags
+
+            Tags
             {
                 "LightMode" = "UniversalForward"
             }
@@ -152,6 +153,7 @@ Shader "EnvironmentShader"
             #pragma fragment frag
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile _ _SHADOWS_SOFT
@@ -162,6 +164,12 @@ Shader "EnvironmentShader"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            // DBuffer用インクルード
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
+            #if defined(_DBUFFER)
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DBuffer.hlsl"
+            #endif
 
             struct Attributes
             {
@@ -188,6 +196,7 @@ Shader "EnvironmentShader"
                 float4 _BaseColor;
                 float4 _ShadowColor;
                 float _NoiseScale;
+                float _Saturation;
                 float _NoisePower;
                 float _ShadowNoiseScale;
             CBUFFER_END
@@ -211,9 +220,21 @@ Shader "EnvironmentShader"
                 return saturate(start * end);
             }
 
+            float4 AdjustSaturationUnity(float3 color, float saturation)
+            {
+                // Unityの設定に応じた輝度係数を取得
+                float3 lumaCoefficients = float3(0.22, 0.707, 0.071);
+
+                // 輝度の計算
+                float luminance = dot(color, lumaCoefficients);
+
+                // 彩度の調整（前述のlerpと同じロジック）
+                return float4(lerp(float3(luminance, luminance, luminance), color, saturation), 1);
+            }
+
             half4 frag(Varyings IN) : SV_Target
             {
-                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
 
                 float4 shadowCoord = TransformWorldToShadowCoord(IN.worldPos);
 
@@ -225,6 +246,15 @@ Shader "EnvironmentShader"
 
                 float3 shadowColor = lerp(color.xyz, _ShadowColor.xyz, _ShadowColor.a);
                 color.xyz = lerp(shadowColor, color.xyz, shadowAttention);
+
+                color = AdjustSaturationUnity(color.xyz, _Saturation);
+
+                // DBuffer Decalの適用
+                #if defined(_DBUFFER)
+                float2 screenUV = IN.positionHCS.xy / _ScaledScreenParams.xy;
+                ApplyDecalToBaseColorAndNormal(IN.positionHCS, color.rgb, IN.worldPos);
+                #endif
+
 
                 return color;
             }

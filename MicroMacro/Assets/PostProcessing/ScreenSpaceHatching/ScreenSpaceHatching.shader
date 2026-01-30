@@ -236,6 +236,7 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
 
             TEXTURE2D_X(_CrossHatchPatternTexture);
             TEXTURE2D_X(_BlurResultTexture);
+            TEXTURE2D_X(_CutOutTexture);
 
             SAMPLER(sampler_BlitTexture);
 
@@ -252,9 +253,11 @@ Shader "Hidden/Custom/ScreenSpaceHatching"
                 float blur = SAMPLE_TEXTURE2D(_BlurResultTexture, sampler_LinearClamp, i.texcoord).r;
                 float4 hatch = SAMPLE_TEXTURE2D(_CrossHatchPatternTexture, sampler_LinearRepeat, hatchUv);
 
+                float couout = 1 - SAMPLE_TEXTURE2D(_CutOutTexture, sampler_LinearClamp, i.texcoord).r;
+
                 float4 stepBlur = step(blur, _BlendStep);
                 hatch.r *= stepBlur.r;
-                color -= hatch.r * pow(1 - blur.r, _BlendPower);
+                color -= hatch.r * pow(1 - blur.r, _BlendPower) * couout;
 
                 return color;
             }

@@ -72,6 +72,51 @@ Shader "ScalerShader"
             ENDHLSL
         }
 
+        Pass
+        {
+            Name "ScreenSpaceHatchingCutoutPrepass"
+            Tags
+            {
+                "LightMode"="ScreenSpaceHatchingCutoutPrepass"
+            }
+            ZWrite On Cull Back
+
+            HLSLPROGRAM
+            #pragma vertex   vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct A
+            {
+                float4 positionOS: POSITION;
+                float3 normalOS: NORMAL;
+                float4 tangentOS: TANGENT;
+            };
+
+            struct V
+            {
+                float4 positionHCS: SV_POSITION;
+                float3 normalWS: TEXCOORD0;
+            };
+
+            V vert(A v)
+            {
+                V o;
+                VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
+                VertexNormalInputs n = GetVertexNormalInputs(v.normalOS, v.tangentOS);
+                o.positionHCS = p.positionCS;
+                o.normalWS = n.normalWS;
+                return o;
+            }
+
+            half4 frag(V i) : SV_Target
+            {
+                return half4(1, 1, 1, 1);
+            }
+            ENDHLSL
+        }
+
 
         // LitシェーダーのShaderCasterPass
         Pass
@@ -186,39 +231,9 @@ Shader "ScalerShader"
                 OUT.normal = IN.normal;
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
 
-                float3 worldPos = TransformObjectToWorld(IN.positionOS);
-                float3 worldNormal = TransformObjectToWorldNormal(IN.normal);
-
-                // ノイズ用UV（ローカル座標 + 時間）
-                float2 baseUv = IN.positionOS.xy;
-                float2 timeOffset = _Time.xx * _WaveSpeed;
-                float2 vertexUv = baseUv + timeOffset;
-
-                // カメラ基底（ワールド空間）
-                float3 cameraRight = UNITY_MATRIX_V[0].xyz;
-                float3 cameraUp = UNITY_MATRIX_V[1].xyz;
-
-                // カメラ方向 & 正面度
-                float3 viewDir = normalize(_WorldSpaceCameraPos - worldPos);
-                float facing = 1 - saturate(dot(viewDir, worldNormal)); // 正面で1, 斜めで0〜
-
-                // ノイズを -1〜1 に
-                float noiseX = SimpleNoise(vertexUv, 10);
-                float noiseY = SimpleNoise(vertexUv + float2(19.3, 7.1), 10);
-
-                noiseX = noiseX * 2.0 - 1.0;
-                noiseY = noiseY * 2.0 - 1.0;
-
-                float2 offsetXY = float2(noiseX, noiseY) * _WavePower * facing;
-
-                // カメラから見た画面XY方向だけ揺らす（Zは変えない）
-                float3 vertexOffsetWS = cameraRight * offsetXY.x + cameraUp * offsetXY.y;
-
-                worldPos += vertexOffsetWS;
-
-                OUT.positionHCS = TransformWorldToHClip(worldPos);
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS);
                 OUT.screenPos = ComputeScreenPos(OUT.positionHCS);
-                OUT.worldPos = worldPos;
+                OUT.worldPos = TransformObjectToWorld(IN.positionOS);
 
                 return OUT;
             }
@@ -392,5 +407,7 @@ Shader "ScalerShader"
             }
             ENDHLSL
         }
+
+
     }
 }
