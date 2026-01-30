@@ -3,7 +3,9 @@ Shader "CargoShader"
     Properties
     {
         [MainTexture] _BaseMap("Base Map", 2D) = "white"{}
+        _EmissionMap("Emission Map", 2D) = "white"{}
         [HDR]_BaseColor("Base Color", Color) = (0,0,0,1)
+        [HDR]_EmissionColor("Emission Color", Color) = (1,1,1,1)
         [HDR]_AdditionalColor("Additional Color", Color) = (0,0,0,0)
         [Toggle(_RECEIVE_DECALS)] _ReceiveDecals("Receive Decals", Float) = 1
     }
@@ -147,9 +149,14 @@ Shader "CargoShader"
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
 
+            TEXTURE2D(_EmissionMap);
+            SAMPLER(sampler_EmissionMap);
+
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
+                float4 _EmissionMap_ST;
                 float4 _BaseColor;
+                float4 _EmissionColor;
                 float4 _AdditionalColor;
             CBUFFER_END
 
@@ -166,9 +173,11 @@ Shader "CargoShader"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
+                half4 emission = SAMPLE_TEXTURE2D(_EmissionMap, sampler_EmissionMap, IN.uv);
 
                 color *= _BaseColor;
                 color += _AdditionalColor;
+                color += emission * _EmissionColor;
 
                 return color;
             }

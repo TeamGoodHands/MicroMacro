@@ -15,7 +15,7 @@ Shader "TransparentUnlit"
             "IgnoreProjector" = "True"
             "RenderPipeline" = "UniversalPipeline"
         }
-        
+
         Pass
         {
             Name "DepthNormals"
@@ -62,6 +62,105 @@ Shader "TransparentUnlit"
             ENDHLSL
         }
 
+        Pass
+        {
+            Name "ScreenSpaceHatchingCutoutPrepass"
+            Tags
+            {
+                "LightMode"="ScreenSpaceHatchingCutoutPrepass"
+            }
+            ZWrite On Cull Back
+
+            HLSLPROGRAM
+            #pragma vertex   vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseColor;
+            CBUFFER_END
+
+            struct A
+            {
+                float4 positionOS: POSITION;
+                float3 normalOS: NORMAL;
+                float4 tangentOS: TANGENT;
+            };
+
+            struct V
+            {
+                float4 positionHCS: SV_POSITION;
+                float3 normalWS: TEXCOORD0;
+            };
+
+            V vert(A v)
+            {
+                V o;
+                VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
+                VertexNormalInputs n = GetVertexNormalInputs(v.normalOS, v.tangentOS);
+                o.positionHCS = p.positionCS;
+                o.normalWS = n.normalWS;
+                return o;
+            }
+
+            half4 frag(V i) : SV_Target
+            {
+                float alpha = step(0.5, _BaseColor.a);
+
+                return half4(alpha, alpha, alpha, alpha);
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "HandwriteOutlineCutoutPrepass"
+            Tags
+            {
+                "LightMode" = "HandwriteOutlineCutoutPrepass"
+            }
+
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseColor;
+            CBUFFER_END
+
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+            };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                return OUT;
+            }
+
+            half4 frag() : SV_Target
+            {
+                if (_BaseColor.a < 0.5)
+                {
+                    discard;
+                }
+                
+                return float4(0, 0, 0, 0);
+            }
+            ENDHLSL
+        }
 
         Pass
         {
@@ -75,9 +174,9 @@ Shader "TransparentUnlit"
             {
                 "LightMode" = "UniversalForward"
             }
-            
+
             Blend SrcAlpha OneMinusSrcAlpha
-            
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
