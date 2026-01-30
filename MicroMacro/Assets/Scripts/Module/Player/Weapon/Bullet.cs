@@ -104,27 +104,22 @@ namespace Module.Player.Weapon
 
             if (isHit)
             {
-                await PlayHitEffect();
+                var sparkRotation = isVertical ? new Vector2(90f, 0f) : new Vector2(0f, 90f);
+
+                hitEffect.SetVector2("SparkRotation", sparkRotation);
+                hitEffect.Play();
+
+                if (trailEffect != null)
+                {
+                    trailEffect.Stop();
+                    trailEffect.gameObject.SetActive(false);
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(disappearDelay), cancellationToken: destroyCancellationToken);
             }
 
             OnHit?.Invoke();
             OnHit = null;
-        }
-
-        private async UniTask PlayHitEffect()
-        {
-            var sparkRotation = isVertical ? new Vector2(90f, 0f) : new Vector2(0f, 90f);
-
-            hitEffect.SetVector2("SparkRotation", sparkRotation);
-            hitEffect.Play();
-
-            if (trailEffect != null)
-            {
-                trailEffect.Stop();
-                trailEffect.gameObject.SetActive(false);
-            }
-
-            await UniTask.Delay(TimeSpan.FromSeconds(disappearDelay), cancellationToken: destroyCancellationToken);
         }
     }
 }
