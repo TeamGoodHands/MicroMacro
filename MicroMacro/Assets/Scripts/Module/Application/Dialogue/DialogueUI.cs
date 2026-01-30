@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMP_Ruby; // 1. 追加
 
 namespace Module.Application.Dialogue
 {
@@ -14,8 +15,14 @@ namespace Module.Application.Dialogue
         [Header("References")]
         [SerializeField] private Image fuguSpeechBubble;
         [SerializeField] private Image playerSpeechBubble;
+        
+        
+        // アニメーション用でTMPの参照を残しておく
         [SerializeField] private TextMeshProUGUI fuguText;
         [SerializeField] private TextMeshProUGUI playerText;
+        
+        [SerializeField] private TextMeshProRuby fuguRuby;
+        [SerializeField] private TextMeshProRuby playerRuby;
 
         [Header("Settings")]
         [Header("吹き出しの開閉アニメーション時間")] [SerializeField] private float animationDuration = 0.3f;
@@ -36,6 +43,7 @@ namespace Module.Application.Dialogue
         // 現在操作中のオブジェクト
         private Image currentBubble;
         private TextMeshProUGUI currentText;
+        private TextMeshProRuby currentRuby; 
         private Vector3 currentTargetScale;
         
         private CancellationTokenSource cts;
@@ -84,8 +92,11 @@ namespace Module.Application.Dialogue
             if (pages.Count == 0)
                 return;
             
-            // 最初のページをセットし、文字数0（透明）にしておく
-            currentText.text = pages[0];
+            // 最初のページをセット
+            // Ruby経由でセットすることでタグ変換を行う
+            currentRuby.Text = pages[0];
+            
+            // 最初は非表示
             currentText.maxVisibleCharacters = 0;
             
             currentBubble.gameObject.SetActive(true);
@@ -97,8 +108,8 @@ namespace Module.Application.Dialogue
             // ページごとにタイプライター演出を実行
             for (int i = 0; i < pages.Count; i++)
             {
-                // ページ切り替え時にテキストを更新してリセット
-                currentText.text = pages[i];
+                // ページ切り替え時にテキストを更新
+                currentRuby.Text = pages[i];
                 currentText.maxVisibleCharacters = 0;
                 
                 await PlayTypewriterEffectAsync(pages[i], token);
@@ -124,6 +135,7 @@ namespace Module.Application.Dialogue
                 CloseSpeechBubble(playerSpeechBubble);
                 currentBubble = fuguSpeechBubble;
                 currentText   = fuguText;
+                currentRuby   = fuguRuby; // Rubyコンポーネントも切り替え
                 
                 currentTargetScale = fuguDefaultScale; 
                 currentTargetPos   = fuguDefaultPos;
@@ -133,6 +145,7 @@ namespace Module.Application.Dialogue
                 CloseSpeechBubble(fuguSpeechBubble);
                 currentBubble = playerSpeechBubble;
                 currentText   = playerText;
+                currentRuby   = playerRuby; // Rubyコンポーネントも切り替え
                 
                 currentTargetScale = playerDefaultScale;
                 currentTargetPos   = playerDefaultPos; 
@@ -181,18 +194,25 @@ namespace Module.Application.Dialogue
 
         private async UniTask PlayTypewriterEffectAsync(string text, CancellationToken token)
         {
-            int totalLength = text.Length;
+            // TMPの情報を強制更新して、正しい文字数情報(textInfo)を生成させる
+            currentText.ForceMeshUpdate();
 
-            // 1文字ずつ表示文字数を増やしていく
-            for (int i = 1; i <= totalLength; i++)
+            // 実際に画面に表示される文字の総数を取得（ルビ文字も含まれる）
+            int totalVisibleCharacters = currentText.textInfo.characterCount;
+
+            // 表示される文字数分だけループする
+            // これにより、タグの文字列（<r=...>など）は無視され、表示上の文字のみで進行
+            for (int i = 1; i <= totalVisibleCharacters; i++)
             {
                 currentText.maxVisibleCharacters = i;
                 
                 if (token.IsCancellationRequested) 
                     return;
 
-                // 現在の文字を取得
-                char currentChar = text[i - 1];
+                // 現在表示させた文字の情報を取得（句読点判定のため）
+                // indexは 0 始まりなので i - 1
+                TMP_CharacterInfo charInfo = currentText.textInfo.characterInfo[i - 1];
+                char currentChar = charInfo.character;
 
                 // 句読点なら待機時間を長くする
                 bool isPunctuation = textProcessor.IsPunctuation(currentChar);
@@ -200,6 +220,9 @@ namespace Module.Application.Dialogue
 
                 await UniTask.Delay(TimeSpan.FromSeconds(waitTime), cancellationToken: token);
             }
+            
+            // 念のため最後に全表示（計算誤差などで最後が漏れるのを防ぐ）
+            currentText.maxVisibleCharacters = 99999;
         }
 
         public async UniTask HideAsync()
