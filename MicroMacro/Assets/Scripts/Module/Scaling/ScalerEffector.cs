@@ -167,6 +167,8 @@ namespace Module.Scaling
             float progress = 0f;
             Sequence sequence = DOTween.Sequence();
 
+            scalerShaderWrapper.OutlineColor = profile.DefaultOutlineColor;
+
             // 失敗エフェクトだんだん適用する
             sequence.Append(DOTween.To(() => progress, value =>
             {

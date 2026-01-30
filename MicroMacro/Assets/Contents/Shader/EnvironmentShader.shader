@@ -223,7 +223,7 @@ Shader "EnvironmentShader"
             float4 AdjustSaturationUnity(float3 color, float saturation)
             {
                 // Unityの設定に応じた輝度係数を取得
-                float3 lumaCoefficients = float3(0.22, 0.707, 0.071);
+                float3 lumaCoefficients = float3(0.2126, 0.7152, 0.0722);
 
                 // 輝度の計算
                 float luminance = dot(color, lumaCoefficients);

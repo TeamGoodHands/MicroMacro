@@ -1025,6 +1025,7 @@ GameObject:
   - component: {fileID: 6088367274689752937}
   - component: {fileID: 478953568037889189}
   - component: {fileID: 2582891053777904399}
+  - component: {fileID: 1683043022159305946}
   m_Layer: 3
   m_Name: JumpEffect
   m_TagString: Untagged
@@ -1166,6 +1167,22 @@ MonoBehaviour:
   m_Property:
     m_Name: Position
   Target: {fileID: 4129698578453165428}
+--- !u!114 &1683043022159305946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5172608885098493640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b37f7ce75c0d9e42a016510d0388008, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lockPosition: 0
+  lockRotation: 1
+  targetPosition: {x: 0, y: 0, z: 0}
+  targetRotationEuler: {x: 0, y: 0, z: 0}
 --- !u!1 &5609413205532903741
 GameObject:
   m_ObjectHideFlags: 0

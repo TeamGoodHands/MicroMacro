@@ -130,6 +130,7 @@ namespace Module.Player.Weapon
             {
                 bulletObj.SetActive(false);
                 targetPool.Return(bulletObj);
+                Debug.Log("Bullet returned to pool");
             };
 
             // とりあえずプレイヤーから離れた位置から発射
