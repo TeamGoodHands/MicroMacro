@@ -132,6 +132,52 @@ Shader "PlayerShader/HalfLambert_Min"
 
         Pass
         {
+            Name "ScreenSpaceHatchingCutoutPrepass"
+            Tags
+            {
+                "LightMode"="ScreenSpaceHatchingCutoutPrepass"
+            }
+            ZWrite On Cull Back
+
+            HLSLPROGRAM
+            #pragma vertex   vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct A
+            {
+                float4 positionOS: POSITION;
+                float3 normalOS: NORMAL;
+                float4 tangentOS: TANGENT;
+            };
+
+            struct V
+            {
+                float4 positionHCS: SV_POSITION;
+                float3 normalWS: TEXCOORD0;
+            };
+
+            V vert(A v)
+            {
+                V o;
+                VertexPositionInputs p = GetVertexPositionInputs(v.positionOS.xyz);
+                VertexNormalInputs n = GetVertexNormalInputs(v.normalOS, v.tangentOS);
+                o.positionHCS = p.positionCS;
+                o.normalWS = n.normalWS;
+                return o;
+            }
+
+            half4 frag(V i) : SV_Target
+            {
+                return half4(1, 1, 1, 1);
+            }
+            ENDHLSL
+        }
+
+
+        Pass
+        {
 
             Name "HandwriteOutlineCutoutPrepass"
             Tags
