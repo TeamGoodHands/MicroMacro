@@ -17,11 +17,13 @@ namespace Module.Player.State
         {
             component.AnimatorWrapper.Speed = 0f;
             component.Rigidbody.isKinematic = true;
+            component.Collider.enabled = false;
         }
 
         internal override void OnExit()
         {
             component.Rigidbody.isKinematic = false;
+            component.Collider.enabled = true;
         }
 
         internal override void Update()

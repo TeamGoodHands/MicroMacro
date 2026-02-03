@@ -15,6 +15,7 @@ namespace Module.Player
         [SerializeField] private PlayerParameter parameter;
         [SerializeField] private PlayerCondition condition;
         [SerializeField] private Rigidbody rigidbody;
+        [SerializeField] private Collider collider;
         [SerializeField] private Transform bodyTransform;
         [SerializeField] private PlayerControllerWrapper playerAnimatorController;
         [SerializeField] private SkinnedMeshRenderer meshRenderer;
@@ -26,6 +27,7 @@ namespace Module.Player
         public PlayerParameter Parameter => parameter;
         public PlayerCondition Condition => condition;
         public Rigidbody Rigidbody => rigidbody;
+        public Collider Collider => collider;
         public Transform Transform => rigidbody.transform;
         public Transform BodyTransform => bodyTransform;
         public HealthStatus HealthStatus => healthStatus;
