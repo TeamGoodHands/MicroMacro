@@ -1,78 +1,92 @@
 ﻿using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace Module.Application.Dialogue
 {
-    /// <summary>
-    /// テキストの解析、ページ分割などのロジックのみを担当するクラス
-    /// </summary>
     public class DialogueTextProcessor
     {
+        // ルビタグを検知する正規表現
+        // <r=...> または <r="..."> に対応し、タグの中身（漢字）をグループ2で取得
+        private static readonly Regex RubyTagRegex = new Regex(@"<r=""?([^"">]+)""?>([^<]+)</r>", RegexOptions.Compiled);
+
         /// <summary>
-        /// 文字列をページ分割する。
-        /// 区切りがいい（句読点がある）なら多少超過しても許容するように。
+        /// テキストを指定された文字数でページ分割する（ルビタグ対応版）
         /// </summary>
-        /// <param name="maxChars">1ページあたりの基本最大文字数</param>
-        /// <param name="maxOverrunChars">ページ分割時に許容する最大超過文字数</param>
-        public List<string> SplitTextToPages(string text, int maxChars, int maxOverrunChars)
+        public List<string> SplitTextToPages(string text, int maxCharsPerPage, int maxOverrunChars)
         {
-            var list = new List<string>();
-            int currentPos = 0;
+            var pages = new List<string>();
+            if (string.IsNullOrEmpty(text)) return pages;
 
-            while (currentPos < text.Length)
+            StringBuilder currentPage = new StringBuilder();
+            int currentVisibleCount = 0; // 画面に見えている文字数だけのカウント
+
+            int i = 0;
+            while (i < text.Length)
             {
-                // 残りの文字数がmaxChars以下なら、すべて追加して終了
-                if (text.Length - currentPos <= maxChars)
-                {
-                    list.Add(text.Substring(currentPos));
-                    break;
-                }
-
-                // 基本の分割位置
-                int splitLength = maxChars;
+                // 現在位置からルビタグが始まっているかチェック
+                var match = RubyTagRegex.Match(text, i);
                 
-                // 超過を許容して区切り文字（句読点など）を探す
-                // maxCharsの位置から、maxOverrunChars分だけ先をチェック
-                bool foundSplitChar = false;
-                for (int offset = 0; offset <= maxOverrunChars; offset++)
+                // マッチし、かつマッチした場所が現在のインデックス(i)と一致する場合（＝ここからタグが始まる）
+                if (match.Success && match.Index == i)
                 {
-                    int checkIndex = currentPos + maxChars + offset;
+                    string fullTag = match.Value;             // <r=よみ>漢字</r> 全体
+                    string kanjiPart = match.Groups[2].Value; // "漢字" の部分のみ
+                    
+                    int kanjiLength = kanjiPart.Length;
 
-                    // テキストの範囲外ならループ終了
-                    if (checkIndex >= text.Length) break;
-
-                    // 区切り文字が見つかったら、そこで切る（その文字を含めるため +1）
-                    if (IsSplitPosition(text[checkIndex]))
+                    // このタグを入れるとページあふれするかチェック
+                    if (currentVisibleCount + kanjiLength > maxCharsPerPage + maxOverrunChars)
                     {
-                        splitLength = maxChars + offset + 1;
-                        foundSplitChar = true;
-                        break;
+                        // ページ終了
+                        pages.Add(currentPage.ToString());
+                        currentPage.Clear();
+                        currentVisibleCount = 0;
                     }
-                }
-                
-                // ここで句読点の直前に改ページみたいな、「手前」を探す処理を入れても良い。
 
-                list.Add(text.Substring(currentPos, splitLength));
-                currentPos += splitLength;
+                    // タグ全体をページに追加するが、カウントは「漢字の文字数」だけ増やす
+                    currentPage.Append(fullTag);
+                    currentVisibleCount += kanjiLength;
+
+                    // インデックスをタグの文字数分進める
+                    i += fullTag.Length;
+                }
+                else
+                {
+                    // 通常の文字の場合
+                    char c = text[i];
+                    
+                    // ページあふれチェック
+                    if (currentVisibleCount + 1 > maxCharsPerPage + maxOverrunChars)
+                    {
+                        pages.Add(currentPage.ToString());
+                        currentPage.Clear();
+                        currentVisibleCount = 0;
+                    }
+
+                    currentPage.Append(c);
+                    currentVisibleCount++;
+                    i++;
+                }
             }
 
-            return list;
+            // 最後のページを追加
+            if (currentPage.Length > 0)
+            {
+                pages.Add(currentPage.ToString());
+            }
+
+            return pages;
         }
 
         /// <summary>
-        /// 句読点の判定
+        /// 句読点判定
         /// </summary>
-        public bool IsPunctuation(char c)
+        public bool IsPunctuation(char character)
         {
-            return "、。！？!?,.".IndexOf(c) >= 0;
-        }
-        
-        /// <summary>
-        /// 区切りが良い文字かどうか判定（ページ切り替え時の判断）
-        /// </summary>
-        private bool IsSplitPosition(char c)
-        {
-            // 句読点、感嘆符、スペース、閉じ括弧などを区切りとみなす
-            return "、。！？!?,. 　」』)".IndexOf(c) >= 0;
+            return character == '、' || character == '。' || character == '！' || character == '？' ||
+                   character == '!' || character == '?';
         }
     }
 }

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4197dc28cce93447f8eb21b2c81f0f73, type: 3}
+  m_Name: TextMeshProRubyEditorConfig
+  m_EditorClassIdentifier: 
+  KanjiRegex: "[\\u3040-\\u309F\\u30A0-\\u30FFA-Za-z0-9\uFF41-\uFF5A\uFF21-\uFF3A\uFF10-\uFF19\uFF66-\uFF9F\\s\u3001\u3002\uFF01\uFF1F\u300C\u300D\uFF08\uFF09\u300E\u300F\u3010\u3011\\r\\n\\t]"
+  EnableRubyFromAI: 1
+  OpenAI_Model: gpt-4o
+  OpenAI_APIKey: 
+  OpenAI_Temperature: 0
