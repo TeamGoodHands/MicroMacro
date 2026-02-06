@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7951895021356600911}
   - component: {fileID: 4359309857771429126}
   - component: {fileID: 3045234645106799095}
+  - component: {fileID: 3446070709550007577}
   - component: {fileID: 4070244194769041571}
   - component: {fileID: 6813228274630455011}
   m_Layer: 0
@@ -116,6 +117,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+--- !u!114 &3446070709550007577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824527366191742914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f49297f90f199694dbc1c036c56acde9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  capRenderer: {fileID: 5943835802835607825}
+  capScaler: {fileID: 4359309857771429126}
 --- !u!54 &4070244194769041571
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -511,8 +526,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   oneWayDistance: 5
   oneWayTime: 0.7
+  exponentialSharpness: 4
   throwInterval: 2
   shootHeightOffset: -0.1
+  shootDirectionOffset: -0.1
+  firstThrowDelay: 0
+  damageShakeDuration: 0.35
+  damageShakeStrength: 0.2
+  damageShakeVibrato: 30
+  damageShakeRandomness: 90
   status: {fileID: 1951395449180523211}
   boomerang: {fileID: 4359309857771429126}
   boomerangRig: {fileID: 4070244194769041571}
@@ -523,7 +545,9 @@ MonoBehaviour:
   animatorWrapper:
     target: {fileID: 525408578157948085}
   capAnimator: {fileID: 7076075821335292971}
-  exponentialSharpness: 4
+  capSpinSpeedDegreesPerSecond: 1080
+  capFixedEulerX: 0
+  capFixedEulerZ: 60
 --- !u!114 &1951395449180523211
 MonoBehaviour:
   m_ObjectHideFlags: 0
