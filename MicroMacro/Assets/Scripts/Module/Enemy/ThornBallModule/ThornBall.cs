@@ -91,7 +91,7 @@ namespace Module.Enemy.ThornBallModule
 
         private void HandleScaleCompleted(ScaleEventArgs args)
         {
-            if (args.CurrentStep == scaler.MinStep)
+            if (args.CurrentStep == scaler.MinStep || args.CurrentStep == scaler.MaxStep)
             {
                 Death();
             }
