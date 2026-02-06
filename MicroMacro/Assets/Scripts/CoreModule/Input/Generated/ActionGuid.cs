@@ -36,5 +36,6 @@ namespace CoreModule.Input
        public readonly Guid TrackedDevicePosition = new Guid("24908448-c609-4bc3-a128-ea258674378a");
        public readonly Guid TrackedDeviceOrientation = new Guid("9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be");
        public readonly Guid Pause = new Guid("df1d9af8-8585-4fb3-baf0-ca8ec2aaa77d");
+       public readonly Guid AnyButton = new Guid("8abfe0e0-15ca-4910-928f-e5b9d9e1dc15");
     }
 }

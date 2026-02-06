@@ -303,6 +303,7 @@ GameObject:
   - component: {fileID: 4202192278907292177}
   - component: {fileID: 5595067327222364843}
   - component: {fileID: 2802736910761933969}
+  - component: {fileID: 2154863816121244104}
   m_Layer: 0
   m_Name: StageGoal
   m_TagString: Untagged
@@ -349,6 +350,8 @@ MonoBehaviour:
   goalCamera: {fileID: 8183478451542991543}
   fadeAndSceneTransition: {fileID: 0}
   avoidAreaCamera: {fileID: 0}
+  dialogueManager: {fileID: 0}
+  currentStageId: 
 --- !u!114 &5595067327222364843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -393,6 +396,20 @@ MonoBehaviour:
   scaleAnimator: {fileID: 0}
   profile: {fileID: 11400000, guid: 6975e1022cdf55748972bc796b5e6573, type: 2}
   sparkEffect: {fileID: 0}
+--- !u!114 &2154863816121244104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7475604208506677033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f49297f90f199694dbc1c036c56acde9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  capRenderer: {fileID: 6561712400741687313}
+  capScaler: {fileID: 5595067327222364843}
 --- !u!1001 &3037366511448990340
 PrefabInstance:
   m_ObjectHideFlags: 0

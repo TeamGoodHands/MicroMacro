@@ -1,5 +1,7 @@
-﻿using Constants;
+﻿using System;
+using Constants;
 using Module.Player.Component;
+using Module.Scaling;
 using Module.UI;
 using UnityEngine;
 
