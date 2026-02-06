@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using TMP_Ruby; // 1. 追加
+using TMP_Ruby;
 
 namespace Module.Application.Dialogue
 {
@@ -209,6 +209,13 @@ namespace Module.Application.Dialogue
                 if (token.IsCancellationRequested) 
                     return;
 
+                // 【修正】配列範囲外アクセス対策
+                // 非同期中にテキストが更新/クリアされた場合、characterInfoのサイズが変わっている可能性があるためチェック
+                if (i - 1 >= currentText.textInfo.characterInfo.Length)
+                {
+                    break;
+                }
+
                 // 現在表示させた文字の情報を取得（句読点判定のため）
                 // indexは 0 始まりなので i - 1
                 TMP_CharacterInfo charInfo = currentText.textInfo.characterInfo[i - 1];
@@ -250,17 +257,18 @@ namespace Module.Application.Dialogue
         {
             CancelCurrentProcess(); // タスクキャンセル
 
-            // アニメーション待機せずに即非表示
-            if (fuguSpeechBubble != null) 
+            // 【修正】DOKillをSetActive(false)より先に呼ぶように変更
+            // 無効化されたオブジェクトのTween操作によるエラー回避
+            if (fuguSpeechBubble != null && fuguSpeechBubble.gameObject.activeSelf) 
             {
+                fuguSpeechBubble.rectTransform.DOKill();
                 fuguSpeechBubble.gameObject.SetActive(false);
-                fuguSpeechBubble.rectTransform.DOKill(); // 動いているTweenも殺す
             }
         
-            if (playerSpeechBubble != null) 
+            if (playerSpeechBubble != null && playerSpeechBubble.gameObject.activeSelf) 
             {
-                playerSpeechBubble.gameObject.SetActive(false);
                 playerSpeechBubble.rectTransform.DOKill();
+                playerSpeechBubble.gameObject.SetActive(false);
             }
         
             currentBubble = null;
@@ -278,6 +286,13 @@ namespace Module.Application.Dialogue
 
         private void OnDestroy()
         {
+            // CancelCurrentProcessを呼ぶ前にTweenを明示的にKillする
+            // UniTaskのキャンセル処理とOnDestroyによるDOTweenの自動破棄が競合して
+            // IndexOutOfRangeExceptionが発生するのを防ぐため
+            if (fuguSpeechBubble != null) fuguSpeechBubble.rectTransform.DOKill();
+            if (playerSpeechBubble != null) playerSpeechBubble.rectTransform.DOKill();
+            if (currentBubble != null) currentBubble.rectTransform.DOKill();
+
             CancelCurrentProcess();
         }
     }
