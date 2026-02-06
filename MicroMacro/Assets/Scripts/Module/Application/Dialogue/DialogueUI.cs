@@ -100,7 +100,13 @@ namespace Module.Application.Dialogue
             currentText.maxVisibleCharacters = 0;
             
             currentBubble.gameObject.SetActive(true);
+            
+            // 開くアニメーション待機
             await PlayOpenAnimationAsync(token);
+            
+            // アニメーション待機中にDestroy/Cancelされた場合、ここで処理を止める。
+            if (token.IsCancellationRequested || currentBubble == null)
+                return;
             
             // ふわふわ浮かす
             StartFloatingAnimation();
@@ -164,6 +170,10 @@ namespace Module.Application.Dialogue
         
         private void StartFloatingAnimation()
         {
+          
+            if (currentBubble == null)
+                return;
+
             // 多重起動防止 & 位置リセット
             currentBubble.rectTransform.DOKill();
             currentBubble.rectTransform.anchoredPosition = currentTargetPos;
@@ -182,6 +192,9 @@ namespace Module.Application.Dialogue
 
         private async UniTask PlayOpenAnimationAsync(CancellationToken token)
         {
+            // ここも念のためチェック
+            if (currentBubble == null) return;
+            
             var rect = currentBubble.rectTransform;
             
             rect.localScale = Vector3.zero;
@@ -209,7 +222,7 @@ namespace Module.Application.Dialogue
                 if (token.IsCancellationRequested) 
                     return;
 
-                // 【修正】配列範囲外アクセス対策
+                // 配列範囲外アクセス対策
                 // 非同期中にテキストが更新/クリアされた場合、characterInfoのサイズが変わっている可能性があるためチェック
                 if (i - 1 >= currentText.textInfo.characterInfo.Length)
                 {
@@ -257,7 +270,7 @@ namespace Module.Application.Dialogue
         {
             CancelCurrentProcess(); // タスクキャンセル
 
-            // 【修正】DOKillをSetActive(false)より先に呼ぶように変更
+            // DOKillをSetActive(false)より先に呼ぶように変更
             // 無効化されたオブジェクトのTween操作によるエラー回避
             if (fuguSpeechBubble != null && fuguSpeechBubble.gameObject.activeSelf) 
             {
