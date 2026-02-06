@@ -26,6 +26,7 @@ namespace Module.Gimmick
         [SerializeField] private CinemachineCamera goalCamera;
         [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
         [SerializeField] private GameObject avoidAreaCamera;
+        [SerializeField] private DialogueManager dialogueManager;
         [Header("このステージのID (例: 1-1)")]
         [SerializeField] private string currentStageId;
         
@@ -66,7 +67,7 @@ namespace Module.Gimmick
 
         private async UniTaskVoid DestroyGoal()
         {
-          //  dialogueManager.AbortDialogue(false);
+            dialogueManager.AbortDialogue(false);
             
             SoundManager.instance.Play("ボスカタカタ");
             await bodyTransform.DOShakePosition(3f, strength: 0.003f, vibrato: 40).WithCancellation(this.GetCancellationTokenOnDestroy());

@@ -24,6 +24,7 @@ namespace Module.Gimmick
 
         [SerializeField] private Rigidbody rb;
         [SerializeField] private PlayableDirector director;
+        [SerializeField] private GameObject hitBox;
 
         [Header("Settings")] [SerializeField] private float stopDistance = 0.1f;
         [SerializeField] private float breakDuration = 2.0f;
@@ -93,6 +94,9 @@ namespace Module.Gimmick
             {
                 // レイヤー切り替えて衝突回避
                 gameObject.layer = ignoreLayerIndex;
+                
+                rb.isKinematic = false;
+                hitBox.SetActive(false);
 
                 // --- 木の実を食べる ---
                 nuts.SetActive(false);
@@ -139,6 +143,7 @@ namespace Module.Gimmick
                 {
                     rb.linearVelocity = Vector3.zero;
                     gameObject.layer = originalLayer;
+                    rb.isKinematic = true;
                 }
 
                 playerBehaviour.Component.Condition.IsPlayerLocked = false;

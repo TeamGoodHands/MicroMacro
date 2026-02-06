@@ -81,6 +81,7 @@ namespace Module.Application.Dialogue
             if (dialogueQueue.Count > 0)
             {
                 dialogueQueue.Clear();
+                Debug.Log("Dialogue queue cleared.");
             }
 
             // 表示中のセリフがあったら中断フラグ立てる
@@ -126,8 +127,9 @@ namespace Module.Application.Dialogue
         /// <param name="isImmediate">trueならアニメーションなしで即消し（死亡時など）</param>
         public void AbortDialogue(bool isImmediate = false)
         {
+            Debug.Log("Dialogue aborted.");
             // 待機中のセリフをすべて破棄
-            /*ClearQueue();
+            ClearQueue();
             
             isClearRequested = true;
             isDisplaying = false; 
@@ -141,7 +143,7 @@ namespace Module.Application.Dialogue
             {
                 // asyncメソッドを同期メソッドから呼ぶのでForgetする
                 dialogueUI.HideAsync().Forget();
-            }*/
+            }
         }
     }
 }
