@@ -51,7 +51,7 @@ namespace Module.Gimmick
             playerCondition.IsRiding = true;
 
             // ジャンプボタンのイベントを登録
-            jumpEvent.Started += HandleDismount;
+            // jumpEvent.Started += HandleDismount;
 
             OnRide?.Invoke();
         }
@@ -70,7 +70,7 @@ namespace Module.Gimmick
             playerRigidbody.position += Vector3.right * dismountOffset;
 
             // ジャンプボタンのイベントを解除
-            jumpEvent.Started -= HandleDismount;
+            // jumpEvent.Started -= HandleDismount;
 
             OnDismount?.Invoke();
         }
