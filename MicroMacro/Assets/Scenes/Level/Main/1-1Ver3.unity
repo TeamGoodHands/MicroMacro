@@ -2353,9 +2353,17 @@ PrefabInstance:
       value: DialogueManager
       objectReference: {fileID: 0}
     - target: {fileID: 7657718999245723556, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
+      propertyPath: fuguRuby
+      value: 
+      objectReference: {fileID: 1746914232}
+    - target: {fileID: 7657718999245723556, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
       propertyPath: fuguText
       value: 
       objectReference: {fileID: 2114235810}
+    - target: {fileID: 7657718999245723556, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
+      propertyPath: playerRuby
+      value: 
+      objectReference: {fileID: 1746914231}
     - target: {fileID: 7657718999245723556, guid: 2bddcc67909583d49ba90f251660f2e9, type: 3}
       propertyPath: playerText
       value: 
@@ -37451,7 +37459,7 @@ Transform:
   m_GameObject: {fileID: 1067435887}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -110.04429, y: 0.9160261, z: -15}
+  m_LocalPosition: {x: -55.66429, y: 1.5980606, z: -15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -61480,6 +61488,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 07da1f787c2e7a44fbf9e5f9360cf189, type: 3}
+--- !u!114 &1746914231 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7446519793445388255, guid: 715df9bb7885452419cf1b25e4913162, type: 3}
+  m_PrefabInstance: {fileID: 2114235803}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8765114703be401999244387c19feb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1746914232 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8592326646086307825, guid: 715df9bb7885452419cf1b25e4913162, type: 3}
+  m_PrefabInstance: {fileID: 2114235803}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8765114703be401999244387c19feb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1747450632
 PrefabInstance:
   m_ObjectHideFlags: 0
