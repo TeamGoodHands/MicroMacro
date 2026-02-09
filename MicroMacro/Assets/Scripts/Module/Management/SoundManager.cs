@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using UnityEngine.Audio;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace Module.Management
 {
@@ -278,6 +279,52 @@ namespace Module.Management
                     audioSource.Stop();
                 }
             }
+        }
+
+        /// <summary>
+        /// BGMのみフェードアウトして止める
+        /// </summary>
+        /// <param name="duration">フェードアウト完了までの時間（秒）</param>
+        /// <param name="token">キャンセル用トークン</param>
+        public async UniTask FadeOutAndStopAllBGM(float duration, CancellationToken token)
+        {
+            List<UniTask> tasks = new List<UniTask>();
+
+            foreach (AudioSource audioSource in audioSourceList)
+            {
+                // 再生中かつBGMグループのものだけフェード対象
+                if (audioSource.isPlaying && audioSource.outputAudioMixerGroup == audioMixerGroups.BGM)
+                {
+                    tasks.Add(FadeOutAudioSource(audioSource, duration, token));
+                }
+            }
+
+            if (tasks.Count > 0)
+            {
+                await UniTask.WhenAll(tasks);
+            }
+        }
+
+        private async UniTask FadeOutAudioSource(AudioSource source, float duration, CancellationToken token)
+        {
+            float startVolume = source.volume;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                if (token.IsCancellationRequested) return;
+
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                
+                // 単純な線形補間
+                source.volume = Mathf.Lerp(startVolume, 0f, t);
+
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
+            }
+
+            source.volume = 0f;
+            source.Stop();
         }
 
         // --- Helper ---
