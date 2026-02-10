@@ -18,7 +18,7 @@ namespace Module.Application.SceneSwitch
 
         private void OnPlayerDeath()
         {
-            sceneTransition.StartTransition(nextSceneName);
+            sceneTransition.StartNormalTransition(nextSceneName);
         }
     }
 }

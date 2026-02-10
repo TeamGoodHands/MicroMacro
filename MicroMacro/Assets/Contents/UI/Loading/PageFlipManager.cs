@@ -2,65 +2,48 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
-
 using Module.Management; // SoundManager用
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class PageFlipManager : MonoBehaviour
 {
-    [SerializeField]
-    private Camera uiCamera;     // UIを撮影する専用カメラ
+    [SerializeField] private Camera uiCamera; // UIを撮影する専用カメラ
 
-    [SerializeField]
-    private float distanceFromCamera = 10.0f; // カメラからの配置距離
+    [SerializeField] private float distanceFromCamera = 10.0f; // カメラからの配置距離
 
-    [Header("Audio Settings")]
-    [SerializeField]
-    [Tooltip("ページめくり時のSE名（SoundManagerに登録された名前）")]
+    [Header("Audio Settings")] [SerializeField] [Tooltip("ページめくり時のSE名（SoundManagerに登録された名前）")]
     private string pageFlipSEName = "PageFlip";
-    
-    [SerializeField]
-    [Tooltip("ページごとにSEを鳴らすか（falseなら最初の1回のみ）")]
+
+    [SerializeField] [Tooltip("ページごとにSEを鳴らすか（falseなら最初の1回のみ）")]
     private bool playSoundPerPage = true;
 
-    [SerializeField]
-    [Tooltip("マスクディゾルブ時のSE名（SoundManagerに登録された名前）")]
+    [SerializeField] [Tooltip("マスクディゾルブ時のSE名（SoundManagerに登録された名前）")]
     private string maskDissolveSEName = "MaskDissolve";
 
-    [Header("Page Settings")]
-    [SerializeField]
+    [Header("Page Settings")] [SerializeField]
     private Texture[] intermediatePageTextures; // 中間ページ用テクスチャ（オプション）
 
-    [Header("Rapid Flip Settings (パラパラ)")]
-    [SerializeField]
-    [Tooltip("パラパラめくり時の1ページあたりのアニメーション時間")]
+    [Header("Rapid Flip Settings (パラパラ)")] [SerializeField] [Tooltip("パラパラめくり時の1ページあたりのアニメーション時間")]
     private float rapidFlipDuration = 0.1f;
 
-    [SerializeField]
-    [Tooltip("パラパラめくり時のページ数")]
+    [SerializeField] [Tooltip("パラパラめくり時のページ数")]
     private int rapidFlipPageCount = 6;
 
-    [SerializeField]
-    [Tooltip("最初のページの速度倍率（大きいほど遅い）")]
-    [Range(0.5f, 3f)]
+    [SerializeField] [Tooltip("最初のページの速度倍率（大きいほど遅い）")] [Range(0.5f, 3f)]
     private float startSpeedMultiplier = 1.5f;
 
-    [SerializeField]
-    [Tooltip("最後のページの速度倍率（小さいほど速い）")]
-    [Range(0.1f, 1f)]
+    [SerializeField] [Tooltip("最後のページの速度倍率（小さいほど速い）")] [Range(0.1f, 1f)]
     private float endSpeedMultiplier = 0.3f;
 
-    [Header("Mesh Settings")]
-    [SerializeField] [Range(10, 200)] private int meshResolutionX = 100;
+    [Header("Mesh Settings")] [SerializeField] [Range(10, 200)]
+    private int meshResolutionX = 100;
+
     [SerializeField] [Range(2, 50)] private int meshResolutionY = 20;
 
-    [Header("Mask Dissolve Settings")]
-    [SerializeField]
-    [Tooltip("マスクディゾルブ用テクスチャ")]
+    [Header("Mask Dissolve Settings")] [SerializeField] [Tooltip("マスクディゾルブ用テクスチャ")]
     private Texture2D maskTexture;
-    
-    [SerializeField]
-    [Tooltip("マスクディゾルブの所要時間")]
+
+    [SerializeField] [Tooltip("マスクディゾルブの所要時間")]
     private float maskDissolveDuration = 0.3f;
 
     // 内部変数
@@ -95,7 +78,7 @@ public class PageFlipManager : MonoBehaviour
     private void Awake()
     {
         meshRenderer = GetComponent<MeshRenderer>();
-        
+
         // 1. マテリアル確保
         if (meshRenderer != null)
         {
@@ -130,27 +113,80 @@ public class PageFlipManager : MonoBehaviour
             return;
         }
 
+        if (uiCamera == null)
+        {
+            Debug.LogError("UIカメラが見つかりません");
+            return;
+        }
+
         // 解像度チェック
         CheckAndRebuildRenderTexture();
 
-        // メインカメラの映像をキャプチャ
-        RenderTexture currentRT = RenderTexture.active;
-        RenderTexture captureRT = RenderTexture.GetTemporary(Screen.width, Screen.height, 24);
-        
-        MainCamera.targetTexture = captureRT;
-        MainCamera.Render();
-        MainCamera.targetTexture = null;
+        // 【WebGPU対策】MainCameraで直接レンダリングすると投影行列が歪むため、
+        // uiCameraにMainCameraの設定をコピーして使用する
 
-        // RenderTextureにコピー
-        Graphics.Blit(captureRT, uiRenderTexture);
-        
+        // 1. すべてのCanvasを取得し、MainCameraを参照しているものをリストアップ
+        Canvas[] allCanvases = FindObjectsOfType<Canvas>();
+        System.Collections.Generic.List<Canvas> canvasesToSwitch = new System.Collections.Generic.List<Canvas>();
+
+        foreach (Canvas canvas in allCanvases)
+        {
+            if (canvas.renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == MainCamera)
+            {
+                canvasesToSwitch.Add(canvas);
+            }
+        }
+
+        // 2. uiCameraの設定をMainCameraと完全に同期
+        uiCamera.CopyFrom(MainCamera);
+
+        // 3. CanvasのカメラをuiCameraに一時的に切り替え
+        foreach (Canvas canvas in canvasesToSwitch)
+        {
+            canvas.worldCamera = uiCamera;
+        }
+
+        // 3-2. Canvas のレイアウトを強制的に再計算（WebGPU対策）
+        Canvas.ForceUpdateCanvases();
+
+        // 4. uiCameraでレンダリング
+        RenderTexture currentRT = RenderTexture.active;
+
+        uiCamera.targetTexture = uiRenderTexture;
+        uiCamera.Render();
+        uiCamera.targetTexture = null;
+
         RenderTexture.active = currentRT;
-        RenderTexture.ReleaseTemporary(captureRT);
+
+        // 5. Canvasを元に戻す
+        foreach (Canvas canvas in canvasesToSwitch)
+        {
+            canvas.worldCamera = MainCamera;
+        }
 
         // マテリアルに設定
         if (pageMaterial != null)
         {
             pageMaterial.SetTexture(MainTexProp, uiRenderTexture);
+        }
+
+        // 個別に生成されたページマテリアルにも反映
+        if (rapidPageMaterials != null && rapidPageMaterials.Length > 0)
+        {
+            // 1枚目は必ずキャプチャ画像を使用するため更新
+            if (rapidPageMaterials[0] != null)
+            {
+                rapidPageMaterials[0].SetTexture(MainTexProp, uiRenderTexture);
+            }
+
+            // 中間テクスチャが設定されていないページも更新（フォールバック用）
+            for (int i = 1; i < rapidPageMaterials.Length; i++)
+            {
+                if (rapidPageMaterials[i] != null && (intermediatePageTextures == null || i - 1 >= intermediatePageTextures.Length))
+                {
+                    rapidPageMaterials[i].SetTexture(MainTexProp, uiRenderTexture);
+                }
+            }
         }
     }
 
@@ -171,12 +207,12 @@ public class PageFlipManager : MonoBehaviour
     public void RefreshPosition()
     {
         FitToFrustum();
-        
+
         // パラパラページがあれば遠近法補正も再計算
         if (rapidPageObjects != null)
         {
             int lastIndex = rapidPageObjects.Length - 1;
-            
+
             for (int i = 0; i < rapidPageObjects.Length; i++)
             {
                 if (rapidPageObjects[i] != null)
@@ -220,7 +256,7 @@ public class PageFlipManager : MonoBehaviour
     {
         if (pageCount < 0) pageCount = rapidFlipPageCount;
         if (isFlipping) return;
-        
+
         isFlipping = true;
 
         try
@@ -230,7 +266,7 @@ public class PageFlipManager : MonoBehaviour
 
             // 先に親の位置・スケールを設定
             FitToFrustum();
-            
+
             // 複数ページ用のオブジェクトを作成
             CreateRapidPageObjects(pageCount);
 
@@ -244,10 +280,10 @@ public class PageFlipManager : MonoBehaviour
                 // ページ位置に応じた加速（最初はゆっくり、後半は速く）
                 float progress = (float)i / (pageCount - 1);
                 float accelerationFactor = Mathf.Lerp(startSpeedMultiplier, endSpeedMultiplier, progress);
-                
+
                 pageDurations[i] = rapidFlipDuration * accelerationFactor;
                 pageStartTimes[i] = currentStartTime;
-                
+
                 // 次のページの開始時間（オーバーラップも加速に合わせて調整）
                 float overlapFactor = Mathf.Lerp(0.5f, 0.8f, progress); // 後半はよりオーバーラップ
                 currentStartTime += pageDurations[i] * (1f - overlapFactor);
@@ -255,24 +291,24 @@ public class PageFlipManager : MonoBehaviour
 
             // 総アニメーション時間（最後の1枚を残す場合は最後の1ページのアニメは不要）
             int lastAnimatedPage = keepLastPage ? pageCount - 2 : pageCount - 1;
-            float totalDuration = lastAnimatedPage >= 0 
-                ? pageStartTimes[lastAnimatedPage] + pageDurations[lastAnimatedPage] 
+            float totalDuration = lastAnimatedPage >= 0
+                ? pageStartTimes[lastAnimatedPage] + pageDurations[lastAnimatedPage]
                 : 0f;
             float elapsedTime = 0f;
-            
+
             // SE再生済みフラグ
             bool[] pageSoundPlayed = new bool[pageCount];
 
             while (elapsedTime < totalDuration)
             {
                 elapsedTime += Time.deltaTime;
-                
+
                 // 各ページのカール量を個別に更新
                 for (int i = 0; i < pageCount; i++)
                 {
                     // 最後のページを残す場合、最後のページはアニメーションしない
                     if (keepLastPage && i == pageCount - 1) continue;
-                    
+
                     if (elapsedTime >= pageStartTimes[i])
                     {
                         // SE再生（まだ鳴らしていない場合）
@@ -284,18 +320,19 @@ public class PageFlipManager : MonoBehaviour
                             {
                                 SoundManager.instance.Play(pageFlipSEName);
                             }
+
                             pageSoundPlayed[i] = true;
                         }
 
                         float pageElapsed = elapsedTime - pageStartTimes[i];
                         float t = Mathf.Clamp01(pageElapsed / pageDurations[i]);
-                        
+
                         // 加速するイージング
                         float easedT = t * t;
                         float curlAmount = Mathf.Lerp(0f, 1f, easedT);
-                        
+
                         rapidPageMaterials[i].SetFloat(CurlAmountProp, curlAmount);
-                        
+
                         // ページが完全にめくれたら非表示（もう見えない）
                         if (curlAmount >= 0.95f)
                         {
@@ -303,10 +340,10 @@ public class PageFlipManager : MonoBehaviour
                         }
                     }
                 }
-                
+
                 await UniTask.Yield(token);
             }
-            
+
             // 最後のページを残さない場合は全ページを破棄
             if (!keepLastPage)
             {
@@ -336,7 +373,7 @@ public class PageFlipManager : MonoBehaviour
     {
         // 最後のページがなければ何もしない
         if (rapidPageMaterials == null || rapidPageMaterials.Length == 0) return;
-        
+
         int lastIndex = rapidPageMaterials.Length - 1;
         Material lastPageMat = rapidPageMaterials[lastIndex];
         if (lastPageMat == null) return;
@@ -352,6 +389,7 @@ public class PageFlipManager : MonoBehaviour
         {
             lastPageMat.SetTexture(MaskTexProp, maskTexture);
         }
+
         lastPageMat.SetFloat(UseMaskProp, 1f);
         lastPageMat.SetFloat(MaskThresholdProp, 1f);
 
@@ -361,16 +399,17 @@ public class PageFlipManager : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / maskDissolveDuration);
-            
+
             // しきい値を1から0へ（黒い部分から徐々に消える）
             lastPageMat.SetFloat(MaskThresholdProp, 1f - t);
-            
+
+
             await UniTask.Yield(token);
         }
 
         // 完全に消す
         lastPageMat.SetFloat(MaskThresholdProp, 0f);
-        
+
         // クリーンアップ
         DestroyRapidPageObjects();
     }
@@ -402,7 +441,7 @@ public class PageFlipManager : MonoBehaviour
             // メッシュレンダラーを追加し、個別のマテリアルインスタンスを作成
             MeshRenderer renderer = pageObj.AddComponent<MeshRenderer>();
             Material mat = new Material(pageMaterial);
-            
+
             // テクスチャを設定（1枚目はキャプチャ画像、2枚目以降は中間テクスチャ）
             if (i == 0)
             {
@@ -419,21 +458,21 @@ public class PageFlipManager : MonoBehaviour
                 // テクスチャが足りない場合はキャプチャ画像を使用
                 mat.SetTexture(MainTexProp, uiRenderTexture);
             }
-            
+
             mat.SetFloat(CurlAmountProp, 0f);
-            mat.SetFloat(UseMaskProp, 0f);  // マスクを無効化（ディゾルブ時のみ有効にする）
-            
+            mat.SetFloat(UseMaskProp, 0f); // マスクを無効化（ディゾルブ時のみ有効にする）
+
             renderer.material = mat;
             renderer.enabled = true; // 最初から全ページを表示（重なって見える）
 
             // Z軸で少しずらして重なりを防止
             float zOffsetLocal = 0.01f * i;
             pageObj.transform.localPosition = new Vector3(0, 0, zOffsetLocal);
-            
+
             // 遠近法補正：カメラの視野角と距離から正確に計算
             // ワールド空間でのZオフセット = ローカルオフセット * 親のZスケール
             float worldZOffset = zOffsetLocal * transform.lossyScale.z;
-            
+
             // 遠近法補正: カメラからの距離に応じたスケール
             // 元の距離: distanceFromCamera
             // 新しい距離: distanceFromCamera + worldZOffset
@@ -459,11 +498,13 @@ public class PageFlipManager : MonoBehaviour
                 {
                     Destroy(rapidPageMaterials[i]);
                 }
+
                 if (rapidPageObjects[i] != null)
                 {
                     Destroy(rapidPageObjects[i]);
                 }
             }
+
             rapidPageObjects = null;
             rapidPageMaterials = null;
             rapidPageRenderers = null;
@@ -488,6 +529,9 @@ public class PageFlipManager : MonoBehaviour
 
         // XとZのスケールを合わせて円の歪みを防止
         transform.localScale = new Vector3(frustumWidth, frustumHeight, frustumWidth);
+
+        Debug.Log($"FitToFrustum: pos={transform.position}, scale={transform.localScale}");
+        Debug.Log($"Camera FOV={cam.fieldOfView}, aspect={cam.aspect}, distance={distanceFromCamera}");
     }
 
     #endregion
@@ -497,7 +541,12 @@ public class PageFlipManager : MonoBehaviour
     private void SetupRenderTexture()
     {
         // 画面サイズに合わせて生成
-        uiRenderTexture = new RenderTexture(Screen.width, Screen.height, 24);
+        int w = Mathf.Max(Screen.width, 1);
+        int h = Mathf.Max(Screen.height, 1);
+
+        uiRenderTexture = new RenderTexture(w, h, 24);
+        uiRenderTexture.useMipMap = false; // Mipmapは不要（ぼやけの原因になる）
+        uiRenderTexture.filterMode = FilterMode.Bilinear;
         uiRenderTexture.name = "PageFlipTexture";
         uiRenderTexture.Create();
 
@@ -524,6 +573,7 @@ public class PageFlipManager : MonoBehaviour
                 uiRenderTexture.Release();
                 Destroy(uiRenderTexture);
             }
+
             SetupRenderTexture();
         }
     }
@@ -536,7 +586,7 @@ public class PageFlipManager : MonoBehaviour
 
         int xRes = meshResolutionX;
         int yRes = meshResolutionY;
-        
+
         // 頂点数チェック
         if ((xRes + 1) * (yRes + 1) > 65000)
         {
@@ -554,7 +604,7 @@ public class PageFlipManager : MonoBehaviour
                 int i = y * (xRes + 1) + x;
                 float xPos = (float)x / xRes;
                 float yPos = (float)y / yRes;
-                
+
                 vertices[i] = new Vector3(xPos - 0.5f, yPos - 0.5f, 0);
                 uvs[i] = new Vector2(xPos, yPos);
             }
@@ -566,15 +616,15 @@ public class PageFlipManager : MonoBehaviour
             for (int x = 0; x < xRes; x++)
             {
                 int i = y * (xRes + 1) + x;
-                
+
                 triangles[triIndex] = i;
                 triangles[triIndex + 1] = i + xRes + 1;
                 triangles[triIndex + 2] = i + 1;
-                
+
                 triangles[triIndex + 3] = i + 1;
                 triangles[triIndex + 4] = i + xRes + 1;
                 triangles[triIndex + 5] = i + xRes + 2;
-                
+
                 triIndex += 6;
             }
         }
@@ -584,7 +634,7 @@ public class PageFlipManager : MonoBehaviour
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
-        
+
         filter.mesh = mesh;
         sharedPageMesh = mesh; // 共有メッシュとして保存
     }
@@ -593,7 +643,7 @@ public class PageFlipManager : MonoBehaviour
     {
         // クリーンアップ
         DestroyRapidPageObjects();
-        
+
         if (uiRenderTexture != null)
         {
             if (uiCamera != null) uiCamera.targetTexture = null;

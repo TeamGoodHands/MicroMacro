@@ -6,29 +6,37 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using Module.Management;
 using UnityEngine.EventSystems; 
+using UnityEngine.Serialization; // Added for FormerlySerializedAs
 
 namespace Module.Application.SceneSwitch
 {
     public class FadeAndSceneTransition : MonoBehaviour
     {
-        [Header("フェードCanvasのPrefab")]
-        [SerializeField] GameObject fadeCanvasPrefab;
+        [Header("ページめくり用Prefab")]
+        [FormerlySerializedAs("fadeCanvasPrefab")]
+        [SerializeField] GameObject pageFlipFadePrefab;
+
+        [Header("通常フェード用Prefab")]
+        [SerializeField] GameObject normalFadePrefab;
+
         [Header("移動するシーンの名前")]
         public string nextSceneName;
 
         [Header("BGMフェードアウト時間（秒）")]
         [SerializeField] private float bgmFadeDuration = 1.0f;
 
-        private static GameObject faderObj;
+        // 2つの永続フェードオブジェクトを保持
+        private static GameObject pageFlipInstance;
+        private static GameObject normalFadeInstance;
+
+        // 現在使用中のフェードハンドラ
         private static IFadeHandler fadeHandler;
         private bool isSceneTransitioning;
         
         private void Awake()
         {
-            if (faderObj == null)
-            {
-                CreateAndRegisterFader();
-            }
+            // ここでのインスタンス生成は行わず、StartTransition時に必要に応じて生成する形に変更
+            // ただし、以前の互換性のため、何かしら初期化が必要なら検討
             
             SceneManager.sceneLoaded += OnSceneLoadedWrapper;
         }
@@ -41,43 +49,74 @@ namespace Module.Application.SceneSwitch
             => OnSceneLoadedSequence(CancellationToken.None).Forget();
         
         /// <summary>
-        /// FadeCanvasの生成、永続化
+        /// 指定されたプレハブからフェーダーを取得・生成し、Activeにする
         /// </summary>
-        private void CreateAndRegisterFader()
+        private IFadeHandler GetOrCreateFader(bool usePageFlip)
         {
-            if (fadeCanvasPrefab == null)
+            GameObject targetInstance = usePageFlip ? pageFlipInstance : normalFadeInstance;
+            GameObject prefab = usePageFlip ? pageFlipFadePrefab : normalFadePrefab;
+
+            // まだ生成されていなければ生成
+            if (targetInstance == null)
             {
-                Debug.LogError("FadeCanvasがアタッチされていません"); 
-                return;
+                if (prefab == null)
+                {
+                    Debug.LogError($"{(usePageFlip ? "PageFlip" : "Normal")} Fade Prefab is missing!");
+                    return null;
+                }
+                targetInstance = Instantiate(prefab);
+                DontDestroyOnLoad(targetInstance);
+
+                // Static変数に保存
+                if (usePageFlip) pageFlipInstance = targetInstance;
+                else normalFadeInstance = targetInstance;
             }
 
-            faderObj = Instantiate(fadeCanvasPrefab);
-            DontDestroyOnLoad(faderObj);
+            // 表示状態を切り替え
+            if (pageFlipInstance != null) pageFlipInstance.SetActive(usePageFlip);
+            if (normalFadeInstance != null) normalFadeInstance.SetActive(!usePageFlip);
 
-            // faderがIFadeHandlerを実装していればIFadeHandler型に変換して代入
-            fadeHandler = faderObj.GetComponentInChildren<IFadeHandler>();
-            if (fadeHandler == null)
-            {
-                Debug.LogError("FadeCanvasにIFadeHandler実装がありません");
-            }
+            return targetInstance.GetComponentInChildren<IFadeHandler>();
         }
 
         /// <summary>
-        /// シーン切り替え開始（外部から呼ばれる入り口）
+        /// シーン切り替え開始（ページめくり演出を使用）
         /// </summary>
-        public void StartTransition()
+        public void StartPageFlipTransition() => StartTransitionInternal(true);
+
+        /// <summary>
+        /// シーン切り替え開始（通常フェード演出を使用）
+        /// </summary>
+        public void StartNormalTransition() => StartTransitionInternal(false);
+
+        /// <summary>
+        /// シーン切り替え開始（デフォルト：ページめくり）
+        /// ※互換性のため残しています
+        /// </summary>
+        public void StartTransition() => StartPageFlipTransition();
+
+        /// <summary>
+        /// 内部処理：指定されたモードで遷移を開始
+        /// </summary>
+        private void StartTransitionInternal(bool usePageFlip)
         {
-            // faderObjが存在しない場合は作成
-            if (faderObj == null)
+            // フェーダーを準備
+            fadeHandler = GetOrCreateFader(usePageFlip);
+            
+            if (fadeHandler == null)
             {
-                CreateAndRegisterFader();
+                Debug.LogError("FadeHandlerの取得に失敗しました");
+                return;
             }
+
+            // 現在アクティブなフェーダーのGameObject
+            GameObject activeObj = usePageFlip ? pageFlipInstance : normalFadeInstance;
 
             // UniTaskVoidにすることで、投げっぱなしで実行
             // ただし、このScriptが破棄されると止まってしまうので、
             // DontDestroyOnLoadされているfaderObjのライフサイクルに紐づける
-            CancellationToken token = faderObj != null 
-                ? faderObj.GetCancellationTokenOnDestroy() 
+            CancellationToken token = activeObj != null 
+                ? activeObj.GetCancellationTokenOnDestroy() 
                 : this.GetCancellationTokenOnDestroy();
 
             TransitionSequence(token).Forget();
@@ -86,16 +125,25 @@ namespace Module.Application.SceneSwitch
         public void StartTransitionSame()
         {
            nextSceneName = SceneManager.GetActiveScene().name;
-           StartTransition();
+           StartNormalTransition(); // リロードは通常フェードが無難？一旦通常にしておく
         }
 
         /// <summary>
-        /// 名前指定してシーン移動したい場合
+        /// 名前指定してページめくり遷移
         /// </summary>
-        public void StartTransition(string sceneName)
+        public void StartPageFlipTransition(string sceneName)
         {
             nextSceneName = sceneName;
-            StartTransition();
+            StartPageFlipTransition();
+        }
+
+        /// <summary>
+        /// 名前指定して通常フェード遷移
+        /// </summary>
+        public void StartNormalTransition(string sceneName)
+        {
+            nextSceneName = sceneName;
+            StartNormalTransition();
         }
 
         /// <summary>
