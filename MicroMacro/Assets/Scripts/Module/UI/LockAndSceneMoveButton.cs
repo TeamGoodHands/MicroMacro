@@ -70,7 +70,7 @@ namespace Module.UI
             if (transitionHandler != null)
             {
                 LockButtonAndSelect();
-                transitionHandler.StartTransition(nextSceneName);
+                transitionHandler.StartPageFlipTransition(nextSceneName);
             }
             else
             {

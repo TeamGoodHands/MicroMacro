@@ -123,7 +123,7 @@ namespace Module.Application
             audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
 
             Time.timeScale = 1f;
-            sceneManager.StartTransition("StageSelect");
+            sceneManager.StartNormalTransition("StageSelect");
         }
 
         public void ReturnToTitle()
@@ -135,7 +135,7 @@ namespace Module.Application
             audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
 
             Time.timeScale = 1f;
-            sceneManager.StartTransition("Title");
+            sceneManager.StartNormalTransition("Title");
         }
 
         public void RestartLevel()
@@ -147,7 +147,7 @@ namespace Module.Application
             audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
 
             Time.timeScale = 1f;
-            sceneManager.StartTransition(SceneManager.GetActiveScene().name);
+            sceneManager.StartNormalTransition(SceneManager.GetActiveScene().name);
         }
 
         public void Feedback()
@@ -159,7 +159,7 @@ namespace Module.Application
             audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
 
             Time.timeScale = 1f;
-            sceneManager.StartTransition("Feedback");
+            sceneManager.StartNormalTransition("Feedback");
         }
     }
 }

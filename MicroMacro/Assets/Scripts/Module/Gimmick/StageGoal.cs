@@ -125,7 +125,7 @@ namespace Module.Gimmick
 
             // ステージセレクト画面へ戻る
             if (fadeAndSceneTransition != null)
-             fadeAndSceneTransition.StartTransition("StageSelect");
+             fadeAndSceneTransition.StartPageFlipTransition("StageSelect");
         }
     }
 }

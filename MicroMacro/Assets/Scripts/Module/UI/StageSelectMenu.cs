@@ -41,12 +41,6 @@ namespace Module.UI
                 // もう一度ボタンを選択状態する
                 sceneButtons[currentIndex].Button.Select();
             }
-
-
-            if (Keyboard.current.f2Key.isPressed)
-            {
-                sceneTransition.StartTransition("WaterBoss");
-            }
         }
 
         private void RegisterSelector()
@@ -65,7 +59,7 @@ namespace Module.UI
                     ;
 
                     currentIndex = buttonIndex;
-                    sceneTransition.StartTransition(sceneButton.SceneName);
+                    sceneTransition.StartPageFlipTransition(sceneButton.SceneName);
                 });
 
 

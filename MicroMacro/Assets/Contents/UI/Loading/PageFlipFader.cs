@@ -54,8 +54,12 @@ namespace Module.Application.SceneSwitch
 
         private void OnDestroy()
         {
-            fadeCts?.Cancel();
-            fadeCts?.Dispose();
+            if (fadeCts != null)
+            {
+                fadeCts.Cancel();
+                fadeCts.Dispose();
+                fadeCts = null;
+            }
         }
 
         #region IFadeHandler Implementation
@@ -65,11 +69,15 @@ namespace Module.Application.SceneSwitch
         /// </summary>
         public void StartFadeOut()
         {
-            if (currentState == FadeState.FadingOut)
+            if (this == null || currentState == FadeState.FadingOut)
                 return;
 
             // 前回のフェードをキャンセル
-            fadeCts?.Cancel();
+            if (fadeCts != null)
+            {
+                fadeCts.Cancel();
+                fadeCts.Dispose();
+            }
             fadeCts = new CancellationTokenSource();
 
             currentState = FadeState.FadingOut;
@@ -81,10 +89,14 @@ namespace Module.Application.SceneSwitch
         /// </summary>
         public void StartFadeIn()
         {
-            if (currentState == FadeState.FadingIn)
+            if (this == null || currentState == FadeState.FadingIn)
                 return;
 
-            fadeCts?.Cancel();
+            if (fadeCts != null)
+            {
+                fadeCts.Cancel();
+                fadeCts.Dispose();
+            }
             fadeCts = new CancellationTokenSource();
 
             currentState = FadeState.FadingIn;
@@ -125,7 +137,7 @@ namespace Module.Application.SceneSwitch
 
                 // 2. メッシュを表示
                 pageFlipManager.SetVisible(true);
-
+                
                 // 3. パラパラめくり
                 await pageFlipManager.FlipRapidAsync(-1, keepLastPage, token);
 

@@ -59,7 +59,7 @@ namespace Module.UI
 
             // ステージセレクト画面へ戻る
             if (fadeAndSceneTransition != null)
-                fadeAndSceneTransition.StartTransition(nextSceneName);
+                fadeAndSceneTransition.StartPageFlipTransition(nextSceneName);
 
         }
     }

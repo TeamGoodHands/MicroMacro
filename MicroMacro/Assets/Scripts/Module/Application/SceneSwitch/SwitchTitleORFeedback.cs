@@ -12,7 +12,7 @@ namespace Module.Application.SceneSwitch
         {
             if (sceneManager != null)
             {
-                sceneManager.StartTransition("Title");
+                sceneManager.StartNormalTransition("Title");
             }
         }
 
@@ -20,7 +20,7 @@ namespace Module.Application.SceneSwitch
         {
             if (sceneManager != null)
             {
-                sceneManager.StartTransition("Feedback");
+                sceneManager.StartNormalTransition("Feedback");
             }
         }
 

@@ -39,7 +39,7 @@ namespace Module.Application.SceneSwitch
             {
                 // インスペクタで指定されていればそれを使うが、
                 // 基本的にクリア後はステージセレクトに戻るならここで指定しても良い
-                sceneManager.StartTransition(STAGE_SELECT_SCENE);
+                sceneManager.StartPageFlipTransition(STAGE_SELECT_SCENE);
             }
         }
     }
