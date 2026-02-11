@@ -30,25 +30,47 @@ namespace Module.Enemy.Hose.SnakeHose.State
 
         internal override void OnEnter()
         {
+            playerCondition.transform.position = parameter.LastAttackPosition;
             PlayClearEffect().Forget();
         }
 
         private async UniTaskVoid PlayClearEffect()
         {
-            components.HeadTransform.DOMove(new Vector3(0f, 5, -18f), 2f).SetEase(Ease.InOutSine).SetRelative();
+            // 仮
+            components.Effector.Disable();
+            playerCondition.IsPlayerLocked = true;
+            components.LastAttackDirector.Play();
+
+            foreach (AreaSoundManager soundManager in components.AreaSoundManager)
+            {
+                soundManager.Stop();
+                soundManager.enabled = false;
+            }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(2f), cancellationToken: CancellationToken);
+
+            if (CancellationToken.IsCancellationRequested)
+                return;
 
             playBgm = Object.FindAnyObjectByType<PlayBGM>();
-            playBgm.BGMSource.DOFade(0f, 1f);
+            playBgm.BGMSource.DOFade(0f, 0.5f).SetUpdate(true);
 
+
+            // components.ClearPlayer.ClearEffect().Forget();
+        }
+
+        public async void FirstBeam()
+        {
             Time.timeScale = 0.5f;
 
-            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
-
-            playerCondition.IsPlayerLocked = true;
+            await components.LastAttackHose.OnWater(CancellationToken, 0.12f);
 
             Time.timeScale = 1f;
+        }
 
-            components.ClearPlayer.ClearEffect().Forget();
+        public void EndFirstBeam()
+        {
+            components.LastAttackHose.OffWater(CancellationToken).Forget();
         }
 
         internal override void OnExit()

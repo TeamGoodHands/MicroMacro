@@ -44,6 +44,8 @@ namespace Module.Enemy.Hose.SnakeHose.State
 
         internal override void OnEnter()
         {
+            condition.CurrentState = SnakeHoseCondition.State.WaterBallAttack;  
+            return;
             WaitToNextStateAsync();
         }
 
@@ -79,7 +81,7 @@ namespace Module.Enemy.Hose.SnakeHose.State
             
             playerCondition.IsPlayerLocked = false;
 
-            condition.CurrentState = SnakeHoseCondition.State.WaterBallAttack;
+            condition.CurrentState = SnakeHoseCondition.State.WaterBallAttack;  
         }
 
         internal override void Update()

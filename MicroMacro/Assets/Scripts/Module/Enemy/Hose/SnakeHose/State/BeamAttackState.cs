@@ -48,8 +48,10 @@ namespace Module.Enemy.Hose.SnakeHose
             components.Animator.enabled = true;
             components.Animator.Play("PrepareBeam");
             // components.Animator.SetInteger(AttackModeHash, 1);
+            
+            condition.CurrentState = SnakeHoseCondition.State.SmashAttack;
 
-            AppearChildren().Forget();
+            // AppearChildren().Forget();
         }
 
         private void HandleDeath()

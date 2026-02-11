@@ -30,7 +30,7 @@ namespace Module.Enemy.Hose
         private WaterVisualSystem visualSystem;
         private Transform playerTransform;
 
-        public float CurrentIntensity { get; private set; } = 0f;
+        public float CurrentIntensity { get; set; } = 0f;
         public event Action<WaterState> OnWaterStateChanged;
         private WaterState waterState;
 
@@ -70,10 +70,6 @@ namespace Module.Enemy.Hose
         private void Update()
         {
             visualSystem.UpdateVisuals(CurrentIntensity);
-        }
-
-        private void FixedUpdate()
-        {
             physicsSystem.RunPhysics(CurrentIntensity, playerTransform);
         }
 
