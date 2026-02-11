@@ -26880,7 +26880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55fa9b2dfc3c036479b0406cb257d1c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minAngle: -22
+  minAngle: -25
   maxAngle: 0
 --- !u!1001 &386398133
 PrefabInstance:
@@ -67117,7 +67117,7 @@ Transform:
   m_GameObject: {fileID: 1067435887}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2121.3262, y: 0.66928387, z: -15}
+  m_LocalPosition: {x: -1992.5852, y: 14.722073, z: -15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -72354,10 +72354,15 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 8837968982166954811, guid: fa3adcaf7d8d9464f9846c81585f2f03, type: 3}
+      propertyPath: m_Mass
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3418854477957253938, guid: fa3adcaf7d8d9464f9846c81585f2f03, type: 3}
     m_RemovedGameObjects:
     - {fileID: 794817138886457203, guid: fa3adcaf7d8d9464f9846c81585f2f03, type: 3}
+    - {fileID: 2176614709581629651, guid: fa3adcaf7d8d9464f9846c81585f2f03, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 3662354247872071999, guid: fa3adcaf7d8d9464f9846c81585f2f03, type: 3}
       insertIndex: -1
@@ -110438,6 +110443,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8716958603825867861, guid: 15f407400887ffc4ab8fdd915d00eb95, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8716958603825867861, guid: 15f407400887ffc4ab8fdd915d00eb95, type: 3}
+      propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
