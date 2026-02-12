@@ -1,27 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9133268674771335235
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 030f85c3f73729f4f976f66ffb23b875, type: 3}
-  m_Name: AnimationPlayableAsset
-  m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: ab83b392a1895d04db831abd12b5813c, type: 2}
-  m_Position: {x: 0, y: 0, z: 0}
-  m_EulerAngles: {x: 0, y: 0, z: 0}
-  m_UseTrackMatchFields: 1
-  m_MatchTargetFields: 63
-  m_RemoveStartOffset: 1
-  m_ApplyFootIK: 1
-  m_Loop: 0
-  m_Version: 1
-  m_Rotation: {x: 0, y: 0, z: 0, w: 1}
 --- !u!114 &-6379213994474727907
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -47,7 +25,7 @@ MonoBehaviour:
     m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: -2849809308485668206}
-    m_Duration: 10.448979591836734
+    m_Duration: 6.765714285714286
     m_TimeScale: 1
     m_ParentTrack: {fileID: -6379213994474727907}
     m_EaseInDuration: 0
@@ -111,7 +89,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: "\u30AF\u30EA\u30A2\u9577\u3081"
+    m_DisplayName: "\u30AF\u30EA\u30A2\u77ED\u3081"
   m_Markers:
     m_Objects: []
   m_TrackProperties:
@@ -130,7 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f10dd60657c6004587f237a7e90f8e4, type: 3}
   m_Name: AudioPlayableAsset
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 8300000, guid: 979c84656f21e314fb92d8ebe2ae5222, type: 3}
+  m_Clip: {fileID: 8300000, guid: e7f3f922ae6ad7649bf88b1b3a3b54f8, type: 3}
   m_Loop: 0
   m_bufferingTime: 0.1
   m_ClipProperties:
@@ -145,7 +123,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
-  m_Name: GameClear
+  m_Name: GameClear-Mini
   m_EditorClassIdentifier: 
   m_Version: 0
   m_Tracks:
@@ -157,6 +135,28 @@ MonoBehaviour:
     m_ScenePreview: 1
   m_DurationMode: 1
   m_MarkerTrack: {fileID: 0}
+--- !u!114 &1743411968439793223
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 030f85c3f73729f4f976f66ffb23b875, type: 3}
+  m_Name: AnimationPlayableAsset
+  m_EditorClassIdentifier: 
+  m_Clip: {fileID: -5976483900868481126, guid: e2fb2ed7e2060ef4fa19208aca442a34, type: 3}
+  m_Position: {x: 0, y: 0, z: 0}
+  m_EulerAngles: {x: 0, y: 0, z: 0}
+  m_UseTrackMatchFields: 1
+  m_MatchTargetFields: 63
+  m_RemoveStartOffset: 1
+  m_ApplyFootIK: 1
+  m_Loop: 0
+  m_Version: 1
+  m_Rotation: {x: 0, y: 0, z: 0, w: 1}
 --- !u!114 &5129179777155343175
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -191,7 +191,7 @@ MonoBehaviour:
   m_MatchTargetFields: 63
   m_Position: {x: 0, y: 0, z: 0}
   m_EulerAngles: {x: 0, y: 0, z: 0}
-  m_AvatarMask: {fileID: 31900000, guid: 7ac2e0a0595ca204e9382dd888c6d29b, type: 2}
+  m_AvatarMask: {fileID: 31900000, guid: 8eea6fca3b849e344872f4b9729487dc, type: 2}
   m_ApplyAvatarMask: 1
   m_TrackOffset: 0
   m_InfiniteClip: {fileID: 8141521939184778875}
@@ -223,8 +223,8 @@ MonoBehaviour:
   - m_Version: 1
     m_Start: 0
     m_ClipIn: 0
-    m_Asset: {fileID: -9133268674771335235}
-    m_Duration: 9
+    m_Asset: {fileID: 1743411968439793223}
+    m_Duration: 3.3333333333333335
     m_TimeScale: 1
     m_ParentTrack: {fileID: 8056200129758312756}
     m_EaseInDuration: 0
@@ -288,7 +288,7 @@ MonoBehaviour:
     m_PreExtrapolationMode: 1
     m_PostExtrapolationTime: Infinity
     m_PreExtrapolationTime: 0
-    m_DisplayName: dance
+    m_DisplayName: Yay
   m_Markers:
     m_Objects: []
   m_InfiniteClipPreExtrapolation: 0
@@ -329,7 +329,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -0, y: -0.14, z: 0}
+        value: {x: -0, y: -0.1, z: 0}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -408,7 +408,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.14
+        value: -0.1
         inSlope: 0
         outSlope: 0
         tangentMode: 136

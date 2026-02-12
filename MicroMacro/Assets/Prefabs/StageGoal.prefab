@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 3157624598169507194}
   - component: {fileID: 7382512059362617593}
   m_Layer: 0
-  m_Name: CinemachineCamera
+  m_Name: GoalCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -304,6 +304,7 @@ GameObject:
   - component: {fileID: 5595067327222364843}
   - component: {fileID: 2802736910761933969}
   - component: {fileID: 2154863816121244104}
+  - component: {fileID: 6279808036042978113}
   m_Layer: 0
   m_Name: StageGoal
   m_TagString: Untagged
@@ -350,7 +351,9 @@ MonoBehaviour:
   goalCamera: {fileID: 8183478451542991543}
   fadeAndSceneTransition: {fileID: 0}
   avoidAreaCamera: {fileID: 0}
+  activationObject: {fileID: 0}
   dialogueManager: {fileID: 0}
+  goalPlayableDirector: {fileID: 6279808036042978113}
   currentStageId: 
 --- !u!114 &5595067327222364843
 MonoBehaviour:
@@ -410,6 +413,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   capRenderer: {fileID: 6561712400741687313}
   capScaler: {fileID: 5595067327222364843}
+--- !u!320 &6279808036042978113
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7475604208506677033}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: a4314653640ee444b88477924d0a35a3, type: 2}
+  m_InitialState: 0
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: 8056200129758312756, guid: a4314653640ee444b88477924d0a35a3, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -6379213994474727907, guid: a4314653640ee444b88477924d0a35a3, type: 2}
+    value: {fileID: 0}
+  m_ExposedReferences:
+    m_References: []
 --- !u!1001 &3037366511448990340
 PrefabInstance:
   m_ObjectHideFlags: 0

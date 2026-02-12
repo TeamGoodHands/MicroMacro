@@ -13,6 +13,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 using Module.Application.Data;
 using Module.Application.Dialogue;
+using UnityEngine.Playables;
 
 
 namespace Module.Gimmick
@@ -28,6 +29,7 @@ namespace Module.Gimmick
         [SerializeField] private GameObject avoidAreaCamera;
         [SerializeField] private GameObject activationObject;
         [SerializeField] private DialogueManager dialogueManager;
+        [SerializeField] private PlayableDirector goalPlayableDirector;
         [Header("このステージのID (例: 1-1)")]
         [SerializeField] private string currentStageId;
         
@@ -102,12 +104,9 @@ namespace Module.Gimmick
 
             SoundManager.instance.Play("クリア短め");
 
-            await UniTask.Delay(TimeSpan.FromSeconds(3.2f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            goalPlayableDirector.Play();
 
-            playerController.Animator.SetLayerWeight(1, 0);
-            playerController.Yay = true;
-
-            await UniTask.Delay(TimeSpan.FromSeconds(2.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(6f), cancellationToken: this.GetCancellationTokenOnDestroy());
 
             BackToStageSelect();
         }
