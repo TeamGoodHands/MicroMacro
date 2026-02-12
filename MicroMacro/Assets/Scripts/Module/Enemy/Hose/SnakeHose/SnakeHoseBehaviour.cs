@@ -15,6 +15,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private SnakeHoseComponents components;
 
         private HierarchicalStateMachine stateMachine;
+        private SmashAttackState smashAttackState;
 
         private void Start()
         {
@@ -24,13 +25,25 @@ namespace Module.Enemy.Hose.SnakeHose
             stateMachine.AddState<AppearState, AliveState>(new AppearState(components, parameter, condition));
             stateMachine.AddState<WaterBallAttackState, AliveState>(new WaterBallAttackState(parameter, components, condition));
             stateMachine.AddState<BeamAttackState, AliveState>(new BeamAttackState(components, parameter, condition));
-            stateMachine.AddState<SmashAttackState, AliveState>(new SmashAttackState(components, parameter, condition));
+
+            smashAttackState = new SmashAttackState(components, parameter, condition);
+            stateMachine.AddState<SmashAttackState, AliveState>(smashAttackState);
 
             stateMachine.AddTransition<AppearState, WaterBallAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.WaterBallAttack);
             stateMachine.AddTransition<WaterBallAttackState, BeamAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.BeamAttack);
             stateMachine.AddTransition<BeamAttackState, SmashAttackState>(() => condition.CurrentState == SnakeHoseCondition.State.SmashAttack);
 
             stateMachine.Start<AliveState>();
+        }
+
+        public void LastAttack()
+        {
+            smashAttackState.FirstBeam(); 
+        }
+        
+        public void EndLastAttack()
+        {
+            smashAttackState.EndFirstBeam();
         }
 
         private void Update()

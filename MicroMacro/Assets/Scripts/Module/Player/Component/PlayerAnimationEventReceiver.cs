@@ -6,6 +6,7 @@ namespace Module.Player.Component
     public class PlayerAnimationEventReceiver : MonoBehaviour
     {
         public event Action OnWalk;
+        public event Action OnAnimatorMoveEvent;
         private bool isWalked;
 
         private void WalkEvent()
@@ -21,6 +22,7 @@ namespace Module.Player.Component
         private void OnAnimatorMove()
         {
             isWalked = false;
+            OnAnimatorMoveEvent?.Invoke();
         }
     }
 }

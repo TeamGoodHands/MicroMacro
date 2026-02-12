@@ -26,6 +26,9 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private Color damageAdditionalColor = Color.white;
         [SerializeField] private GameObject waterBallPrefab;
         [SerializeField] private Transform shootPivot;
+        
+        [Header("Last Attack Parameters")] 
+        [SerializeField] private Vector3 lastAttackPosition;
 
         public float WaterBallShootPower => waterBallShootPower;
         public float HoseMovementBaseSpeed => hoseMovementBaseSpeed;
@@ -43,5 +46,7 @@ namespace Module.Enemy.Hose.SnakeHose
         public float ShootDelay => hoseShootDelay;
         public float ShakeTime => shakeTime;
         public Color DamageAdditionalColor => damageAdditionalColor;
+        
+        public Vector3 LastAttackPosition => lastAttackPosition;
     }
 }

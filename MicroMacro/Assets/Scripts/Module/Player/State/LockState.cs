@@ -44,6 +44,9 @@ namespace Module.Player.State
 
         internal override void UpdatePhysics()
         {
+            if (rigidbody.isKinematic)
+                return;
+            
             Vector3 velocity = rigidbody.linearVelocity;
             velocity.y += parameter.GravityOnDown;
             rigidbody.linearVelocity = velocity;

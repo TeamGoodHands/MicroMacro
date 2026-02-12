@@ -35,13 +35,13 @@ namespace Module.Enemy.Hose
                 waterSplash.Stop();
                 waterParticle.Stop();
             }
-            else
+            else if(waterSound != null)
             {
                 waterSound.Volume = 1.0f;
             }
         }
 
-        private void UpdateWaterSplashState(WaterState state)
+        public void UpdateWaterSplashState(WaterState state)
         {
             if (state == WaterState.Pushing)
             {
@@ -51,7 +51,10 @@ namespace Module.Enemy.Hose
                 waterParticle.Play();
 
                 soundTween?.Kill();
-                soundTween = DOTween.To(() => waterSound.Volume, x => waterSound.Volume = x, 1.0f, 0.5f);
+                if (waterSound != null)
+                {
+                    soundTween = DOTween.To(() => waterSound.Volume, x => waterSound.Volume = x, 1.0f, 0.5f);
+                }
             }
             else if (state == WaterState.Ending)
             {
@@ -62,9 +65,13 @@ namespace Module.Enemy.Hose
             {
                 headObject.SetActive(false);
                 bodyObject.SetActive(false);
-                
+
                 soundTween?.Kill();
-                soundTween = DOTween.To(() => waterSound.Volume, x => waterSound.Volume = x, 0.0f, 0.5f);
+
+                if (waterSound != null)
+                {
+                    soundTween = DOTween.To(() => waterSound.Volume, x => waterSound.Volume = x, 0.0f, 0.5f);
+                }
             }
         }
 

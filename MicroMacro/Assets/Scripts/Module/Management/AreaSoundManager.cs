@@ -26,6 +26,9 @@ namespace Module.Management
             if (Time.timeSinceLevelLoad < startDelay)
                 return;
 
+            if (!enabled)
+                return;
+
             if (!isPlaying && IsPlayerInArea())
             {
                 audioSource = SoundManager.instance.PlayAtPoint(areaSoundName, transform.position);
@@ -35,8 +38,7 @@ namespace Module.Management
             {
                 if (audioSource != null)
                 {
-                    SoundManager.instance.Stop(audioSource);
-                    audioSource = null;
+                    Stop();
                 }
 
                 isPlaying = false;
@@ -46,6 +48,13 @@ namespace Module.Management
             {
                 audioSource.volume = Volume;
             }
+        }
+
+        public void Stop()
+        {
+            SoundManager.instance.Stop(audioSource);
+            audioSource = null;
+            isPlaying = false;
         }
 
         private bool IsPlayerInArea()

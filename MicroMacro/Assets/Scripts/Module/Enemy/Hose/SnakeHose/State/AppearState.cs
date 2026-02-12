@@ -79,7 +79,7 @@ namespace Module.Enemy.Hose.SnakeHose.State
             
             playerCondition.IsPlayerLocked = false;
 
-            condition.CurrentState = SnakeHoseCondition.State.WaterBallAttack;
+            condition.CurrentState = SnakeHoseCondition.State.WaterBallAttack;  
         }
 
         internal override void Update()

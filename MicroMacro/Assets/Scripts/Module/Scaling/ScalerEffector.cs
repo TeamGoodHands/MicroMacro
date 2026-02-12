@@ -190,12 +190,17 @@ namespace Module.Scaling
             return sequence;
         }
 
-        private void ResetMaterial()
+        public void ResetMaterial()
         {
             scalerShaderWrapper.OutlineWidth = profile.DefaultOutlineWidth;
             scalerShaderWrapper.FresnelColor = profile.DefaultOutlineColor;
             scalerShaderWrapper.WaveSpeed = defaultWaveSpeed;
             scalerShaderWrapper.WavePower = defaultWavePower;
+        }
+
+        public void Disable()
+        {
+            scalerShaderWrapper.OutlineWidth = 0f;
         }
 
         private void PlaySound()

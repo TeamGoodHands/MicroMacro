@@ -218,5 +218,26 @@ namespace Module.Application.SceneSwitch
 
             isSceneTransitioning = false;
         }
+
+        // Manual Fade Control
+        public async UniTask FadeOut(bool usePageFlip)
+        {
+            fadeHandler = GetOrCreateFader(usePageFlip);
+            if (fadeHandler == null) return;
+            
+            CancellationToken token = this.GetCancellationTokenOnDestroy();
+            fadeHandler.StartFadeOut();
+            await UniTask.WaitUntil(() => fadeHandler.IsFadeOutComplete(), cancellationToken: token);
+        }
+
+        public async UniTask FadeIn(bool usePageFlip)
+        {
+            fadeHandler = GetOrCreateFader(usePageFlip);
+            if (fadeHandler == null) return;
+
+            CancellationToken token = this.GetCancellationTokenOnDestroy();
+            fadeHandler.StartFadeIn();
+            await UniTask.WaitUntil(() => fadeHandler.IsFadeInComplete(), cancellationToken: token);
+        }
     }
 }
