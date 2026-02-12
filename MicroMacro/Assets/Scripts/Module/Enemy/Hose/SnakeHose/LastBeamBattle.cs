@@ -22,8 +22,14 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private VisualEffect effectPivot;
         [SerializeField] private ClearPlayer clearPlayer;
         [SerializeField] private GameObject disableOnForceWin;
+        [SerializeField] private Module.Enemy.Hose.STG.STGPlayer stgPlayer;
+        [SerializeField] private Module.Application.SceneSwitch.FadeAndSceneTransition fadeTransition;
+        [SerializeField] private Module.Enemy.Hose.STG.ShootingGame shootingGame;
 
         [Header("Settings")] [SerializeField] private float scaleMultiplier = 1f;
+
+// ... (existing code omitted) ...
+
         [SerializeField] private float headScaleBackOffset = 0f;
         [SerializeField] private float wholeScale = 10f;
         [SerializeField] private float playerPushStrength = 0.05f;
@@ -113,6 +119,12 @@ namespace Module.Enemy.Hose.SnakeHose
             macroShootEvent.Started += OnShoot;
             microShootEvent.Started += OnShoot;
 
+            // Subscribe to Player Reset
+            if (stgPlayer != null && stgPlayer.HealthStatus != null)
+            {
+                stgPlayer.HealthStatus.OnReset += ResetBattle;
+            }
+
             // Initialize visuals to 0
             UpdateVisuals();
         }
@@ -121,7 +133,41 @@ namespace Module.Enemy.Hose.SnakeHose
         {
             if (macroShootEvent != null) macroShootEvent.Started -= OnShoot;
             if (microShootEvent != null) microShootEvent.Started -= OnShoot;
+            
+            if (stgPlayer != null && stgPlayer.HealthStatus != null)
+            {
+                stgPlayer.HealthStatus.OnReset -= ResetBattle;
+            }
+            
             StopShake();
+        }
+
+        public void ResetBattle()
+        {
+            state = BattleState.Idle;
+            isForceWinning = false;
+            isForceLosing = false;
+            isForceKilled = false;
+            
+            currentScale = 0.5f;
+            targetScale = 0.5f;
+            growthFactor = 0f;
+            introTimer = 0f;
+            enemyPushTimer = 0f;
+
+            if (effectPivot != null)
+            {
+                effectPivot.Stop();
+                effectPivot.gameObject.SetActive(false);
+            }
+            
+            if (disableOnForceWin != null)
+            {
+                disableOnForceWin.SetActive(true);
+            }
+
+            StopShake();
+            UpdateVisuals();
         }
 
         public void Play()
@@ -135,6 +181,8 @@ namespace Module.Enemy.Hose.SnakeHose
             // Start VFX
             if (effectPivot != null)
             {
+                effectPivot.gameObject.SetActive(true);
+                effectPivot.Stop();
                 effectPivot.Play();
             }
         }
@@ -211,10 +259,60 @@ namespace Module.Enemy.Hose.SnakeHose
 
                 // Smoothly interpolate currentScale
                 currentScale = Mathf.Lerp(currentScale, targetScale, Time.deltaTime * smoothSpeed);
+
+                // Lose Condition
+                if (currentScale <= 0f && !isForceWinning && !isForceLosing && !isForceKilled)
+                {
+                    ForceEnemyWin();
+                    KillPlayerSequence().Forget();
+                }
             }
 
             // Update Visuals
             UpdateVisuals();
+        }
+
+        private async UniTaskVoid KillPlayerSequence()
+        {
+            // Disable auto-reset in ShootingGame so we can control timing
+            if (shootingGame != null)
+            {
+                shootingGame.SetAutoReset(false);
+            }
+
+            // Wait for visual pierce
+            await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            
+            // Kill Player (Visuals only, no reset yet)
+            if (stgPlayer != null)
+            {
+                stgPlayer.TakeDamage(9999);
+            }
+
+            // Wait for death animation / lingering moment
+            await UniTask.Delay(TimeSpan.FromSeconds(1.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            // Start Fade Out
+            if (fadeTransition != null)
+            {
+                await fadeTransition.FadeOut(false);
+            }
+            
+            // Manual Reset
+            if (shootingGame != null)
+            {
+                shootingGame.ResetGame();
+                shootingGame.SetAutoReset(true); // Re-enable for future
+            }
+
+            // Wait a moment for reset to process
+            await UniTask.Yield(this.GetCancellationTokenOnDestroy());
+
+            // Start Fade In
+            if (fadeTransition != null)
+            {
+                await fadeTransition.FadeIn(false);
+            }
         }
 
         private void StartShake()
@@ -254,7 +352,8 @@ namespace Module.Enemy.Hose.SnakeHose
             if (isForceWinning || isForceLosing) return; // Disable input during forced outcome
 
             targetScale += playerPushStrength;
-            targetScale = Mathf.Clamp(targetScale, 0f, 1f);
+            // Allow slightly over 1 to ensure win condition triggers easily
+            targetScale = Mathf.Clamp(targetScale, -0.5f, 1.5f);
         }
 
         private void PushEnemy()
@@ -265,7 +364,8 @@ namespace Module.Enemy.Hose.SnakeHose
             float multiplier = resistanceCurve.Evaluate(currentScale);
             
             targetScale -= enemyPushStrength * multiplier;
-            targetScale = Mathf.Clamp(targetScale, 0f, 1f);
+            // Allow slightly under 0 to ensure lose condition triggers easily
+            targetScale = Mathf.Clamp(targetScale, -0.5f, 1.5f);
         }
 
         private void UpdateVisuals()

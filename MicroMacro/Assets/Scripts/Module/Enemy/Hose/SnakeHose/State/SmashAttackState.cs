@@ -31,6 +31,8 @@ namespace Module.Enemy.Hose.SnakeHose.State
         internal override void OnEnter()
         {
             playerCondition.transform.position = parameter.LastAttackPosition;
+            playerCondition.transform.rotation = Quaternion.identity;
+            playerCondition.transform.GetChild(0).localScale = new Vector3(1f, 1f, 1f);
             PlayClearEffect().Forget();
         }
 
@@ -53,7 +55,7 @@ namespace Module.Enemy.Hose.SnakeHose.State
                 return;
 
             playBgm = Object.FindAnyObjectByType<PlayBGM>();
-            playBgm.BGMSource.DOFade(0f, 0.5f).SetUpdate(true);
+            playBgm.BGMSource.DOFade(0f, 1f).SetUpdate(true);
 
 
             // components.ClearPlayer.ClearEffect().Forget();

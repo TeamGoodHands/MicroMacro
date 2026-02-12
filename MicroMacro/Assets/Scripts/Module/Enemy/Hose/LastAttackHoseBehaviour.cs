@@ -5,6 +5,7 @@ using CoreModule.AI.HSM;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Module.Application.Dialogue;
+using Module.Management;
 using Module.Scaling;
 using NaughtyAttributes;
 using PropertyGenerator.Generated;
@@ -28,6 +29,11 @@ namespace Module.Enemy.Hose
         [SerializeField] private float screwWidth = 0.3f;
         [SerializeField] private float waterSpeed = 0.3f;
         [SerializeField, Header("激流時の水の色")] private Color rapidsWaterColor;
+
+        [Header("BGM Settings")] [SerializeField]
+        private string bgmName;
+
+        [SerializeField] private float fadeDuration = 2.0f;
 
         private Vector3 waterDefaultScale;
         private Vector3 scalerDefaultScale;
@@ -88,12 +94,12 @@ namespace Module.Enemy.Hose
         public async UniTask OffWater(CancellationToken token)
         {
             waterSplashScaler.UpdateWaterSplashState(WaterState.Ending);
-            
+
             float customMultiplier = 3f;
 
             while (!token.IsCancellationRequested)
             {
-                CurrentIntensity -= waterSpeed * customMultiplier  * Time.unscaledDeltaTime;
+                CurrentIntensity -= waterSpeed * customMultiplier * Time.unscaledDeltaTime;
                 CurrentIntensity = Mathf.Clamp(CurrentIntensity, 0f, 1f);
 
                 snakeHoseController.CurrentIntensity = CurrentIntensity;
@@ -118,6 +124,9 @@ namespace Module.Enemy.Hose
                     dialogueManager.Enqueue("Boss2-3");
                     dialogueManager.Enqueue("Boss2-4");
                     break;
+                case 1:
+                    dialogueManager.Enqueue("Boss2-5");
+                    break;
             }
         }
 
@@ -130,6 +139,20 @@ namespace Module.Enemy.Hose
             }
 
             OnWater(destroyCancellationToken, multiplier).Forget();
+        }
+
+        [Button]
+        public void PlayBGMWithFade()
+        {
+            if (string.IsNullOrEmpty(bgmName)) return;
+
+            var source = SoundManager.instance.Play(bgmName, 0f);
+            if (source != null)
+            {
+                float targetVolume = 0.1f;
+                source.volume = 0f; // Start from 0
+                source.DOFade(targetVolume, fadeDuration);
+            }
         }
     }
 }

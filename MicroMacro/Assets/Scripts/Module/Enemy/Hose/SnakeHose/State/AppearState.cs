@@ -44,8 +44,6 @@ namespace Module.Enemy.Hose.SnakeHose.State
 
         internal override void OnEnter()
         {
-            condition.CurrentState = SnakeHoseCondition.State.WaterBallAttack;  
-            return;
             WaitToNextStateAsync();
         }
 

@@ -1,3 +1,4 @@
+using System;
 using CoreModule.Input;
 using CoreModule.ObjectPool;
 using Cysharp.Threading.Tasks;
@@ -255,7 +256,7 @@ namespace Module.Enemy.Hose.STG
 
             // ランダムな角度を選択 (-angle/2 ～ angle/2)
             float halfAngle = enemySpawnAngle * 0.5f;
-            float angle = Random.Range(-halfAngle, halfAngle);
+            float angle = UnityEngine.Random.Range(-halfAngle, halfAngle);
 
             // XZ平面上のベクトルを計算
             // angle=0 が Z軸前方、90が右、-90が左
@@ -379,9 +380,39 @@ namespace Module.Enemy.Hose.STG
             }
         }
 
-        private void OnPlayerDeath()
+        [SerializeField] private Module.Application.SceneSwitch.FadeAndSceneTransition fadeTransition;
+
+        private bool autoResetOnDeath = true;
+
+        public void SetAutoReset(bool enable)
         {
-            ResetGame();
+            autoResetOnDeath = enable;
+        }
+
+        private async void OnPlayerDeath()
+        {
+            if (autoResetOnDeath)
+            {
+                // Wait for death animation
+                await UniTask.Delay(TimeSpan.FromSeconds(1.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
+
+                // Fade Out
+                if (fadeTransition != null)
+                {
+                    await fadeTransition.FadeOut(false);
+                }
+
+                ResetGame();
+
+                // Wait a frame to ensure reset fits
+                await UniTask.Yield(this.GetCancellationTokenOnDestroy());
+
+                // Fade In
+                if (fadeTransition != null)
+                {
+                    await fadeTransition.FadeIn(false);
+                }
+            }
 
             if (director != null)
             {
@@ -391,7 +422,7 @@ namespace Module.Enemy.Hose.STG
             }
         }
 
-        private void ResetGame()
+        public void ResetGame()
         {
             // キャンセル要求
             DestroyAll();
@@ -423,6 +454,15 @@ namespace Module.Enemy.Hose.STG
             // プレイヤー位置リセット
             playerPosition = initialPlayerPosition;
             playerTransform.position = playerPosition;
+
+            // Timeline Rewind
+            if (director != null)
+            {
+                director.time = rewindTime;
+                director.Evaluate();
+                director.Play();
+            }
         }
+
     }
 }
