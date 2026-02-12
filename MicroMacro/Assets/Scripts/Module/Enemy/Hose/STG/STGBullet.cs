@@ -130,10 +130,17 @@ namespace Module.Enemy.Hose.STG
                 return true;
             }
 
+            // プレイヤーに当たった場合
+            if (target.TryGetComponent(out STGPlayer player))
+            {
+                player.TakeDamage(damage);
+                return true;
+            }
+
             return false;
         }
 
-        private void Deactivate(bool playVfx = false)
+        public void Deactivate(bool playVfx = false)
         {
             if (isReturning || !gameObject.activeSelf)
                 return;

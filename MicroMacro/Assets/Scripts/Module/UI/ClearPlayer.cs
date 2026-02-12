@@ -18,48 +18,28 @@ namespace Module.UI
         [SerializeField] private string videoName;
         [SerializeField] private VideoPlayer videoPlayer;
         [SerializeField] private Image clearImage;
-        [SerializeField] private BossGoalPlayer bossGoalPlayer;
+        [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
         [SerializeField] private GameObject[] disableObjects;
-
-        private Vector3 spawnPosition;
-        private Transform playerTransform;
-        private Transform animatorTransform;
 
         private void Start()
         {
             videoPlayer.url = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, videoName);
             videoPlayer.Prepare();
-
-            GameObject playerObject = GameObject.FindWithTag(Tag.Player);
-            animatorTransform = playerObject.GetComponent<PlayerBehaviour>().Component.BodyTransform;
-            playerTransform = playerObject.transform;
-            spawnPosition = playerTransform.localPosition;
         }
 
         public async UniTask ClearEffect()
         {
             await clearImage.DOFade(1f, 1f);
-
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: destroyCancellationToken);
+            
             videoPlayer.Play();
-            clearImage.color = Color.clear;
-
-            foreach (GameObject disableObject in disableObjects)
-            {
-                disableObject.SetActive(false);
-            }
-
-            playerTransform.localPosition = spawnPosition;
-            playerTransform.localRotation = Quaternion.identity;
-            animatorTransform.localEulerAngles = new Vector3(0f, 180f, 0f);
-            animatorTransform.localScale = Vector3.one;
-
+            
+            await clearImage.DOFade(0f, 1f);
+            
             await UniTask.WaitWhile(IsPlaying, cancellationToken: destroyCancellationToken);
 
-            await DOTween
-                .To(() => videoPlayer.targetCameraAlpha, x => videoPlayer.targetCameraAlpha = x, 0f, 1f)
-                .SetLink(videoPlayer.gameObject);
-            
-            bossGoalPlayer.Play().Forget();
+            fadeAndSceneTransition.StartNormalTransition();
         }
 
         private bool IsPlaying()

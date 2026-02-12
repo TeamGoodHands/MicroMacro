@@ -9,6 +9,8 @@ namespace Module.Application.SceneSwitch
         [SerializeField] private FadeAndSceneTransition sceneTransition;
         [SerializeField] private string nextSceneName;
         private HealthStatus playerHealthStatus;
+
+        public bool IsActive { get; set; } = true;
     
         private void Start()
         {
@@ -18,6 +20,7 @@ namespace Module.Application.SceneSwitch
 
         private void OnPlayerDeath()
         {
+            if (!IsActive) return;
             sceneTransition.StartNormalTransition(nextSceneName);
         }
     }

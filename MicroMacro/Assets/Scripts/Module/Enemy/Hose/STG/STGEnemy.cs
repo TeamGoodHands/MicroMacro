@@ -70,7 +70,7 @@ namespace Module.Enemy.Hose.STG
             float elapsed = 0f;
             float shootTimer = 0f;
 
-            while (!token.IsCancellationRequested && currentHp > 0 && elapsed < lifeTime)
+            while (!token.IsCancellationRequested && currentHp > 0 && elapsed < lifeTime && gameObject.activeSelf)
             {
                 float dt = Time.fixedDeltaTime;
                 elapsed += dt;
@@ -134,7 +134,15 @@ namespace Module.Enemy.Hose.STG
             }
         }
 
-        private void Deactivate()
+        public void ForceDeath()
+        {
+            if (currentHp > 0)
+            {
+                currentHp = 0;
+            }
+        }
+
+        public void Deactivate()
         {
             if (!gameObject.activeSelf)
                 return;

@@ -12,9 +12,12 @@ namespace Module.UI
         [SerializeField] private HealthStatus healthStatus;
         [SerializeField] private Image[] healthImage;
 
+        public bool DoStopTimeOnDamage = true;
+
         private void Start()
         {
             healthStatus.OnDamage += OnDamage;
+            healthStatus.OnReset += OnReset;
 
             healthImage = new Image[healthStatus.MaxHealth];
 
@@ -44,10 +47,22 @@ namespace Module.UI
             Destroy(baseObject);
         }
 
+        private void OnDestroy()
+        {
+            if (healthStatus != null)
+            {
+                healthStatus.OnDamage -= OnDamage;
+                healthStatus.OnReset -= OnReset;
+            }
+        }
+
         private void OnDamage(int damage)
         {
             // ダメージ受けた瞬間時間止める
-            Time.timeScale = 0f;
+            if (DoStopTimeOnDamage)
+            {
+                Time.timeScale = 0f;
+            }
 
             int index = healthStatus.CurrentHealth;
 
@@ -56,9 +71,33 @@ namespace Module.UI
             {
                 healthImage[index].color = Color.clear;
 
-                // 時間を戻す
-                Time.timeScale = 1f;
+                if (DoStopTimeOnDamage)
+                {
+                    // 時間を戻す
+                    Time.timeScale = 1f;
+                }
             }).SetUpdate(true);
+        }
+
+
+        private void OnReset()
+        {
+            if (healthImage == null) return;
+
+            foreach (var image in healthImage)
+            {
+                if (image != null)
+                {
+                    image.DOKill();
+                    image.enabled = true;
+                    image.color = Color.white;
+                }
+            }
+            
+            if (DoStopTimeOnDamage)
+            {
+                Time.timeScale = 1f;
+            }
         }
     }
 }
