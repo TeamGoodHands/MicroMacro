@@ -46,8 +46,8 @@ namespace Module.Enemy.Hose.SnakeHose
 
         internal override void OnEnter()
         {
-            condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
-            return;
+            // condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
+            // return;
             
             CancellationTokenSource source = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, damageCanceller.Token);
             PatrolRandomlyAsync(parameter.AttackHeight, source.Token).Forget();

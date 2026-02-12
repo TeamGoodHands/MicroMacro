@@ -32,15 +32,12 @@ namespace Module.Enemy.Hose.SnakeHose
 
         [SerializeField] private float headScaleBackOffset = 0f;
         [SerializeField] private float wholeScale = 10f;
-        [SerializeField] private float playerPushStrength = 0.05f;
-        [SerializeField] private float enemyPushStrength = 0.05f;
-        [SerializeField] private float enemyPushInterval = 0.1f;
-        [SerializeField] private float forceFillSpeed = 0.5f; // Speed for force win/loss
 
-        [Header("Difficulty")]
-        [SerializeField] 
-        private AnimationCurve resistanceCurve = new AnimationCurve(new Keyframe(0f, 0.5f), new Keyframe(0.5f, 1f), new Keyframe(1f, 2f));
-        // X: CurrentScale (0=Lose, 1=Win), Y: Enemy Push Multiplier
+        [Header("Sequence Settings")] [SerializeField]
+        private AnimationCurve battleFlowCurve;
+
+        [SerializeField] private float battleDuration = 10f;
+        private float battleTimer;
 
         [Header("Status")] [SerializeField] private float currentScale;
         [SerializeField] private float targetScale;
@@ -49,6 +46,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private float maxThicknessMultiplier = 2.0f;
         [SerializeField] private float knockbackAmount = 2.0f;
         [SerializeField] private float introDuration = 1.0f;
+        [SerializeField] private float forceFillSpeed;
 
         [Header("Shake Settings")] [SerializeField]
         private float shakeStrength = 0.2f;
@@ -77,9 +75,6 @@ namespace Module.Enemy.Hose.SnakeHose
             isForceKilled = true;
         }
 
-        private InputEvent macroShootEvent;
-        private InputEvent microShootEvent;
-        private float enemyPushTimer;
         private float introTimer;
         private float growthFactor; // 0 to 1, used for intro animation
 
@@ -112,12 +107,6 @@ namespace Module.Enemy.Hose.SnakeHose
             if (ally != null) initialAllyLocalPos = transform.InverseTransformPoint(ally.position);
             if (enemy != null) initialEnemyLocalPos = transform.InverseTransformPoint(enemy.position);
 
-            // Input setup
-            macroShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MacroShoot);
-            microShootEvent = InputProvider.CreateEvent(ActionGuid.Player.MicroShoot);
-
-            macroShootEvent.Started += OnShoot;
-            microShootEvent.Started += OnShoot;
 
             // Subscribe to Player Reset
             if (stgPlayer != null && stgPlayer.HealthStatus != null)
@@ -131,14 +120,11 @@ namespace Module.Enemy.Hose.SnakeHose
 
         private void OnDestroy()
         {
-            if (macroShootEvent != null) macroShootEvent.Started -= OnShoot;
-            if (microShootEvent != null) microShootEvent.Started -= OnShoot;
-            
             if (stgPlayer != null && stgPlayer.HealthStatus != null)
             {
                 stgPlayer.HealthStatus.OnReset -= ResetBattle;
             }
-            
+
             StopShake();
         }
 
@@ -148,19 +134,19 @@ namespace Module.Enemy.Hose.SnakeHose
             isForceWinning = false;
             isForceLosing = false;
             isForceKilled = false;
-            
+
             currentScale = 0.5f;
             targetScale = 0.5f;
             growthFactor = 0f;
             introTimer = 0f;
-            enemyPushTimer = 0f;
+            battleTimer = 0f;
 
             if (effectPivot != null)
             {
                 effectPivot.Stop();
                 effectPivot.gameObject.SetActive(false);
             }
-            
+
             if (disableOnForceWin != null)
             {
                 disableOnForceWin.SetActive(true);
@@ -191,13 +177,13 @@ namespace Module.Enemy.Hose.SnakeHose
         {
             isForceWinning = true;
             isForceLosing = false;
-            
+
             await UniTask.Delay(TimeSpan.FromSeconds(3f), cancellationToken: this.GetCancellationTokenOnDestroy());
-            
+
             clearPlayer.ClearEffect().Forget();
-            
+
             await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: this.GetCancellationTokenOnDestroy());
-            
+
             disableOnForceWin.SetActive(false);
         }
 
@@ -248,12 +234,13 @@ namespace Module.Enemy.Hose.SnakeHose
                 }
                 else
                 {
-                    // Regular Battle Logic
-                    enemyPushTimer += Time.deltaTime;
-                    if (enemyPushTimer >= enemyPushInterval)
+                    // Regular Battle Logic (Curve Control)
+                    battleTimer += Time.deltaTime;
+
+                    if (battleDuration > 0f)
                     {
-                        enemyPushTimer = 0f;
-                        PushEnemy();
+                        float t = Mathf.Clamp01(battleTimer / battleDuration);
+                        targetScale = battleFlowCurve.Evaluate(t);
                     }
                 }
 
@@ -282,7 +269,7 @@ namespace Module.Enemy.Hose.SnakeHose
 
             // Wait for visual pierce
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: this.GetCancellationTokenOnDestroy());
-            
+
             // Kill Player (Visuals only, no reset yet)
             if (stgPlayer != null)
             {
@@ -297,7 +284,7 @@ namespace Module.Enemy.Hose.SnakeHose
             {
                 await fadeTransition.FadeOut(false);
             }
-            
+
             // Manual Reset
             if (shootingGame != null)
             {
@@ -346,27 +333,6 @@ namespace Module.Enemy.Hose.SnakeHose
             // DOShakePosition is relative.
         }
 
-        private void OnShoot(InputAction.CallbackContext context)
-        {
-            if (state != BattleState.Battle) return;
-            if (isForceWinning || isForceLosing) return; // Disable input during forced outcome
-
-            targetScale += playerPushStrength;
-            // Allow slightly over 1 to ensure win condition triggers easily
-            targetScale = Mathf.Clamp(targetScale, -0.5f, 1.5f);
-        }
-
-        private void PushEnemy()
-        {
-            // Evaluate resistance based on current scale
-            // If currentScale is near 1 (Player Winning), multiplier should be high.
-            // If currentScale is near 0 (Enemy Winning), multiplier should be low.
-            float multiplier = resistanceCurve.Evaluate(currentScale);
-            
-            targetScale -= enemyPushStrength * multiplier;
-            // Allow slightly under 0 to ensure lose condition triggers easily
-            targetScale = Mathf.Clamp(targetScale, -0.5f, 1.5f);
-        }
 
         private void UpdateVisuals()
         {
@@ -375,7 +341,7 @@ namespace Module.Enemy.Hose.SnakeHose
             // X Scale Calculation
             float allyScaleX = currentScale * wholeScale * growthFactor;
             float enemyScaleX = (wholeScale - (currentScale * wholeScale)) * growthFactor;
-            
+
             // Prevent negative visual scales if piercing
             if (allyScaleX < 0) allyScaleX = 0;
             if (enemyScaleX < 0) enemyScaleX = 0;

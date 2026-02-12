@@ -413,13 +413,6 @@ namespace Module.Enemy.Hose.STG
                     await fadeTransition.FadeIn(false);
                 }
             }
-
-            if (director != null)
-            {
-                director.time = rewindTime;
-                director.Evaluate();
-                director.Play();
-            }
         }
 
         public void ResetGame()

@@ -154,5 +154,6 @@ namespace Module.Enemy.Hose
                 source.DOFade(targetVolume, fadeDuration);
             }
         }
+
     }
 }

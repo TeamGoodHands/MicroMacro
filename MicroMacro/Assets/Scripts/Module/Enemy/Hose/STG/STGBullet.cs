@@ -94,10 +94,6 @@ namespace Module.Enemy.Hose.STG
 
             // 敵弾などの場合は耐久値を減らす
             currentDurability--;
-            if (playVfxOnDestroy)
-            {
-                Debug.Log(currentDurability);
-            }
 
             if (currentDurability <= 0)
             {
