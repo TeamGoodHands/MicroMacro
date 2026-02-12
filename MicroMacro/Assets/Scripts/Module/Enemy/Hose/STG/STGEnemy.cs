@@ -14,6 +14,7 @@ namespace Module.Enemy.Hose.STG
     /// </summary>
     public class STGEnemy : MonoBehaviour
     {
+        private static readonly int AdditionalColor = Shader.PropertyToID("_AdditionalColor");
         [SerializeField] private GameObject bulletPrefab;
         [SerializeField] private Transform body;
         [SerializeField] private float bulletSpeed = 8f;
@@ -24,10 +25,21 @@ namespace Module.Enemy.Hose.STG
         [SerializeField] private int hp = 5;
         [SerializeField] private VisualEffect deathVfx;
         [SerializeField] private float vfxDuration = 0.5f;
+        [SerializeField] private Renderer[] renderers;
+        [SerializeField] private Color flashColor = Color.white;
+        [SerializeField] private float flashDuration = 0.5f;
 
         private ObjectPool<GameObject> bulletPool;
         private int currentHp;
         private Transform bulletParent;
+
+        /// <summary>
+        /// 無効化時に呼ばれる（プールへ返却用）
+        /// </summary>
+        /// <summary>
+        /// 死亡時に呼ばれる
+        /// </summary>
+        public event System.Action<STGEnemy> OnDead;
 
         /// <summary>
         /// 無効化時に呼ばれる（プールへ返却用）
@@ -94,26 +106,32 @@ namespace Module.Enemy.Hose.STG
 
             // パス終了 or HP0 → 無効化してプールへ返却
             // 死亡時VFX処理
-            if (currentHp <= 0 && deathVfx != null)
+            if (currentHp <= 0)
             {
-                 // Disable Colliders / Renderers (Excluding VFX)
-                 var renderers = GetComponentsInChildren<Renderer>();
-                 var colliders = GetComponentsInChildren<Collider>();
-                 
-                 foreach (var c in colliders) c.enabled = false;
-                 foreach (var r in renderers)
-                 {
-                     if (r.gameObject != deathVfx.gameObject && !r.transform.IsChildOf(deathVfx.transform))
-                     {
-                         r.enabled = false;
-                     }
-                 }
+                 // HP0の時のみイベント発火
+                 OnDead?.Invoke(this);
 
-                 deathVfx.enabled = true;
-                 deathVfx.Reinit();
-                 deathVfx.Play();
-                 
-                 await UniTask.Delay(System.TimeSpan.FromSeconds(vfxDuration), cancellationToken: token);
+                 if (deathVfx != null)
+                 {
+                     // Disable Colliders / Renderers (Excluding VFX)
+                     var renderers = GetComponentsInChildren<Renderer>();
+                     var colliders = GetComponentsInChildren<Collider>();
+                     
+                     foreach (var c in colliders) c.enabled = false;
+                     foreach (var r in renderers)
+                     {
+                         if (r.gameObject != deathVfx.gameObject && !r.transform.IsChildOf(deathVfx.transform))
+                         {
+                             r.enabled = false;
+                         }
+                     }
+    
+                     deathVfx.enabled = true;
+                     deathVfx.Reinit();
+                     deathVfx.Play();
+                     
+                     await UniTask.Delay(System.TimeSpan.FromSeconds(vfxDuration), cancellationToken: token);
+                 }
             }
 
             Deactivate();
@@ -125,7 +143,14 @@ namespace Module.Enemy.Hose.STG
         public void TakeDamage(int damage)
         {
             SoundManager.instance.Play("打撃1");
-            body.DOShakePosition(0.35f, 0.1f, 20, 90f, false, true);
+            body.DOShakePosition(0.5f, 0.1f, 20, 90f, false, true);
+
+            foreach (var r in renderers)
+            {
+                r.material.DOKill();
+                r.material.SetColor(AdditionalColor, flashColor);
+                r.material.DOColor(Color.black, AdditionalColor, flashDuration);
+            }
             
             currentHp -= damage;
             if (currentHp <= 0)
@@ -148,8 +173,17 @@ namespace Module.Enemy.Hose.STG
                 return;
 
             gameObject.SetActive(false);
+
+            foreach (var r in renderers)
+            {
+                if (r == null) continue;
+                r.material.DOKill();
+                r.material.SetColor("_AdditionalColor", Color.black);
+            }
+            
             OnReturn?.Invoke();
             OnReturn = null;
+            OnDead = null; // イベント購読解除
         }
 
         /// <summary>

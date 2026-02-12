@@ -46,6 +46,11 @@ namespace Module.Enemy.Hose.STG
         [Header("Timeline")] [SerializeField] private PlayableDirector director;
         [SerializeField] private float rewindTime;
 
+        [Header("Wave System")]
+        [SerializeField] private float activeWaveDuration = 10f;
+        [SerializeField] private float restWaveDuration = 3f;
+
+
         // 入力イベント
         private InputEvent moveEvent;
         private InputEvent macroShootEvent;
@@ -62,6 +67,11 @@ namespace Module.Enemy.Hose.STG
         private Vector3 allyOrigin;
         private float lastShootTime;
         private float enemySpawnTimer;
+        
+        // Wave Control
+        private float waveTimer;
+        private bool isWaveActive;
+
         private bool isShooting;
         private bool isSpawning;
         private bool canPlayerShoot;
@@ -78,6 +88,10 @@ namespace Module.Enemy.Hose.STG
             isSpawning = true;
             canPlayerShoot = true;
             canPlayerMove = true;
+
+            // Initialize Wave
+            isWaveActive = true;
+            waveTimer = 0f;
 
             // GameReplayerを無効化（シーンリロードを防ぐ）
             gameReplayer = FindFirstObjectByType<GameReplayer>();
@@ -169,12 +183,29 @@ namespace Module.Enemy.Hose.STG
                     TryShoot();
                 }
 
-                // ── 敵スポーン ──
-                enemySpawnTimer += Time.fixedDeltaTime;
-                if (isSpawning && enemyPrefab != null && enemySpawnTimer >= enemySpawnInterval)
+                // ── Wave System Update ──
+                if (isSpawning)
                 {
-                    enemySpawnTimer = 0f;
-                    SpawnEnemy();
+                    waveTimer += Time.fixedDeltaTime;
+                    float currentLimit = isWaveActive ? activeWaveDuration : restWaveDuration;
+                    
+                    if (waveTimer >= currentLimit)
+                    {
+                        waveTimer = 0f;
+                        isWaveActive = !isWaveActive;
+                        // Debug.Log($"Wave State Changed: {(isWaveActive ? "Active" : "Rest")}");
+                    }
+                }
+
+                // ── 敵スポーン ──
+                if (isWaveActive)
+                {
+                    enemySpawnTimer += Time.fixedDeltaTime;
+                    if (isSpawning && enemyPrefab != null && enemySpawnTimer >= enemySpawnInterval)
+                    {
+                        enemySpawnTimer = 0f;
+                        SpawnEnemy();
+                    }
                 }
 
                 await UniTask.Yield(PlayerLoopTiming.FixedUpdate, destroyCancellationToken);
@@ -430,6 +461,10 @@ namespace Module.Enemy.Hose.STG
             canPlayerMove = true;
             enemySpawnTimer = 0f;
             lastShootTime = 0f;
+            
+            // Activate Wave on reset, but reset timer
+            isWaveActive = true;
+            waveTimer = 0f;
 
             if (playerCollider != null)
             {
@@ -456,6 +491,7 @@ namespace Module.Enemy.Hose.STG
                 director.Play();
             }
         }
+
 
     }
 }

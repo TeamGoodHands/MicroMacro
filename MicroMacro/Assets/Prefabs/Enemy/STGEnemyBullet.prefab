@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5994727748046662219}
   - component: {fileID: 108253268314132678}
   - component: {fileID: 8945346361716343074}
-  - component: {fileID: 2257459131571932562}
   - component: {fileID: 9132187600939676761}
   - component: {fileID: 1536662475256304603}
+  - component: {fileID: 7575852186916048419}
   m_Layer: 9
   m_Name: STGEnemyBullet
   m_TagString: Untagged
@@ -90,27 +90,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &2257459131571932562
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6843382056696981158}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &9132187600939676761
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -156,6 +135,28 @@ MonoBehaviour:
   playVfxOnDestroy: 1
   deathVfx: {fileID: 1156063155156079160}
   vfxDuration: 1
+  rens: []
+--- !u!135 &7575852186916048419
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6843382056696981158}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.56
+  m_Center: {x: 0, y: -0.38, z: 0}
 --- !u!1 &7334734444074766577
 GameObject:
   m_ObjectHideFlags: 0

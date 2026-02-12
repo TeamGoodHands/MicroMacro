@@ -82,6 +82,7 @@ namespace Module.Enemy.Hose
                 if (CurrentIntensity > maxMultiplier)
                 {
                     CurrentIntensity = maxMultiplier;
+                    snakeHoseController.CurrentIntensity = CurrentIntensity;
                     break;
                 }
 
@@ -105,6 +106,7 @@ namespace Module.Enemy.Hose
                 if (CurrentIntensity <= 0f)
                 {
                     CurrentIntensity = 0f;
+                    snakeHoseController.CurrentIntensity = CurrentIntensity;
                     break;
                 }
 
@@ -113,6 +115,7 @@ namespace Module.Enemy.Hose
                 await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
 
+            Debug.Log("OffWater Ended", this);
             waterSplashScaler.UpdateWaterSplashState(WaterState.End);
         }
 

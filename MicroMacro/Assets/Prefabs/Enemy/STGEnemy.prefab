@@ -334,13 +334,21 @@ MonoBehaviour:
   bulletPrefab: {fileID: 6843382056696981158, guid: cde94eba75e224f429bbcb0ab39c1f74, type: 3}
   body: {fileID: 2454474363175981630}
   bulletSpeed: 4
-  shootInterval: 1
+  shootInterval: 0.8
   rotateSpeed: 90
   wayCount: 6
   bulletPoolAmount: 32
-  hp: 6
+  hp: 4
   deathVfx: {fileID: 3653481645382374689}
   vfxDuration: 0.5
+  renderers:
+  - {fileID: 4902924503630976027}
+  - {fileID: 1076334293205829916}
+  - {fileID: 6108089190806836906}
+  - {fileID: 4041613809282047947}
+  - {fileID: 2876750468502562325}
+  flashColor: {r: 0.21698111, g: 0.21698111, b: 0.21698111, a: 1}
+  flashDuration: 0.5
 --- !u!1 &9213201778359248874
 GameObject:
   m_ObjectHideFlags: 0
@@ -421,11 +429,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.073
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.3
+      value: -0.239
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -555,6 +563,11 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!137 &6108089190806836906 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3110899156225610412, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
+  m_PrefabInstance: {fileID: 6640443960720382}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1214127369487890767
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -577,11 +590,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.067
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.3
+      value: 0.265
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -711,6 +724,11 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!137 &4902924503630976027 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3110899156225610412, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
+  m_PrefabInstance: {fileID: 1214127369487890767}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6502131221207114824
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -733,11 +751,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.3
+      value: -0.231
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.042
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -835,6 +853,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 5865706503610823723}
   m_SourcePrefab: {fileID: 100100000, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
+--- !u!137 &1076334293205829916 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3110899156225610412, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
+  m_PrefabInstance: {fileID: 6502131221207114824}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6268267637982877977 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
@@ -889,11 +912,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.3
+      value: 0.235
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.071
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -991,6 +1014,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1777402481087204001}
   m_SourcePrefab: {fileID: 100100000, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
+--- !u!137 &4041613809282047947 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3110899156225610412, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
+  m_PrefabInstance: {fileID: 7837793783773000351}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6918661775411957710 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: db71531a3e1871946b54fb73687fa90e, type: 3}
