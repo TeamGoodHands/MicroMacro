@@ -75,12 +75,8 @@ namespace Module.Enemy.Hose
 
             while (!token.IsCancellationRequested)
             {
-                CurrentIntensity += waterSpeed * Time.unscaledDeltaTime;
+                CurrentIntensity += waterSpeed * Time.deltaTime;
                 CurrentIntensity = Mathf.Clamp(CurrentIntensity, 0, 1f); // maxMultiplierによる制限はBoxCast後に行うためここでは1f上限
-
-                snakeHoseController.CurrentIntensity = CurrentIntensity;
-
-                await UniTask.Yield(PlayerLoopTiming.Update, token);
 
                 // maxMultiplier制限
                 if (CurrentIntensity > maxMultiplier)
@@ -88,6 +84,10 @@ namespace Module.Enemy.Hose
                     CurrentIntensity = maxMultiplier;
                     break;
                 }
+
+                snakeHoseController.CurrentIntensity = CurrentIntensity;
+
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
         }
 
@@ -99,18 +99,18 @@ namespace Module.Enemy.Hose
 
             while (!token.IsCancellationRequested)
             {
-                CurrentIntensity -= waterSpeed * customMultiplier * Time.unscaledDeltaTime;
+                CurrentIntensity -= waterSpeed * customMultiplier * Time.deltaTime;
                 CurrentIntensity = Mathf.Clamp(CurrentIntensity, 0f, 1f);
-
-                snakeHoseController.CurrentIntensity = CurrentIntensity;
-
-                await UniTask.Yield(PlayerLoopTiming.Update, token);
 
                 if (CurrentIntensity <= 0f)
                 {
                     CurrentIntensity = 0f;
                     break;
                 }
+
+                snakeHoseController.CurrentIntensity = CurrentIntensity;
+
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
 
             waterSplashScaler.UpdateWaterSplashState(WaterState.End);
@@ -154,6 +154,5 @@ namespace Module.Enemy.Hose
                 source.DOFade(targetVolume, fadeDuration);
             }
         }
-
     }
 }
