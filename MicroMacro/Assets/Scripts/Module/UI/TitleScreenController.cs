@@ -31,13 +31,13 @@ namespace Module.UI
         {
             // データを消して新規開始
             SaveManager.Instance.DeleteSave();
-            sceneTransition.StartNormalTransition("Opening");
+            sceneTransition.StartPageFlipTransition("Opening");
         }
 
         private void OnContinueClicked()
         {
             // データはそのままで遷移
-            sceneTransition.StartNormalTransition(firstStageSceneName);
+            sceneTransition.StartPageFlipTransition(firstStageSceneName);
         }
     }
 }
