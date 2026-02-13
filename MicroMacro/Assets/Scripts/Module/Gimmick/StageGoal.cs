@@ -36,6 +36,7 @@ namespace Module.Gimmick
 
         private PlayerControllerWrapper playerController;
         private PlayerCondition playerCondition;
+        private Transform playerBody;
         private PlayBGM playBGM;
 
         private void Start()
@@ -45,6 +46,7 @@ namespace Module.Gimmick
             GameObject playerObject = GameObject.FindWithTag(Tag.Player);
             PlayerBehaviour playerBehaviour = playerObject.GetComponent<PlayerBehaviour>();
             playerController = playerBehaviour.Component.AnimatorWrapper;
+            playerBody = playerBehaviour.Component.BodyTransform;
             playerCondition = playerBehaviour.Component.Condition;
         }
 
@@ -104,6 +106,8 @@ namespace Module.Gimmick
 
             SoundManager.instance.Play("クリア短め");
 
+            playerCondition.transform.rotation = Quaternion.identity;
+            playerBody.localScale = Vector3.one;
             goalPlayableDirector.Play();
 
             await UniTask.Delay(TimeSpan.FromSeconds(6f), cancellationToken: this.GetCancellationTokenOnDestroy());

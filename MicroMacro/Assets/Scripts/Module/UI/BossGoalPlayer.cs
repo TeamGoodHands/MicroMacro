@@ -7,7 +7,8 @@ using Module.Player.Component;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Playables;
-using Module.Application.Data; 
+using Module.Application.Data;
+using Module.Player;
 
 
 namespace Module.UI
@@ -18,15 +19,19 @@ namespace Module.UI
         [SerializeField] private FadeAndSceneTransition fadeAndSceneTransition;
         [SerializeField] private CinemachineCamera clearCamera;
         [SerializeField] private bool lockPlayer;
-        
-        [Header("このステージのID (例: 1-1)")]
-        [SerializeField] private string currentStageId;
-        [Header("移動先シーン")]
-        [SerializeField] private string nextSceneName = "StageSelect";
+
+        [Header("このステージのID (例: 1-1)")] [SerializeField] private string currentStageId;
+        [Header("移動先シーン")] [SerializeField] private string nextSceneName = "StageSelect";
+
+        private Transform playerTransform;
+        private Transform playerBody;
 
 
         private void Start()
         {
+            PlayerBehaviour behaviour = GameObject.FindWithTag(Tag.Player).GetComponent<PlayerBehaviour>();
+            playerTransform = behaviour.transform;
+            playerBody = behaviour.Component.BodyTransform;
         }
 
         public async UniTaskVoid Play()
@@ -37,6 +42,8 @@ namespace Module.UI
 
             SoundManager.instance.Play("クリア長め");
 
+            playerTransform.rotation = Quaternion.identity;
+            playerBody.localScale = Vector3.one;
             playableDirector.Play();
 
             await UniTask.Delay(TimeSpan.FromSeconds(9f), cancellationToken: destroyCancellationToken);
@@ -47,7 +54,7 @@ namespace Module.UI
         private void SceneMove()
         {
             fadeAndSceneTransition.StartTransition();
-            
+
             if (SaveManager.Instance != null && !string.IsNullOrEmpty(currentStageId))
             {
                 SaveManager.Instance.SetStageCleared(currentStageId);
@@ -60,7 +67,6 @@ namespace Module.UI
             // ステージセレクト画面へ戻る
             if (fadeAndSceneTransition != null)
                 fadeAndSceneTransition.StartPageFlipTransition(nextSceneName);
-
         }
     }
 }
