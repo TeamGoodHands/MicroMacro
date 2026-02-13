@@ -143,7 +143,7 @@ namespace Module.Enemy.Hose.STG
         public void TakeDamage(int damage)
         {
             SoundManager.instance.Play("打撃1");
-            body.DOShakePosition(0.5f, 0.1f, 20, 90f, false, true);
+            body.DOShakePosition(1f, 0.1f, 20, 90f, false, true);
 
             foreach (var r in renderers)
             {

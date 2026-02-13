@@ -17,6 +17,7 @@ namespace Module.Enemy.Hose.SnakeHose.State
         private readonly SnakeHoseCondition condition;
 
         private PlayerCondition playerCondition;
+        private Rigidbody playerRigidbody;
         private PlayBGM playBgm;
 
         public SmashAttackState(SnakeHoseComponents components, SnakeHoseParameter parameter, SnakeHoseCondition condition)
@@ -25,23 +26,33 @@ namespace Module.Enemy.Hose.SnakeHose.State
             this.parameter = parameter;
             this.condition = condition;
 
-            playerCondition = GameObject.FindGameObjectWithTag(Tag.Player).GetComponent<PlayerCondition>();
+            GameObject player = GameObject.FindWithTag(Tag.Player);
+            playerRigidbody = player.GetComponent<Rigidbody>();
+            playerCondition = player.GetComponent<PlayerCondition>();
         }
 
         internal override void OnEnter()
         {
-            playerCondition.transform.position = parameter.LastAttackPosition;
-            playerCondition.transform.rotation = Quaternion.identity;
-            playerCondition.transform.GetChild(0).localScale = new Vector3(1f, 1f, 1f);
             PlayClearEffect().Forget();
         }
 
         private async UniTaskVoid PlayClearEffect()
         {
             // 仮
-            components.Effector.Disable();
+            components.RespawnArea.Disable();
             playerCondition.IsPlayerLocked = true;
+
+            await UniTask.Yield(PlayerLoopTiming.LastFixedUpdate, CancellationToken);
+
+            components.Effector.Disable();
             components.LastAttackDirector.Play();
+
+            components.Scaler.SetScaleImmediate(0, true);
+
+            playerCondition.transform.position = parameter.LastAttackPosition;
+            playerCondition.transform.rotation = Quaternion.identity;
+            playerRigidbody.rotation = Quaternion.identity;
+            playerCondition.transform.GetChild(0).localScale = new Vector3(1f, 1f, 1f);
 
             foreach (AreaSoundManager soundManager in components.AreaSoundManager)
             {
@@ -56,9 +67,6 @@ namespace Module.Enemy.Hose.SnakeHose.State
 
             playBgm = Object.FindAnyObjectByType<PlayBGM>();
             playBgm.BGMSource.DOFade(0f, 1f).SetUpdate(true);
-
-
-            // components.ClearPlayer.ClearEffect().Forget();
         }
 
         public async void FirstBeam()

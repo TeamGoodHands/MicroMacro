@@ -120,6 +120,9 @@ namespace Module.Player.State
 
         private void UpdateRotation()
         {
+            if (condition.IsPlayerLocked)
+                return;
+            
             float angle = condition.LastSideInput.x > 0f ? 0f : 180f;
             rigidbody.rotation = Quaternion.Slerp(rigidbody.rotation, Quaternion.Euler(0f, angle, 0f), parameter.RotationSpeed * Time.fixedDeltaTime);
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Module.Application.Respawn;
 using Module.Enemy.Hose.ChildSnake;
 using Module.Management;
 using Module.Scaling;
@@ -28,6 +29,7 @@ namespace Module.Enemy.Hose.SnakeHose
         [SerializeField] private CinemachineCamera nearInCamera;
         [SerializeField] private CinemachineCamera waterBallAttackCamera;
         [SerializeField] private CinemachineCamera lastAttackCamera;
+        [SerializeField] private RespawnArea respawnArea;
         [SerializeField] private AreaSoundManager[] areaSoundManager;
         [SerializeField] private ClearPlayer clearPlayer;
         [SerializeField] private ChildSnakeBehaviour[] children;
@@ -38,6 +40,7 @@ namespace Module.Enemy.Hose.SnakeHose
 
         public Transform HeadTransform => headTransform;
         public Transform SnakeHeadTransform => snakeHeadTransform;
+        public RespawnArea RespawnArea => respawnArea;
         public Transform BodyTransform => bodyTransform;
         public Transform SplineTranform => splineTransform;
         public CinemachineCamera BeamAttackCamera => beamAttackCamera;
