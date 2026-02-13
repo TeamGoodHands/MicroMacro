@@ -67,7 +67,7 @@ namespace Module.UI
             Unbind();
 
             // 再生が終わったら次のシーンへ行く
-            sceneTransition.StartNormalTransition();
+            sceneTransition.StartPageFlipTransition();
         }
 
         private async UniTaskVoid ShowSkip()

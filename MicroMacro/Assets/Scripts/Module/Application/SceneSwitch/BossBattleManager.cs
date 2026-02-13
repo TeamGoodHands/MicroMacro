@@ -14,7 +14,7 @@ namespace Module.Application.SceneSwitch
     {
         [SerializeField] private HealthStatus enemyStatus;
         [SerializeField] private BossGoalPlayer bossGoalPlayer;
-        
+
         private PlayerCondition playerCondition;
 
         private void Start()
@@ -37,7 +37,7 @@ namespace Module.Application.SceneSwitch
         {
             playerCondition.IsPlayerLocked = true;
 
-            await UniTask.Delay(TimeSpan.FromSeconds(4f));
+            await UniTask.Delay(TimeSpan.FromSeconds(4f), cancellationToken: destroyCancellationToken);
 
             bossGoalPlayer.Play().Forget();
         }

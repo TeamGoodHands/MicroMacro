@@ -529,9 +529,6 @@ public class PageFlipManager : MonoBehaviour
 
         // XとZのスケールを合わせて円の歪みを防止
         transform.localScale = new Vector3(frustumWidth, frustumHeight, frustumWidth);
-
-        Debug.Log($"FitToFrustum: pos={transform.position}, scale={transform.localScale}");
-        Debug.Log($"Camera FOV={cam.fieldOfView}, aspect={cam.aspect}, distance={distanceFromCamera}");
     }
 
     #endregion

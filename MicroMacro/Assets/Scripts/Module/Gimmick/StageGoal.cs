@@ -100,11 +100,9 @@ namespace Module.Gimmick
 
             playBGM = FindAnyObjectByType<PlayBGM>();
             playBGM.BGMSource.DOFade(0f, 0.5f);
-            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy(), ignoreTimeScale: true);
+            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy());
 
             Time.timeScale = 1f;
-
-            SoundManager.instance.Play("クリア短め");
 
             playerCondition.transform.rotation = Quaternion.identity;
             playerBody.localScale = Vector3.one;
@@ -129,6 +127,11 @@ namespace Module.Gimmick
             // ステージセレクト画面へ戻る
             if (fadeAndSceneTransition != null)
              fadeAndSceneTransition.StartPageFlipTransition("StageSelect");
+        }
+
+        private void OnDestroy()
+        {
+            Time.timeScale = 1f;
         }
     }
 }
