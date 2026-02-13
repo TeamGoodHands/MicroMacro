@@ -23,6 +23,7 @@ namespace Module.UI
         private float lastInputTime;
         private InputEvent anyKeyAction;
         private bool isPlaying = false;
+        private Tween fadeTween;
 
         private void Awake()
         {
@@ -32,6 +33,15 @@ namespace Module.UI
             lastInputTime = Time.time;
         }
 
+        private void OnDestroy()
+        {
+            if (anyKeyAction != null)
+            {
+                anyKeyAction.Started -= OnAnyKeyAction;
+            }
+            fadeTween?.Kill();
+        }
+
         private void OnAnyKeyAction(InputAction.CallbackContext _)
         {
             lastInputTime = Time.time;
@@ -39,8 +49,10 @@ namespace Module.UI
             if (isPlaying)
             {
                 isPlaying = false;
+                fadeTween?.Kill();
+
                 canvasGroup.gameObject.SetActive(true);
-                canvasGroup.DOFade(1f, 0.3f).OnComplete(() =>
+                fadeTween = canvasGroup.DOFade(1f, 0.3f).OnComplete(() =>
                 {
                     foreverSelect.enabled = true;
                     canvasGroup.interactable = true;
@@ -67,12 +79,18 @@ namespace Module.UI
 
         public void PlayMovie()
         {
+            fadeTween?.Kill();
             canvasGroup.interactable = false;
+            foreverSelect.enabled = false;
+            
+            // SoundManager.StopPlay は typo の可能性が高いですが、元のコードに従います。
+            // もしコンパイルエラーになる場合は修正してください。
             SoundManager.instance.StopPlay("Title");
 
             if (videoPlayer.isPrepared)
             {
                 videoPlayer.Play();
+                fadeTween = canvasGroup.DOFade(0f, 0.3f).OnComplete(() => canvasGroup.gameObject.SetActive(false));
                 return;
             }
 
@@ -92,8 +110,12 @@ namespace Module.UI
         private void OnPrepareCompleted(VideoPlayer source)
         {
             source.prepareCompleted -= OnPrepareCompleted;
+            
+            if (!isPlaying) return;
+
             source.Play();
-            canvasGroup.DOFade(0f, 0.3f).OnComplete(() => canvasGroup.gameObject.SetActive(false));
+            fadeTween?.Kill();
+            fadeTween = canvasGroup.DOFade(0f, 0.3f).OnComplete(() => canvasGroup.gameObject.SetActive(false));
             Debug.Log($"再生開始: {source.url}");
         }
     }

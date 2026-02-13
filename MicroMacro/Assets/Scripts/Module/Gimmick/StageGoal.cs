@@ -87,7 +87,7 @@ namespace Module.Gimmick
 
             await transform.DOScale(Vector3.zero, 0.4f).SetEase(Ease.InBack).SetUpdate(true).WithCancellation(this.GetCancellationTokenOnDestroy());
 
-            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy(), ignoreTimeScale: true);
+            await UniTask.Delay(TimeSpan.FromSeconds(1.5f), cancellationToken: this.GetCancellationTokenOnDestroy(), ignoreTimeScale: true);
 
             CinemachineCore.SoloCamera = null;
             goalCamera.Priority = 10000;
@@ -100,7 +100,7 @@ namespace Module.Gimmick
 
             playBGM = FindAnyObjectByType<PlayBGM>();
             playBGM.BGMSource.DOFade(0f, 0.5f);
-            await UniTask.Delay(TimeSpan.FromSeconds(1.6f), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(0.6f), cancellationToken: this.GetCancellationTokenOnDestroy());
 
             Time.timeScale = 1f;
 
