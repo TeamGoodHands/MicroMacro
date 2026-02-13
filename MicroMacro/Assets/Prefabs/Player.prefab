@@ -192,6 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9009806731548146617}
   - component: {fileID: 4322199970110171835}
+  - component: {fileID: 171313565272680591}
   m_Layer: 3
   m_Name: Shadow
   m_TagString: Untagged
@@ -208,7 +209,7 @@ Transform:
   m_GameObject: {fileID: 1028716138123778061}
   serializedVersion: 2
   m_LocalRotation: {x: 0.70710677, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0.126, y: -0.497, z: 0}
+  m_LocalPosition: {x: 0.09000015, y: -0.51, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -238,6 +239,23 @@ MonoBehaviour:
   m_Offset: {x: 0, y: 0, z: 3.3429105}
   m_Size: {x: 1.6, y: 1.6, z: 6.685821}
   m_FadeFactor: 0.373
+--- !u!114 &171313565272680591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028716138123778061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d656ec7f1c56aff47a509f116cd27334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2525018597414772092}
+  hasOffset: 1
+  updateAlways: 1
+  syncPosition: 1
+  syncRotation: 0
 --- !u!1 &1255548746085234772
 GameObject:
   m_ObjectHideFlags: 0
