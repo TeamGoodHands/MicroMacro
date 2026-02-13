@@ -53,11 +53,20 @@ namespace Module.Application.Respawn
             }
         }
 
+        public void Disable()
+        {
+            isWaitingRespawn = false;
+            enabled = false;
+        }
+
         private async UniTaskVoid Respawn()
         {
             isWaitingRespawn = true;
 
             await UniTask.Delay(TimeSpan.FromSeconds(respawnTime), cancellationToken: destroyCancellationToken);
+
+            if (!isWaitingRespawn)
+                return;
 
             playerCondition.IsPlayerLocked = false;
             playerTransform.localPosition = spawnPosition;

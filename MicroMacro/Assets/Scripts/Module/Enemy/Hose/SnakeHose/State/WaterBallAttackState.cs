@@ -49,7 +49,6 @@ namespace Module.Enemy.Hose.SnakeHose
             // condition.CurrentState = SnakeHoseCondition.State.BeamAttack;
             // return;
             
-            
             CancellationTokenSource source = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, damageCanceller.Token);
             PatrolRandomlyAsync(parameter.AttackHeight, source.Token).Forget();
 
