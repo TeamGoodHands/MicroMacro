@@ -55,7 +55,7 @@ namespace Module.Enemy.Hose.SnakeHose.State
 
         private async void WaitToNextStateAsync()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
+            // await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: CancellationToken);
             // condition.CurrentState = SnakeHoseCondition.State.WaterBallAttack;  
             // return;
             playerCondition.IsPlayerLocked = true;
