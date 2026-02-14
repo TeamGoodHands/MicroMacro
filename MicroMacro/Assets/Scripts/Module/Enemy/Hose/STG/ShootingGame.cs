@@ -266,7 +266,7 @@ namespace Module.Enemy.Hose.STG
                     bulletPool.Return(bulletObj);
                 };
                 bullet.Shoot(spawnPoint.forward * bulletSpeed, gameObject);
-                SoundManager.instance.Play("水球発射", 0.3f);
+                SoundManager.instance.Play("水球発射", 0.6f);
             }
         }
 

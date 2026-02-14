@@ -68,6 +68,9 @@ namespace Module.Player.State
 
         internal override void UpdatePhysics()
         {
+            if (condition.IsPlayerLocked)
+                return;
+            
             Vector2 velocity = rigidbody.linearVelocity;
             Vector2 externalVelocity = condition.ExternalForce;
 

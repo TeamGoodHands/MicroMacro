@@ -30,6 +30,7 @@ namespace Module.Player.State
             animatorWrapper.Speed = 0f;
             animatorWrapper.IsJumping = false;
             animatorWrapper.IsGround = true;
+            condition.Direction = condition.LastSideInput;
         }
 
         internal override void OnExit()

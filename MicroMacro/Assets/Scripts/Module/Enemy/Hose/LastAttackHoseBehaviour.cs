@@ -115,7 +115,6 @@ namespace Module.Enemy.Hose
                 await UniTask.Yield(PlayerLoopTiming.Update, token);
             }
 
-            Debug.Log("OffWater Ended", this);
             waterSplashScaler.UpdateWaterSplashState(WaterState.End);
         }
 
