@@ -92,18 +92,17 @@ namespace Module.Gimmick
 
             try
             {
-                // レイヤー切り替えて衝突回避
-                gameObject.layer = ignoreLayerIndex;
+                // 親も子も一括でレイヤーを変更して衝突回避
+                SetLayerRecursively(gameObject, ignoreLayerIndex);
                 
-                rb.isKinematic = false;
+                //  物理演算の悪戯を防ぐため、Kinematicを有効にする
+                rb.isKinematic = true;
                 hitBox.SetActive(false);
 
                 // --- 木の実を食べる ---
                 nuts.SetActive(false);
                 warmAnim.SetTrigger("EatNuts");
                 await WaitForAnimation(warmAnim, "EatNuts", 0, token);
-
-                //  transform.localScale = new Vector3(1f, 1f, 1f); // スケールリセット
 
                 playerBehaviour.Component.Condition.IsPlayerLocked = true;
 
@@ -117,7 +116,6 @@ namespace Module.Gimmick
                 await MoveRoutine(target, 0.3f, token);
 
                 await MoveToDoorAsync(startPoint.transform.position, token);
-
 
                 // 奥行を元に戻す
                 Vector3 currentPos = transform.position;
@@ -142,7 +140,10 @@ namespace Module.Gimmick
                 if (rb != null && gameObject != null)
                 {
                     rb.linearVelocity = Vector3.zero;
-                    gameObject.layer = originalLayer;
+                    
+                    // 終わったらすべての子オブジェクト含めてレイヤーを元に戻す
+                    SetLayerRecursively(gameObject, originalLayer);
+                    
                     rb.isKinematic = true;
                 }
 
@@ -192,8 +193,9 @@ namespace Module.Gimmick
             while (true)
             {
                 Vector3 flatTarget = new Vector3(target.x, target.y, transform.position.z);
+                float currentDistance = Vector3.Distance(transform.position, flatTarget);
 
-                if (Vector3.Distance(transform.position, flatTarget) <= stopDistance)
+                if (currentDistance <= stopDistance)
                 {
                     break;
                 }
@@ -206,34 +208,25 @@ namespace Module.Gimmick
                 }
 
                 Vector3 direction = (flatTarget - transform.position).normalized;
-                float currentDistance = Vector3.Distance(transform.position, flatTarget);
 
                 if (duration > 0f)
                 {
-                    // --- 時間指定モード --- 
-                    // ゼロ除算対策
+                    // 時間指定
                     float remainingTime = Mathf.Max(duration, Time.fixedDeltaTime);
-
-                    // 残り距離 / 残り時間 で速度を出す
                     float speed = currentDistance / remainingTime;
 
-                    // AddForceだと加速し続けてタイミングが合わなくなる     
-                    rb.linearVelocity = direction * speed;
+                    // 変更点: MovePositionを使ってKinematicな移動を行う
+                    Vector3 newPosition = transform.position + direction * speed * Time.fixedDeltaTime;
+                    rb.MovePosition(newPosition);
 
-                    // タイマーを減算
                     duration -= Time.fixedDeltaTime;
                 }
                 else
                 {
-                    // --- 通常移動モード ---
-                    rb.AddForce(direction * defaultMoveSpeed);
-
-                    // 速度（velocity）の大きさ（magnitude）が、制限速度を超えていたら
-                    if (rb.linearVelocity.magnitude > defaultMoveSpeed)
-                    {
-                        // 方向はそのまま、制限速度（defaultMoveSpeed）に抑える
-                        rb.linearVelocity = rb.linearVelocity.normalized * defaultMoveSpeed;
-                    }
+                    // 通常移動
+                    // AddForceをやめ、defaultMoveSpeedに基づいて等速移動させる
+                    Vector3 newPosition = transform.position + direction * defaultMoveSpeed * Time.fixedDeltaTime;
+                    rb.MovePosition(newPosition);
                 }
 
                 await UniTask.WaitForFixedUpdate(cancellationToken: token);
@@ -291,6 +284,21 @@ namespace Module.Gimmick
                 var info = anim.GetCurrentAnimatorStateInfo(layerIndex);
                 return info.IsName(stateName) && info.normalizedTime >= 1.0f;
             }, cancellationToken: token);
+        }
+        
+        /// <summary>
+        /// 指定したオブジェクトと、そのすべての子オブジェクトのレイヤーを一括で変更します。
+        /// </summary>
+        private void SetLayerRecursively(GameObject obj, int newLayer)
+        {
+            if (obj == null) return;
+            
+            obj.layer = newLayer;
+            
+            foreach (Transform child in obj.transform)
+            {
+                SetLayerRecursively(child.gameObject, newLayer);
+            }
         }
     }
 }
