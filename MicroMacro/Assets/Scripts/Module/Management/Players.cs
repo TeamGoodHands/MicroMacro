@@ -23,7 +23,7 @@ namespace Module.Management
 
         private void OnPlayerDeath()
         {
-            sceneTransition.StartPageFlipTransition("StageSelect");
+            sceneTransition.StartTransitionSame();
         }
     }
 }
