@@ -33,6 +33,7 @@ namespace Module.Gimmick
         [SerializeField] private Collider bouncerCollider;
         [SerializeField] private Rigidbody rigidBody;
         [SerializeField] private CinemachineCamera balloonCamera;
+        [SerializeField] private CinemachineCamera forceCamera;
         [SerializeField] private VisualEffect fluffSplash;
         [SerializeField] private GameObject[] fluffObjects;
         [SerializeField] private BalloonControllerWrapper balloonControllerWrapper;
@@ -78,6 +79,11 @@ namespace Module.Gimmick
             if (!isDead)
             {
                 balloonCamera.Priority = 0;
+                
+                if (forceCamera != null)
+                {
+                    forceCamera.Priority = 1000;    
+                }
             }
 
             SoundManager.instance.StopPlay("風の音");
