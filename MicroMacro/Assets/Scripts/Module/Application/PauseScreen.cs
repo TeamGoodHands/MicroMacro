@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Module.Application
@@ -20,7 +21,9 @@ namespace Module.Application
         [SerializeField] private Button restartButton;
         [SerializeField] private Button stageSelectButton;
         [SerializeField] private Button titleButton;
-        [SerializeField] private Button feedbackButton;
+        
+        [SerializeField] private Button VolumeSettingsButton; 
+        [SerializeField] private VolumeSettingsScreen volumeSettingsScreen;
 
         private bool isPaused = false;
         private bool isTransitioning = false;
@@ -40,7 +43,8 @@ namespace Module.Application
             restartButton.onClick.AddListener(RestartLevel);
             stageSelectButton.onClick.AddListener(ReturnToStageSelect);
             titleButton.onClick.AddListener(ReturnToTitle);
-            feedbackButton.onClick.AddListener(Feedback);
+            
+            VolumeSettingsButton.onClick.AddListener(OpenVolumeSettings);
 
             pauseScreenUI.SetActive(false);
 
@@ -61,7 +65,7 @@ namespace Module.Application
             restartButton.onClick.RemoveListener(RestartLevel);
             stageSelectButton.onClick.RemoveListener(ReturnToStageSelect);
             titleButton.onClick.RemoveListener(ReturnToTitle);
-            feedbackButton.onClick.RemoveListener(Feedback);
+            VolumeSettingsButton.onClick.RemoveListener(OpenVolumeSettings);
         }
 
         public bool IsPaused
@@ -70,10 +74,8 @@ namespace Module.Application
             private set { isPaused = value; }
         }
 
-        // InputSystemのコールバック
         public void OnTogglePause(InputAction.CallbackContext _)
         {
-            // 遷移中は操作を受け付けない
             if (isTransitioning) return;
 
             if (isPaused)
@@ -104,6 +106,10 @@ namespace Module.Application
         {
             if (isTransitioning) return;
 
+            // ★注意点: ポーズ中に設定画面でBGM音量を変更した場合、元のdefaultVolumeに戻すと
+            // 変更した音量が無効になってしまうため、再取得するようにしています。
+            audioMixer.GetFloat("BGM", out defaultVolume); 
+
             bgmFadeTween?.Kill();
             bgmFadeTween = audioMixer.DOFadeVolume("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume), 1f).SetUpdate(true);
 
@@ -116,7 +122,7 @@ namespace Module.Application
 
         public void ReturnToStageSelect()
         {
-            if (isTransitioning) return; // 連打防止
+            if (isTransitioning) return; 
             isTransitioning = true;
 
             bgmFadeTween?.Kill();
@@ -150,16 +156,20 @@ namespace Module.Application
             sceneManager.StartNormalTransition(SceneManager.GetActiveScene().name);
         }
 
-        public void Feedback()
+       
+        public void OpenVolumeSettings()
         {
             if (isTransitioning) return;
-            isTransitioning = true;
-
-            bgmFadeTween?.Kill();
-            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
-
-            Time.timeScale = 1f;
-            sceneManager.StartNormalTransition("Feedback");
+            
+            if (volumeSettingsScreen != null)
+            {
+                // 決定音などを鳴らす場合はここに追加
+                volumeSettingsScreen.OpenScreen();
+            }
+            else
+            {
+                Debug.LogWarning("VolumeSettingsScreen がアサインされていません！");
+            }
         }
     }
 }
