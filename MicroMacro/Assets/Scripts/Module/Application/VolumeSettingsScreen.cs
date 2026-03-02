@@ -5,6 +5,7 @@ using DG.Tweening;
 
 namespace Module.Application
 {
+    // 上手く機能しなかったため未採用
     public class VolumeSettingsScreen : MonoBehaviour
     {
         [Header("UI References")]
@@ -39,6 +40,19 @@ namespace Module.Application
             seSlider.onValueChanged.AddListener(SetSeVolume);
         }
 
+        // ▼ 追加：開始時にスライダーの値をMixerに反映し、画面を閉じる
+        private void Start()
+        {
+            SetMasterVolume(masterSlider.value);
+            SetBgmVolume(bgmSlider.value);
+            SetSeVolume(seSlider.value);
+
+            if (volumeScreenUI != null)
+            {
+                volumeScreenUI.SetActive(false);
+            }
+        }
+
         private void OnDestroy()
         {
             closeButton.onClick.RemoveListener(CloseScreen);
@@ -56,21 +70,18 @@ namespace Module.Application
 
         public void OpenScreen()
         {
-            // UIのGameObject自体をアクティブにする
             volumeScreenUI.SetActive(true);
             
             SyncSliderWithMixer(masterSlider, masterParameterName);
             SyncSliderWithMixer(bgmSlider, bgmParameterName);
             SyncSliderWithMixer(seSlider, seParameterName);
 
-            // スケールアニメーションでポップアップ表示
             windowRect.localScale = Vector3.one * 0.8f;
             windowRect.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack).SetUpdate(true);
         }
 
         public void CloseScreen()
         {
-            // 少し縮小するアニメーションの後に非アクティブにする
             windowRect.DOScale(Vector3.one * 0.8f, 0.2f).SetUpdate(true).OnComplete(() => 
             {
                 volumeScreenUI.SetActive(false);
