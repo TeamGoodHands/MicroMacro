@@ -1,6 +1,4 @@
 ﻿using CoreModule.Input;
-using CoreModule.Utility;
-using DG.Tweening;
 using Module.Application.SceneSwitch;
 using Module.Management;
 using UnityEngine;
@@ -26,15 +24,15 @@ namespace Module.Application
 
         [Header("Volume Sliders")]
         [SerializeField] private Slider masterSlider;
-        [SerializeField] private string masterParameterName = "Master";
+        [SerializeField] private string masterParameterName = VolumeManager.ParamMaster;
         
         [Space(10)]
         [SerializeField] private Slider bgmSlider;
-        [SerializeField] private string bgmParameterName = "BGM";
+        [SerializeField] private string bgmParameterName = VolumeManager.ParamBgm;
         
         [Space(10)]
         [SerializeField] private Slider seSlider;
-        [SerializeField] private string seParameterName = "SE";
+        [SerializeField] private string seParameterName = VolumeManager.ParamSe;
 
         private bool isPaused = false;
         private bool isTransitioning = false;
@@ -59,14 +57,14 @@ namespace Module.Application
             SetupSlider(bgmSlider);
             SetupSlider(seSlider);
 
+            // 保存されている音量を読み込み、スライダーに反映してからリスナーを登録する
+            masterSlider.value = VolumeManager.GetVolume(masterParameterName);
+            bgmSlider.value = VolumeManager.GetVolume(bgmParameterName);
+            seSlider.value = VolumeManager.GetVolume(seParameterName);
+
             masterSlider.onValueChanged.AddListener(SetMasterVolume);
             bgmSlider.onValueChanged.AddListener(SetBgmVolume);
             seSlider.onValueChanged.AddListener(SetSeVolume);
-
-            // 開始時にスライダーの値をAudioMixerに反映（デフォルト音量の適用）
-            SetMasterVolume(masterSlider.value);
-            SetBgmVolume(bgmSlider.value);
-            SetSeVolume(seSlider.value);
 
             pauseScreenUI.SetActive(false);
 
@@ -117,10 +115,11 @@ namespace Module.Application
         {
             if (isTransitioning) return;
 
-            // ポーズ画面を開く直前に、現在のAudioMixerの値をスライダーの見た目に同期させる
-            SyncSliderWithMixer(masterSlider, masterParameterName);
-            SyncSliderWithMixer(bgmSlider, bgmParameterName);
-            SyncSliderWithMixer(seSlider, seParameterName);
+            // ポーズ画面を開く直前に、現在の設定値をスライダーの見た目に同期させる
+            // (タイトル画面などで変更された値が反映されるようにVolumeManagerから取得)
+            masterSlider.value = VolumeManager.GetVolume(masterParameterName);
+            bgmSlider.value = VolumeManager.GetVolume(bgmParameterName);
+            seSlider.value = VolumeManager.GetVolume(seParameterName);
 
             playerInput.Disable();
             pauseScreenUI.SetActive(true);
@@ -171,28 +170,9 @@ namespace Module.Application
             slider.maxValue = 1f;
         }
 
-        private void SyncSliderWithMixer(Slider slider, string parameterName)
-        {
-            if (slider == null) return;
-            if (audioMixer.GetFloat(parameterName, out float currentDb))
-            {
-                // dBからリニア値に戻してスライダーに適用
-                slider.value = Mathf.Pow(10f, currentDb / 20f);
-            }
-        }
-
-        private void SetMasterVolume(float linearVolume) => SetVolume(masterParameterName, linearVolume);
-        private void SetBgmVolume(float linearVolume) => SetVolume(bgmParameterName, linearVolume);
-        private void SetSeVolume(float linearVolume) => SetVolume(seParameterName, linearVolume);
-
-        private void SetVolume(string parameterName, float linearVolume)
-        {
-            // リニア値からdBに変換してAudioMixerに適用
-            float decibel = 20.0f * Mathf.Log10(linearVolume);
-            audioMixer.SetFloat(parameterName, decibel);
-            
-            PlayerPrefs.SetFloat("Volume_" + parameterName, linearVolume);
-            PlayerPrefs.Save();
-        }
+        // 実際の変換・設定・保存処理は全て VolumeManager に任せる
+        private void SetMasterVolume(float linearVolume) => VolumeManager.SetVolume(audioMixer, masterParameterName, linearVolume);
+        private void SetBgmVolume(float linearVolume) => VolumeManager.SetVolume(audioMixer, bgmParameterName, linearVolume);
+        private void SetSeVolume(float linearVolume) => VolumeManager.SetVolume(audioMixer, seParameterName, linearVolume);
     }
 }
