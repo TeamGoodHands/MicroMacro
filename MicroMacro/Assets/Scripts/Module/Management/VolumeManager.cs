@@ -22,11 +22,9 @@ namespace Module.Management
         public static void SetVolume(AudioMixer mixer, string paramName, float linearVolume)
         {
             if (mixer == null) return;
-
-            // リニア値(0~1)をデシベル(-80~0)に変換して適用
-            // Mathf.Log10(0)は-Infinityになってしまうため、最小値を0.0001fに制限
-            float clampedLinear = Mathf.Clamp(linearVolume, 0.0001f, 1f);
-            float decibel = 20.0f * Mathf.Log10(clampedLinear);
+            
+            float clampedLinear = Mathf.Clamp01(linearVolume);  
+            float decibel = clampedLinear <= 0f ? -80f : 20.0f * Mathf.Log10(clampedLinear);
             
             mixer.SetFloat(paramName, decibel);
             

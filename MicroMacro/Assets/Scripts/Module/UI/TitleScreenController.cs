@@ -23,6 +23,7 @@ namespace Module.UI
 
             // セーブデータがなければ「続きから」を押せなくする
             bool hasSave = false;
+            continueButton.interactable = false;
             if (SaveManager.Instance != null)
             {
                 hasSave = SaveManager.Instance.HasSaveData();
@@ -44,10 +45,12 @@ namespace Module.UI
         private void OnNewGameClicked()
         {
             // データを消して新規開始
-            if (SaveManager.Instance != null)
+            if (SaveManager.Instance == null)
             {
-                SaveManager.Instance.DeleteSave();
+                Debug.LogError("SaveManager is not initialized. Abort New Game transition.");
+                return;
             }
+            SaveManager.Instance.DeleteSave();
             sceneTransition.StartPageFlipTransition("Opening");
         }
 

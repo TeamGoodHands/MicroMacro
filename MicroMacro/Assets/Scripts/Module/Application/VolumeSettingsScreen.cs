@@ -104,7 +104,7 @@ namespace Module.Application
         private void SetVolume(string parameterName, float linearVolume)
         {
             float decibel = 20.0f * Mathf.Log10(linearVolume);
-            audioMixer.SetFloat(parameterName, decibel);
+            Module.Management.VolumeManager.SetVolume(audioMixer, parameterName, linearVolume);
         }
     }
 }
