@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using Module.Management;
 
 namespace Module.UI
 {
@@ -56,6 +57,8 @@ namespace Module.UI
             scaleTween = targetRect.DOScale(defaultScale * targetScale, duration)
                 .SetEase(Ease.OutBack)
                 .SetUpdate(true);
+            
+            SoundManager.instance.Play("ステージ選択");
         }
 
         public void OnDeselect(BaseEventData eventData)
