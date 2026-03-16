@@ -1,6 +1,4 @@
 ﻿using CoreModule.Input;
-using CoreModule.Utility;
-using DG.Tweening;
 using Module.Application.SceneSwitch;
 using Module.Management;
 using UnityEngine;
@@ -13,21 +11,33 @@ namespace Module.Application
 {
     public class PauseScreen : MonoBehaviour
     {
+        [Header("System References")]
         [SerializeField] private FadeAndSceneTransition sceneManager;
         [SerializeField] private GameObject pauseScreenUI;
         [SerializeField] private AudioMixer audioMixer;
+        
+        [Header("Menu Buttons")]
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button stageSelectButton;
         [SerializeField] private Button titleButton;
-        [SerializeField] private Button feedbackButton;
+
+        [Header("Volume Sliders")]
+        [SerializeField] private Slider masterSlider;
+        [SerializeField] private string masterParameterName = VolumeManager.ParamMaster;
+        
+        [Space(10)]
+        [SerializeField] private Slider bgmSlider;
+        [SerializeField] private string bgmParameterName = VolumeManager.ParamBgm;
+        
+        [Space(10)]
+        [SerializeField] private Slider seSlider;
+        [SerializeField] private string seParameterName = VolumeManager.ParamSe;
 
         private bool isPaused = false;
         private bool isTransitioning = false;
         private InputEvent pauseEvent;
         private InputActionMap playerInput;
-        private Tween bgmFadeTween;
-        private float defaultVolume;
 
         private void Start()
         {
@@ -36,32 +46,49 @@ namespace Module.Application
                 sceneManager = FindAnyObjectByType<FadeAndSceneTransition>();
             }
 
+            // ボタンのリスナー登録
             resumeButton.onClick.AddListener(ResumeGame);
             restartButton.onClick.AddListener(RestartLevel);
             stageSelectButton.onClick.AddListener(ReturnToStageSelect);
             titleButton.onClick.AddListener(ReturnToTitle);
-            feedbackButton.onClick.AddListener(Feedback);
+
+            // スライダーの初期化
+            SetupSlider(masterSlider);
+            SetupSlider(bgmSlider);
+            SetupSlider(seSlider);
+
+            // 保存されている音量を読み込み、スライダーに反映してからリスナーを登録する
+            masterSlider.value = VolumeManager.GetVolume(masterParameterName);
+            bgmSlider.value = VolumeManager.GetVolume(bgmParameterName);
+            seSlider.value = VolumeManager.GetVolume(seParameterName);
+
+            masterSlider.onValueChanged.AddListener(SetMasterVolume);
+            bgmSlider.onValueChanged.AddListener(SetBgmVolume);
+            seSlider.onValueChanged.AddListener(SetSeVolume);
 
             pauseScreenUI.SetActive(false);
 
+            // 入力設定
             pauseEvent = InputProvider.CreateEvent(ActionGuid.UI.Pause);
             playerInput = InputProvider.GetActionMap(ActionGuid.Player.MapId);
-
             pauseEvent.Started += OnTogglePause;
-
-            audioMixer.GetFloat("BGM", out defaultVolume);
         }
 
         private void OnDestroy()
         {
-            if (pauseEvent == null) return;
-
-            pauseEvent.Started -= OnTogglePause;
+            if (pauseEvent != null)
+            {
+                pauseEvent.Started -= OnTogglePause;
+            }
+            
             resumeButton.onClick.RemoveListener(ResumeGame);
             restartButton.onClick.RemoveListener(RestartLevel);
             stageSelectButton.onClick.RemoveListener(ReturnToStageSelect);
             titleButton.onClick.RemoveListener(ReturnToTitle);
-            feedbackButton.onClick.RemoveListener(Feedback);
+
+            masterSlider.onValueChanged.RemoveListener(SetMasterVolume);
+            bgmSlider.onValueChanged.RemoveListener(SetBgmVolume);
+            seSlider.onValueChanged.RemoveListener(SetSeVolume);
         }
 
         public bool IsPaused
@@ -70,10 +97,8 @@ namespace Module.Application
             private set { isPaused = value; }
         }
 
-        // InputSystemのコールバック
         public void OnTogglePause(InputAction.CallbackContext _)
         {
-            // 遷移中は操作を受け付けない
             if (isTransitioning) return;
 
             if (isPaused)
@@ -90,8 +115,11 @@ namespace Module.Application
         {
             if (isTransitioning) return;
 
-            bgmFadeTween?.Kill();
-            bgmFadeTween = audioMixer.DOFadeVolume("BGM", 0.5f, 1f).SetUpdate(true);
+            // ポーズ画面を開く直前に、現在の設定値をスライダーの見た目に同期させる
+            // (タイトル画面などで変更された値が反映されるようにVolumeManagerから取得)
+            masterSlider.value = VolumeManager.GetVolume(masterParameterName);
+            bgmSlider.value = VolumeManager.GetVolume(bgmParameterName);
+            seSlider.value = VolumeManager.GetVolume(seParameterName);
 
             playerInput.Disable();
             pauseScreenUI.SetActive(true);
@@ -104,9 +132,6 @@ namespace Module.Application
         {
             if (isTransitioning) return;
 
-            bgmFadeTween?.Kill();
-            bgmFadeTween = audioMixer.DOFadeVolume("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume), 1f).SetUpdate(true);
-
             pauseScreenUI.SetActive(false);
             SoundManager.instance.Play("ポーズ閉じる");
             playerInput.Enable();
@@ -116,12 +141,8 @@ namespace Module.Application
 
         public void ReturnToStageSelect()
         {
-            if (isTransitioning) return; // 連打防止
+            if (isTransitioning) return; 
             isTransitioning = true;
-
-            bgmFadeTween?.Kill();
-            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
-
             Time.timeScale = 1f;
             sceneManager.StartNormalTransition("StageSelect");
         }
@@ -130,10 +151,6 @@ namespace Module.Application
         {
             if (isTransitioning) return;
             isTransitioning = true;
-
-            bgmFadeTween?.Kill();
-            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
-
             Time.timeScale = 1f;
             sceneManager.StartNormalTransition("Title");
         }
@@ -142,24 +159,20 @@ namespace Module.Application
         {
             if (isTransitioning) return;
             isTransitioning = true;
-
-            bgmFadeTween?.Kill();
-            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
-
             Time.timeScale = 1f;
             sceneManager.StartNormalTransition(SceneManager.GetActiveScene().name);
         }
 
-        public void Feedback()
+        private void SetupSlider(Slider slider)
         {
-            if (isTransitioning) return;
-            isTransitioning = true;
-
-            bgmFadeTween?.Kill();
-            audioMixer.SetFloat("BGM", AudioMixerExtension.ConvertDecibelToLinear(defaultVolume));
-
-            Time.timeScale = 1f;
-            sceneManager.StartNormalTransition("Feedback");
+            if (slider == null) return;
+            slider.minValue = 0.0001f;
+            slider.maxValue = 1f;
         }
+
+        // 実際の変換・設定・保存処理は全て VolumeManager に任せる
+        private void SetMasterVolume(float linearVolume) => VolumeManager.SetVolume(audioMixer, masterParameterName, linearVolume);
+        private void SetBgmVolume(float linearVolume) => VolumeManager.SetVolume(audioMixer, bgmParameterName, linearVolume);
+        private void SetSeVolume(float linearVolume) => VolumeManager.SetVolume(audioMixer, seParameterName, linearVolume);
     }
 }
